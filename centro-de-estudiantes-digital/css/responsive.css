@@ -1,0 +1,8 @@
+/*=====================MEDIA_QUERIES=====================*/
+/* ── RESPONSIVE HELPERS ─────────────────────────────────────────────── */
+@media (max-width: 575px) {
+    .ce-hero { padding: 3rem 0 2.5rem; }
+    .ce-hero h1 { font-size: 1.8rem; }
+    .ce-stats .divider-v { display: none; }
+    .ce-hero-deco { display: none; }
+}

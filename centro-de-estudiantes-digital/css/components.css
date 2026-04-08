@@ -1,0 +1,362 @@
+/*=====================COMPONENTES_REUTILIZABLES=====================*/
+
+/* ── NAVBAR ─────────────────────────────────────────────────────────── */
+.ce-navbar {
+    background: var(--ce-navy);
+    padding: 0.75rem 0;
+    border-bottom: 4px solid var(--ce-amber);
+}
+.ce-navbar .brand-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ce-white);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ce-navbar .brand-text svg { flex-shrink: 0; }
+.ce-navbar .btn-login {
+    background: var(--ce-amber);
+    color: var(--ce-navy);
+    font-weight: 700;
+    font-size: 0.875rem;
+    border: 2px solid transparent;
+    padding: 0.45rem 1.25rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: background 0.18s, color 0.18s;
+    text-decoration: none;
+}
+.ce-navbar .btn-login:hover,
+.ce-navbar .btn-login:focus {
+    background: var(--ce-amber-dk);
+    color: var(--ce-navy);
+    outline: 3px solid var(--ce-white);
+    outline-offset: 2px;
+}
+
+/* ── HERO ────────────────────────────────────────────────────────────── */
+.ce-hero {
+    background: var(--ce-navy);
+    color: var(--ce-white);
+    padding: 4.5rem 0 3.5rem;
+    position: relative;
+    overflow: hidden;
+}
+/* Patrón geométrico de fondo — no depende del color para transmitir info */
+.ce-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+    repeating-linear-gradient(
+        45deg,
+        rgba(230,168,23,0.07) 0px,
+        rgba(230,168,23,0.07) 1px,
+        transparent 1px,
+        transparent 24px
+    );
+    pointer-events: none;
+}
+.ce-hero .label-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(230,168,23,0.18);
+    border: 1px solid var(--ce-amber);
+    color: var(--ce-amber);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.85rem;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+}
+.ce-hero h1 {
+    font-family: 'Source Serif 4', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+}
+.ce-hero h1 em {
+    font-style: italic;
+    color: var(--ce-amber);
+}
+.ce-hero p {
+    font-size: 1.08rem;
+    color: rgba(255,255,255,0.85);
+    max-width: 520px;
+    margin-bottom: 2rem;
+}
+.ce-hero .btn-primary-ce {
+    background: var(--ce-amber);
+    color: var(--ce-navy);
+    font-weight: 700;
+    border: 2px solid var(--ce-amber);
+    padding: 0.65rem 1.75rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.18s;
+}
+.ce-hero .btn-primary-ce:hover {
+    background: var(--ce-amber-dk);
+    border-color: var(--ce-amber-dk);
+}
+.ce-hero .btn-outline-ce {
+    background: transparent;
+    color: var(--ce-white);
+    border: 2px solid rgba(255,255,255,0.55);
+    padding: 0.65rem 1.75rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.18s;
+}
+.ce-hero .btn-outline-ce:hover {
+    border-color: var(--ce-white);
+}
+
+/* Ilustración decorativa hero */
+.ce-hero-deco {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.9;
+}
+
+
+/* BOTONES */
+/*.btn-primary-ce {
+  background: var(--ce-amber);
+  color: var(--ce-navy);
+  padding: 0.65rem 1.75rem;
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.btn-outline-ce {
+  border: 2px solid rgba(255,255,255,0.55);
+  color: white;
+  padding: 0.65rem 1.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+}*/
+
+/* ── STATS BAR ───────────────────────────────────────────────────────── */
+.ce-stats {
+    background: var(--ce-amber);
+    color: var(--ce-navy);
+    padding: 1.2rem 0;
+}
+.ce-stats .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.ce-stats .stat-num {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.ce-stats .stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.75;
+}
+.ce-stats .stat-icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    background: rgba(0,51,102,0.12);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.divider-v {
+    width: 1px;
+    height: 36px;
+    background: rgba(0,51,102,0.2);
+}
+
+/* ── CARDS ───────────────────────────────────────────────────────────── */
+.ce-card {
+    border: 1.5px solid var(--ce-border);
+    border-radius: 10px;
+    background: var(--ce-white);
+    padding: 1.5rem;
+    height: 100%;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+.ce-card:hover {
+    border-color: var(--ce-navy);
+    box-shadow: 0 4px 20px rgba(0,51,102,0.1);
+}
+.ce-card .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--ce-fog);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    border: 1.5px solid var(--ce-border);
+}
+/* Identificación por forma además del color */
+.ce-card.shape-circle .card-icon  { border-radius: 50%; }
+.ce-card.shape-diamond .card-icon { border-radius: 0; transform: rotate(45deg); }
+.ce-card.shape-diamond .card-icon svg { transform: rotate(-45deg); }
+.ce-card.shape-rect .card-icon   { border-radius: 4px; }
+
+.ce-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ce-navy);
+    margin-bottom: 0.4rem;
+}
+.ce-card p {
+    font-size: 0.9rem;
+    color: #4A5A6A;
+    margin-bottom: 0;
+}
+.ce-card .card-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.65rem;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+}
+/* Patrones de relleno diferenciados (no solo color) */
+.tag-events  { background: #E8F0FB; color: #003366; border-left: 3px solid #003366; }
+.tag-welfare { background: #FFF3D0; color: #7A5200; border-left: 3px solid #E6A817; }
+.tag-acad    { background: #EAFBF2; color: #1A5E36; border-left: 3px solid #1A9E56; border-style: solid dashed solid solid; }
+.tag-sports  { background: #F5F0FF; color: #3A1580; border-left: 3px dotted #7B5DE8; }
+
+/* ── COMUNICADO ──────────────────────────────────────────────────────── */
+.ce-comunicado {
+    background: var(--ce-fog);
+    border-radius: 12px;
+    padding: 2.5rem;
+    border-left: 5px solid var(--ce-navy);
+    /* borde izquierdo como indicador visual adicional */
+}
+.ce-comunicado blockquote {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.18rem;
+    font-style: italic;
+    color: var(--ce-slate);
+    line-height: 1.8;
+    margin: 0 0 1.2rem;
+    border: none;
+    padding: 0;
+}
+.ce-comunicado .author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.ce-comunicado .author-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--ce-navy);
+    color: var(--ce-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.ce-comunicado .author-info strong {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ce-navy);
+}
+.ce-comunicado .author-info span {
+    font-size: 0.8rem;
+    color: #4A5A6A;
+}
+
+/* ── NOTICIAS ────────────────────────────────────────────────────────── */
+.news-item {
+    display: flex;
+    gap: 16px;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--ce-border);
+}
+.news-item:last-child { border-bottom: none; }
+.news-badge {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: var(--ce-navy);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--ce-white);
+    line-height: 1;
+}
+.news-badge .day  { font-size: 1rem; font-weight: 700; }
+.news-badge .mon  { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; }
+.news-item h4     { font-size: 0.9rem; font-weight: 700; color: var(--ce-navy); margin-bottom: 0.2rem; }
+.news-item p      { font-size: 0.82rem; color: #4A5A6A; margin: 0; }
+
+/* ── FOOTER ──────────────────────────────────────────────────────────── */
+.ce-footer {
+    background: var(--ce-slate);
+    color: rgba(255,255,255,0.75);
+    padding: 2.5rem 0 1.5rem;
+    font-size: 0.85rem;
+}
+.ce-footer .footer-brand {
+    color: var(--ce-white);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+.ce-footer a {
+    color: var(--ce-amber);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.ce-footer hr {
+    border-color: rgba(255,255,255,0.12);
+    margin: 1.5rem 0 1rem;
+}
+.ce-footer .accessibility-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(230,168,23,0.12);
+    border: 1px solid rgba(230,168,23,0.4);
+    color: var(--ce-amber);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+}
