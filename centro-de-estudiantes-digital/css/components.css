@@ -139,13 +139,27 @@
 
 
 /* BOTONES */
-/*.btn-primary-ce {
-  background: var(--ce-amber);
-  color: var(--ce-navy);
-  padding: 0.65rem 1.75rem;
-  border-radius: 6px;
-  font-weight: 700;
-  text-decoration: none;
+
+.btn-primary-ce {
+    background: var(--ce-amber);
+    color: var(--ce-navy);
+    font-weight: 700;
+    border: 2px solid var(--ce-amber);
+    padding: 0.65rem 1.75rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.18s;
+    cursor: pointer;
+}
+
+.btn-primary-ce:hover {
+    background: var(--ce-amber-dk);
+    border-color: var(--ce-amber-dk);
 }
 
 .btn-outline-ce {
@@ -154,7 +168,7 @@
   padding: 0.65rem 1.75rem;
   border-radius: 6px;
   text-decoration: none;
-}*/
+}
 
 /* ── STATS BAR ───────────────────────────────────────────────────────── */
 .ce-stats {
@@ -203,6 +217,14 @@
     padding: 1.5rem;
     height: 100%;
     transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+/* ── CARD LOGIN FORM ── */
+.ce-card-form {
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 4px 20px rgba(0,51,102,0.05);
 }
 .ce-card:hover {
     border-color: var(--ce-navy);
@@ -253,6 +275,53 @@
 .tag-welfare { background: #FFF3D0; color: #7A5200; border-left: 3px solid #E6A817; }
 .tag-acad    { background: #EAFBF2; color: #1A5E36; border-left: 3px solid #1A9E56; border-style: solid dashed solid solid; }
 .tag-sports  { background: #F5F0FF; color: #3A1580; border-left: 3px dotted #7B5DE8; }
+
+
+
+
+/* ── Estilos específicos para el formulario de login ── */
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ce-navy);
+    margin-bottom: 0.4rem;
+}
+
+.ce-input {
+    border: 1.5px solid var(--ce-border);
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    color: var(--ce-slate);
+    width: 100%;
+    transition: border-color 0.2s, outline 0.2s;
+}
+
+.ce-input:focus-visible {
+    outline: 3px solid var(--ce-amber);
+    outline-offset: 2px;
+    border-color: var(--ce-navy);
+}
+
+/* ── Mensaje de error en formulario login ── */
+    .error-text {
+      display: none; /* Oculto por defecto */
+      background: #FFF3D0;
+      color: #7A5200;
+      border-left: 3px solid var(--ce-amber);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+.error-text.show {
+    display: block;
+}
 
 /* ── COMUNICADO ──────────────────────────────────────────────────────── */
 .ce-comunicado {

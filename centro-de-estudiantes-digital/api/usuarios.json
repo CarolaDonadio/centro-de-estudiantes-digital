@@ -1,0 +1,20 @@
+[
+  {
+    "usuario": "alumno",
+    "password": "123",
+    "nombre": "Julián",
+    "rol": "estudiante"
+  },
+  {
+    "usuario": "profesor",
+    "password": "456",
+    "nombre": "Laura",
+    "rol": "docente"
+  },
+  {
+    "usuario": "admin",
+    "password": "admin123",
+    "nombre": "Administración",
+    "rol": "administrador"
+  }
+]

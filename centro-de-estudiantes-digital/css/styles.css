@@ -12,7 +12,7 @@
     --ce-slate:    #1A2A3A;   /* casi negro azulado — textos */
     --ce-fog:      #F2F4F7;   /* gris muy claro — fondo secciones */
     --ce-white:    #FFFFFF;
-    --ce-border:   #C9D4E0;
+    --ce-border:   #DFDFDF;
     --ce-amber-dk: #B5820D;
 }
 
@@ -64,4 +64,15 @@ body {
     outline: 3px solid var(--ce-amber);
     outline-offset: 3px;
     border-radius: 4px;
+}
+
+/* ── CONTAINER DE FORMULARIO LOGIN ──────────────────────────────────────────────────── */
+.container-form {
+    background: var(--ce-fog);
+    line-height: 1.75;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
 }
