@@ -20,6 +20,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
     if (usuarioValido) {
       errorDiv.classList.remove('show');
+
+      //GUARDAR USUARIO
+      localStorage.setItem("usuario", JSON.stringify(usuarioValido));
       
       // 3. Redirección basada en el ROL
       switch (usuarioValido.rol) {

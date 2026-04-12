@@ -7,13 +7,13 @@
        Se refuerza con íconos/formas para no depender solo del color.
     ──────────────────────────────────────────────────────────────────────── */
     
-    --ce-navy:     #003366;   /* azul profundo — identidad principal */
-    --ce-amber:    #E6A817;   /* ámbar cálido — acento / CTAs */
-    --ce-slate:    #1A2A3A;   /* casi negro azulado — textos */
+    --ce-navy:     #3a422a;   /* azul profundo — identidad principal */
+    --ce-amber:    #AA7229;   /* ámbar cálido — acento / CTAs */
+    --ce-slate:    #9bad76;   /* casi negro azulado — textos */
     --ce-fog:      #F2F4F7;   /* gris muy claro — fondo secciones */
     --ce-white:    #FFFFFF;
     --ce-border:   #DFDFDF;
-    --ce-amber-dk: #B5820D;
+    --ce-amber-dk: #c29355;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -76,3 +76,48 @@ body {
     min-height: 100vh;
     margin: 0;
 }
+
+/* ── ESTRUCTURA PRINCIPAL DE NOVEDADES ──────────────────────────────────────────────────── */
+.ce-sidebar {
+  width: 230px;
+  background: var(--ce-sidebar);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 200;
+  transition: transform 0.25s;
+}
+
+.ce-topbar {
+  position: fixed;
+  top: 0; left: 230px; right: 0;
+  height: 56px;
+  background: var(--ce-white);
+  border-bottom: 1px solid var(--ce-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.75rem;
+  z-index: 100;
+}
+
+.ce-main {
+  margin-left: 230px;
+  padding-top: 56px;
+  flex: 1;
+  min-height: 100vh;
+}
+
+.ce-content { padding: 1.75rem; }
+
+/* ── ANIMACIONES EN NOVEDADES ──────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim { animation: fadeUp 0.35s ease both; }
+.a1 { animation-delay: 0.05s; }
+.a2 { animation-delay: 0.12s; }
+.a3 { animation-delay: 0.19s; }

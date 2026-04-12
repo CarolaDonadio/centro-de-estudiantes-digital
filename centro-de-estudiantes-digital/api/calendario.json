@@ -1,0 +1,18 @@
+[
+  {
+    "fecha": "2026-07-09",
+    "tipo": "feriado",
+    "titulo": "Día de la Independencia"
+  },
+  {
+    "fecha": "2026-07-15",
+    "tipo": "examen",
+    "carrera": "Sistemas",
+    "titulo": "Parcial de Algoritmos"
+  },
+  {
+    "fecha": "2026-07-20",
+    "tipo": "evento",
+    "titulo": "Torneo interfacultades"
+  }
+]
