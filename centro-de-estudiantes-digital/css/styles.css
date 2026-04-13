@@ -1,19 +1,18 @@
 /*=====================ESTILOS_GLOBALES=====================*/
 
 :root {
-    /* ── Paleta accesible para daltonismo ────────────────────────────────────
-       Colores elegidos para ser distinguibles en deuteranopia, protanopia y
-       tritanopia: azul profundo, amarillo ámbar, blanco puro, gris oscuro.
-       Se refuerza con íconos/formas para no depender solo del color.
+    /* ── Paleta azul y tonalidades ────────────────────────────────────
+       Colores en tonos azules para el fondo y elementos.
     ──────────────────────────────────────────────────────────────────────── */
     
-    --ce-navy:     #3a422a;   /* azul profundo — identidad principal */
-    --ce-amber:    #AA7229;   /* ámbar cálido — acento / CTAs */
-    --ce-slate:    #9bad76;   /* casi negro azulado — textos */
-    --ce-fog:      #F2F4F7;   /* gris muy claro — fondo secciones */
-    --ce-white:    #FFFFFF;
-    --ce-border:   #DFDFDF;
-    --ce-amber-dk: #c29355;
+    --ce-navy:     #003366;   /* azul profundo — identidad principal */
+    --ce-amber:    #4A90E2;   /* azul claro — acento / CTAs */
+    --ce-slate:    #1a365d;   /* azul oscuro — textos */
+    --ce-fog:      #e0f2fe;   /* azul muy claro — fondo secciones */
+    --ce-white:    #f0f8ff;   /* azul clarísimo — fondo principal */
+    --ce-border:   #cbd5e1;   /* azul grisáceo — bordes */
+    --ce-amber-dk: #2563eb;   /* azul medio — acento oscuro */
+    --ce-sidebar:  #1e40af;   /* azul sidebar — fondo sidebar */
 }
 
 *, *::before, *::after { box-sizing: border-box; }

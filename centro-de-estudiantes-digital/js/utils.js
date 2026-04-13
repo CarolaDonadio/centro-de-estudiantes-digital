@@ -103,7 +103,7 @@ function renderFooter() {
      </div>
      <hr />
      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2" style="font-size:0.78rem;">
-      <span>© 2025 Centro de Estudiantes · Todos los derechos reservados</span>
+      <span>© 2026 Centro de Estudiantes · Todos los derechos reservados</span>
       <span>Hecho con compromiso estudiantil</span>
       </div>
       </div>

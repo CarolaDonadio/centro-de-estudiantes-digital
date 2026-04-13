@@ -9,13 +9,13 @@
   <style>
     :root {
       --ce-navy:     #003366;
-      --ce-amber:    #E6A817;
-      --ce-amber-dk: #B5820D;
-      --ce-slate:    #1A2A3A;
-      --ce-fog:      #F2F4F7;
-      --ce-white:    #FFFFFF;
-      --ce-border:   #C9D4E0;
-      --ce-sidebar:  #02254A;
+      --ce-amber:    #4A90E2;
+      --ce-amber-dk: #2563eb;
+      --ce-slate:    #1a365d;
+      --ce-fog:      #e0f2fe;
+      --ce-white:    #f0f8ff;
+      --ce-border:   #cbd5e1;
+      --ce-sidebar:  #1e40af;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1206,7 +1206,7 @@
               <button id="calNext" aria-label="Mes siguiente">›</button>
             </div>
           </div>
-          <div class="cal-grid" id="calGrid" role="grid" aria-label="Calendario de julio 2025">
+          <div class="cal-grid" id="calGrid" role="grid" aria-label="Calendario de julio 2026">
             <!-- JS lo genera -->
           </div>
 
@@ -1327,7 +1327,7 @@
               </div>
               <div style="flex:1">
                 <h5>Reglamento de becas estudiantiles</h5>
-                <span>Resolución 412/2025 · Vig. desde 01/03/25</span>
+                <span>Resolución 412/2026 · Vig. desde 01/03/26</span>
               </div>
               <span class="reg-badge rb-new">Nuevo</span>
             </a>
@@ -1370,7 +1370,7 @@
               </div>
               <div style="flex:1">
                 <h5>Normativa de uso de espacios comunes</h5>
-                <span>Versión 3 · Revisada ene. 2025</span>
+                <span>Versión 3 · Revisada ene. 2026</span>
               </div>
               <span class="reg-badge rb-new">Nuevo</span>
             </a>
@@ -1383,7 +1383,7 @@
 
     <!-- Footer interno -->
     <div style="margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid var(--ce-border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
-      <span style="font-size:0.75rem; color:#8A9BAB;">© 2025 Centro de Estudiantes · Portal estudiantil</span>
+      <span style="font-size:0.75rem; color:#8A9BAB;">© 2026 Centro de Estudiantes · Portal estudiantil</span>
       <span style="font-size:0.72rem; background:rgba(230,168,23,0.1); border:1px solid rgba(230,168,23,0.35); color:#7A5200; padding:3px 10px; border-radius:4px; display:flex; align-items:center; gap:5px;">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
           <circle cx="5.5" cy="5.5" r="4.5" stroke="#B5820D" stroke-width="1.1"/>
@@ -1403,7 +1403,7 @@
 const eventDays = [8, 14, 17, 21, 22, 26, 28, 31];
 const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const dayNames   = ['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
-let calYear = 2025, calMonth = 6; // julio (0-indexed)
+let calYear = 2026, calMonth = 6; // julio (0-indexed)
 
 function renderCal() {
   const grid = document.getElementById('calGrid');
