@@ -56,6 +56,7 @@ function renderNavbar() {
 function renderFooter() {
   const footer = document.getElementById("footer");
   if (!footer) return;
+  const base = getBasePath();
 
   footer.innerHTML = `
     <footer class="ce-footer">
@@ -70,20 +71,20 @@ function renderFooter() {
         <div class="col-md-2 offset-md-1">
           <p style="color:white; font-weight:700; font-size:0.85rem; margin-bottom:0.75rem;">Navegación</p>
           <ul class="list-unstyled" style="font-size:0.83rem;">
-            <li class="mb-1"><a href="#">Inicio</a></li>
-            <li class="mb-1"><a href="#">Noticias</a></li>
-            <li class="mb-1"><a href="#">Servicios</a></li>
-            <li class="mb-1"><a href="#">Comisiones</a></li>
-            <li class="mb-1"><a href="#">Contacto</a></li>
+            <li class="mb-1"><a href="${base}index.html">Inicio</a></li>
+            <li class="mb-1"><a href="${base}pages/novedades.html">Noticias</a></li>
+            <li class="mb-1"><a href="${base}pages/eventos.html">Eventos</a></li>
+            <li class="mb-1"><a href="${base}pages/calendario.html">Calendario</a></li>
+            <li class="mb-1"><a href="${base}pages/reglamentos.html">Reglamento</a></li>
         </ul>
       </div>
       <div class="col-md-2">
         <p style="color:white; font-weight:700; font-size:0.85rem; margin-bottom:0.75rem;">Acceso rápido</p>
         <ul class="list-unstyled" style="font-size:0.83rem;">
-          <li class="mb-1"><a href="#">Portal estudiante</a></li>
-          <li class="mb-1"><a href="#">Becas</a></li>
-          <li class="mb-1"><a href="#">Actividades</a></li>
-          <li class="mb-1"><a href="#">Reglamento</a></li>
+          <li class="mb-1"><a href="${base}pages/login.html">Portal estudiante</a></li>
+          <li class="mb-1"><a href="${base}pages/novedades.html">Becas</a></li>
+          <li class="mb-1"><a href="${base}pages/eventos.html">Actividades</a></li>
+          <li class="mb-1"><a href="${base}pages/reglamentos.html">Reglamento</a></li>
         </ul>
       </div>
       <div class="col-md-3">
