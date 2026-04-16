@@ -407,7 +407,7 @@
 .news-badge .day  { font-size: 1rem; font-weight: 700; }
 .news-badge .mon  { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; }
 .news-item h4     { font-size: 0.9rem; font-weight: 700; color: var(--ce-navy); margin-bottom: 0.2rem; }
-.news-item p      { font-size: 0.82rem; color: #4A5A6A; margin: 0; }
+.news-item p      { font-size: 0.82rem; color: var(--ce-amber-dk); margin: 0; }
 
 /* ── PANELES Y BANNERS - NOVEDADES ──────────────────────────────────────────────────────────── */
 .panel {

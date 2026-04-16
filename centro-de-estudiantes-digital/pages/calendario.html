@@ -19,15 +19,20 @@
     <div id="navbar"></div>
 
     <div class="container py-5">
+      <div class="mb-4">
+        <p class="section-label">Calendario académico</p>
+        <h1 class="section-title">Fechas importantes del Instituto</h1>
+        <p class="section-lead">Revisa el calendario de actividades, exámenes y eventos generales. Usa el filtro para ver sólo las fechas que afectan tu carrera.</p>
+      </div>
 
-  <!-- FILTRO -->
-  <div class="mb-4">
-    <select id="filtroCarrera" class="form-select">
-      <option value="">Todas las carreras</option>
-      <option value="Sistemas">Sistemas</option>
-      <option value="Derecho">Derecho</option>
-    </select>
-  </div>
+      <!-- FILTRO -->
+      <div class="mb-4">
+        <select id="filtroCarrera" class="form-select">
+          <option value="">Todas las carreras</option>
+          <option value="Sistemas">Sistemas</option>
+          <option value="Derecho">Derecho</option>
+        </select>
+      </div>
 
   <!-- CALENDARIO -->
   <div class="ce-card p-4">
@@ -45,6 +50,53 @@
 
     <div id="calendarGrid"></div>
 
+  </div>
+
+  <div class="row g-3 mt-4">
+    <div class="col-md-6">
+      <div class="ce-card p-4">
+        <h3>Guía rápida</h3>
+        <p style="margin-bottom:0.75rem;">Los días marcados indican fechas del calendario escolar. Haz clic en cualquier día para ver la información detallada. Cambia el mes con las flechas y filtra por carrera si estás buscando fechas de mesas o prácticas específicas.</p>
+        <div class="d-flex flex-wrap gap-3" style="font-size:0.95rem;">
+          <span><strong>🔴</strong> Feriados / recesos</span>
+          <span><strong>🟡</strong> Exámenes y mesas</span>
+          <span><strong>🔵</strong> Eventos institucionales</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="ce-card p-4">
+        <h3>Para alumnos y docentes</h3>
+        <p style="color:#4A5A6A;">Planificá tu mes con tiempo. Si sos estudiante, reservá fechas de estudio. Si sos docente, coordiná tus clases y comunicados con el Centro.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-3">
+    <div class="col-md-3">
+      <div class="ce-card p-3" style="background:#F8F7F0;">
+        <h3 style="font-size:1rem; margin-bottom:0.5rem;">Mesas</h3>
+        <p style="font-size:0.86rem; color:#4A5A6A; margin-bottom:0;">Fechas de recuperación y examen.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="ce-card p-3" style="background:#F8F7F0;">
+        <h3 style="font-size:1rem; margin-bottom:0.5rem;">Tutores</h3>
+        <p style="font-size:0.86rem; color:#4A5A6A; margin-bottom:0;">Programas de apoyo académico.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="ce-card p-3" style="background:#F8F7F0;">
+        <h3 style="font-size:1rem; margin-bottom:0.5rem;">Eventos</h3>
+        <p style="font-size:0.86rem; color:#4A5A6A; margin-bottom:0;">Charlas, jornadas y reuniones.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="ce-card p-3" style="background:#F8F7F0;">
+        <h3 style="font-size:1rem; margin-bottom:0.5rem;">Reglamento</h3>
+        <p style="font-size:0.86rem; color:#4A5A6A; margin-bottom:0;">Normas de convivencia y plazos.</p>
+      </div>
+    </div>
   </div>
 
 </div>
