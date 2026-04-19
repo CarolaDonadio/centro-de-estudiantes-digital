@@ -27,50 +27,10 @@
             <p class="section-label">Eventos</p>
             <h1 class="section-title">Actividades del Centro</h1>
 
-            <p class="section-lead">Consulta las actividades organizadas por el Centro de Estudiantes, tanto para estudiantes como para el cuerpo docente. Filtra por carrera o tipo para encontrar talleres, charlas, jornadas y reuniones.</p>
-
-            <div class="row mb-4 mt-3 ">
-                <div class="col-md-4">
-                    <select id="filtroCarrera" class="form-select form-select-style">
-                        <option value="">Todas las carreras</option>
-                    </select>
-                </div>
-                
-                <div class="col-md-4">
-                    <select id="filtroTipo" class="form-select form-select-style">
-                        <option value="">Todos los tipos</option>
-                        <option value="Académico">Académico</option>
-                        <option value="Cultural">Cultural</option>
-                        <option value="Deportivo">Deportivo</option>
-                    </select>
-                </div>
-            </div>
-            <div class="alert alert-secondary" role="alert">
-              <strong>Consejo:</strong> Si sos docente, buscá actividades académicas y jornadas de capacitación. Si sos estudiante, prestá atención a las instancias de inscripción y certificación.
-            </div>
-
-            <div id="eventosContainer" class="row g-4"></div>
+            <!--se cargan los eventos desde el JSON-->
+            <div class="mt-4" id="events-container"></div>
         </div>
     </section>
-
-
-    <!-- ════════════════════════════════════════════════════════════════════════
-         MODAL
-    ════════════════════════════════════════════════════════════════════════ -->
-        <div class="modal fade" id="modalEvento">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 id="modalTitulo"></h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body" id="modalBody"></div>
-
-            </div>
-        </div>
-        </div>
 
     <!-- ════════════════════════════════════════════════════════════════════════
          FOOTER

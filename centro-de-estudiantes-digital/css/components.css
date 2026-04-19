@@ -130,12 +130,12 @@
 }
 
 /* Ilustración decorativa hero */
-.ce-hero-deco {
+/*.ce-hero-deco {
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0.9;
-}
+}*/
 
 
 /* BOTONES */
@@ -208,19 +208,6 @@
     height: 36px;
     background: rgba(0,51,102,0.2);
 }
-
-/* ── TARJETAS DE ESTADÍSTICAS - NOVEDADES ───────────────────────────────────────────────────────────── */
-.stat-card {
-  background: var(--ce-white);
-  border: 1.5px solid var(--ce-border);
-  border-radius: 10px;
-  padding: 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.sc-num { font-size: 1.4rem; font-weight: 700; color: var(--ce-navy); }
-.sc-lbl { font-size: 0.72rem; font-weight: 600; color: #5B7082; text-transform: uppercase; }
 
 /* ── CARDS ───────────────────────────────────────────────────────────── */
 .ce-card {
@@ -432,74 +419,6 @@
   overflow: hidden;
 }
 
-/* ── COMPONENTES DE EVENTOS ──────────────────────────────────────────────────────────── */
-.events-badge {
-    background: var(--ce-navy);
-}
-
-.form-select-style {
-    color:var(--ce-amber);
-    background-color: var(--ce-white);
-    border: 1.5px solid var(--ce-border);
-    border-radius: 10px;
-    transition: box-shadow 0.2s, border-color 0.2s;
-    background-image: var(--ce-amber-dk), var(--ce-navy, none);
-}
-
-#modalTitulo {
-    font-family:'Source Serif 4',serif;
-    color:var(--ce-amber);
-    font-weight:bold;
-}
-
-#modalBody {
-    color:var(--ce-navy);
-}
-
-.ver-mas {
-    color:var(--ce-navy);
-    background-color: var(--ce-amber);
-    border-radius: 6px;
-    padding: 0.6rem 1rem;
-    font-size: 15px;
-    width: 50%;
-    font-weight: 700;
-    transition: background 0.18s, color 0.18s;
-}
-
-.ver-mas:hover {
-    color:var(--ce-navy);
-    background-color: var(--ce-slate);
-    transition: border-color 0.2s, outline 0.2s;
-}
-
-/*.ev-card {
-  border: 1.5px solid var(--ce-border);
-  border-radius: 10px;
-  background: var(--ce-white);
-  overflow: hidden;
-  transition: box-shadow 0.2s;
-}
-.ev-card:hover { box-shadow: 0 4px 16px rgba(0,51,102,0.1); }
-.ev-date-sq {
-  width: 44px;
-  background: var(--ce-navy);
-  color: white;
-  border-radius: 8px;
-  text-align: center;
-  padding: 4px 0;
-}
-.btn-inscribir {
-  background: var(--ce-navy);
-  color: white;
-  border: none;
-  width: 100%;
-  padding: 0.4rem;
-  border-radius: 7px;
-  font-weight: 700;
-  cursor: pointer;
-}*/
-
 /* ── PÁGINA CALENDARIO (GRID) ──────────────────────────────────────────────────────────── */
 #calendarGrid {
   display: grid;
@@ -572,6 +491,15 @@
 }
 .nov-tag.acad { background: #E8F0FB; color: #003366; border-left: 3px solid #003366; }
 .nov-tag.urgente { background: #FEF0E6; color: #7A3200; border-left: 3px solid #E67A17; }
+
+/*estilos del link del título*/
+.news-item a {
+  text-decoration: none;
+  color: inherit;
+}
+.news-item a:hover {
+  text-decoration: underline;
+}
 
 /* ── FOOTER ──────────────────────────────────────────────────────────── */
 .ce-footer {

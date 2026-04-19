@@ -19,31 +19,21 @@
     ════════════════════════════════════════════════════════════════════════ -->
     <div id="navbar"></div>
 
+    <!-- ════════════════════════════════════════════════════════════════════════
+         NOTICIAS RECIENTES
+    ════════════════════════════════════════════════════════════════════════ -->
+
+    
+    
     <section class="py-5">
         <div class="container">
             <p class="section-label">Novedades</p>
             <h1 class="section-title">Últimas noticias</h1>
 
-            <div class="row g-4" id="novedadesContainer"></div>
-            
-            <div class="alert alert-light mt-4" role="alert">
-              <strong>Atención docentes:</strong> si necesitás organizar materiales o instancias de evaluación, contactá al Centro para difundirlas entre los estudiantes.
-            </div>
+            <!--se cargan los eventos desde el JSON-->
+            <div class="mt-4" id="news-container"></div>
         </div>
     </section>
-
-    <div class="modal fade" id="modalNovedad">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="modalTitulo"></h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                
-                <div class="modal-body" id="modalBody"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- ════════════════════════════════════════════════════════════════════════
          FOOTER

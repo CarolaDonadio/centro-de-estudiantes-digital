@@ -1,83 +1,47 @@
-let novedadesData = [];
+//CARGAR LAS NOVEDADES DESDE EL JSON
+document.addEventListener("DOMContentLoaded", () => {
+  cargarNovedades();
+});
 
 async function cargarNovedades() {
-  const res = await fetch("../api/novedades.json");
-  novedadesData = await res.json();
+  try {
+    const res = await fetch("../api/novedades.json");
+    const data = await res.json();
 
-  renderNovedades(novedadesData);
-}
+    const container = document.getElementById("news-container");
 
-function renderNovedades(lista) {
-  const container = document.getElementById("novedadesContainer");
+    container.innerHTML = "";
 
-  if (!container) return;
+    data.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
-  container.innerHTML = "";
+    data.forEach(noticia => {
+      const fecha = new Date(noticia.fecha);
 
-  if (lista.length === 0) {
-    container.innerHTML = `
-      <div class="ce-card text-center p-4">
-        <p>No hay novedades disponibles</p>
+      const dia = fecha.getDate().toString().padStart(2, "0");
+      const mes = fecha.toLocaleString("es-ES", { month: "short" });
+
+      const item = document.createElement("div");
+      item.classList.add("news-item");
+
+      item.innerHTML = `
+      <div class="news-badge">
+        <span class="day">${dia}</span>
+        <span class="mon">${mes}</span>
       </div>
-    `;
-    return;
-  }
-
-  let html = "";
-
-  lista.forEach((n, index) => {
-    const fecha = new Date(n.fecha);
-
-    const dia = fecha.getDate();
-    const mes = fecha.toLocaleString("es-AR", { month: "short" });
-
-    html += `
-      <div class="col-md-4">
-        <div class="ce-card d-flex flex-column">
-          
-          <div class="d-flex gap-3">
-            <div class="news-badge">
-              <span class="day">${dia}</span>
-              <span class="mon">${mes}</span>
-            </div>
-
-            <div>
-              <span class="badge events-badge mb-2">${n.tipo}</span>
-              <h3 class="section-title">${n.titulo}</h3>
-              <p>${n.descripcion}</p>
-            </div>
-          </div>
-
-          <button class="btn mt-3 ver-mas" data-index="${index}">
-            Leer más
-          </button>
-        </div>
+      
+      <div>
+        <h4>
+          <a href="${noticia.link}" target="_blank" rel="noopener noreferrer">
+            ${noticia.titulo}
+          </a>
+        </h4>
+        <p>${noticia.descripcion}</p>
       </div>
-    `;
-  });
-
-  container.innerHTML = html;
-
-  // modal
-  document.querySelectorAll(".ver-mas").forEach(btn => {
-    btn.addEventListener("click", e => {
-      const index = e.target.dataset.index;
-      mostrarDetalle(novedadesData[index]);
+      `;
+      container.appendChild(item);
     });
-  });
+
+  } catch (error) {
+    console.error("Error cargando novedades:", error);
+  }
 }
-
-function mostrarDetalle(novedad) {
-  document.getElementById("modalTitulo").textContent = novedad.titulo;
-
-  document.getElementById("modalBody").innerHTML = `
-    <span class="badge events-badge mb-2">${novedad.tipo}</span>
-    <p><strong>Fecha:</strong> ${novedad.fecha}</p>
-    <hr>
-    <p>${novedad.detalle}</p>
-  `;
-
-  new bootstrap.Modal(document.getElementById("modalNovedad")).show();
-}
-
-document.addEventListener("DOMContentLoaded", cargarNovedades);

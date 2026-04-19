@@ -3,32 +3,36 @@
     "titulo": "Tutorías de Programación",
     "descripcion": "Apoyo para parciales de algoritmos",
     "descripcionpopup": "Espacio de apoyo académico donde estudiantes avanzados ayudan a resolver dudas de programación, algoritmos y trabajos prácticos. Ideal para preparar parciales y fortalecer conceptos clave.",
-    "fecha": "12/07/2026",
+    "fecha": "2026-07-12",
     "carrera": "Ciencia de Datos e IA",
-    "tipo": "Académico"
+    "tipo": "Académico",
+    "link": "../index.html"
   },
   {
     "titulo": "Torneo intercarreras",
     "descripcion": "Competencia deportiva",
     "descripcionpopup": "Competencia deportiva entre distintas carreras del instituto que fomenta el trabajo en equipo, la integración y el espíritu estudiantil.",
-    "fecha": "20/07/2026",
+    "fecha": "2026-07-20",
     "carrera": "",
-    "tipo": "Deportivo"
+    "tipo": "Deportivo",
+    "link": "../index.html"
   },
   {
     "titulo": "Torneo de ajedrez",
     "descripcion": "Competencia intercarrera con premios",
     "descripcionpopup": "Encuentro abierto para estudiantes de todos los niveles donde se promueve el pensamiento estratégico y la participación en un ambiente recreativo.",
-    "fecha": "04/05/2026",
+    "fecha": "2026-05-04",
     "carrera": "Administración Financiera",
-    "tipo": "Deportivo"
+    "tipo": "Deportivo",
+    "link": "../index.html"
   },
   {
     "titulo": "Taller cultural",
     "descripcion": "Actividades abiertas para estudiantes",
     "descripcionpopup": "Actividad participativa orientada a la expresión artística, incluyendo música, pintura y dinámicas grupales para fortalecer la creatividad.",
-    "fecha": "15/06/2026",
+    "fecha": "2026-06-15",
     "carrera": "",
-    "tipo": "Cultural"
+    "tipo": "Cultural",
+    "link": "../index.html"
   }
 ]

@@ -12,6 +12,12 @@
     "rol": "docente"
   },
   {
+    "usuario": "delegado",
+    "password": "delegado123",
+    "nombre": "Romina",
+    "rol": "delegado"
+  },
+  {
     "usuario": "admin",
     "password": "admin123",
     "nombre": "Administración",

@@ -1,9 +1,15 @@
 [
-  { "carrera": "Ciencia de Datos e IA" },
+  { 
+    "carrera": "Ciencia de Datos e IA",
+    "link": "reglamentos.html?carrera=Ciencia de Datos e IA"
+ },
   { "carrera": "Administración Financiera" },
   { "carrera": "Acompañamiento Terapéutico" },
   { "carrera": "Enfermería en Salud Mental" },
-  { "carrera": "Enfermería" },
+  { 
+    "carrera": "Enfermería",
+    "link": "reglamentos.html?carrera=Enfermería"
+},
   { "carrera": "Hotelería" },
   { "carrera": "Administración Marketing" },
   { "carrera": "Psicopedagogía" },
