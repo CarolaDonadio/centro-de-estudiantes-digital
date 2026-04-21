@@ -456,6 +456,27 @@
   margin: 4px auto 0;
 }
 
+/* TIPOS DE EVENTOS EN CALENDARIO */
+.calendar-day.tipo-feriado {
+  background: #dc3545;
+  color: white;
+}
+
+.calendar-day.tipo-examen {
+  background: #ffc107;
+  color: black;
+}
+
+.calendar-day.tipo-evento {
+  background: var(--ce-navy);
+  color: white;
+}
+
+.calendar-day.tipo-novedad {
+  background: var(--ce-amber);
+  color: var(--ce-navy);
+}
+
 /* Animación suave */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(230,168,23, 0.6); }

@@ -5,10 +5,26 @@ const filtro = document.getElementById("filtroCarrera");
 
 /* ================= CARGAR EVENTOS ================= */
 async function cargarEventos() {
-  const res = await fetch("../api/calendario.json");
-  eventos = await res.json();
+  try {
+    const [resEventos, resNovedades] = await Promise.all([
+      fetch("../api/eventos.json"),
+      fetch("../api/novedades.json")
+    ]);
 
-  renderCalendar();
+    const dataEventos = await resEventos.json();
+    const dataNovedades = await resNovedades.json();
+
+    // 🔥 unificamos todo en un solo array
+    eventos = [
+      ...dataEventos.map(e => ({ ...e, tipo: "evento" })),
+      ...dataNovedades.map(n => ({ ...n, tipo: "novedad" }))
+    ];
+
+    renderCalendar();
+
+  } catch (error) {
+    console.error("Error cargando calendario:", error);
+  }
 }
 
 /* ================= RENDER CALENDARIO ================= */
@@ -41,7 +57,6 @@ function renderCalendar() {
   // Días
   for (let day = 1; day <= daysInMonth; day++) {
 
-    // 👉 eventos del día
     const eventosDelDia = eventos.filter(ev => {
       const fecha = new Date(ev.fecha);
 
@@ -71,13 +86,15 @@ function renderCalendar() {
       clase += " today";
     }
 
-    // TIPOS
+    // TIPOS (orden importa)
     if (eventosDelDia.some(e => e.tipo === "feriado")) {
-      clase += " bg-danger text-white";
+      clase += " tipo-feriado";
     } else if (eventosDelDia.some(e => e.tipo === "examen")) {
-      clase += " bg-warning";
+      clase += " tipo-examen";
     } else if (eventosDelDia.some(e => e.tipo === "evento")) {
-      clase += " bg-primary text-white";
+      clase += " tipo-evento";
+    } else if (eventosDelDia.some(e => e.tipo === "novedad")) {
+      clase += " tipo-novedad";
     }
 
     // 👉 render día
@@ -97,15 +114,38 @@ document.addEventListener("click", (e) => {
 
     const lista = eventos.filter(ev => {
       const fecha = new Date(ev.fecha);
-      return fecha.getDate() == day;
+
+      return (
+        fecha.getDate() == day &&
+        fecha.getMonth() === currentDate.getMonth() &&
+        fecha.getFullYear() === currentDate.getFullYear() &&
+        (
+          !filtro?.value ||
+          !ev.carrera ||
+          ev.carrera === filtro.value
+        )
+      );
     });
 
     const body = document.getElementById("modalBody");
 
     body.innerHTML = lista.length
       ? lista.map(e => `
-          <p><strong>${e.titulo}</strong></p>
-          <small>${e.carrera || "General"} · ${e.fecha}</small>
+          <div style="margin-bottom:10px;">
+            <p style="margin:0;">
+              <strong>${e.titulo}</strong>
+              <span style="font-size:0.7rem; opacity:0.6;">
+                (${e.tipo})
+              </span>
+            </p>
+            <small style="opacity:0.7;">
+              ${e.carrera || "General"} · ${new Date(e.fecha).toLocaleDateString()}
+            </small>
+            <br>
+            <a href="${e.link}" target="_blank" rel="noopener noreferrer">
+              Ver más
+            </a>
+          </div>
           <hr>
         `).join("")
       : "<p>No hay eventos</p>";

@@ -5,7 +5,7 @@
     "descripcionpopup": "Espacio de apoyo académico donde estudiantes avanzados ayudan a resolver dudas de programación, algoritmos y trabajos prácticos. Ideal para preparar parciales y fortalecer conceptos clave.",
     "fecha": "2026-07-12",
     "carrera": "Ciencia de Datos e IA",
-    "tipo": "Académico",
+    "tipo": "evento",
     "link": "../index.html"
   },
   {
@@ -14,7 +14,7 @@
     "descripcionpopup": "Competencia deportiva entre distintas carreras del instituto que fomenta el trabajo en equipo, la integración y el espíritu estudiantil.",
     "fecha": "2026-07-20",
     "carrera": "",
-    "tipo": "Deportivo",
+    "tipo": "evento",
     "link": "../index.html"
   },
   {
@@ -23,7 +23,7 @@
     "descripcionpopup": "Encuentro abierto para estudiantes de todos los niveles donde se promueve el pensamiento estratégico y la participación en un ambiente recreativo.",
     "fecha": "2026-05-04",
     "carrera": "Administración Financiera",
-    "tipo": "Deportivo",
+    "tipo": "evento",
     "link": "../index.html"
   },
   {
@@ -32,7 +32,7 @@
     "descripcionpopup": "Actividad participativa orientada a la expresión artística, incluyendo música, pintura y dinámicas grupales para fortalecer la creatividad.",
     "fecha": "2026-06-15",
     "carrera": "",
-    "tipo": "Cultural",
+    "tipo": "feriado",
     "link": "../index.html"
   }
 ]
