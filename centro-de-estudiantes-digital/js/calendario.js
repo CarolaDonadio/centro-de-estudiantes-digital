@@ -3,6 +3,12 @@ let eventos = [];
 
 const filtro = document.getElementById("filtroCarrera");
 
+/* ================= PARSE FECHA (SOLUCIONA BUG DE ZONA HORARIA) ================= */
+function parseFecha(fechaStr) {
+  const [year, month, day] = fechaStr.split("T")[0].split("-");
+  return new Date(year, month - 1, day);
+}
+
 /* ================= CARGAR EVENTOS ================= */
 async function cargarEventos() {
   try {
@@ -14,10 +20,10 @@ async function cargarEventos() {
     const dataEventos = await resEventos.json();
     const dataNovedades = await resNovedades.json();
 
-    // 🔥 unificamos todo en un solo array
+    // 👉 unificamos todo
     eventos = [
-      ...dataEventos.map(e => ({ ...e, tipo: "evento" })),
-      ...dataNovedades.map(n => ({ ...n, tipo: "novedad" }))
+      ...dataEventos.map(e => ({ ...e, categoria: "evento" })),
+      ...dataNovedades.map(n => ({ ...n, categoria: "novedad" }))
     ];
 
     renderCalendar();
@@ -49,16 +55,16 @@ function renderCalendar() {
 
   let offset = (firstDay + 6) % 7;
 
-  // Espacios vacíos
+  // espacios vacíos
   for (let i = 0; i < offset; i++) {
     grid.innerHTML += `<div></div>`;
   }
 
-  // Días
+  // días del mes
   for (let day = 1; day <= daysInMonth; day++) {
 
     const eventosDelDia = eventos.filter(ev => {
-      const fecha = new Date(ev.fecha);
+      const fecha = parseFecha(ev.fecha);
 
       const coincideFecha =
         fecha.getDate() === day &&
@@ -73,7 +79,6 @@ function renderCalendar() {
       return coincideFecha && coincideCarrera;
     });
 
-    // 👉 clases visuales
     let clase = "";
 
     // HOY
@@ -86,18 +91,21 @@ function renderCalendar() {
       clase += " today";
     }
 
-    // TIPOS (orden importa)
+    // 🎨 COLORES (orden importa)
     if (eventosDelDia.some(e => e.tipo === "feriado")) {
-      clase += " tipo-feriado";
-    } else if (eventosDelDia.some(e => e.tipo === "examen")) {
-      clase += " tipo-examen";
-    } else if (eventosDelDia.some(e => e.tipo === "evento")) {
-      clase += " tipo-evento";
-    } else if (eventosDelDia.some(e => e.tipo === "novedad")) {
-      clase += " tipo-novedad";
+      clase += " bg-danger text-white";
+    } 
+    else if (eventosDelDia.some(e => e.tipo === "examen")) {
+      clase += " bg-warning";
+    } 
+    else if (eventosDelDia.some(e => e.categoria === "evento")) {
+      clase += " bg-primary text-white";
+    } 
+    else if (eventosDelDia.some(e => e.categoria === "novedad")) {
+      clase += " bg-success text-white";
     }
 
-    // 👉 render día
+    // render día
     grid.innerHTML += `
       <div class="calendar-day ${clase}" data-day="${day}">
         ${day}
@@ -113,17 +121,12 @@ document.addEventListener("click", (e) => {
     const day = e.target.dataset.day;
 
     const lista = eventos.filter(ev => {
-      const fecha = new Date(ev.fecha);
+      const fecha = parseFecha(ev.fecha);
 
       return (
         fecha.getDate() == day &&
         fecha.getMonth() === currentDate.getMonth() &&
-        fecha.getFullYear() === currentDate.getFullYear() &&
-        (
-          !filtro?.value ||
-          !ev.carrera ||
-          ev.carrera === filtro.value
-        )
+        fecha.getFullYear() === currentDate.getFullYear()
       );
     });
 
@@ -131,23 +134,18 @@ document.addEventListener("click", (e) => {
 
     body.innerHTML = lista.length
       ? lista.map(e => `
-          <div style="margin-bottom:10px;">
-            <p style="margin:0;">
-              <strong>${e.titulo}</strong>
-              <span style="font-size:0.7rem; opacity:0.6;">
-                (${e.tipo})
-              </span>
-            </p>
-            <small style="opacity:0.7;">
-              ${e.carrera || "General"} · ${new Date(e.fecha).toLocaleDateString()}
-            </small>
-            <br>
-            <a href="${e.link}" target="_blank" rel="noopener noreferrer">
-              Ver más
-            </a>
-          </div>
-          <hr>
-        `).join("")
+        <div style="margin-bottom:10px;">
+          <p style="margin:0;"><strong>${e.titulo}</strong></p>
+          <small style="opacity:0.7;">
+            ${e.carrera || "General"} · ${parseFecha(e.fecha).toLocaleDateString()}
+          </small>
+          <br>
+          <a href="${e.link}" target="_blank" rel="noopener noreferrer">
+            Ver más
+          </a>
+        </div>
+        <hr>
+      `).join("")
       : "<p>No hay eventos</p>";
 
     new bootstrap.Modal(document.getElementById("modalEventos")).show();

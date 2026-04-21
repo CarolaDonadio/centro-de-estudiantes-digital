@@ -2,9 +2,12 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarEventos();
 });
 
-function parseFecha(fechaStr) {
+/*function parseFecha(fechaStr) {
   const [dia, mes, anio] = fechaStr.split("/");
   return new Date(`${anio}-${mes}-${dia}`);
+}*/
+function parseFecha(fechaStr) {
+  return new Date(fechaStr + "T00:00:00");
 }
 
 async function cargarEventos() {
