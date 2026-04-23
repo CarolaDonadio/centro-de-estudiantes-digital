@@ -30,5 +30,13 @@
     "fecha": "2026-06-25T00:00:00",
     "tipo": "novedad",
     "link": "../index.html"
+  },
+  {
+    "titulo": "Ferisdo Primer Gobierno Patrio",
+    "descripcion": "",
+    "detalle": "",
+    "fecha": "2026-05-25T00:00:00",
+    "tipo": "feriado",
+    "link": "../index.html"
   }
 ]
