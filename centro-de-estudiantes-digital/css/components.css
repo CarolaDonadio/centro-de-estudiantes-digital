@@ -39,6 +39,39 @@
     outline-offset: 2px;
 }
 
+/* ── NAVBAR HAMBURGUESA ────────────────────────────────────────────────────────────── */
+/* links navbar */
+.nav-link-ce {
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-link-ce:hover {
+  color: white;
+}
+
+/* menú mobile */
+#menuNav {
+  background: var(--ce-navy);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+/* versión mobile del botón */
+.btn-login-mobile {
+  width: 50%;
+  justify-content: center;
+  display: flex;
+  text-align: center;
+}
+
+/* opcional: mejorar espaciado en mobile */
+#menuNav .btn-login {
+  margin-top: 10px;
+}
+
+
 /* ── HERO ────────────────────────────────────────────────────────────── */
 .ce-hero {
     background: var(--ce-navy);

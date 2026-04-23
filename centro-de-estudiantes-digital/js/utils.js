@@ -5,7 +5,7 @@ function getBasePath() {
 }
 
 /* ================= NAVBAR ================= */
-function renderNavbar() {
+/*function renderNavbar() {
   const base = getBasePath();
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -47,6 +47,81 @@ function renderNavbar() {
                 Iniciar sesión
             </a>
         </div>
+    </div>
+  </nav>
+  `;
+}*/
+
+function renderNavbar() {
+  const base = getBasePath();
+
+  const nav = document.getElementById("navbar");
+  if (!nav) return;
+
+  nav.innerHTML = `
+  <nav class="ce-navbar">
+    <div class="container">
+
+      <!-- FILA SUPERIOR -->
+      <div class="d-flex justify-content-between align-items-center">
+
+        <!-- LOGO -->
+        <a href="${base}index.html" class="brand-text">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="2" y="4" width="12" height="20" rx="2" fill="#E6A817"/>
+            <rect x="14" y="4" width="12" height="20" rx="2" fill="rgba(255,255,255,0.25)"/>
+            <rect x="13" y="4" width="2" height="20" fill="#003366"/>
+            <rect x="5" y="9" width="6" height="1.5" rx="0.75" fill="#003366"/>
+            <rect x="5" y="12" width="6" height="1.5" rx="0.75" fill="#003366"/>
+            <rect x="5" y="15" width="4" height="1.5" rx="0.75" fill="#003366"/>
+          </svg>
+          Centro de Estudiantes
+        </a>
+
+        <!-- BOTÓN -->
+        <button class="navbar-toggler d-md-none" type="button"
+          data-bs-toggle="collapse" data-bs-target="#menuNav">
+          <span style="color:white; font-size:1.6rem;">☰</span>
+        </button>
+
+        <!-- DESKTOP MENU -->
+        <div class="d-none d-md-flex align-items-center gap-3">
+
+          <ul class="list-unstyled mb-0 d-flex gap-4">
+            <li><a href="${base}index.html" class="nav-link-ce">Inicio</a></li>
+            <li><a href="${base}pages/novedades.html" class="nav-link-ce">Novedades</a></li>
+            <li><a href="${base}pages/eventos.html" class="nav-link-ce">Eventos</a></li>
+            <li><a href="${base}pages/calendario.html" class="nav-link-ce">Calendario</a></li>
+            <li><a href="${base}pages/reglamentos.html" class="nav-link-ce">Reglamento</a></li>
+          </ul>
+
+          <a href="${base}pages/login.html" class="btn-login">
+            Iniciar sesión
+          </a>
+
+        </div>
+
+      </div>
+
+      <!-- MOBILE MENU -->
+      <div class="collapse d-md-none mt-3" id="menuNav">
+        <ul class="list-unstyled d-flex flex-column gap-3">
+
+          <li><a href="${base}index.html" class="nav-link-ce">Inicio</a></li>
+          <li><a href="${base}pages/novedades.html" class="nav-link-ce">Novedades</a></li>
+          <li><a href="${base}pages/eventos.html" class="nav-link-ce">Eventos</a></li>
+          <li><a href="${base}pages/calendario.html" class="nav-link-ce">Calendario</a></li>
+          <li><a href="${base}pages/reglamentos.html" class="nav-link-ce">Reglamento</a></li>
+
+          <li>
+            <a href="${base}pages/login.html" class="btn-login btn-login-mobile">
+              Iniciar sesión
+            </a>
+          </li>
+
+        </ul>
+      </div>
+
     </div>
   </nav>
   `;
