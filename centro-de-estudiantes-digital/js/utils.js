@@ -64,8 +64,8 @@ function renderFooter() {
         <div class="row g-4">
           <div class="col-md-4">
           <p class="footer-brand">Centro de Estudiantes</p>
-          <p>Representando a los estudiantes de nuestra facultad desde 1987. Gestión democrática y participativa.</p>
-          <p class="mt-2" style="color:rgba(255,255,255,0.5); font-size:0.8rem;">Secretaría: Aula B-02 · Lunes a viernes 10–18 hs</p>
+          <p>Representando a los estudiantes de nuestro instituto. Gestión democrática y participatión digital.</p>
+          <p class="mt-2" style="color:rgba(255,255,255,0.5); font-size:0.8rem;"> Consejo Academico Institucional: · Lunes de 20 a 21hs</p>
         </div>
         
         <div class="col-md-2 offset-md-1">
