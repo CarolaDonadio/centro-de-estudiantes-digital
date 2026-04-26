@@ -1,44 +1,47 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reglamentación — Centro de Estudiantes</title>
+  <meta charset="UTF-8">
+  <title>Reglamentos — Centro de Estudiantes</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Source+Serif+4:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/portal-pages.css" />
+
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
-  <aside class="ce-sidebar" id="sidebar" role="navigation" aria-label="Menú lateral">
-    <a href="principal.html" class="sidebar-brand"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4" width="13" height="22" rx="2.5" fill="#E6A817"/><rect x="15" y="4" width="13" height="22" rx="2.5" fill="rgba(255,255,255,0.18)"/><rect x="14" y="4" width="2" height="22" fill="#02254A"/><rect x="5" y="10" width="7" height="2" rx="1" fill="#02254A"/><rect x="5" y="14" width="7" height="2" rx="1" fill="#02254A"/><rect x="5" y="18" width="5" height="2" rx="1" fill="#02254A"/></svg><span>Centro de Estudiantes<small>Portal estudiantil</small></span></a>
-    <p class="sidebar-section-label">Principal</p>
-    <ul class="sidebar-nav" role="list">
-      <li><a href="principal.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="white"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="white" opacity=".6"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="white" opacity=".6"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="white" opacity=".6"/></svg>Inicio</a></li>
-      <li><a href="novedades.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1L2 5v9h4V9h4v5h4V5L8 1Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg>Novedades<span class="sidebar-badge">3</span></a></li>
-      <li><a href="calendario.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5 1v3M11 1v3M2 7h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Calendario</a></li>
-      <li><a href="reglamentos.html" class="active" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3" y="1" width="10" height="14" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Reglamentación</a></li>
-      <li><a href="eventos.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2Z" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Eventos<span class="sidebar-badge">5</span></a></li>
-    </ul>
-    <p class="sidebar-section-label">Mi cuenta</p>
-    <ul class="sidebar-nav" role="list">
-      <li><a href="perfil.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>Mi perfil</a></li>
-      <li><a href="inscripciones.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-3" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="5" y="1" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Mis inscripciones</a></li>
-      <li><a href="configuracion.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.42 1.42M11.53 11.53l1.42 1.42M3.05 12.95l1.42-1.42M11.53 4.47l1.42-1.42" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Configuración</a></li>
-    </ul>
-    <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-avatar" aria-hidden="true">JL</div><div class="sidebar-user-info"><strong>Juli Marshall</strong><span>Estudiante · Leg. 47821</span></div></div><button class="btn-logout" onclick="window.location.href='../index.html'"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M5 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9 9l3-2.5L9 4M5 6.5h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Cerrar sesión</button></div>
-  </aside>
+    <!-- ════════════════════════════════════════════════════════════════════════
+         NAVBAR
+    ════════════════════════════════════════════════════════════════════════ -->
+    <div id="navbar"></div>
 
-  <div class="ce-topbar" role="banner"><div class="d-flex align-items-center gap-3"><button class="mobile-menu-btn" id="menuToggle" aria-label="Abrir menú" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="#003366" stroke-width="1.6" stroke-linecap="round"/></svg></button><span class="topbar-title">Normativa y reglamentos</span></div><div class="topbar-right"><div class="topbar-notif" role="button" aria-label="Notificaciones" tabindex="0"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true"><path d="M8.5 2a5 5 0 0 0-5 5v3l-1 1.5h12L13 10V7a5 5 0 0 0-5-5Z" stroke="#003366" stroke-width="1.4" fill="none"/><path d="M7 13.5a1.5 1.5 0 0 0 3 0" stroke="#003366" stroke-width="1.3" fill="none"/></svg><span class="dot" aria-hidden="true"></span></div></div></div>
+    <!-- ════════════════════════════════════════════════════════════════════════
+         REGLAMENTOS
+    ════════════════════════════════════════════════════════════════════════ -->
 
-  <main class="ce-main" id="main-content"><div class="ce-content">
-    <section class="page-hero anim a1"><span class="eyebrow">Reglamentación</span><h1>Documentación institucional y criterios vigentes</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada velit eu leo tempus, vel sagittis augue finibus.</p></section>
-    <div class="row g-4">
-      <div class="col-lg-7"><div class="panel anim a2"><div class="panel-body"><div class="story-card"><small>Estatutos</small><h4>Marco general de funcionamiento</h4><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer iaculis, magna sed vulputate luctus, ligula lorem pharetra dolor, vitae vulputate justo nisl sed lacus.</p></div><div class="story-card"><small>Protocolos</small><h4>Normas de convivencia y actuación</h4><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac sem a nulla aliquet faucibus at ac augue.</p></div><div class="story-card"><small>Resoluciones</small><h4>Criterios operativos por secretaría</h4><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed aliquet enim vel augue elementum, non interdum lectus luctus.</p></div></div></div></div>
-      <div class="col-lg-5"><div class="info-card anim a2"><span class="eyebrow">Acceso rápido</span><h3>Índice temático</h3><div class="detail-list"><div class="detail-item"><strong>Becas</strong><span class="muted-copy">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span></div><div class="detail-item"><strong>Eventos</strong><span class="muted-copy">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span></div><div class="detail-item"><strong>Participación</strong><span class="muted-copy">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span></div></div></div></div>
-    </div>
-    <div class="row g-4 mt-1"><div class="col-md-6"><div class="info-card anim a3"><span class="eyebrow">Observaciones</span><h3>Notas interpretativas</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam lacinia justo ac sem aliquam, nec cursus nulla condimentum.</p></div></div><div class="col-md-6"><div class="info-card anim a3"><span class="eyebrow">Actualizaciones</span><h3>Últimos cambios</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce in congue lectus, ut tempor neque.</p></div></div></div>
-    <div class="footer-inline"><span class="footer-note">© 2026 Centro de Estudiantes · Portal estudiantil</span><span class="footer-badge"><svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4.5" stroke="#B5820D" stroke-width="1.1"/><circle cx="5.5" cy="3.5" r="0.8" fill="#B5820D"/><rect x="4.9" y="5" width="1.2" height="3" rx="0.6" fill="#B5820D"/></svg>Diseño accesible · WCAG 2.1 AA</span></div>
-  </div></main>
-  <script src="../js/portal-pages.js"></script>
+    <section class="py-5">
+      <div class="container">
+        <p class="section-label">Reglamentos</p>
+        <h1 class="section-title">Normativas por carrera</h1>
+        
+        <!-- FILTRO -->
+         <select id="filtro-carrera" class="form-select w-auto mt-3"></select>
+         <!-- RESULTADO -->
+          <div class="mt-4" id="reglamentos-container"></div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════════
+         FOOTER
+    ════════════════════════════════════════════════════════════════════════ -->
+    <div id="footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/reglamentos.js"></script>
+
 </body>
 </html>
