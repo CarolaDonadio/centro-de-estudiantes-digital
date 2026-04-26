@@ -24,23 +24,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       //GUARDAR USUARIO
       localStorage.setItem("usuario", JSON.stringify(usuarioValido));
       
-      // 3. Redirección basada en el ROL
-      switch (usuarioValido.rol) {
-        case 'estudiante':
-          window.location.href = '../alumnos.html'; // El dashboard que ya armamos
-          break;
-        case 'docente':
-          window.location.href = 'panel-docente.html'; //No lo hice funcionar
-          break;
-        case 'delegado':
-          window.location.href = 'panel-delegado.html'; //No lo hice funcionar
-          break;
-        case 'administrador':
-          window.location.href = 'panel-admin.html'; //No lo hice funcionar
-          break;
-        default:
-          alert('Rol no reconocido');
-      }
+      // 3. Redirección única al panel principal
+      window.location.href = '../pages/principal.html';
 
     } else {
       // Credenciales incorrectas
@@ -49,6 +34,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     }
   } catch (error) {
     console.error("Error al cargar los usuarios:", error);
+    alert("Ocurrió un error al iniciar sesión. Intentá más tarde.");
     errorDiv.textContent = "Error de conexión. Intentá más tarde.";
     errorDiv.classList.add('show');
   }

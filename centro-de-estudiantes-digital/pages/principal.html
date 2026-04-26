@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Portal — Centro de Estudiantes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Source+Serif+4:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet" />
+  <link href="../css/portal-pages.css" rel="stylesheet" />
+</head>
+<body>
+<aside class="ce-sidebar" id="sidebar" role="navigation" aria-label="Menú lateral">
+  <a href="principal.html" class="sidebar-brand">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+      <rect x="2" y="4" width="13" height="22" rx="2.5" fill="#E6A817"/>
+      <rect x="15" y="4" width="13" height="22" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+      <rect x="14" y="4" width="2" height="22" fill="#02254A"/>
+      <rect x="5" y="10" width="7" height="2" rx="1" fill="#02254A"/>
+      <rect x="5" y="14" width="7" height="2" rx="1" fill="#02254A"/>
+      <rect x="5" y="18" width="5" height="2" rx="1" fill="#02254A"/>
+    </svg>
+    <span>Centro de Estudiantes<small>Portal estudiantil</small></span>
+  </a>
+
+  <p class="sidebar-section-label">Principal</p>
+  <ul class="sidebar-nav" role="list">
+    <li>
+      <a href="principal.html" class="active" aria-current="page">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <rect x="1" y="1" width="6" height="6" rx="1.5" fill="white"/>
+          <rect x="9" y="1" width="6" height="6" rx="1.5" fill="white" opacity=".6"/>
+          <rect x="1" y="9" width="6" height="6" rx="1.5" fill="white" opacity=".6"/>
+          <rect x="9" y="9" width="6" height="6" rx="1.5" fill="white" opacity=".6"/>
+        </svg>
+        Inicio
+      </a>
+    </li>
+    <li><a href="novedades.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1L2 5v9h4V9h4v5h4V5L8 1Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg>Novedades<span class="sidebar-badge">3</span></a></li>
+    <li><a href="calendario.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5 1v3M11 1v3M2 7h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Calendario</a></li>
+    <li><a href="reglamentos.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3" y="1" width="10" height="14" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Reglamentación</a></li>
+    <li><a href="eventos.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2Z" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Eventos<span class="sidebar-badge">5</span></a></li>
+  </ul>
+
+  <p class="sidebar-section-label">Mi cuenta</p>
+  <ul class="sidebar-nav" role="list">
+    <li><a href="perfil.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>Mi perfil</a></li>
+    <li><a href="inscripciones.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-3" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="5" y="1" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Mis inscripciones</a></li>
+    <li><a href="configuracion.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.42 1.42M11.53 11.53l1.42 1.42M3.05 12.95l1.42-1.42M11.53 4.47l1.42-1.42" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Configuración</a></li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" aria-hidden="true">JL</div>
+      <div class="sidebar-user-info">
+        <strong>Juli Marshall</strong>
+        <span>Estudiante · Leg. 47821</span>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="window.location.href='../index.html'">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <path d="M5 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M9 9l3-2.5L9 4M5 6.5h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Cerrar sesión
+    </button>
+  </div>
+</aside>
+
+<div class="ce-topbar" role="banner">
+  <div class="d-flex align-items-center gap-3">
+    <button class="mobile-menu-btn" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="#003366" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <span class="topbar-title">Bienvenido, Juli 👋</span>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-notif" role="button" aria-label="Notificaciones, 3 sin leer" tabindex="0">
+      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true"><path d="M8.5 2a5 5 0 0 0-5 5v3l-1 1.5h12L13 10V7a5 5 0 0 0-5-5Z" stroke="#003366" stroke-width="1.4" fill="none"/><path d="M7 13.5a1.5 1.5 0 0 0 3 0" stroke="#003366" stroke-width="1.3" fill="none"/></svg>
+      <span class="dot" aria-hidden="true"></span>
+    </div>
+    <div class="topbar-chip">
+      <span id="userRole">Invitado</span>
+    </div>
+  </div>
+</div>
+
+<main class="ce-main" id="main-content">
+  <div class="ce-content">
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="dash-section-head anim a3">
+          <h3><span class="icon-mark sc-navy"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 1L2 4.5v7.5h3V8h4v4h3V4.5L7 1Z" stroke="#003366" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg></span>Novedades</h3>
+          <a href="novedades.html" aria-label="Ver todas las novedades">Ver todas →</a>
+        </div>
+        <div class="panel anim a3"><div class="panel-body">
+          <div class="novedad-item"><div class="nov-dot unread" aria-label="Sin leer"></div><div><h4>Asamblea general ordinaria — convocatoria urgente</h4><p>Se convoca a todos los estudiantes a la asamblea del lunes 14/07 a las 18 hs en el Aula Magna. Se tratarán reformas al régimen de exámenes y el presupuesto 2026.</p><div class="nov-meta"><span class="nov-tag urgente"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><polygon points="3,0 6,6 0,6" fill="#7A3200"/></svg>Urgente</span><span class="nov-date">Hoy · 08:30 hs</span></div></div></div>
+          <div class="novedad-item"><div class="nov-dot unread" aria-label="Sin leer"></div><div><h4>Nueva beca de material de estudio — 2.° cuatrimestre</h4><p>Abrió la inscripción para la beca de fotocopias y libros. Podés postularte en la secretaría (B-02) o por el portal hasta el 20 de julio.</p><div class="nov-meta"><span class="nov-tag bienes"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><circle cx="3" cy="3" r="3" fill="#7A5200"/></svg>Bienestar</span><span class="nov-date">Ayer · 15:00 hs</span></div></div></div>
+          <div class="novedad-item"><div class="nov-dot unread" aria-label="Sin leer"></div><div><h4>Acuerdo para extensión del horario de biblioteca</h4><p>El CE logró un acuerdo con la dirección para ampliar el horario de biblioteca hasta las 22 hs durante el período de exámenes. Vigente desde el 15/07.</p><div class="nov-meta"><span class="nov-tag acad"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><rect width="6" height="6" fill="#003366"/></svg>Académico</span><span class="nov-date">06/07 · 10:00 hs</span></div></div></div>
+          <div class="novedad-item"><div class="nov-dot read" aria-label="Leída"></div><div><h4>Resultados del torneo de ajedrez inter-facultades</h4><p>¡Felicitaciones al equipo de nuestra facultad! Ganamos el primer puesto entre 6 instituciones participantes. Próximo torneo en octubre.</p><div class="nov-meta"><span class="nov-tag deporte"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><circle cx="3" cy="3" r="3" fill="none" stroke="#3A1580" stroke-width="1.5"/></svg>Deportes</span><span class="nov-date">01/07 · 09:00 hs</span></div></div></div>
+          <div class="novedad-item"><div class="nov-dot read" aria-label="Leída"></div><div><h4>Taller de salud mental y vida universitaria — cupos agotados</h4><p>Los 30 cupos del taller con la psicóloga Méndez se cubrieron en 48 hs. Se abre lista de espera para una segunda fecha en agosto.</p><div class="nov-meta"><span class="nov-tag cultura"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><rect width="6" height="6" rx="0" fill="none" stroke="#1A5E36" stroke-width="1.5" stroke-dasharray="2 1"/></svg>Cultura</span><span class="nov-date">25/06 · 14:30 hs</span></div></div></div>
+        </div></div>
+
+        <div class="dash-section-head mt-4 anim a4">
+          <h3><span class="icon-mark sc-amber"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="#B5820D" stroke-width="1.4"/><path d="M7 4v3l2 2" stroke="#B5820D" stroke-width="1.4" stroke-linecap="round"/></svg></span>Próximos eventos</h3>
+          <a href="eventos.html" aria-label="Ver todos los eventos">Ver todos →</a>
+        </div>
+        <div class="row g-3 anim a4">
+          <div class="col-sm-6"><div class="ev-card"><div class="ev-card-header"><div class="ev-date-sq" aria-label="14 de julio"><div class="sq-day">14</div><div class="sq-mon">Jul</div></div><div><h4>Asamblea General Ordinaria</h4><div class="ev-loc"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 1a3 3 0 0 1 3 3c0 2-3 5-3 5S2 6 2 4a3 3 0 0 1 3-3Z" stroke="#5B7082" stroke-width="1.1" fill="none"/><circle cx="5" cy="4" r="1" fill="#5B7082"/></svg>Aula Magna · 18:00 hs</div></div></div><div class="ev-card-body"><span class="ev-type-tag ett-asamblea"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><rect width="6" height="6" fill="#7A5200"/></svg>Asamblea</span><p>Tratamiento de reformas al régimen de exámenes finales y aprobación del presupuesto 2026. Asistencia abierta a todos los estudiantes.</p><button class="btn-inscribir">Confirmar asistencia</button></div></div></div>
+          <div class="col-sm-6"><div class="ev-card"><div class="ev-card-header"><div class="ev-date-sq" aria-label="17 de julio"><div class="sq-day">17</div><div class="sq-mon">Jul</div></div><div><h4>Ciclo de cine debate: Identidades</h4><div class="ev-loc"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 1a3 3 0 0 1 3 3c0 2-3 5-3 5S2 6 2 4a3 3 0 0 1 3-3Z" stroke="#5B7082" stroke-width="1.1" fill="none"/><circle cx="5" cy="4" r="1" fill="#5B7082"/></svg>SUM Principal · 19:00 hs</div></div></div><div class="ev-card-body"><span class="ev-type-tag ett-cultura"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><rect width="6" height="6" rx="0" fill="none" stroke="#1A5E36" stroke-width="1.5" stroke-dasharray="2 1"/></svg>Cultura</span><p>Proyección de "No" (Larraín, 2012) seguida de debate sobre comunicación política y participación ciudadana.</p><button class="btn-inscribir inscripto" aria-label="Ya estás inscripta"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6l3 3 5-5" stroke="#1A5E36" stroke-width="1.6" stroke-linecap="round"/></svg>Inscripta</button></div></div></div>
+          <div class="col-sm-6"><div class="ev-card"><div class="ev-card-header"><div class="ev-date-sq" aria-label="22 de julio"><div class="sq-day">22</div><div class="sq-mon">Jul</div></div><div><h4>Taller de escritura académica</h4><div class="ev-loc"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 1a3 3 0 0 1 3 3c0 2-3 5-3 5S2 6 2 4a3 3 0 0 1 3-3Z" stroke="#5B7082" stroke-width="1.1" fill="none"/><circle cx="5" cy="4" r="1" fill="#5B7082"/></svg>Aula 204 · 16:00 hs</div></div></div><div class="ev-card-body"><span class="ev-type-tag ett-acad"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><rect width="6" height="6" fill="#003366"/></svg>Académico</span><p>Técnicas para la redacción de informes, monografías y trabajos finales. Dictado por tutores pares de la carrera de Letras.</p><button class="btn-inscribir">Inscribirme</button></div></div></div>
+          <div class="col-sm-6"><div class="ev-card"><div class="ev-card-header"><div class="ev-date-sq" aria-label="26 de julio"><div class="sq-day">26</div><div class="sq-mon">Jul</div></div><div><h4>Torneo de fútbol 5 mixto</h4><div class="ev-loc"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 1a3 3 0 0 1 3 3c0 2-3 5-3 5S2 6 2 4a3 3 0 0 1 3-3Z" stroke="#5B7082" stroke-width="1.1" fill="none"/><circle cx="5" cy="4" r="1" fill="#5B7082"/></svg>Polideportivo · 10:00 hs</div></div></div><div class="ev-card-body"><span class="ev-type-tag ett-deporte"><svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><circle cx="3" cy="3" r="3" fill="none" stroke="#3A1580" stroke-width="1.5"/></svg>Deportes</span><p>Fase de grupos y eliminatorias en un mismo día. Equipos de 5 personas mínimo. Inscripción individual o grupal.</p><button class="btn-inscribir">Inscribirme</button></div></div></div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="dash-section-head anim a3">
+          <h3><span class="icon-mark sc-amber"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="2" y="3" width="10" height="9" rx="1.2" stroke="#B5820D" stroke-width="1.3" fill="none"/><path d="M5 1v2.5M9 1v2.5M2 6h10" stroke="#B5820D" stroke-width="1.3" stroke-linecap="round"/></svg></span>Calendario académico</h3>
+          <a href="calendario.html" aria-label="Ver calendario completo">Completo →</a>
+        </div>
+        <div class="panel anim a3">
+          <div class="cal-mini-header"><span class="cal-mes" id="calMes">Julio 2026</span><div class="cal-nav"><button id="calPrev" aria-label="Mes anterior">‹</button><button id="calNext" aria-label="Mes siguiente">›</button></div></div>
+          <div class="cal-grid" id="calGrid" role="grid" aria-label="Calendario de julio 2026"></div>
+          <div style="padding: 0 1.25rem 0.8rem; display:flex; align-items:center; gap:12px; flex-wrap:wrap;"><div style="display:flex; align-items:center; gap:5px; font-size:0.7rem; color:#5B7082;"><div style="width:8px;height:8px;border-radius:50%;background:var(--ce-navy);"></div>Hoy</div><div style="display:flex; align-items:center; gap:5px; font-size:0.7rem; color:#5B7082;"><div style="width:8px;height:8px;border-radius:50%;background:var(--ce-amber);"></div>Con evento</div></div>
+          <div class="cal-events" role="list" aria-label="Eventos del mes">
+            <p style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#8A9BAB; padding:0.7rem 0 0.2rem;">Este mes</p>
+            <div class="cal-event-row" role="listitem"><div class="cal-date-block"><div class="cdb-day">10</div><div class="cdb-mon">Jul</div></div><div class="ev-stripe ev-navy"></div><div><h5>Cierre inscripción a finales</h5><span>Sistema SIU · 23:59 hs</span></div></div>
+            <div class="cal-event-row" role="listitem"><div class="cal-date-block"><div class="cdb-day">14</div><div class="cdb-mon">Jul</div></div><div class="ev-stripe ev-amber"></div><div><h5>Asamblea general — CE</h5><span>Aula Magna · 18:00 hs</span></div></div>
+            <div class="cal-event-row" role="listitem"><div class="cal-date-block"><div class="cdb-day">21</div><div class="cdb-mon">Jul</div></div><div class="ev-stripe ev-teal"></div><div><h5>Inicio exámenes finales</h5><span>Turno julio — todas las carreras</span></div></div>
+            <div class="cal-event-row" role="listitem"><div class="cal-date-block"><div class="cdb-day">28</div><div class="cdb-mon">Jul</div></div><div class="ev-stripe ev-navy"></div><div><h5>Entrega de notas — turno julio</h5><span>Sistemas académicos · 18:00 hs</span></div></div>
+            <div class="cal-event-row" role="listitem"><div class="cal-date-block"><div class="cdb-day">31</div><div class="cdb-mon">Jul</div></div><div class="ev-stripe ev-purple"></div><div><h5>Taller de orientación vocacional</h5><span>Gabinete psicopedagógico · 15:00 hs</span></div></div>
+          </div>
+        </div>
+
+        <div class="dash-section-head mt-4 anim a5">
+          <h3><span class="icon-mark sc-teal"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="3" y="1" width="8" height="12" rx="1.2" stroke="#1A9E56" stroke-width="1.3" fill="none"/><path d="M5 4.5h4M5 7h4M5 9.5h2" stroke="#1A9E56" stroke-width="1.1" stroke-linecap="round"/></svg></span>Reglamentación</h3>
+          <a href="reglamentos.html" aria-label="Ver toda la reglamentación">Ver todo →</a>
+        </div>
+        <div class="panel anim a5"><div class="panel-body">
+          <a href="#" class="reg-item"><div class="reg-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="3" y="2" width="12" height="14" rx="1.5" stroke="#003366" stroke-width="1.4" fill="none"/><path d="M6 6h6M6 9h6M6 12h4" stroke="#003366" stroke-width="1.2" stroke-linecap="round"/></svg></div><div style="flex:1"><h5>Estatuto del Centro de Estudiantes</h5><span>Versión vigente · Actualizado mar. 2024</span></div><span class="reg-badge rb-pdf">PDF</span></a>
+          <a href="#" class="reg-item"><div class="reg-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 2L2 7v9h5V11h4v5h5V7L9 2Z" stroke="#003366" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg></div><div style="flex:1"><h5>Reglamento de becas estudiantiles</h5><span>Resolución 412/2026 · Vig. desde 01/03/26</span></div><span class="reg-badge rb-new">Nuevo</span></a>
+          <a href="#" class="reg-item"><div class="reg-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="7" stroke="#003366" stroke-width="1.4" fill="none"/><path d="M9 5v4l2.5 2.5" stroke="#003366" stroke-width="1.4" stroke-linecap="round"/></svg></div><div style="flex:1"><h5>Régimen de exámenes finales</h5><span>Ord. 47 — Consejo Directivo · 2024</span></div><span class="reg-badge rb-pdf">PDF</span></a>
+          <a href="#" class="reg-item"><div class="reg-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 4h8M5 8h8M5 12h5" stroke="#003366" stroke-width="1.4" stroke-linecap="round"/><rect x="2" y="2" width="14" height="14" rx="2" stroke="#003366" stroke-width="1.4" fill="none"/></svg></div><div style="flex:1"><h5>Protocolo de actuación frente al acoso</h5><span>Aprobado dic. 2023 · COED</span></div><span class="reg-badge rb-pdf">PDF</span></a>
+          <a href="#" class="reg-item"><div class="reg-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="3" y="2" width="12" height="14" rx="1.5" stroke="#003366" stroke-width="1.4" fill="none"/><path d="M7 7l1.5 1.5L11 6" stroke="#003366" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11h6" stroke="#003366" stroke-width="1.2" stroke-linecap="round"/></svg></div><div style="flex:1"><h5>Normativa de uso de espacios comunes</h5><span>Versión 3 · Revisada ene. 2026</span></div><span class="reg-badge rb-new">Nuevo</span></a>
+        </div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid var(--ce-border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+      <span style="font-size:0.75rem; color:#8A9BAB;">© 2026 Centro de Estudiantes · Portal estudiantil</span>
+      <span style="font-size:0.72rem; background:rgba(230,168,23,0.1); border:1px solid rgba(230,168,23,0.35); color:#7A5200; padding:3px 10px; border-radius:4px; display:flex; align-items:center; gap:5px;"><svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4.5" stroke="#B5820D" stroke-width="1.1"/><circle cx="5.5" cy="3.5" r="0.8" fill="#B5820D"/><rect x="4.9" y="5" width="1.2" height="3" rx="0.6" fill="#B5820D"/></svg>Diseño accesible · WCAG 2.1 AA</span>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const eventDays = [8, 14, 17, 21, 22, 26, 28, 31];
+const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const dayNames   = ['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
+let calYear = 2026, calMonth = 6;
+
+function renderCal() {
+  const grid = document.getElementById('calGrid');
+  const label = document.getElementById('calMes');
+  label.textContent = monthNames[calMonth] + ' ' + calYear;
+  grid.setAttribute('aria-label', 'Calendario de ' + monthNames[calMonth] + ' ' + calYear);
+  grid.innerHTML = '';
+  dayNames.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-day-name';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = new Date();
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    el.setAttribute('aria-hidden', 'true');
+    grid.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    let cls = 'cal-day';
+    const isToday = (d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear());
+    const hasEv = eventDays.includes(d) && calMonth === 6;
+    if (isToday) cls += ' today';
+    if (hasEv) cls += ' has-event';
+    el.className = cls;
+    el.textContent = d;
+    el.setAttribute('role', 'gridcell');
+    el.setAttribute('aria-label', d + ' de ' + monthNames[calMonth] + (isToday ? ', hoy' : '') + (hasEv ? ', tiene evento' : ''));
+    grid.appendChild(el);
+  }
+}
+
+document.getElementById('calPrev').addEventListener('click', () => {
+  calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCal();
+});
+document.getElementById('calNext').addEventListener('click', () => {
+  calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCal();
+});
+renderCal();
+
+const toggleBtn = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+toggleBtn.addEventListener('click', () => {
+  const open = sidebar.classList.toggle('open');
+  toggleBtn.setAttribute('aria-expanded', open);
+});
+document.addEventListener('click', e => {
+  if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+    sidebar.classList.remove('open');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+
+const roleElement = document.getElementById('userRole');
+if (roleElement) {
+  try {
+    const rawUser = localStorage.getItem('usuario');
+    const savedUser = rawUser ? JSON.parse(rawUser) : null;
+    roleElement.textContent = savedUser?.rol ? savedUser.rol : 'Invitado';
+  } catch (error) {
+    roleElement.textContent = 'Invitado';
+  }
+}
+</script>
+</body>
+</html>
