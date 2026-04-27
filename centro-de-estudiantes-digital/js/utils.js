@@ -1,7 +1,8 @@
 /*=====================FUNCIONES_AUXILIARES=====================*/
 
 function getBasePath() {
-  return window.location.pathname.includes("/pages/") ? "../" : "";
+  const path = window.location.pathname;
+  return (path.includes("/pages/") || path.includes("/public-pages/")) ? "../" : "";
 }
 
 /* ================= NAVBAR ================= */
@@ -31,10 +32,10 @@ function renderNavbar() {
         <div class="d-flex align-items-center gap-3">
             <ul class="d-none d-md-flex list-unstyled mb-0 gap-4" style="color:rgba(255,255,255,0.75); font-size:0.88rem;">
                 <li><a href="${base}index.html" style="color:rgba(255,255,255,0.75); text-decoration:none;" aria-label="Inicio">Inicio</a></li>
-                <li><a href="${base}pages/novedades.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">Novedades</a></li>
-                <li><a href="${base}pages/eventos.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">Eventos</a></li>
-                <li><a href="${base}pages/calendario.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">Calendario</a></li>
-                <li><a href="${base}pages/reglamentos.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">Reglamento</a></li>
+                <li><a href="${base}public-pages/novedades.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">Novedades</a></li>
+                <li><a href="${base}public-pages/eventos.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">Eventos</a></li>
+                <li><a href="${base}public-pages/calendario.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">Calendario</a></li>
+                <li><a href="${base}public-pages/reglamentos.html" style="color:rgba(255,255,255,0.75); text-decoration:none;">Reglamento</a></li>
             </ul>
 
             <!-- Botón de login — forma rectangular + ícono de candado + texto -->
@@ -72,19 +73,19 @@ function renderFooter() {
           <p style="color:white; font-weight:700; font-size:0.85rem; margin-bottom:0.75rem;">Navegación</p>
           <ul class="list-unstyled" style="font-size:0.83rem;">
             <li class="mb-1"><a href="${base}index.html">Inicio</a></li>
-            <li class="mb-1"><a href="${base}pages/novedades.html">Noticias</a></li>
-            <li class="mb-1"><a href="${base}pages/eventos.html">Eventos</a></li>
-            <li class="mb-1"><a href="${base}pages/calendario.html">Calendario</a></li>
-            <li class="mb-1"><a href="${base}pages/reglamentos.html">Reglamento</a></li>
+            <li class="mb-1"><a href="${base}public-pages/novedades.html">Noticias</a></li>
+            <li class="mb-1"><a href="${base}public-pages/eventos.html">Eventos</a></li>
+            <li class="mb-1"><a href="${base}public-pages/calendario.html">Calendario</a></li>
+            <li class="mb-1"><a href="${base}public-pages/reglamentos.html">Reglamento</a></li>
         </ul>
       </div>
       <div class="col-md-2">
         <p style="color:white; font-weight:700; font-size:0.85rem; margin-bottom:0.75rem;">Acceso rápido</p>
         <ul class="list-unstyled" style="font-size:0.83rem;">
           <li class="mb-1"><a href="${base}pages/login.html">Portal estudiante</a></li>
-          <li class="mb-1"><a href="${base}pages/novedades.html">Becas</a></li>
-          <li class="mb-1"><a href="${base}pages/eventos.html">Actividades</a></li>
-          <li class="mb-1"><a href="${base}pages/reglamentos.html">Reglamento</a></li>
+          <li class="mb-1"><a href="${base}public-pages/novedades.html">Becas</a></li>
+          <li class="mb-1"><a href="${base}public-pages/eventos.html">Actividades</a></li>
+          <li class="mb-1"><a href="${base}public-pages/reglamentos.html">Reglamento</a></li>
         </ul>
       </div>
       <div class="col-md-3">
