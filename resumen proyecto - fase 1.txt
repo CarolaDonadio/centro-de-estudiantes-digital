@@ -1,0 +1,199 @@
+🎯 Visión general
+Construimos la Fase 1 completa del Centro de Estudiantes Digital del ISFDyT N.° 57 "Juana Paula Manso", una plataforma web académica que conecta alumnos, docentes y al Centro de Estudiantes. Todo fue desarrollado con HTML5 semántico, CSS3 y JavaScript Vanilla ES6+, consumiendo datos de archivos JSON que simulan una API Mock (preparados para migrar a un backend CodeIgniter 4 + MySQL en la Fase 2).
+
+🛠️ Sistema de diseño establecido
+Paleta cromática
+Migramos del azul/ámbar plano original a una paleta más profunda y sofisticada:
+TokenHexUso--brand-900#1A1D4ATinta más oscuro, fondos del CTA--brand-700#2C3E87Primario — títulos, logo--brand-500#4A67C9Acentos, botones--brand-300#8FA3E3Periwinkle decorativo--brand-100#E3E9FAFondos suaves--accent-amber#F5A623Destacados académicos--accent-coral#E67E5BEventos sociales, errores--accent-green#3DAA6AEstados positivos, becas--accent-violet#8B5CF6Eventos del CE
+Tipografías
+
+Display: Bricolage Grotesque (400–800) — títulos, números grandes.
+Body: Manrope (300–700) — UI, texto corrido.
+
+Principios visuales
+
+Glassmorphism sutil en sidebar y navbar (backdrop-filter: blur(20px) saturate(180%)).
+Animaciones escalonadas al cargar (animation-delay: 0.1s → 0.25s → 0.4s).
+Micro-interacciones: tooltips laterales, elevación al hover, gap dinámico en flechas.
+Bordes superiores con gradiente: línea sutil de periwinkle → ámbar que se desvanece a los costados de cada card.
+
+
+📂 Arquitectura del proyecto
+centro-estudiantes-digital/
+├── centro.html              ← Landing pública (entrada al sistema)
+├── log.html                 ← Login standalone
+├── index.html               ← Dashboard del estudiante (post-login)
+├── css/
+│   ├── public.css           ← Estilos compartidos centro+log
+│   ├── login.css            ← Card de login + sistema de modal
+│   └── styles.css           ← Estilos del dashboard interno
+├── js/
+│   ├── login.js             ← Autenticación + manejo del modal
+│   └── app.js               ← Lógica del dashboard
+├── data/                    ← API Mock
+│   ├── usuarios.json        ← Credenciales de los 4 perfiles
+│   ├── usuario.json         ← Datos del estudiante logueado
+│   ├── novedades.json       ← Feed con categorías
+│   ├── eventos.json         ← 6 eventos del CE con cupos
+│   ├── calendario.json      ← Exámenes, feriados, inscripciones
+│   └── reglamentacion.json  ← Documentos oficiales
+├── .gitignore
+└── README.md
+
+🌐 Flujo completo de la aplicación
+1️⃣ centro.html — Landing pública
+Inspirada en la estructura de UES21, pero compactada y adaptada al sistema de diseño del proyecto.
+Secciones implementadas:
+
+Navbar sticky con glassmorphism: logo ISFDyT 57 + 3 links + botón "Ingresar" con gradiente índigo.
+Hero: eyebrow ámbar pulsante "Año Lectivo 2026", título grande con palabra acentuada en gradiente índigo→azul vivo, subtítulo, dos CTAs (primario y secundario), ilustración SVG geométrica con anillos concéntricos, una tarjeta tipo "documento académico" con mini calendario interno, estrella ámbar flotante, avatar circular y diploma con check verde.
+Accesos directos: grilla con 6 tiles, cada uno con su color de acento personalizado (Portal del Estudiante, Aula Virtual, Reglamentación, Biblioteca Digital, Trámites Online, Bienestar Estudiantil).
+Próximos eventos: 3 tarjetas compactas con franja superior en gradiente, badge de fecha sobre el media, etiqueta de categoría con backdrop-filter.
+CTA final: banner navy con gradientes radiales decorativos y palabra acentuada en ámbar.
+Footer minimalista de una sola línea.
+
+2️⃣ Sistema de login con modal popup
+El acceso al portal se dispara desde cualquier botón con el atributo data-open-login en centro.html. El JS detecta el modo:
+
+Si encuentra #loginOverlay → modo modal popup con backdrop difuminado.
+Si encuentra solo la card → modo standalone (log.html).
+
+Características del modal:
+
+Overlay full-screen con backdrop-filter: blur(14px) saturate(120%).
+Card centrada con animación spring (scale(0.96) → scale(1) con cubic-bezier(0.34, 1.56, 0.64, 1)).
+Borde superior decorativo con gradiente periwinkle → ámbar.
+Círculo radial sutil en la esquina como detalle.
+Cierra con: ✕, click fuera, o tecla Escape.
+Auto-focus en el input de usuario al abrir.
+
+Lógica de autenticación (login.js):
+
+fetch('data/usuarios.json') con manejo de errores.
+Validación cliente: campos vacíos.
+Estado de carga: botón deshabilitado con texto "Verificando...".
+Si falla: banner coral con animación shake (0.4s).
+Si acierta: card se atenúa, banner verde "✓ ¡Bienvenido! Redirigiendo...", redirección a index.html tras 700ms (solo si el rol es estudiante; para los otros 3 perfiles muestra alert provisional).
+
+Credenciales de prueba:
+UsuarioPasswordRolsantiago1234estudiantealumnoalumnoestudiantedocentedocentedocentedelegadodelegadodelegadoadminadminadministrador
+3️⃣ log.html — Versión standalone
+La misma card del modal pero centrada en el viewport con un fondo radial decorativo (gradientes índigo + ámbar). Incluye un botón "← Volver" arriba a la izquierda que regresa a centro.html.
+4️⃣ index.html — Dashboard del estudiante
+Aquí está el corazón del portal, al que se llega tras un login exitoso.
+Layout: sidebar fija a la izquierda + main con header + grilla de 3 tarjetas.
+Sidebar (6 botones minimalistas)
+#IconoFunción1👤 UsuarioMi Perfil2📰 LíneasNovedades3📅 CalendarioCalendario Académico4⭐ EstrellaEventos del CE5📄 DocumentoReglamentación6🚪 SalirSesión (cambiar contraseña + logout)
+Comportamiento:
+
+Hover: tooltip lateral con flecha indicadora aparece a la derecha.
+Click: abre drawer lateral correspondiente.
+z-index alto (70): la sidebar queda siempre visible y clickeable incluso con el drawer abierto.
+Indicador activo: el botón del drawer abierto se pinta de azul + tiene una marca ámbar a su derecha con animación pop.
+Toggle: clickear el mismo botón cierra el drawer.
+Cambio rápido: clickear otro botón mientras hay drawer abierto cambia directamente sin tener que cerrar.
+
+Header
+
+Avatar circular con iniciales generado dinámicamente, con halo difuso multicolor.
+Saludo personalizado con nombre en gradiente: "Hola, Santiago Chiale".
+Resumen contextual: "Tenés 3 clases hoy, 3 notificaciones sin leer y 2 eventos del CE esta semana."
+Nav institucional (Trámites, Institucional, Reglamentación) + campana con badge animado (ping cada 2.6s).
+
+Tarjeta "Tu Carrera"
+
+Carrera principal: "Ciencias de Datos e IA".
+Progreso de materias: 05 de 30 con barra de progreso animada (gradiente índigo → ámbar).
+Próxima fecha académica con tag categórico.
+Ornamento SVG decorativo en la esquina inferior derecha.
+
+Tarjeta "Próximos Eventos CE"
+
+Marca de agua decorativa: estrella geométrica con anillos punteados desvanecida en azul claro.
+Por defecto muestra 2 tarjetas (los más próximos por fecha).
+Botón "Mostrar todo (6)" con flecha que rota 180° al expandir.
+Cada tarjeta tiene múltiples capas decorativas:
+
+Patrón de líneas diagonales sutil sobre el color base.
+Círculo translúcido en la esquina inferior izquierda.
+Badge de categoría arriba a la izquierda con backdrop-filter (Académico/Social/Deportivo/Cultural).
+Cuadradito glassmorphic con MES + DÍA grande.
+Punto pulsante con box-shadow luminoso en el badge de cupo.
+Botón "Inscribirme" con flecha →.
+
+
+
+Estados del botón Inscribirme:
+
+Normal → "Inscribirme →"
+Tras click → "✓ Inscripto" en verde, deshabilitado.
+Sin cupo (ej: Hackathon 60/60) → "Sin cupo" gris.
+Estado sincronizado entre la home y el drawer: si te inscribís en uno, aparece en ambos lugares.
+
+Tarjeta "Últimas Novedades"
+
+Marca de agua decorativa: trazos ondulados apilados que sugieren scroll/feed.
+Filtros por categoría con chips activos.
+Lista con scroll interno, ordenada por destacadas + fecha.
+Cada item tiene franja lateral colorida según categoría, badge de tiempo relativo ("hace 2h"), star ámbar si es destacada, y mini-link al adjunto si existe.
+Variante destacada con fondo cálido (#FFF7EA).
+
+Drawer lateral (panel de cada sección)
+
+Entra de izquierda a derecha con cubic-bezier(0.25, 1, 0.3, 1) (440ms).
+Arranca después de la sidebar (left: var(--sidebar-w)), no la difumina.
+Overlay con backdrop-filter: blur(14px) solo sobre el contenido principal.
+Header con icono cuadrado en gradiente + título + botón ✕.
+Contenido dinámico según la sección:
+
+DrawerContenidoPerfilAvatar grande, datos en grilla 2x2 (legajo, DNI, cohorte, estado), carrera y progresoNovedadesBuscador + listado completo filtrableCalendarioVista mensual interactiva con flechas para navegar meses, puntos de colores por día (hasta 3 por evento), día de hoy resaltado con fondo navy, leyenda con tipos de eventos, panel inferior con detalles del día seleccionadoEventos CELista completa con cupos, barra de progreso por evento, botón Inscribirme sincronizadoReglamentaciónBuscador por palabras clave + repositorio de PDFs con tags hashtagSesiónDos opciones: cambiar contraseña (formulario inline con validación: mínimo 8 caracteres, una mayúscula, un número, coincidencia) y cerrar sesión con confirmación
+
+📊 Datos simulados (API Mock)
+ArchivoContenidoPara módulousuarios.json5 usuarios con los 4 roles (estudiante x2, docente, delegado, admin)M1 - Gestión de Usuariosusuario.jsonSantiago Chiale: legajo, DNI, carrera, materias 5/30, próximas fechasM1 - Gestión de Usuariosnovedades.json5 novedades + 4 categorías con coloresM2 - Novedadescalendario.json18 eventos en abril 2026 + tipos con coloresM3 - Calendarioreglamentacion.json5 documentos con palabras clave, versiones y fechasM4 - Reglamentacióneventos.json6 eventos del CE con cupos y porcentajesM5 - Eventos
+
+🐛 Bugs corregidos durante el desarrollo
+
+Sidebar tapada por el drawer: subimos z-index de la sidebar a 70 y el overlay arranca en left: var(--sidebar-w) en lugar de inset: 0. La barra ahora siempre queda visible y clickeable.
+Tarjetas de eventos sin acción: agregamos botón "Inscribirme" funcional con tres estados visuales y sincronización entre vistas.
+Solo 2 eventos visibles: agregamos botón "Mostrar todo (6)" con animación, expandiendo el JSON original de 3 a 6 eventos para que se note la diferencia.
+Falta de feedback al inscribirse: implementamos cambio de color (verde) + texto + ícono check + estado deshabilitado, todo persistente entre la home y el drawer.
+
+
+📐 Responsive
+BreakpointComportamiento>1100pxLayout completo: 2 columnas de cards<1100pxGrid colapsa a 1 columna, news-list con altura máxima<880pxHero pierde la ilustración SVG, navbar oculta los links<720pxSidebar se reduce a 72px, eventos a 1 columna, drawer toma el 100% del ancho<540pxBrand-text del navbar se oculta parcialmente, paddings reducidos<420pxAvatar más pequeño, header-links compactos
+Además: prefers-reduced-motion desactiva todas las animaciones para accesibilidad.
+
+🌿 Convenciones del proyecto (preparadas para Git)
+
+Rama master para código estable, feature/xxx para nuevas funcionalidades.
+Integración por Pull Requests obligatorios.
+Mensajes de commit siguiendo Conventional Commits: feat:, fix:, docs:, style:, refactor:.
+.gitignore cubriendo: node_modules, vendor, .vscode, .DS_Store, logs, .env, writable/cache (CodeIgniter), entre otros.
+
+
+📋 Documentación entregada (README.md)
+
+Estructura del proyecto.
+Tres opciones para correr localmente (Python, Node, Live Server).
+Sistema de diseño completo (paleta + tipografías + principios).
+Tabla de los 6 botones del sidebar.
+Tabla de módulos implementados.
+Modelo SQL completo preparado para Fase 2 (5 tablas con FK y constraints):
+
+usuario (id, dni, nombre, email, password_hash, perfil_id, carrera_id, activo)
+perfil (id, nombre, descripcion)
+novedad (id, titulo, contenido, categoria_id, autor_id, materia_id, destacada, fecha)
+evento (id, titulo, descripcion, fecha_inicio, fecha_fin, cupo, autor_id, estado)
+inscripcion_evento (tabla intermedia: evento_id, usuario_id, fecha_inscripcion)
+
+
+Convenciones Git con ejemplos de commits.
+Roadmap de la Fase 2 sprint por sprint.
+
+
+🔜 Roadmap pendiente (Fase 2)
+SprintTarea1Setup CodeIgniter 4 + PHP 8.x, migraciones, seeders2Autenticación y roles con CI4 Shield3CRUD de novedades con API REST4Gestión de eventos e inscripciones server-side5Calendario conectado a BD + reportes6Hardening (CSRF, SQL Injection) + PHPUnit
+Cuando llegue el momento del backend, reemplazás los fetch('data/*.json') por endpoints REST tipo fetch('/api/eventos'), ajustás el js/login.js para que haga POST /api/auth/login con CI4 Shield, y el resto del frontend queda intacto.
+
+✅ Estado actual
+100% Frontend funcional con los 5 módulos obligatorios implementados, autenticación mock con 4 perfiles, navegación completa entre las tres páginas (centro.html → modal login → index.html), y diseño coherente entre la landing pública y el portal interno. Listo para subir a la rama master en GitHub.

@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<!--
+=================================================================
+  PROYECTO: Centro de Estudiantes Digital - ISFDyT 57
+  ARCHIVO: docentes.html (Dashboard del docente)
+  FASE 1 - Sprint 4: Plataforma docente
+  Hereda el sistema de diseño de la Fase 1 (css/styles.css)
+=================================================================
+  Cumplimiento de requisitos:
+  · Mantiene paleta, tipografía, glassmorphism y layout originales
+  · Incluye herramientas que impactan el dashboard del alumno
+    (publicaciones → feed del alumno, exámenes → calendario,
+     materiales → recursos accesibles)
+  · Zona de subida de material didáctico con drag & drop
+=================================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Portal Docente - ISFDyT 57 Juana Paula Manso" />
+  <title>ISFDyT 57 · Portal Docente</title>
+
+  <!-- === MISMA TIPOGRAFÍA QUE EL PORTAL DEL ALUMNO === -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- === ESTILOS HEREDADOS DEL PROYECTO === -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!--
+    Extensiones específicas del portal docente.
+    Reutilizan los design tokens del proyecto (--brand-*, --accent-*).
+    Si el proyecto migra estos estilos a styles.css, este bloque puede borrarse.
+  -->
+  <style>
+    /* ============================================================
+       INDICADOR DE PERFIL EN EL HEADER
+       ============================================================ */
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font: 600 .68rem/1 'Manrope', sans-serif;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--brand-700, #2C3E87);
+      background: linear-gradient(135deg, rgba(245, 166, 35, .18), rgba(143, 163, 227, .22));
+      padding: .35rem .6rem .35rem .55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 166, 35, .35);
+      margin-bottom: .35rem;
+    }
+    .role-pill::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-amber, #F5A623);
+      box-shadow: 0 0 0 3px rgba(245, 166, 35, .25);
+    }
+
+    /* ============================================================
+       BOTÓN DESTACADO "+ NUEVA PUBLICACIÓN"
+       ============================================================ */
+    .header__action {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .55rem .9rem;
+      font: 600 .82rem/1 'Manrope', sans-serif;
+      color: #fff;
+      background: linear-gradient(135deg, var(--brand-700, #2C3E87), var(--brand-500, #4A67C9));
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px -6px rgba(44, 62, 135, .55);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .header__action:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px -8px rgba(44, 62, 135, .7);
+    }
+    .header__action svg {
+      width: 14px; height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    /* ============================================================
+       ITEMS EN EL FEED DE PUBLICACIONES PROPIAS
+       Variantes según tipo (aviso/material/evaluación/calificación)
+       ============================================================ */
+    .pub-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      padding: 1rem 1.1rem 1rem 1.4rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .25);
+      border-radius: 12px;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .pub-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px -14px rgba(26, 29, 74, .35);
+    }
+    .pub-item::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 14%;
+      bottom: 14%;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: var(--pub-color, var(--brand-500, #4A67C9));
+    }
+    .pub-item__icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--pub-color, #4A67C9) 14%, white);
+      color: var(--pub-color, #4A67C9);
+    }
+    .pub-item__icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .pub-item__head {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      flex-wrap: wrap;
+      margin-bottom: .25rem;
+    }
+    .pub-item__type {
+      font: 600 .65rem/1 'Manrope', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--pub-color, #4A67C9);
+      background: color-mix(in srgb, var(--pub-color, #4A67C9) 10%, white);
+      padding: .25rem .45rem;
+      border-radius: 5px;
+    }
+    .pub-item__time {
+      font: 500 .72rem/1 'Manrope', sans-serif;
+      color: #8a8d9c;
+    }
+    .pub-item__title {
+      font: 700 .98rem/1.3 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+      margin: 0 0 .15rem;
+    }
+    .pub-item__excerpt {
+      font: 400 .82rem/1.45 'Manrope', sans-serif;
+      color: #5a5d6e;
+      margin: 0;
+    }
+    .pub-item__meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: .3rem;
+      font: 500 .72rem/1 'Manrope', sans-serif;
+      color: #6c6f80;
+      white-space: nowrap;
+    }
+    .pub-item__reach {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      color: var(--brand-700, #2C3E87);
+      font-weight: 600;
+    }
+    .pub-item__reach svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ============================================================
+       ZONA DE SUBIDA DE MATERIAL (drag & drop)
+       Aparece en el drawer "Material Didáctico"
+       ============================================================ */
+    .upload-zone {
+      position: relative;
+      display: grid;
+      place-items: center;
+      gap: .8rem;
+      padding: 2rem 1.5rem;
+      border: 2px dashed rgba(74, 103, 201, .35);
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 30% 10%, rgba(245, 166, 35, .08), transparent 60%),
+        radial-gradient(circle at 80% 90%, rgba(74, 103, 201, .07), transparent 50%),
+        #fafbff;
+      text-align: center;
+      transition: border-color .2s ease, background-color .2s ease;
+      cursor: pointer;
+    }
+    .upload-zone:hover,
+    .upload-zone.is-dragover {
+      border-color: var(--accent-amber, #F5A623);
+      background-color: #fff8ec;
+    }
+    .upload-zone__icon {
+      width: 54px; height: 54px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--brand-700, #2C3E87), var(--brand-500, #4A67C9));
+      color: #fff;
+      border-radius: 14px;
+      box-shadow: 0 12px 28px -10px rgba(44, 62, 135, .55);
+    }
+    .upload-zone__icon svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .upload-zone__title {
+      font: 700 1rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+      margin: 0;
+    }
+    .upload-zone__hint {
+      font: 400 .82rem/1.4 'Manrope', sans-serif;
+      color: #6c6f80;
+      margin: 0;
+    }
+    .upload-zone__browse {
+      color: var(--brand-700, #2C3E87);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-weight: 600;
+    }
+
+    .upload-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .7rem;
+      margin-top: 1rem;
+    }
+    .upload-controls label {
+      display: flex; flex-direction: column; gap: .3rem;
+      font: 600 .72rem/1 'Manrope', sans-serif;
+      color: var(--brand-700, #2C3E87);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .upload-controls select,
+    .upload-controls input,
+    .pub-form input,
+    .pub-form select,
+    .pub-form textarea {
+      font: 400 .9rem/1.3 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      padding: .65rem .8rem;
+      border: 1px solid rgba(143, 163, 227, .45);
+      border-radius: 9px;
+      background: #fff;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .upload-controls select:focus,
+    .upload-controls input:focus,
+    .pub-form input:focus,
+    .pub-form select:focus,
+    .pub-form textarea:focus {
+      border-color: var(--brand-500, #4A67C9);
+      box-shadow: 0 0 0 3px rgba(74, 103, 201, .15);
+    }
+
+    /* ============================================================
+       LISTADO DE MATERIALES YA SUBIDOS
+       ============================================================ */
+    .materials-list {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      margin-top: 1.5rem;
+    }
+    .material-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: .9rem;
+      align-items: center;
+      padding: .75rem .9rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .25);
+      border-radius: 10px;
+    }
+    .material-row__icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: grid; place-items: center;
+      background: var(--mat-bg, #E3E9FA);
+      color: var(--mat-fg, #2C3E87);
+      font: 700 .68rem/1 'Manrope', sans-serif;
+      letter-spacing: .04em;
+    }
+    .material-row__info p {
+      margin: 0;
+    }
+    .material-row__name {
+      font: 600 .88rem/1.2 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .material-row__meta {
+      font: 400 .72rem/1.2 'Manrope', sans-serif;
+      color: #6c6f80;
+      margin-top: .2rem !important;
+    }
+    .material-row__downloads {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      font: 600 .76rem/1 'Manrope', sans-serif;
+      color: var(--accent-green, #3DAA6A);
+    }
+    .material-row__downloads svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .material-row__del {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--accent-coral, #E67E5B);
+      cursor: pointer;
+      display: grid; place-items: center;
+      transition: background .15s ease;
+    }
+    .material-row__del:hover { background: rgba(230, 126, 91, .12); }
+    .material-row__del svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    /* ============================================================
+       COMPOSITOR DE PUBLICACIONES
+       (es el formulario que afecta el feed del alumno)
+       ============================================================ */
+    .pub-form {
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+    }
+    .pub-form__row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .7rem;
+    }
+    .pub-form label {
+      display: flex; flex-direction: column; gap: .3rem;
+      font: 600 .72rem/1 'Manrope', sans-serif;
+      color: var(--brand-700, #2C3E87);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .pub-form textarea {
+      min-height: 110px;
+      resize: vertical;
+      font-family: 'Manrope', sans-serif;
+    }
+    .pub-form__notice {
+      display: flex;
+      gap: .6rem;
+      align-items: flex-start;
+      padding: .8rem .9rem;
+      background: linear-gradient(135deg, rgba(245, 166, 35, .12), rgba(74, 103, 201, .08));
+      border: 1px dashed rgba(245, 166, 35, .45);
+      border-radius: 10px;
+      color: #5a5d6e;
+      font: 400 .82rem/1.4 'Manrope', sans-serif;
+    }
+    .pub-form__notice strong { color: var(--brand-900, #1A1D4A); }
+    .pub-form__notice svg {
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      color: var(--accent-amber, #F5A623);
+      stroke: currentColor; fill: none; stroke-width: 1.8;
+    }
+    .pub-form__submit {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .75rem 1.3rem;
+      font: 700 .88rem/1 'Manrope', sans-serif;
+      color: #fff;
+      background: linear-gradient(135deg, var(--brand-700, #2C3E87), var(--brand-500, #4A67C9));
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 8px 22px -8px rgba(44, 62, 135, .6);
+      transition: transform .2s ease;
+    }
+    .pub-form__submit:hover { transform: translateY(-1px); }
+    .pub-form__submit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+    /* ============================================================
+       LISTADOS DEL DRAWER (cursos / alumnos)
+       ============================================================ */
+    .course-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: .8rem;
+      padding: 1rem 1.1rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .3);
+      border-radius: 12px;
+      margin-bottom: .65rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .course-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--course-color, var(--brand-500, #4A67C9));
+    }
+    .course-card h4 {
+      margin: 0 0 .25rem;
+      font: 700 1rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .course-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem .9rem;
+      font: 500 .76rem/1.2 'Manrope', sans-serif;
+      color: #5a5d6e;
+    }
+    .course-card__meta span { display: inline-flex; align-items: center; gap: .25rem; }
+    .course-card__manage {
+      align-self: center;
+      padding: .5rem .8rem;
+      font: 600 .76rem/1 'Manrope', sans-serif;
+      color: var(--brand-700, #2C3E87);
+      background: var(--brand-100, #E3E9FA);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+    .course-card__manage:hover { background: rgba(143, 163, 227, .35); }
+
+    .student-row {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: .8rem;
+      align-items: center;
+      padding: .65rem .9rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .22);
+      border-radius: 10px;
+      margin-bottom: .4rem;
+    }
+    .student-row__avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--brand-500, #4A67C9), var(--brand-300, #8FA3E3));
+      color: #fff;
+      font: 700 .78rem/1 'Manrope', sans-serif;
+    }
+    .student-row__name {
+      margin: 0;
+      font: 600 .88rem/1.2 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .student-row__legajo {
+      margin: .15rem 0 0;
+      font: 400 .72rem/1.2 'Manrope', sans-serif;
+      color: #8a8d9c;
+    }
+    .student-row__stats {
+      display: flex;
+      gap: .8rem;
+      font: 500 .76rem/1.2 'Manrope', sans-serif;
+      color: #5a5d6e;
+    }
+    .student-row__stats b { color: var(--brand-900, #1A1D4A); }
+
+    .drawer__search {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .65rem .85rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .35);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    .drawer__search svg { width: 16px; height: 16px; color: #8a8d9c; stroke: currentColor; fill: none; stroke-width: 2; }
+    .drawer__search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font: 400 .88rem/1 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      background: transparent;
+    }
+
+    .drawer__tabs {
+      display: flex;
+      gap: .35rem;
+      padding: .25rem;
+      background: var(--brand-100, #E3E9FA);
+      border-radius: 10px;
+      margin-bottom: 1.2rem;
+    }
+    .drawer__tab {
+      flex: 1;
+      padding: .55rem .8rem;
+      font: 600 .82rem/1 'Manrope', sans-serif;
+      color: var(--brand-700, #2C3E87);
+      background: transparent;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease;
+    }
+    .drawer__tab.is-active {
+      background: #fff;
+      color: var(--brand-900, #1A1D4A);
+      box-shadow: 0 4px 10px -4px rgba(26, 29, 74, .15);
+    }
+
+    /* ============================================================
+       Tarjetas de "Próximas Clases" (variante docente)
+       Reutiliza la estructura de events-grid pero con colores propios
+       ============================================================ */
+    .class-card {
+      position: relative;
+      padding: 1rem 1.1rem;
+      background: linear-gradient(135deg, var(--class-from, #2C3E87), var(--class-to, #4A67C9));
+      color: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .class-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, .04) 0 2px,
+        transparent 2px 12px
+      );
+      z-index: -1;
+    }
+    .class-card__date {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: .35rem .6rem;
+      background: rgba(255, 255, 255, .15);
+      backdrop-filter: blur(6px);
+      border-radius: 8px;
+      font-family: 'Bricolage Grotesque', serif;
+      line-height: 1;
+      margin-bottom: .7rem;
+    }
+    .class-card__date small {
+      font-size: .6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      opacity: .9;
+    }
+    .class-card__date strong { font-size: 1.4rem; font-weight: 700; }
+    .class-card__type {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      font: 600 .65rem/1 'Manrope', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      padding: .3rem .55rem;
+      background: rgba(255, 255, 255, .18);
+      backdrop-filter: blur(6px);
+      border-radius: 5px;
+    }
+    .class-card__title {
+      margin: 0 0 .25rem;
+      font: 700 1rem/1.25 'Bricolage Grotesque', serif;
+    }
+    .class-card__sub {
+      margin: 0 0 .8rem;
+      font: 400 .8rem/1.3 'Manrope', sans-serif;
+      opacity: .85;
+    }
+    .class-card__action {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .45rem .75rem;
+      font: 600 .76rem/1 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      background: rgba(255, 255, 255, .92);
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: transform .2s ease;
+    }
+    .class-card__action:hover { transform: translateY(-1px); }
+    .class-card__action svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+    /* ============================================================
+       Toast de confirmación cuando una acción afecta el portal del alumno
+       ============================================================ */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem; right: 1.5rem;
+      max-width: 360px;
+      padding: .9rem 1.1rem .9rem 1rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 18px 40px -10px rgba(26, 29, 74, .35);
+      border-left: 4px solid var(--accent-green, #3DAA6A);
+      transform: translateX(120%);
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999;
+      display: flex;
+      gap: .7rem;
+      align-items: flex-start;
+    }
+    .toast.is-visible { transform: translateX(0); }
+    .toast__icon {
+      width: 28px; height: 28px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: rgba(61, 170, 106, .15);
+      color: var(--accent-green, #3DAA6A);
+      display: grid; place-items: center;
+    }
+    .toast__icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+    .toast strong {
+      display: block;
+      font: 700 .85rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+      margin-bottom: .15rem;
+    }
+    .toast span {
+      font: 400 .76rem/1.4 'Manrope', sans-serif;
+      color: #5a5d6e;
+    }
+
+    /* ============================================================
+       Header alineado con el original pero con espacio para "+ Nueva"
+       ============================================================ */
+    .header__nav { gap: .9rem; }
+
+    @media (max-width: 720px) {
+      .upload-controls,
+      .pub-form__row { grid-template-columns: 1fr; }
+      .pub-item { grid-template-columns: auto 1fr; }
+      .pub-item__meta { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!--
+    ================================================================
+    SIDEBAR IZQUIERDO - 6 botones (igual al portal del alumno)
+    Reaprovecha estilos .sidebar / .nav-btn / tooltips.
+    ================================================================
+  -->
+  <aside class="sidebar" aria-label="Navegación principal del docente">
+
+    <div class="sidebar__logo" aria-label="ISFDyT 57 Juana Paula Manso">
+      <span class="logo-number">57</span>
+      <span class="logo-text">ISFDyT</span>
+      <span class="logo-sub">J. P. Manso</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <ul role="list">
+
+        <!-- 1) Mi Perfil -->
+        <li>
+          <button class="nav-btn" data-drawer="perfil" aria-label="Mi Perfil">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Mi Perfil</span>
+          </button>
+        </li>
+
+        <!-- 2) Mis Cursos (sustituye "Mis Materias") -->
+        <li>
+          <button class="nav-btn" data-drawer="cursos" aria-label="Mis Cursos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <path d="M9 7h7M9 11h5" stroke-linecap="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Mis Cursos</span>
+          </button>
+        </li>
+
+        <!-- 3) Mis Alumnos (sustituye "Mis Inscripciones") -->
+        <li>
+          <button class="nav-btn" data-drawer="alumnos" aria-label="Mis Alumnos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="9" cy="8" r="3.5" />
+              <path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round" />
+              <circle cx="17" cy="9" r="2.6" />
+              <path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Mis Alumnos</span>
+          </button>
+        </li>
+
+        <!-- 4) Material Didáctico (sustituye "Mi Carrera") - ZONA DE SUBIDA -->
+        <li>
+          <button class="nav-btn" data-drawer="material" aria-label="Material Didáctico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round"/>
+              <path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 5v12" stroke-linecap="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Material Didáctico</span>
+          </button>
+        </li>
+
+        <!-- 5) Publicaciones (sustituye "Centro de Estudiantes") -->
+        <li>
+          <button class="nav-btn" data-drawer="publicar" aria-label="Publicar para alumnos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M3 11l18-7-7 18-2-8-9-3z" stroke-linejoin="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Publicar</span>
+          </button>
+        </li>
+
+        <!-- 6) Cerrar sesión -->
+        <li class="nav-btn--bottom">
+          <button class="nav-btn nav-btn--danger" id="logoutBtn" aria-label="Cerrar sesión">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke-linecap="round" />
+              <path d="M10 17l5-5-5-5M15 12H3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Cerrar Sesión</span>
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+  </aside>
+
+  <!--
+    ================================================================
+    CONTENIDO PRINCIPAL: Header + Grid de tarjetas
+    ================================================================
+  -->
+  <main class="main">
+
+    <header class="header" data-animate="fade-down">
+
+      <div class="header__greeting">
+        <div class="avatar" id="userAvatar" aria-hidden="true">CM</div>
+
+        <div class="header__text">
+          <span class="role-pill">Docente</span>
+          <h1 class="header__title">
+            Hola, <strong id="userName">Prof. Carlos Mendoza</strong>
+          </h1>
+          <p class="header__subtitle" id="userSummary">
+            Tenés <strong>2 clases hoy</strong>, <strong>12 trabajos por corregir</strong> y 1 evaluación esta semana.
+          </p>
+        </div>
+      </div>
+
+      <nav class="header__nav" aria-label="Secciones institucionales">
+        <a href="#tramites" class="header__link">Trámites Docentes</a>
+        <a href="#institucional" class="header__link">Institucional</a>
+        <a href="#reglamentacion" class="header__link">Reglamentación</a>
+
+        <!-- Botón de acción rápida: abre el compositor de publicaciones -->
+        <button class="header__action" data-drawer-trigger="publicar" aria-label="Crear nueva publicación">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          Nueva publicación
+        </button>
+
+        <button class="bell-btn" id="bellBtn" aria-label="Notificaciones" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M10 21a2 2 0 0 0 4 0" stroke-linecap="round" />
+          </svg>
+          <span class="bell-btn__badge" id="bellBadge">5</span>
+        </button>
+      </nav>
+
+    </header>
+
+    <!--
+      GRID PRINCIPAL: tres zonas (mismas que el alumno)
+      - Columna izquierda arriba:  Tu Actividad Docente (reemplaza "Tu Carrera")
+      - Columna izquierda abajo:   Próximas Clases    (reemplaza Eventos CE)
+      - Columna derecha:           Tus Publicaciones  (reemplaza Novedades)
+    -->
+    <section class="grid">
+
+      <!-- === TARJETA 1: TU ACTIVIDAD DOCENTE === -->
+      <article class="card card--career" data-animate="fade-up" style="--delay: 0.1s">
+        <header class="card__header">
+          <span class="eyebrow">Tu Actividad</span>
+          <h2 class="card__title">Profesor en 3 Materias</h2>
+        </header>
+
+        <div class="card__body career-body">
+
+          <!-- Item 1: Trabajos pendientes de corrección -->
+          <div class="career-item">
+            <div class="career-icon career-icon--soft">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="3" y="4" width="18" height="16" rx="2"/>
+              </svg>
+            </div>
+            <div>
+              <p class="career-label">Trabajos corregidos</p>
+              <p class="career-value">
+                <span id="trabajosCorregidos">16</span>
+                <span class="career-muted">de <span id="trabajosTotales">28</span></span>
+              </p>
+              <div class="progress">
+                <div class="progress__fill" id="careerProgress" style="width: 57%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2: Próxima clase del docente -->
+          <div class="career-item">
+            <div class="career-icon career-icon--warm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 7v5l3 3" stroke-linecap="round" />
+                <circle cx="12" cy="12" r="9" />
+              </svg>
+            </div>
+            <div>
+              <p class="career-label">Próxima clase</p>
+              <p class="career-value career-value--small" id="proximaClase">
+                Mañana 18:00 · Lógica Computacional
+              </p>
+              <p class="career-tag" id="proximaTipo">1° Año · Aula 204</p>
+            </div>
+          </div>
+
+          <div class="career-ornament" aria-hidden="true">
+            <svg viewBox="0 0 200 120">
+              <path d="M10 90 Q50 40 100 60 T190 50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+              <circle cx="170" cy="40" r="3" fill="currentColor" opacity="0.6"/>
+              <circle cx="100" cy="60" r="2" fill="currentColor" opacity="0.4"/>
+              <circle cx="40" cy="75" r="2" fill="currentColor" opacity="0.5"/>
+            </svg>
+          </div>
+        </div>
+      </article>
+
+      <!-- === TARJETA 2: PRÓXIMAS CLASES Y EVALUACIONES === -->
+      <article class="card card--events" data-animate="fade-up" style="--delay: 0.25s">
+
+        <svg class="card-watermark" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+          <rect x="40" y="40" width="120" height="120" rx="8" stroke-dasharray="3 6" opacity="0.5"/>
+          <path d="M40 70h120M40 100h120M40 130h120" opacity="0.4"/>
+          <circle cx="160" cy="40" r="4" opacity="0.5"/>
+        </svg>
+
+        <header class="card__header">
+          <span class="eyebrow">
+            <svg class="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="5" width="18" height="16" rx="2"/>
+              <path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/>
+            </svg>
+            Cronograma docente
+          </span>
+          <h2 class="card__title">Próximas Clases y Evaluaciones</h2>
+        </header>
+
+        <div class="events-grid" id="classesContainer">
+          <!-- JS inyecta las clases -->
+        </div>
+
+        <div class="events-actions">
+          <button class="events-toggle" id="scheduleNewBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+            </svg>
+            Programar evaluación
+          </button>
+        </div>
+      </article>
+
+      <!-- === TARJETA 3: TUS PUBLICACIONES === -->
+      <article class="card card--news" data-animate="fade-up" style="--delay: 0.4s">
+
+        <svg class="card-watermark" viewBox="0 0 220 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M5 20 Q40 5 80 25 T160 20 T215 28" />
+          <path d="M5 50 Q40 35 80 55 T160 50 T215 58" opacity="0.7"/>
+          <path d="M5 80 Q40 65 80 85 T160 80 T215 88" opacity="0.45"/>
+        </svg>
+
+        <header class="card__header card__header--row">
+          <div>
+            <span class="eyebrow">
+              <svg class="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/>
+              </svg>
+              Feed docente
+            </span>
+            <h2 class="card__title">Tus Publicaciones</h2>
+          </div>
+
+          <div class="news-filters" id="pubFilters">
+            <button class="chip chip--active" data-filter="todas">Todas</button>
+            <button class="chip" data-filter="aviso">Avisos</button>
+            <button class="chip" data-filter="material">Materiales</button>
+            <button class="chip" data-filter="evaluacion">Evaluaciones</button>
+            <button class="chip" data-filter="calificacion">Calificaciones</button>
+          </div>
+        </header>
+
+        <div class="news-list" id="pubList">
+          <!-- JS inyecta las publicaciones -->
+        </div>
+      </article>
+
+    </section>
+  </main>
+
+  <!--
+    ================================================================
+    DRAWER LATERAL  (mismo patrón visual que el portal del alumno)
+    ================================================================
+  -->
+  <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-hidden="true">
+    <header class="drawer__header">
+      <div class="drawer__title-wrap">
+        <div class="drawer__icon" id="drawerIcon"></div>
+        <h2 class="drawer__title" id="drawerTitle">Título</h2>
+      </div>
+      <button class="drawer__close" id="drawerClose" aria-label="Cerrar panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+    <div class="drawer__body" id="drawerBody"></div>
+  </aside>
+
+  <!-- PANEL DE NOTIFICACIONES -->
+  <div class="notif-panel" id="notifPanel" aria-hidden="true" role="dialog" aria-label="Notificaciones">
+    <div class="notif-panel__header">
+      <h3 class="notif-panel__title">Notificaciones</h3>
+      <button class="notif-panel__clear" id="notifMarkAll">Marcar todo leído</button>
+    </div>
+    <div class="notif-panel__list" id="notifList"></div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN DE SALIDA -->
+  <div class="modal-overlay" id="logoutModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-card__body">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="modal-card__icon">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+          <path d="M10 17l5-5-5-5M15 12H3" />
+        </svg>
+        <h3 class="modal-card__title">¿Seguro desea salir?</h3>
+      </div>
+      <div class="modal-card__actions">
+        <button class="btn-secondary" id="logoutCancel">Cancelar</button>
+        <button class="btn-primary" id="logoutConfirm">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST de confirmación cuando una acción afecta al alumno -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="toast__icon">
+      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <strong id="toastTitle">Publicación enviada</strong>
+      <span id="toastMsg">Los alumnos ya pueden verla en su feed.</span>
+    </div>
+  </div>
+
+  <!--
+    ================================================================
+    SCRIPT INLINE: lógica del docente con datos demo.
+    En Fase 2 se migrará a js/docente.js + endpoints CodeIgniter 4.
+    ================================================================
+  -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ============================================================
+       1) DATA MOCK (en Fase 2 → fetch a /api/docente/*)
+       ============================================================ */
+    const docente = {
+      nombre: 'Prof. Carlos Mendoza',
+      iniciales: 'CM',
+      legajo: 'D-2401',
+      dni: '28.456.789',
+      especialidad: 'Matemáticas y Computación',
+      antiguedad: '12 años',
+      estado: 'Activo',
+      email: 'cmendoza@isfdyt57.edu.ar'
+    };
+
+    const cursos = [
+      { id: 1, nombre: 'Lógica Computacional', anio: '1°', alumnos: 28, asistencia: 86, color: '#4A67C9', proxima: 'Mañana 18:00' },
+      { id: 2, nombre: 'Matemática Aplicada',  anio: '2°', alumnos: 22, asistencia: 79, color: '#F5A623', proxima: 'Jueves 20:00' },
+      { id: 3, nombre: 'Algoritmos I',          anio: '1°', alumnos: 30, asistencia: 91, color: '#3DAA6A', proxima: 'Viernes 18:00' }
+    ];
+
+    const alumnos = [
+      { nombre: 'Ana Suárez',         legajo: 'A-23104', curso: 1, asistencia: '95%', promedio: '8.5' },
+      { nombre: 'Bruno Pereyra',      legajo: 'A-23211', curso: 1, asistencia: '78%', promedio: '6.8' },
+      { nombre: 'Camila Ríos',        legajo: 'A-23308', curso: 1, asistencia: '88%', promedio: '9.0' },
+      { nombre: 'Diego Falcón',       legajo: 'A-23415', curso: 2, asistencia: '70%', promedio: '7.2' },
+      { nombre: 'Eva Montero',        legajo: 'A-23502', curso: 2, asistencia: '92%', promedio: '8.9' },
+      { nombre: 'Federico Núñez',     legajo: 'A-23617', curso: 3, asistencia: '85%', promedio: '7.5' },
+      { nombre: 'Gabriela Iturrioz',  legajo: 'A-23728', curso: 3, asistencia: '97%', promedio: '9.4' },
+      { nombre: 'Santiago Chiale',    legajo: 'A-23110', curso: 1, asistencia: '83%', promedio: '7.8' }
+    ];
+
+    // Empieza con algunos materiales ya cargados; cuando el docente sube
+    // uno nuevo se va agregando a este array y se re-renderiza.
+    const materiales = [
+      { id: 1, nombre: 'Apunte U3 - Funciones lógicas.pdf',  tipo: 'PDF',  curso: 1, fecha: '15/04/2026', tamanio: '2.4 MB', descargas: 23 },
+      { id: 2, nombre: 'Guía de ejercicios - Tablas de verdad.pdf', tipo: 'PDF', curso: 1, fecha: '12/04/2026', tamanio: '890 KB', descargas: 18 },
+      { id: 3, nombre: 'Clase grabada - Inducción matemática.mp4', tipo: 'VIDEO', curso: 2, fecha: '08/04/2026', tamanio: '184 MB', descargas: 9 },
+      { id: 4, nombre: 'Práctica integradora.docx', tipo: 'DOC', curso: 3, fecha: '05/04/2026', tamanio: '320 KB', descargas: 27 }
+    ];
+
+    // Clases / evaluaciones próximas (lo que ve la tarjeta central)
+    const clases = [
+      { dia: 'MAÑ', num: '28', titulo: 'Lógica Computacional', sub: 'Clase teórica · Aula 204',  tipo: 'Clase',     from: '#2C3E87', to: '#4A67C9' },
+      { dia: 'MIÉ', num: '29', titulo: 'Matemática Aplicada',  sub: 'Práctica · Lab 2',           tipo: 'Clase',     from: '#3DAA6A', to: '#5BC987' },
+      { dia: 'VIE', num: '01', titulo: 'Lógica Computacional', sub: 'Parcial 1 · 28 alumnos',    tipo: 'Examen',    from: '#E67E5B', to: '#F19A7B' },
+      { dia: 'LUN', num: '04', titulo: 'Algoritmos I',          sub: 'Repaso pre-parcial',         tipo: 'Clase',     from: '#8B5CF6', to: '#A78BF7' }
+    ];
+
+    // Publicaciones que ya hizo el docente (estas vendrían de la BD).
+    // Cualquier publicación nueva se prepende a este array y aparecerá
+    // automáticamente en el feed del alumno en Fase 2 (vía endpoint compartido).
+    const publicaciones = [
+      { id: 5, tipo: 'aviso',        titulo: 'Cambio de aula para el parcial', extracto: 'El parcial del viernes se rinde en el aula 301 (no en la 204).', curso: 'Lógica Computacional', alcance: 28, lecturas: 21, hace: 'hace 2h', color: '#F5A623' },
+      { id: 4, tipo: 'material',     titulo: 'Subido: Apunte Unidad 3',         extracto: 'Funciones lógicas, leyes de De Morgan y simplificación.',         curso: 'Lógica Computacional', alcance: 28, lecturas: 23, hace: 'hace 1 día', color: '#4A67C9' },
+      { id: 3, tipo: 'evaluacion',   titulo: 'Programado: Parcial 1',            extracto: 'Viernes 1 de mayo, 18:00 hs. Temario: unidades 1 a 3.',           curso: 'Lógica Computacional', alcance: 28, lecturas: 28, hace: 'hace 2 días', color: '#E67E5B' },
+      { id: 2, tipo: 'calificacion', titulo: 'Notas TP integrador',              extracto: 'Subidas las correcciones del TP integrador (22 de 28 trabajos).', curso: 'Matemática Aplicada',  alcance: 22, lecturas: 19, hace: 'hace 3 días', color: '#3DAA6A' },
+      { id: 1, tipo: 'aviso',        titulo: 'Recordatorio - inscripción',       extracto: 'Cierre de inscripción al recuperatorio: 10 de mayo.',              curso: 'Algoritmos I',          alcance: 30, lecturas: 25, hace: 'hace 4 días', color: '#F5A623' }
+    ];
+
+    /* ============================================================
+       2) RENDER INICIAL DE LAS TRES TARJETAS PRINCIPALES
+       ============================================================ */
+
+    // Tarjeta 2 → Próximas Clases / Evaluaciones
+    const classesContainer = document.getElementById('classesContainer');
+    classesContainer.innerHTML = clases.map(c => `
+      <article class="class-card" style="--class-from:${c.from};--class-to:${c.to}">
+        <span class="class-card__type">${c.tipo}</span>
+        <div class="class-card__date">
+          <small>${c.dia}</small>
+          <strong>${c.num}</strong>
+        </div>
+        <h3 class="class-card__title">${c.titulo}</h3>
+        <p class="class-card__sub">${c.sub}</p>
+        <button class="class-card__action">
+          Gestionar
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </article>
+    `).join('');
+
+    // Tarjeta 3 → Feed de publicaciones del docente
+    const pubList = document.getElementById('pubList');
+    function renderPubs(filter = 'todas') {
+      const filtered = filter === 'todas' ? publicaciones : publicaciones.filter(p => p.tipo === filter);
+      if (filtered.length === 0) {
+        pubList.innerHTML = `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin publicaciones para este filtro.</p>`;
+        return;
+      }
+      pubList.innerHTML = filtered.map(p => `
+        <article class="pub-item" style="--pub-color:${p.color}">
+          <div class="pub-item__icon">${iconForType(p.tipo)}</div>
+          <div>
+            <div class="pub-item__head">
+              <span class="pub-item__type">${p.tipo}</span>
+              <span class="pub-item__time">· ${p.hace}</span>
+            </div>
+            <h4 class="pub-item__title">${p.titulo}</h4>
+            <p class="pub-item__excerpt">${p.extracto}</p>
+            <p class="pub-item__excerpt" style="margin-top:.3rem;font-size:.74rem;color:#8a8d9c">📚 ${p.curso}</p>
+          </div>
+          <div class="pub-item__meta">
+            <span class="pub-item__reach">
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5" stroke-linecap="round"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14c2.7 0 5 1.7 5 4" stroke-linecap="round"/></svg>
+              ${p.alcance} alumnos
+            </span>
+            <span>${p.lecturas} lecturas</span>
+          </div>
+        </article>
+      `).join('');
+    }
+    function iconForType(t) {
+      const map = {
+        aviso:        '<svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3" stroke-linecap="round"/></svg>',
+        material:     '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6"/></svg>',
+        evaluacion:   '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        calificacion: '<svg viewBox="0 0 24 24"><path d="M12 2l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 15.5 6.8 18.2l1-5.8L3.5 8.2l5.9-.9z"/></svg>'
+      };
+      return map[t] || map.aviso;
+    }
+    renderPubs();
+
+    // Filtros del feed
+    document.querySelectorAll('#pubFilters .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#pubFilters .chip').forEach(c => c.classList.remove('chip--active'));
+        chip.classList.add('chip--active');
+        renderPubs(chip.dataset.filter);
+      });
+    });
+
+    /* ============================================================
+       3) DRAWER LATERAL - Contenidos según el botón clickeado
+       ============================================================ */
+    const drawer = document.getElementById('drawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const drawerBody = document.getElementById('drawerBody');
+    const drawerTitle = document.getElementById('drawerTitle');
+    const drawerIcon = document.getElementById('drawerIcon');
+
+    function openDrawer(key) {
+      const builder = drawerContent[key];
+      if (!builder) return;
+      const { title, icon, html } = builder();
+      drawerTitle.textContent = title;
+      drawerIcon.innerHTML = icon;
+      drawerBody.innerHTML = html;
+      drawer.classList.add('is-open');
+      drawerOverlay.classList.add('is-visible');
+      drawer.setAttribute('aria-hidden', 'false');
+      // Hooks específicos por sección
+      if (key === 'material')  bindMaterialDrawer();
+      if (key === 'publicar')  bindPublishDrawer();
+      if (key === 'alumnos')   bindStudentsDrawer();
+      // Marca el botón activo
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+      const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
+      if (active) active.classList.add('is-active');
+    }
+    function closeDrawer() {
+      drawer.classList.remove('is-open');
+      drawerOverlay.classList.remove('is-visible');
+      drawer.setAttribute('aria-hidden', 'true');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+    }
+
+    document.querySelectorAll('[data-drawer]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.drawer;
+        if (drawer.classList.contains('is-open') && document.querySelector('.nav-btn.is-active')?.dataset.drawer === key) {
+          closeDrawer();
+        } else {
+          openDrawer(key);
+        }
+      });
+    });
+    document.querySelectorAll('[data-drawer-trigger]').forEach(btn => {
+      btn.addEventListener('click', () => openDrawer(btn.dataset.drawerTrigger));
+    });
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer(); });
+
+    /* ============================================================
+       3.1) Builders del contenido de cada drawer
+       ============================================================ */
+    const drawerContent = {
+
+      // --- Mi Perfil ---
+      perfil: () => ({
+        title: 'Mi Perfil',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round"/></svg>',
+        html: `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-bottom:1.5rem">
+            <div class="avatar avatar--xl" style="width:88px;height:88px;font-size:1.7rem">${docente.iniciales}</div>
+            <h3 style="margin:0;font:700 1.3rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${docente.nombre}</h3>
+            <p style="margin:0;color:#6c6f80;font:500 .85rem 'Manrope',sans-serif">${docente.email}</p>
+          </div>
+          <div class="profile-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            ${profileItem('Legajo', docente.legajo)}
+            ${profileItem('DNI', docente.dni)}
+            ${profileItem('Especialidad', docente.especialidad)}
+            ${profileItem('Antigüedad', docente.antiguedad)}
+            ${profileItem('Estado', docente.estado, true)}
+            ${profileItem('Materias asignadas', cursos.length + ' cursos')}
+          </div>
+        `
+      }),
+
+      // --- Mis Cursos ---
+      cursos: () => ({
+        title: 'Mis Cursos',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+        html: `
+          <p style="font:400 .88rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1.2rem">
+            Estás dictando <strong>${cursos.length} materias</strong> con un total de
+            <strong>${cursos.reduce((a,c)=>a+c.alumnos,0)} alumnos</strong> activos.
+          </p>
+          ${cursos.map(c => `
+            <div class="course-card" style="--course-color:${c.color}">
+              <div>
+                <h4>${c.nombre}</h4>
+                <div class="course-card__meta">
+                  <span>📚 ${c.anio} año</span>
+                  <span>👥 ${c.alumnos} alumnos</span>
+                  <span>📊 ${c.asistencia}% asistencia</span>
+                  <span>🕒 ${c.proxima}</span>
+                </div>
+              </div>
+              <button class="course-card__manage">Gestionar</button>
+            </div>
+          `).join('')}
+        `
+      }),
+
+      // --- Mis Alumnos ---
+      alumnos: () => ({
+        title: 'Mis Alumnos',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/></svg>',
+        html: `
+          <select id="alumnosCurso" style="width:100%;padding:.7rem .85rem;font:500 .88rem 'Manrope',sans-serif;border:1px solid rgba(143,163,227,.45);border-radius:10px;background:#fff;margin-bottom:.8rem;color:var(--brand-900,#1A1D4A)">
+            <option value="0">Todos los cursos</option>
+            ${cursos.map(c => `<option value="${c.id}">${c.nombre} (${c.alumnos} alumnos)</option>`).join('')}
+          </select>
+          <div class="drawer__search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+            <input id="alumnosSearch" type="text" placeholder="Buscar alumno por nombre o legajo…">
+          </div>
+          <div id="alumnosList"></div>
+        `
+      }),
+
+      // --- Material Didáctico (zona de subida) ---
+      material: () => ({
+        title: 'Material Didáctico',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round"/><path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5v12" stroke-linecap="round"/></svg>',
+        html: `
+          <p style="font:400 .88rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
+            Subí material para que tus alumnos lo puedan consultar y descargar desde su portal.
+            Aceptamos PDF, DOC, DOCX, MP4, ZIP, imágenes y enlaces externos.
+          </p>
+
+          <label class="upload-zone" id="uploadZone" for="fileInput">
+            <input type="file" id="fileInput" multiple hidden>
+            <div class="upload-zone__icon">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round"/><path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5v12" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="upload-zone__title">Arrastrá tu archivo acá</p>
+              <p class="upload-zone__hint">o <span class="upload-zone__browse">elegilo desde tu equipo</span> · máx 200 MB</p>
+            </div>
+          </label>
+
+          <div class="upload-controls">
+            <label>Materia
+              <select id="uploadCurso">
+                ${cursos.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+              </select>
+            </label>
+            <label>Visibilidad
+              <select id="uploadVisibility">
+                <option value="curso">Solo alumnos del curso</option>
+                <option value="institucion">Toda la institución</option>
+              </select>
+            </label>
+          </div>
+
+          <h3 style="font:700 1rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A);margin:1.6rem 0 .5rem">
+            Material publicado (<span id="matCount">${materiales.length}</span>)
+          </h3>
+          <div class="materials-list" id="materialsList"></div>
+        `
+      }),
+
+      // --- Publicar (afecta el feed del alumno) ---
+      publicar: () => ({
+        title: 'Publicar para alumnos',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l18-7-7 18-2-8-9-3z" stroke-linejoin="round"/></svg>',
+        html: `
+          <div class="drawer__tabs">
+            <button class="drawer__tab is-active" data-tab="crear">Crear publicación</button>
+            <button class="drawer__tab" data-tab="historial">Historial (${publicaciones.length})</button>
+          </div>
+
+          <div id="tabCrear">
+            <form class="pub-form" id="pubForm">
+              <div class="pub-form__row">
+                <label>Tipo
+                  <select name="tipo" required>
+                    <option value="aviso">📢 Aviso</option>
+                    <option value="material">📎 Material</option>
+                    <option value="evaluacion">📅 Evaluación / Examen</option>
+                    <option value="calificacion">⭐ Calificación</option>
+                  </select>
+                </label>
+                <label>Materia destinataria
+                  <select name="curso" required>
+                    ${cursos.map(c => `<option value="${c.id}">${c.nombre} · ${c.alumnos} alumnos</option>`).join('')}
+                  </select>
+                </label>
+              </div>
+              <label>Título
+                <input type="text" name="titulo" required placeholder="Ej: Cambio de aula para el próximo parcial">
+              </label>
+              <label>Mensaje
+                <textarea name="contenido" required placeholder="Detalle del aviso, instrucciones, fechas, recursos…"></textarea>
+              </label>
+              <div class="pub-form__row">
+                <label>Fecha de visibilidad
+                  <input type="datetime-local" name="visible">
+                </label>
+                <label>Prioridad
+                  <select name="prioridad">
+                    <option value="normal">Normal</option>
+                    <option value="alta">Alta (destacada)</option>
+                  </select>
+                </label>
+              </div>
+              <div class="pub-form__notice">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg>
+                <div>
+                  Esta publicación aparecerá <strong>automáticamente en el feed de novedades</strong>
+                  y en el calendario de los alumnos del curso seleccionado.
+                  Si elegís tipo <strong>Evaluación</strong>, también se agenda en su calendario académico.
+                </div>
+              </div>
+              <button type="submit" class="pub-form__submit">
+                <svg viewBox="0 0 24 24"><path d="M3 11l18-7-7 18-2-8-9-3z" stroke-linejoin="round"/></svg>
+                Publicar a alumnos
+              </button>
+            </form>
+          </div>
+
+          <div id="tabHistorial" hidden>
+            ${publicaciones.map(p => `
+              <article class="pub-item" style="--pub-color:${p.color};margin-bottom:.55rem">
+                <div class="pub-item__icon">${iconForType(p.tipo)}</div>
+                <div>
+                  <div class="pub-item__head">
+                    <span class="pub-item__type">${p.tipo}</span>
+                    <span class="pub-item__time">· ${p.hace}</span>
+                  </div>
+                  <h4 class="pub-item__title">${p.titulo}</h4>
+                  <p class="pub-item__excerpt">${p.extracto}</p>
+                </div>
+                <div class="pub-item__meta">
+                  <span class="pub-item__reach">${p.alcance} alumnos</span>
+                  <span>${p.lecturas} lecturas</span>
+                </div>
+              </article>
+            `).join('')}
+          </div>
+        `
+      })
+    };
+
+    function profileItem(label, value, highlight = false) {
+      const styleVal = highlight
+        ? 'color:var(--accent-green,#3DAA6A);font-weight:700'
+        : 'color:var(--brand-900,#1A1D4A);font-weight:600';
+      return `
+        <div style="background:#fff;border:1px solid rgba(143,163,227,.25);border-radius:10px;padding:.75rem .9rem">
+          <p style="margin:0 0 .25rem;font:600 .68rem/1 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);text-transform:uppercase;letter-spacing:.08em">${label}</p>
+          <p style="margin:0;font:600 .9rem/1.2 'Manrope',sans-serif;${styleVal}">${value}</p>
+        </div>
+      `;
+    }
+
+    /* ============================================================
+       4) HOOKS PARA FUNCIONALIDADES INTERACTIVAS DEL DRAWER
+       ============================================================ */
+
+    // --- Material: drag & drop, browse, listado ---
+    function bindMaterialDrawer() {
+      renderMateriales();
+      const zone = document.getElementById('uploadZone');
+      const input = document.getElementById('fileInput');
+      const cursoSel = document.getElementById('uploadCurso');
+
+      ['dragenter', 'dragover'].forEach(ev => {
+        zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('is-dragover'); });
+      });
+      ['dragleave', 'drop'].forEach(ev => {
+        zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('is-dragover'); });
+      });
+      zone.addEventListener('drop', e => handleFiles(e.dataTransfer.files, +cursoSel.value));
+      input.addEventListener('change', e => handleFiles(e.target.files, +cursoSel.value));
+    }
+
+    function handleFiles(fileList, cursoId) {
+      [...fileList].forEach(file => {
+        const tipo = inferTipo(file.name);
+        materiales.unshift({
+          id: Date.now() + Math.random(),
+          nombre: file.name,
+          tipo,
+          curso: cursoId,
+          fecha: new Date().toLocaleDateString('es-AR'),
+          tamanio: humanSize(file.size),
+          descargas: 0
+        });
+      });
+      renderMateriales();
+      const cursoNombre = cursos.find(c => c.id === cursoId)?.nombre || 'el curso';
+      showToast('Material subido', `Disponible para los alumnos de ${cursoNombre} en su portal.`);
+    }
+    function inferTipo(name) {
+      const ext = name.split('.').pop().toLowerCase();
+      if (['pdf'].includes(ext)) return 'PDF';
+      if (['doc','docx','odt','txt'].includes(ext)) return 'DOC';
+      if (['mp4','mov','avi','webm','mkv'].includes(ext)) return 'VIDEO';
+      if (['jpg','jpeg','png','webp','gif'].includes(ext)) return 'IMG';
+      if (['zip','rar','7z'].includes(ext)) return 'ZIP';
+      return 'FILE';
+    }
+    function humanSize(bytes) {
+      if (!bytes) return '—';
+      const u = ['B','KB','MB','GB'];
+      let i = 0; let n = bytes;
+      while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+      return n.toFixed(n < 10 ? 1 : 0) + ' ' + u[i];
+    }
+    function renderMateriales() {
+      const list = document.getElementById('materialsList');
+      const counter = document.getElementById('matCount');
+      if (!list) return;
+      counter.textContent = materiales.length;
+      const palette = {
+        PDF:   { bg: '#FDECEC', fg: '#C0392B' },
+        DOC:   { bg: '#E3E9FA', fg: '#2C3E87' },
+        VIDEO: { bg: '#FFF1E0', fg: '#E67E5B' },
+        IMG:   { bg: '#E8F7EE', fg: '#3DAA6A' },
+        ZIP:   { bg: '#F0E8FB', fg: '#8B5CF6' },
+        FILE:  { bg: '#EEF0F8', fg: '#5a5d6e' }
+      };
+      list.innerHTML = materiales.map(m => {
+        const c = palette[m.tipo] || palette.FILE;
+        const cursoNombre = cursos.find(x => x.id === m.curso)?.nombre || '—';
+        return `
+          <div class="material-row" style="--mat-bg:${c.bg};--mat-fg:${c.fg}">
+            <div class="material-row__icon">${m.tipo}</div>
+            <div class="material-row__info">
+              <p class="material-row__name">${m.nombre}</p>
+              <p class="material-row__meta">${cursoNombre} · ${m.tamanio} · ${m.fecha}</p>
+            </div>
+            <span class="material-row__downloads">
+              <svg viewBox="0 0 24 24"><path d="M12 3v12M6 11l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 21h14" stroke-linecap="round"/></svg>
+              ${m.descargas}
+            </span>
+            <button class="material-row__del" data-del="${m.id}" aria-label="Eliminar">
+              <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+      list.querySelectorAll('[data-del]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = +btn.dataset.del || btn.dataset.del;
+          const idx = materiales.findIndex(m => String(m.id) === String(id));
+          if (idx >= 0) {
+            materiales.splice(idx, 1);
+            renderMateriales();
+            showToast('Material eliminado', 'Ya no es visible para los alumnos.');
+          }
+        });
+      });
+    }
+
+    // --- Publicar: tabs + envío del formulario ---
+    function bindPublishDrawer() {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const tabCrear = document.getElementById('tabCrear');
+      const tabHistorial = document.getElementById('tabHistorial');
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('is-active'));
+        t.classList.add('is-active');
+        if (t.dataset.tab === 'crear')   { tabCrear.hidden = false; tabHistorial.hidden = true; }
+        else                              { tabCrear.hidden = true;  tabHistorial.hidden = false; }
+      }));
+
+      const form = document.getElementById('pubForm');
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(form);
+        const cursoId = +data.get('curso');
+        const cursoObj = cursos.find(c => c.id === cursoId);
+        const tipo = data.get('tipo');
+        const colorMap = { aviso:'#F5A623', material:'#4A67C9', evaluacion:'#E67E5B', calificacion:'#3DAA6A' };
+
+        publicaciones.unshift({
+          id: Date.now(),
+          tipo,
+          titulo: data.get('titulo'),
+          extracto: data.get('contenido'),
+          curso: cursoObj.nombre,
+          alcance: cursoObj.alumnos,
+          lecturas: 0,
+          hace: 'recién',
+          color: colorMap[tipo] || '#4A67C9'
+        });
+        renderPubs(); // refresca el feed principal en la home
+
+        form.reset();
+        // Vuelve al historial para que vea su publicación recién creada
+        document.querySelector('.drawer__tab[data-tab="historial"]').click();
+        showToast(
+          'Publicación enviada',
+          `${cursoObj.alumnos} alumnos de ${cursoObj.nombre} la verán en su feed.`
+        );
+        // Reabre el drawer para refrescar el contador del historial
+        setTimeout(() => openDrawer('publicar'), 50);
+      });
+    }
+
+    // --- Alumnos: filtro por curso + buscador ---
+    function bindStudentsDrawer() {
+      const list = document.getElementById('alumnosList');
+      const cursoSel = document.getElementById('alumnosCurso');
+      const search = document.getElementById('alumnosSearch');
+
+      function render() {
+        const cursoId = +cursoSel.value;
+        const q = search.value.trim().toLowerCase();
+        const filtered = alumnos.filter(a => {
+          const matchCurso = cursoId === 0 || a.curso === cursoId;
+          const matchQ = !q || a.nombre.toLowerCase().includes(q) || a.legajo.toLowerCase().includes(q);
+          return matchCurso && matchQ;
+        });
+        if (filtered.length === 0) {
+          list.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
+          return;
+        }
+        list.innerHTML = filtered.map(a => {
+          const ini = a.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
+          return `
+            <div class="student-row">
+              <div class="student-row__avatar">${ini}</div>
+              <div>
+                <p class="student-row__name">${a.nombre}</p>
+                <p class="student-row__legajo">${a.legajo} · ${cursos.find(c => c.id === a.curso)?.nombre}</p>
+              </div>
+              <div class="student-row__stats">
+                <span>Asist. <b>${a.asistencia}</b></span>
+                <span>Prom. <b>${a.promedio}</b></span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      cursoSel.addEventListener('change', render);
+      search.addEventListener('input', render);
+      render();
+    }
+
+    /* ============================================================
+       5) Botón "Programar evaluación" de la tarjeta central
+       ============================================================ */
+    document.getElementById('scheduleNewBtn').addEventListener('click', () => {
+      openDrawer('publicar');
+      // Auto-selecciona tipo "Evaluación"
+      setTimeout(() => {
+        const sel = document.querySelector('select[name="tipo"]');
+        if (sel) sel.value = 'evaluacion';
+      }, 80);
+    });
+
+    /* ============================================================
+       6) Logout (mismo flujo que el portal del alumno)
+       ============================================================ */
+    const logoutModal = document.getElementById('logoutModal');
+    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-visible'));
+    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-visible'));
+    document.getElementById('logoutConfirm').addEventListener('click', () => {
+      logoutModal.classList.remove('is-visible');
+      // En Fase 2 → DELETE /api/auth/logout y redirección a centro.html
+      showToast('Sesión cerrada', 'Redirigiendo al portal institucional…');
+      setTimeout(() => { window.location.href = 'centro.html'; }, 900);
+    });
+
+    /* ============================================================
+       7) Notificaciones (panel desplegable)
+       ============================================================ */
+    const notifPanel = document.getElementById('notifPanel');
+    const notifList = document.getElementById('notifList');
+    const notifBell = document.getElementById('bellBtn');
+    const notifs = [
+      { titulo: 'Nuevo trabajo entregado',     msg: 'Ana Suárez entregó el TP de Lógica.',                 hace: 'hace 12 min' },
+      { titulo: 'Consulta de alumno',           msg: 'Bruno Pereyra te escribió por la unidad 3.',          hace: 'hace 1 h' },
+      { titulo: 'Confirmación de inscripción',  msg: '28 alumnos inscriptos al parcial del viernes.',       hace: 'hace 3 h' },
+      { titulo: 'Material descargado',          msg: '21 descargas del apunte Unidad 3.',                   hace: 'hace 5 h' },
+      { titulo: 'Recordatorio',                 msg: 'Cierre de carga de notas: 10 de mayo.',               hace: 'ayer' }
+    ];
+    notifList.innerHTML = notifs.map(n => `
+      <div style="padding:.85rem 1rem;border-bottom:1px solid rgba(143,163,227,.2)">
+        <p style="margin:0 0 .15rem;font:700 .85rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${n.titulo}</p>
+        <p style="margin:0 0 .25rem;font:400 .8rem/1.4 'Manrope',sans-serif;color:#5a5d6e">${n.msg}</p>
+        <p style="margin:0;font:500 .7rem 'Manrope',sans-serif;color:#8a8d9c">${n.hace}</p>
+      </div>
+    `).join('');
+    notifBell.addEventListener('click', e => {
+      e.stopPropagation();
+      notifPanel.classList.toggle('is-visible');
+    });
+    document.addEventListener('click', e => {
+      if (!notifPanel.contains(e.target) && !notifBell.contains(e.target)) {
+        notifPanel.classList.remove('is-visible');
+      }
+    });
+    document.getElementById('notifMarkAll').addEventListener('click', () => {
+      document.getElementById('bellBadge').style.display = 'none';
+      notifPanel.classList.remove('is-visible');
+    });
+
+    /* ============================================================
+       8) Toast de confirmación
+       ============================================================ */
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function showToast(title, msg) {
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
+    }
+
+  })();
+  </script>
+
+</body>
+</html>

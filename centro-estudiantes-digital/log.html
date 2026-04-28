@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--
+=================================================================
+  PROYECTO: Centro de Estudiantes Digital - ISFDyT 57
+  ARCHIVO:  log.html
+  USO:      Versión STANDALONE del login (acceso directo via URL).
+            La misma card también se reutiliza como modal popup
+            dentro de centro.html con fondo difuminado.
+=================================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar sesión — Centro de Estudiantes ISFDyT 57</title>
+
+  <!-- === TIPOGRAFÍAS === -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- === ESTILOS === -->
+  <link rel="stylesheet" href="css/public.css" />
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+
+<body class="login-page">
+
+  <!-- Botón "Volver" arriba a la izquierda -->
+  <a href="centro.html" class="login-back" aria-label="Volver a la landing pública">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Volver
+  </a>
+
+  <!--
+    ================================================================
+    CARD DE LOGIN
+    Misma estructura que el modal — el JS detecta que no hay overlay
+    y la trata como standalone (la centra con .login-page).
+    ================================================================
+  -->
+  <main class="login-card" role="main">
+
+    <!-- Botón cerrar oculto en standalone (lo maneja el CSS) -->
+    <button class="login-card__close" aria-label="Cerrar" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <!-- Logo del instituto -->
+    <div class="login-card__logo" aria-hidden="true">
+      <strong>57</strong>
+      <small>ISFDyT</small>
+    </div>
+
+    <h1 class="login-card__title">Iniciar sesión</h1>
+    <p class="login-card__subtitle">Accedé al portal con tu usuario institucional</p>
+
+    <!-- Formulario -->
+    <form class="login-form" id="loginForm" novalidate>
+      <div class="login-form__field">
+        <label for="username">Usuario</label>
+        <input
+          type="text"
+          id="username"
+          class="login-form__input"
+          placeholder="Ej: santiago"
+          autocomplete="username"
+          required
+        />
+      </div>
+
+      <div class="login-form__field">
+        <label for="password">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          class="login-form__input"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="login-form__submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="5" y="11" width="14" height="10" rx="2"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>
+        </svg>
+        Ingresar
+      </button>
+
+      <div class="login-error" id="errorMessage" role="alert"></div>
+      <div class="login-success-banner">✓ ¡Bienvenido! Redirigiendo al portal...</div>
+    </form>
+
+    <!-- Pista con credenciales de prueba -->
+    <div class="login-hint">
+      <strong>Datos de prueba:</strong> usuario <code>santiago</code> · contraseña <code>1234</code>
+    </div>
+
+  </main>
+
+  <!-- === SCRIPT === -->
+  <script src="js/login.js" defer></script>
+</body>
+</html>

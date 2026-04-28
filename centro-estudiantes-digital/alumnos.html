@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<!--
+=================================================================
+  PROYECTO: Centro de Estudiantes Digital - ISFDyT 57
+  ARCHIVO: index.html (Dashboard principal)
+  FASE 1 - Sprint 1: Estructura HTML base
+  FASE 1 - Sprint 3: Integración con API Mock (archivos JSON)
+  Autor: Equipo de Desarrollo
+=================================================================
+-->
+<html lang="es">
+<head>
+  <!-- === CONFIGURACIÓN BÁSICA Y META === -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Portal del Centro de Estudiantes Digital - ISFDyT 57 Juana Paula Manso" />
+  <title>ISFDyT 57 · Portal del Estudiante</title>
+
+  <!-- === TIPOGRAFÍA: Display + Body pairing === -->
+  <!-- Bricolage Grotesque para títulos, Manrope para texto corrido -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- === ESTILOS DEL PROYECTO === -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+  <!--
+    ================================================================
+    SIDEBAR IZQUIERDO: 6 botones minimalistas con tooltips al hover
+    Cada botón abre un drawer lateral con fondo difuminado (blur).
+    ================================================================
+  -->
+  <aside class="sidebar" aria-label="Navegación principal del estudiante">
+
+    <!-- Logo ISFDyT en la parte superior del sidebar -->
+    <div class="sidebar__logo" aria-label="ISFDyT 57 Juana Paula Manso">
+      <span class="logo-number">57</span>
+      <span class="logo-text">ISFDyT</span>
+      <span class="logo-sub">J. P. Manso</span>
+    </div>
+
+    <!-- Lista de navegación: los 6 botones principales -->
+    <nav class="sidebar__nav">
+      <ul role="list">
+
+        <!-- BOTÓN 1: Mi Perfil -->
+        <li>
+          <button class="nav-btn" data-drawer="perfil" aria-label="Mi Perfil">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Mi Perfil</span>
+          </button>
+        </li>
+
+        <!-- BOTÓN 2: Mis Materias -->
+        <li>
+          <button class="nav-btn" data-drawer="materias" aria-label="Mis Materias">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            <span class="nav-btn__tooltip">Mis Materias</span>
+          </button>
+        </li>
+
+        <!-- BOTÓN 3: Mis Inscripciones -->
+        <li>
+          <button class="nav-btn" data-drawer="inscripciones" aria-label="Mis Inscripciones">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+              <rect x="8" y="2" width="8" height="4" rx="1" />
+              <path d="M9 14l2 2 4-4" />
+            </svg>
+            <span class="nav-btn__tooltip">Inscripciones</span>
+          </button>
+        </li>
+
+        <!-- BOTÓN 4: Mi Carrera -->
+        <li>
+          <button class="nav-btn" data-drawer="carrera" aria-label="Mi Carrera">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+            <span class="nav-btn__tooltip">Mi Carrera</span>
+          </button>
+        </li>
+
+        <!-- BOTÓN 5: Centro de Estudiantes -->
+        <li>
+          <button class="nav-btn" data-drawer="centro" aria-label="Centro de Estudiantes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 15.5 6.8 18.2l1-5.8L3.5 8.2l5.9-.9z" stroke-linejoin="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Centro Estudiantil</span>
+          </button>
+        </li>
+
+        <!-- BOTÓN 6: Cerrar Sesión + Cambiar Contraseña -->
+        <li class="nav-btn--bottom">
+          <button class="nav-btn nav-btn--danger" id="logoutBtn" aria-label="Cerrar sesión">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke-linecap="round" />
+              <path d="M10 17l5-5-5-5M15 12H3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Cerrar Sesión</span>
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+  </aside>
+
+  <!--
+    ================================================================
+    CONTENIDO PRINCIPAL: Header + Grid de tarjetas
+    ================================================================
+  -->
+  <main class="main">
+
+    <!--
+      HEADER: Saludo personalizado + Nav de secciones + Campana notificaciones
+      Los datos del usuario se cargan dinámicamente desde data/usuario.json
+    -->
+    <header class="header" data-animate="fade-down">
+
+      <div class="header__greeting">
+        <!-- Avatar con iniciales generado dinámicamente -->
+        <div class="avatar" id="userAvatar" aria-hidden="true">SC</div>
+
+        <div class="header__text">
+          <h1 class="header__title">
+            Hola, <strong id="userName">Santiago Chiale</strong>
+          </h1>
+          <p class="header__subtitle" id="userSummary">
+            Tenés 3 clases hoy, 3 notificaciones sin leer y 2 eventos del CE esta semana.
+          </p>
+        </div>
+      </div>
+
+      <!-- Nav principal del header (secciones institucionales) -->
+      <nav class="header__nav" aria-label="Secciones institucionales">
+        <a href="#tramites" class="header__link">Trámites</a>
+        <a href="#institucional" class="header__link">Institucional</a>
+        <a href="#reglamentacion" class="header__link">Reglamentación</a>
+
+        <!-- Botón de notificaciones con badge -->
+        <button class="bell-btn" id="bellBtn" aria-label="Notificaciones" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M10 21a2 2 0 0 0 4 0" stroke-linecap="round" />
+          </svg>
+          <span class="bell-btn__badge" id="bellBadge">3</span>
+        </button>
+      </nav>
+
+    </header>
+
+    <!--
+      GRID PRINCIPAL: tres zonas
+      - Columna izquierda arriba:  Tarjeta de carrera
+      - Columna izquierda abajo:   Próximos eventos CE
+      - Columna derecha (alta):    Últimas novedades (scroll interno)
+    -->
+    <section class="grid">
+
+      <!-- === TARJETA: Tu Carrera === -->
+      <article class="card card--career" data-animate="fade-up" style="--delay: 0.1s">
+        <header class="card__header">
+          <span class="eyebrow">Tu Carrera</span>
+          <h2 class="card__title" id="userCareer">Ciencias de Datos e IA</h2>
+        </header>
+
+        <div class="card__body career-body">
+
+          <!-- Progreso de materias -->
+          <div class="career-item">
+            <div class="career-icon career-icon--soft">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M5 5l7 14 7-14" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div>
+              <p class="career-label">Materias aprobadas</p>
+              <p class="career-value">
+                <span id="materiasAprobadas">05</span>
+                <span class="career-muted">de <span id="materiasTotales">30</span></span>
+              </p>
+              <!-- Barra de progreso: se calcula por JS -->
+              <div class="progress">
+                <div class="progress__fill" id="careerProgress"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Próximas fechas importantes -->
+          <div class="career-item">
+            <div class="career-icon career-icon--warm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 7v5l3 3" stroke-linecap="round" />
+                <circle cx="12" cy="12" r="9" />
+              </svg>
+            </div>
+            <div>
+              <p class="career-label">Próxima fecha</p>
+              <p class="career-value career-value--small" id="proximaFecha">
+                20/07/2026 · Lógica Computacional
+              </p>
+              <p class="career-tag" id="proximaTipo">Examen Final</p>
+            </div>
+          </div>
+
+          <!-- Decoración ambiental de fondo (ornamento sutil) -->
+          <div class="career-ornament" aria-hidden="true">
+            <svg viewBox="0 0 200 120">
+              <path d="M10 90 Q50 40 100 60 T190 50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+              <circle cx="170" cy="40" r="3" fill="currentColor" opacity="0.6"/>
+              <circle cx="100" cy="60" r="2" fill="currentColor" opacity="0.4"/>
+              <circle cx="40" cy="75" r="2" fill="currentColor" opacity="0.5"/>
+            </svg>
+          </div>
+        </div>
+      </article>
+
+      <!-- === TARJETA: Próximos Eventos CE === -->
+      <article class="card card--events" data-animate="fade-up" style="--delay: 0.25s">
+
+        <!-- Marca de agua decorativa: estrella geométrica desvanecida -->
+        <svg class="card-watermark" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+          <path d="M100 20 L115 75 L172 80 L128 115 L142 170 L100 138 L58 170 L72 115 L28 80 L85 75 Z"/>
+          <circle cx="100" cy="100" r="62" stroke-dasharray="3 6" opacity="0.5"/>
+          <circle cx="100" cy="100" r="38" opacity="0.4"/>
+        </svg>
+
+        <header class="card__header">
+          <span class="eyebrow">
+            <svg class="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="5" width="18" height="16" rx="2"/>
+              <path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/>
+            </svg>
+            Centro de Estudiantes
+          </span>
+          <h2 class="card__title">Próximos Eventos</h2>
+        </header>
+
+        <!-- Contenedor que se rellena desde eventos.json -->
+        <div class="events-grid" id="eventsContainer">
+          <!-- JS inyecta las tarjetas individuales aquí -->
+        </div>
+
+        <!-- Footer con el botón "Mostrar todo / Mostrar menos" -->
+        <div class="events-actions" id="eventsActions">
+          <!-- JS inyecta el botón aquí -->
+        </div>
+      </article>
+
+      <!-- === TARJETA: Últimas Novedades === -->
+      <article class="card card--news" data-animate="fade-up" style="--delay: 0.4s">
+
+        <!-- Marca de agua decorativa: trazos ondulados que sugieren scroll/feed -->
+        <svg class="card-watermark" viewBox="0 0 220 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M5 20 Q40 5 80 25 T160 20 T215 28" />
+          <path d="M5 50 Q40 35 80 55 T160 50 T215 58" opacity="0.7"/>
+          <path d="M5 80 Q40 65 80 85 T160 80 T215 88" opacity="0.45"/>
+        </svg>
+
+        <header class="card__header card__header--row">
+          <div>
+            <span class="eyebrow">
+              <svg class="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/>
+              </svg>
+              Feed
+            </span>
+            <h2 class="card__title">Últimas Novedades</h2>
+          </div>
+
+          <!-- Filtros rápidos por categoría -->
+          <div class="news-filters" id="newsFilters">
+            <button class="chip chip--active" data-filter="todas">Todas</button>
+            <!-- Chips de categorías generados por JS -->
+          </div>
+        </header>
+
+        <!-- Lista con scroll interno, renderizada desde novedades.json -->
+        <div class="news-list" id="newsList">
+          <!-- JS inyecta las novedades aquí -->
+        </div>
+      </article>
+
+    </section>
+  </main>
+
+  <!--
+    ================================================================
+    DRAWER LATERAL (tarjeta que entra de izquierda a derecha)
+    Se activa al hacer click en cualquier botón del sidebar.
+    El fondo se difumina (backdrop-filter: blur) para crear profundidad.
+    ================================================================
+  -->
+  <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-hidden="true">
+
+    <!-- Header del drawer: icono + título + botón cerrar -->
+    <header class="drawer__header">
+      <div class="drawer__title-wrap">
+        <div class="drawer__icon" id="drawerIcon"></div>
+        <h2 class="drawer__title" id="drawerTitle">Título</h2>
+      </div>
+      <button class="drawer__close" id="drawerClose" aria-label="Cerrar panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Cuerpo: se rellena dinámicamente según qué botón se clickeó -->
+    <div class="drawer__body" id="drawerBody">
+      <!-- JS inyecta el contenido (perfil, calendario, eventos, etc.) -->
+    </div>
+
+  </aside>
+
+  <!-- PANEL DE NOTIFICACIONES -->
+  <div class="notif-panel" id="notifPanel" aria-hidden="true" role="dialog" aria-label="Notificaciones">
+    <div class="notif-panel__header">
+      <h3 class="notif-panel__title">Notificaciones</h3>
+      <button class="notif-panel__clear" id="notifMarkAll">Marcar todo leído</button>
+    </div>
+    <div class="notif-panel__list" id="notifList">
+      <!-- JS renderiza aquí -->
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN DE SALIDA -->
+  <div class="modal-overlay" id="logoutModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-card__body">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="modal-card__icon">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+          <path d="M10 17l5-5-5-5M15 12H3" />
+        </svg>
+        <h3 class="modal-card__title">¿Seguro desea salir?</h3>
+      </div>
+      <div class="modal-card__actions">
+        <button class="btn-secondary" id="logoutCancel">Cancelar</button>
+        <button class="btn-primary" id="logoutConfirm">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === SCRIPT PRINCIPAL DE LA APLICACIÓN === -->
+  <script src="js/app.js" defer></script>
+</body>
+</html>
