@@ -1,0 +1,814 @@
+/* ================================================================
+   PROYECTO: Centro de Estudiantes Digital - ISFDyT 57
+   ARCHIVO:  public.css
+   USO:      Estilos compartidos para centro.html y log.html
+             (páginas públicas anteriores al login al portal del estudiante)
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. TOKENS DE DISEÑO — heredados del index.html para mantener
+      coherencia visual entre la landing pública y el portal interno.
+---------------------------------------------------------------- */
+:root {
+  --brand-900: #1A1D4A;
+  --brand-700: #2C3E87;
+  --brand-500: #4A67C9;
+  --brand-300: #8FA3E3;
+  --brand-100: #E3E9FA;
+
+  --accent-amber: #F5A623;
+  --accent-coral: #E67E5B;
+  --accent-violet: #8B5CF6;
+  --accent-green: #3DAA6A;
+
+  --bg: #F5F5FB;
+  --bg-elevated: #FFFFFF;
+  --bg-soft: #FAFAFE;
+  --surface-tint: rgba(255, 255, 255, 0.72);
+  --border: rgba(26, 29, 74, 0.08);
+  --border-strong: rgba(26, 29, 74, 0.14);
+
+  --text: #14163A;
+  --text-soft: #4F5372;
+  --text-muted: #9095B0;
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-full: 999px;
+
+  --sh-sm: 0 2px 8px rgba(26, 29, 74, 0.06), 0 1px 2px rgba(26, 29, 74, 0.04);
+  --sh-md: 0 8px 24px rgba(26, 29, 74, 0.08), 0 2px 6px rgba(26, 29, 74, 0.04);
+  --sh-lg: 0 24px 48px rgba(26, 29, 74, 0.14), 0 4px 12px rgba(26, 29, 74, 0.06);
+  --sh-brand: 0 12px 32px rgba(74, 103, 201, 0.28);
+
+  --font-display: "Bricolage Grotesque", "Fraunces", Georgia, serif;
+  --font-body: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --t-fast: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-med: 320ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-spring: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ----------------------------------------------------------------
+   2. RESET Y BASE
+---------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 8% 12%, rgba(143, 163, 227, 0.22) 0%, transparent 38%),
+    radial-gradient(circle at 92% 88%, rgba(245, 166, 35, 0.10) 0%, transparent 42%),
+    linear-gradient(180deg, #F5F5FB 0%, #ECEEF8 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.55;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+img { max-width: 100%; height: auto; }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ----------------------------------------------------------------
+   3. NAVBAR PÚBLICO — sticky, glassmorphic, con CTA "Ingresar"
+---------------------------------------------------------------- */
+.public-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.7) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+
+.public-nav__row {
+  display: flex;
+  align-items: center;
+  height: 68px;
+  gap: 24px;
+}
+
+/* Logo ISFDyT a la izquierda */
+.public-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  cursor: default;
+  user-select: none;
+}
+
+.public-nav__logo {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-full);
+  background: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  line-height: 1;
+  box-shadow: var(--sh-brand);
+}
+
+.public-nav__logo strong {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.public-nav__logo small {
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  margin-top: 1px;
+}
+
+.public-nav__brand-text strong {
+  display: block;
+  font-size: 15px;
+  line-height: 1.1;
+}
+
+.public-nav__brand-text span {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.4px;
+}
+
+/* Grupo de navegación y botón de ingreso */
+.public-nav__actions-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-left: auto;
+  height: 100%;
+}
+
+/* Links de navegación al medio */
+.public-nav__links {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  height: 100%;
+  align-items: center;
+}
+
+.public-nav__link {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.public-nav__link:hover {
+  color: var(--brand-700);
+  background: var(--brand-100);
+}
+
+/* Lógica de Menús Desplegables (Dropdowns) */
+.nav-item-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--bg-elevated);
+  min-width: 200px;
+  padding: 8px 0;
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-md);
+  border: 1px solid var(--border);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0);
+  transition: all var(--t-fast);
+  z-index: 60;
+  list-style: none;
+}
+
+.nav-item-dropdown:hover > .dropdown-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-content li a, 
+.submenu-title {
+  display: block;
+  padding: 10px 24px;
+  margin: 2px 8px;
+  border-radius: var(--r-sm);
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all var(--t-fast);
+}
+
+.dropdown-content li a:hover {
+  background-color: var(--brand-100);
+  color: var(--brand-700);
+}
+
+/* Sub-menús (Académico) */
+.dropdown-submenu {
+  position: relative;
+}
+
+.submenu-content {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: -6px;
+  background-color: var(--bg-elevated);
+  min-width: max-content;
+  padding: 12px 0;
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-lg);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent-amber);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  transition: all var(--t-fast);
+}
+
+/* Puente lateral */
+.submenu-content::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+}
+
+.dropdown-submenu:hover > .submenu-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+.submenu-title {
+  cursor: default;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.submenu-title::after {
+  content: '›';
+  font-size: 18px;
+  margin-left: 12px;
+  opacity: 0.5;
+}
+
+/* Botón "Ingresar" a la derecha */
+.btn-login-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--r-full);
+  background: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  box-shadow: var(--sh-brand);
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+
+.btn-login-trigger svg { width: 14px; height: 14px; }
+
+.btn-login-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(74, 103, 201, 0.4);
+}
+
+/* ----------------------------------------------------------------
+   4. HERO — saludo principal con CTA y patrón decorativo
+---------------------------------------------------------------- */
+.hero {
+  position: relative;
+  padding: 64px 0 48px;
+  overflow: hidden;
+}
+
+.hero__inner {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--r-full);
+  background: rgba(245, 166, 35, 0.14);
+  color: #B47008;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.hero__eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-amber);
+  box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.2);
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5vw, 54px);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  color: var(--text);
+  margin-bottom: 18px;
+}
+
+.hero__title em {
+  font-style: italic;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--brand-700), var(--brand-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero__subtitle {
+  font-size: 16px;
+  color: var(--text-soft);
+  max-width: 480px;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--r-full);
+  background: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  box-shadow: var(--sh-brand);
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+
+.btn-primary svg { width: 14px; height: 14px; transition: transform var(--t-fast); }
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(74, 103, 201, 0.4);
+}
+
+.btn-primary:hover svg { transform: translateX(2px); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--r-full);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border: 1px solid var(--border-strong);
+  transition: all var(--t-fast);
+}
+
+.btn-secondary:hover {
+  border-color: var(--brand-500);
+  color: var(--brand-700);
+  transform: translateY(-1px);
+}
+
+.btn-secondary svg { width: 14px; height: 14px; }
+
+/* Ilustración decorativa del hero — composición geométrica */
+.hero__art {
+  position: relative;
+  aspect-ratio: 1;
+  max-width: 380px;
+  margin-left: auto;
+}
+
+.hero__art svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 20px 40px rgba(74, 103, 201, 0.18));
+}
+
+/* ----------------------------------------------------------------
+   5. SECCIÓN "ACCESOS DIRECTOS" — tiles tipo dashboard de UES21
+---------------------------------------------------------------- */
+.section {
+  padding: 56px 0;
+}
+
+.section--soft {
+  background: linear-gradient(180deg, transparent, rgba(74, 103, 201, 0.04));
+}
+
+.section__head {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 36px;
+}
+
+.section__eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--brand-500);
+  margin-bottom: 8px;
+}
+
+.section__title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+.section__lead {
+  font-size: 15px;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+/* Grid de accesos rápidos */
+.access-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.access-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px;
+  border-radius: var(--r-lg);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--sh-sm);
+  text-align: left;
+  transition: transform var(--t-med), box-shadow var(--t-med), border-color var(--t-med);
+  overflow: hidden;
+}
+
+.access-tile::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--tile-accent, var(--brand-300)), transparent);
+  opacity: 0.7;
+}
+
+.access-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sh-md);
+  border-color: var(--tile-accent, var(--brand-500));
+}
+
+.access-tile__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tile-bg, var(--brand-100));
+  color: var(--tile-accent, var(--brand-700));
+}
+
+.access-tile__icon svg { width: 22px; height: 22px; }
+
+.access-tile__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.access-tile__desc {
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.access-tile__arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--tile-accent, var(--brand-700));
+  text-transform: uppercase;
+  transition: gap var(--t-fast);
+}
+
+.access-tile__arrow svg { width: 12px; height: 12px; }
+
+.access-tile:hover .access-tile__arrow { gap: 8px; }
+
+/* ----------------------------------------------------------------
+   6. SECCIÓN EVENTOS — versión compacta para landing pública
+---------------------------------------------------------------- */
+.events-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.event-card-public {
+  position: relative;
+  border-radius: var(--r-lg);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--sh-sm);
+  overflow: hidden;
+  transition: transform var(--t-med), box-shadow var(--t-med);
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card-public:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sh-md);
+}
+
+.event-card-public__media {
+  height: 140px;
+  position: relative;
+  background: linear-gradient(135deg, var(--ev-color, var(--brand-500)), var(--ev-color-2, var(--brand-700)));
+  overflow: hidden;
+}
+
+.event-card-public__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 75% 25%, rgba(255,255,255,0.2), transparent 50%),
+    repeating-linear-gradient(45deg, transparent 0 16px, rgba(255,255,255,0.05) 16px 17px);
+}
+
+.event-card-public__date {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 52px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 10px;
+  padding: 6px 0;
+  text-align: center;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.event-card-public__day {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.event-card-public__month {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.event-card-public__cat {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  z-index: 1;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.event-card-public__body {
+  padding: 18px 20px 20px;
+}
+
+.event-card-public__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+
+.event-card-public__excerpt {
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ----------------------------------------------------------------
+   7. CTA FINAL — banner inferior con resumen
+---------------------------------------------------------------- */
+.final-cta {
+  position: relative;
+  margin: 24px 0;
+  padding: 48px 36px;
+  border-radius: var(--r-xl);
+  background: linear-gradient(135deg, var(--brand-900), var(--brand-700));
+  color: #fff;
+  overflow: hidden;
+  text-align: center;
+}
+
+.final-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(245,166,35,0.18), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(143,163,227,0.18), transparent 40%);
+  pointer-events: none;
+}
+
+.final-cta__inner { position: relative; max-width: 580px; margin: 0 auto; }
+
+.final-cta__title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  margin-bottom: 10px;
+}
+
+.final-cta__title em {
+  font-style: italic;
+  color: var(--accent-amber);
+}
+
+.final-cta__lead {
+  font-size: 15px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 24px;
+  line-height: 1.55;
+}
+
+.final-cta .btn-primary {
+  background: var(--accent-amber);
+  color: var(--brand-900);
+  box-shadow: 0 12px 24px rgba(245, 166, 35, 0.4);
+}
+
+.final-cta .btn-primary:hover {
+  background: #FFB845;
+  box-shadow: 0 16px 32px rgba(245, 166, 35, 0.5);
+}
+
+/* ----------------------------------------------------------------
+   8. FOOTER — minimalista
+---------------------------------------------------------------- */
+.public-footer {
+  padding: 32px 0 28px;
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+}
+
+.public-footer__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.public-footer__row strong {
+  font-family: var(--font-display);
+  color: var(--text-soft);
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------------
+   9. RESPONSIVE
+---------------------------------------------------------------- */
+@media (max-width: 880px) {
+  .hero__inner { grid-template-columns: 1fr; gap: 24px; }
+  .hero__art { display: none; }
+  .public-nav__links { display: none; }
+}
+
+@media (max-width: 540px) {
+  .container { padding: 0 16px; }
+  .public-nav__brand-text span { display: none; }
+  .hero { padding: 36px 0 28px; }
+  .section { padding: 36px 0; }
+  .final-cta { padding: 32px 22px; }
+}
+
+/* ----------------------------------------------------------------
+   10. ANIMACIONES DE ENTRADA
+---------------------------------------------------------------- */
+[data-animate="fade-up"] {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fade-up 0.7s cubic-bezier(0.25, 1, 0.3, 1) forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Soporte para data-delay con valores predefinidos */
+[data-delay="0.05s"] { --delay: 0.05s; }
+[data-delay="0.1s"]  { --delay: 0.1s; }
+[data-delay="0.15s"] { --delay: 0.15s; }
+[data-delay="0.2s"]  { --delay: 0.2s; }
+[data-delay="0.25s"] { --delay: 0.25s; }
+[data-delay="0.3s"]  { --delay: 0.3s; }
+
+@keyframes fade-up { to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
