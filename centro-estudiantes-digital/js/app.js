@@ -13,12 +13,12 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario:         'data/usuario.json',
-  novedades:       'data/novedades.json',
-  eventos:         'data/eventos.json',
-  calendario:      'data/calendario.json',
-  reglamentacion:  'data/reglamentacion.json',
-  notificaciones:  'data/notificaciones.json',
+  usuario:         'json/usuario.json',
+  novedades:       'json/novedades.json',
+  eventos:         'json/eventos.json',
+  calendario:      'json/calendario.json',
+  reglamentacion:  'json/reglamentacion.json',
+  notificaciones:  'json/notificaciones.json',
 };
 
 /* ----------------------------------------------------------------
