@@ -1,4 +1,47 @@
-document.addEventListener('DOMContentLoaded', () => {
+const SESSION_STORAGE_KEY = 'cedSession';
+const API_USERS = 'json/usuarios.json';
+
+async function loadMockUsers() {
+  try {
+    const res = await fetch(API_USERS);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn('[Login] No se pudo cargar usuarios mock:', err);
+    return window.__FALLBACK_DATA__?.usuarios || null;
+  }
+}
+
+function saveSession(user) {
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user));
+}
+
+function getSession() {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
+
+function isAuthenticated() {
+  const session = getSession();
+  return Boolean(session && session.usuario && session.rol);
+}
+
+function showError(message, errorElement) {
+  if (!errorElement) return;
+  errorElement.textContent = message;
+  errorElement.classList.add('is-visible');
+}
+
+function hideError(errorElement) {
+  if (!errorElement) return;
+  errorElement.textContent = '';
+  errorElement.classList.remove('is-visible');
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   const loginForm = document.getElementById('loginForm');
   const loginOverlay = document.getElementById('loginOverlay');
   const openBtns = document.querySelectorAll('[data-open-login]');
@@ -6,9 +49,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorMessage = document.getElementById('errorMessage');
   const loginCard = document.querySelector('.login-card');
 
-  // Función para abrir el modal
+  const session = getSession();
+  const users = await loadMockUsers();
+
+  if (session) {
+    if (window.location.pathname.endsWith('log.html')) {
+      window.location.href = 'alumnos.html';
+      return;
+    }
+  }
+
+  // Función para abrir el modal o redirigir si ya está logueado
   openBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+      if (session) {
+        window.location.href = 'alumnos.html';
+        return;
+      }
+      if (!loginOverlay) return;
       loginOverlay.classList.add('is-open');
       document.body.style.overflow = 'hidden'; // Evita el scroll del fondo
     });
@@ -16,38 +74,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Función para cerrar el modal
   const closeLogin = () => {
-    loginOverlay.classList.remove('is-open');
+    if (loginOverlay) {
+      loginOverlay.classList.remove('is-open');
+    }
     document.body.style.overflow = '';
-    errorMessage.classList.remove('is-visible');
-    loginForm.reset();
+    hideError(errorMessage);
+    if (loginForm) loginForm.reset();
   };
 
-  closeBtn.addEventListener('click', closeLogin);
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeLogin);
+  }
 
-  // Cerrar al hacer click fuera de la card
-  loginOverlay.addEventListener('click', (e) => {
-    if (e.target === loginOverlay) closeLogin();
-  });
+  if (loginOverlay) {
+    loginOverlay.addEventListener('click', (e) => {
+      if (e.target === loginOverlay) closeLogin();
+    });
+  }
 
-  // Lógica de validación y redirección
-  loginForm.addEventListener('submit', (e) => {
+  if (!loginForm) return;
+
+  loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value.trim();
 
-    // Simulación de validación con los datos de prueba del instituto
-    if (user === 'santiago' && pass === '1234') {
-      loginCard.classList.add('is-success');
-      errorMessage.classList.remove('is-visible');
-
-      // Redirigir a alumnos.html tras una breve pausa para mostrar el mensaje de éxito
-      setTimeout(() => {
-        window.location.href = 'alumnos.html';
-      }, 1500);
-    } else {
-      errorMessage.textContent = 'Usuario o contraseña incorrectos. Por favor, intente de nuevo.';
-      errorMessage.classList.add('is-visible');
+    if (!user || !pass) {
+      showError('Por favor completá usuario y contraseña.', errorMessage);
+      return;
     }
+
+    if (!users) {
+      showError('No se pudieron cargar los datos de usuario. Intentá de nuevo más tarde.', errorMessage);
+      return;
+    }
+
+    const match = users.find(u => u.usuario === user && u.password === pass);
+    if (!match) {
+      showError('Usuario o contraseña incorrectos. Por favor, intente de nuevo.', errorMessage);
+      return;
+    }
+
+    hideError(errorMessage);
+
+    const session = {
+      usuario: match.usuario,
+      nombre: match.nombre,
+      rol: match.rol,
+      loggedAt: new Date().toISOString(),
+    };
+    saveSession(session);
+
+    loginCard.classList.add('is-success');
+
+    setTimeout(() => {
+      window.location.href = 'alumnos.html';
+    }, 900);
   });
 });
