@@ -10,30 +10,30 @@
 ---------------------------------------------------------------- */
 :root {
   /* Colores de marca */
-  --brand-900: #1A1D4A;     /* azul tinta más oscuro */
-  --brand-700: #2C3E87;     /* azul profundo primario */
-  --brand-500: #4A67C9;     /* azul vivo */
-  --brand-300: #8FA3E3;     /* periwinkle */
-  --brand-100: #E3E9FA;     /* azul muy claro de fondo */
+  --brand-900: #0F1419;     /* negro profundo */
+  --brand-700: #1a3a52;     /* azul oscuro primario */
+  --brand-500: #2563eb;     /* azul brillante */
+  --brand-300: #60a5fa;     /* azul claro */
+  --brand-100: #dbeafe;     /* azul muy claro de fondo */
 
   /* Acentos */
-  --accent-amber: #F5A623;  /* ámbar cálido para destacar */
-  --accent-coral: #E67E5B;  /* coral para eventos */
-  --accent-violet: #8B5CF6; /* violeta para eventos CE */
+  --accent-amber: #0ea5e9;  /* cyan/sky blue */
+  --accent-coral: #06b6d4;  /* cyan saturado */
+  --accent-violet: #3b82f6; /* azul violáceo */
   --accent-green: #3DAA6A;  /* verde salvia para éxito/becas */
 
   /* Superficies y neutros */
-  --bg: #F5F5FB;
+  --bg: #f0f4f8;
   --bg-elevated: #FFFFFF;
-  --bg-soft: #FAFAFE;
+  --bg-soft: #f8fafc;
   --surface-tint: rgba(255, 255, 255, 0.72);
-  --border: rgba(26, 29, 74, 0.08);
-  --border-strong: rgba(26, 29, 74, 0.14);
+  --border: rgba(15, 20, 25, 0.08);
+  --border-strong: rgba(15, 20, 25, 0.14);
 
   /* Texto */
-  --text: #14163A;
-  --text-soft: #4F5372;
-  --text-muted: #9095B0;
+  --text: #0f172a;
+  --text-soft: #334155;
+  --text-muted: #64748b;
 
   /* Radios */
   --r-sm: 10px;
@@ -43,11 +43,11 @@
   --r-full: 999px;
 
   /* Sombras refinadas */
-  --sh-xs: 0 1px 2px rgba(26, 29, 74, 0.05);
-  --sh-sm: 0 2px 8px rgba(26, 29, 74, 0.06), 0 1px 2px rgba(26, 29, 74, 0.04);
-  --sh-md: 0 8px 24px rgba(26, 29, 74, 0.08), 0 2px 6px rgba(26, 29, 74, 0.04);
-  --sh-lg: 0 24px 48px rgba(26, 29, 74, 0.12), 0 4px 12px rgba(26, 29, 74, 0.06);
-  --sh-brand: 0 12px 32px rgba(74, 103, 201, 0.28);
+  --sh-xs: 0 1px 2px rgba(15, 20, 25, 0.05);
+  --sh-sm: 0 2px 8px rgba(15, 20, 25, 0.06), 0 1px 2px rgba(15, 20, 25, 0.04);
+  --sh-md: 0 8px 24px rgba(15, 20, 25, 0.08), 0 2px 6px rgba(15, 20, 25, 0.04);
+  --sh-lg: 0 24px 48px rgba(15, 20, 25, 0.12), 0 4px 12px rgba(15, 20, 25, 0.06);
+  --sh-brand: 0 12px 32px rgba(37, 99, 235, 0.28);
 
   /* Tipografía */
   --font-display: "Bricolage Grotesque", "Fraunces", Georgia, serif;
@@ -85,9 +85,9 @@ body {
   background: var(--bg);
   /* Fondo con gradiente sutil + malla radial para profundidad */
   background-image:
-    radial-gradient(circle at 10% 20%, rgba(143, 163, 227, 0.22) 0%, transparent 40%),
-    radial-gradient(circle at 88% 75%, rgba(245, 166, 35, 0.08) 0%, transparent 45%),
-    linear-gradient(180deg, #F5F5FB 0%, #ECEEF8 100%);
+    radial-gradient(circle at 10% 20%, rgba(96, 165, 250, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 88% 75%, rgba(14, 165, 233, 0.08) 0%, transparent 45%),
+    linear-gradient(180deg, #f0f4f8 0%, #e8eef5 100%);
   background-attachment: fixed;
   min-height: 100vh;
   display: grid;
@@ -684,8 +684,8 @@ ul {
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  background: rgba(245, 166, 35, 0.14);
-  color: #B47008;
+  background: rgba(14, 165, 233, 0.14);
+  color: #0369a1;
 }
 
 .progress {
@@ -1063,8 +1063,8 @@ ul {
 }
 
 .news-item--featured {
-  background: linear-gradient(135deg, #FFF7EA, #FFFBF1);
-  border-color: rgba(245, 166, 35, 0.3);
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border-color: rgba(14, 165, 233, 0.3);
 }
 
 .news-item__stripe {
@@ -1462,7 +1462,7 @@ ul {
 .form-group input:focus {
   outline: none;
   border-color: var(--brand-500);
-  box-shadow: 0 0 0 3px rgba(74, 103, 201, 0.18);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
 }
 
 .form-error {
