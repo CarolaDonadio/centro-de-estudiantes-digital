@@ -112,6 +112,12 @@ async function init() {
     fetchJSON(API.reglamentacion),
     fetchJSON(API.notificaciones),
   ]);
+  
+  // Inicializar mes del calendario si no existe
+  if (!state.calendarioMes) {
+    const now = new Date();
+    state.calendarioMes = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
 
   Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones });
 
@@ -416,6 +422,7 @@ function openDrawer(type) {
   const config = {
     perfil:         { title: 'Mi Perfil',           icon: iconUser,      render: renderProfile       },
     materias:       { title: 'Mis Materias',        icon: iconBook,      render: renderMaterias      },
+    calendario:     { title: 'Calendario',          icon: iconCalendar,  render: renderCalendar      },
     inscripciones:  { title: 'Mis Inscripciones',   icon: iconInscript,  render: renderInscripciones },
     carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
     centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
@@ -469,6 +476,14 @@ const iconBook = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
   </svg>`;
+
+const iconCalendar = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
+    <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" />
+  </svg>`;
+
 
 const iconInscript = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -848,7 +863,184 @@ function renderCentro(body) {
   `;
 }
 
-function renderCalendar() {}
+/* ----------------------------------------------------------------
+   16. DRAWER: CALENDARIO INTERACTIVO
+---------------------------------------------------------------- */
+function renderCalendar(body) {
+  const date = state.calendarioMes || new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  
+  const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+  
+  // Días del mes
+  const firstDay = new Date(year, month, 1).getDay(); // 0 es Domingo
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  
+  // Usar eventos del estado (cargados de JSON) o el mock por defecto
+  const eventos = state.calendario?.eventos || [];
+
+  body.innerHTML = `
+    <div class="cal-header">
+      <span class="cal-month">${monthNames[month]} ${year}</span>
+      <div class="cal-nav">
+        <button id="calPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button id="calNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+    </div>
+    
+    <div class="cal-grid-head">
+      <div class="cal-dow">DOM</div><div class="cal-dow">LUN</div><div class="cal-dow">MAR</div>
+      <div class="cal-dow">MIÉ</div><div class="cal-dow">JUE</div><div class="cal-dow">VIE</div>
+      <div class="cal-dow">SÁB</div>
+    </div>
+    
+    <div class="cal-grid" id="calendarGrid">
+      ${generateCalendarGrid(year, month, firstDay, daysInMonth, eventos)}
+    </div>
+
+    <div class="cal-legend">
+      <div class="cal-legend__item"><span class="cal-legend__dot" style="background:#E67E5B"></span> Parciales</div>
+      <div class="cal-legend__item"><span class="cal-legend__dot" style="background:#06b6d4"></span> Trabajos Prácticos</div>
+      <div class="cal-legend__item"><span class="cal-legend__dot" style="background:#F5A623"></span> Eventos CE</div>
+    </div>
+
+    <div id="dayDetails" class="cal-events-today" style="margin-top: 20px;">
+      <p style="color:var(--text-muted); font-size: 13px;">Seleccioná un día para ver detalles.</p>
+    </div>
+  `;
+
+  // Eventos de navegación
+  $('#calPrev').onclick = () => {
+    state.calendarioMes.setMonth(state.calendarioMes.getMonth() - 1);
+    renderCalendar(body);
+  };
+  $('#calNext').onclick = () => {
+    state.calendarioMes.setMonth(state.calendarioMes.getMonth() + 1);
+    renderCalendar(body);
+  };
+
+  // Click en celdas
+  $$('.cal-cell', body).forEach(cell => {
+    cell.onclick = () => {
+      $$('.cal-cell').forEach(c => c.classList.remove('is-today'));
+      cell.classList.add('is-today');
+      showDayDetails(cell.dataset.date, eventos);
+    };
+  });
+}
+
+function generateCalendarGrid(year, month, firstDay, daysInMonth, eventos) {
+  let html = '';
+  // Espacios vacíos
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div class="cal-cell is-muted"></div>`;
+  }
+  // Días reales
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const evs = eventos.filter(e => e.fecha === dateStr);
+    const dots = evs.map(e => `<span class="cal-dot" style="background:${e.color}"></span>`).join('');
+    
+    html += `
+      <div class="cal-cell" data-date="${dateStr}">
+        ${day}
+        <div class="cal-dots">${dots}</div>
+      </div>`;
+  }
+  return html;
+}
+
+function showDayDetails(dateStr, eventos) {
+  const details = $('#dayDetails');
+  const isDocente = state.usuario?.perfil === 'Docente';
+  const evs = eventos.filter(e => e.fecha === dateStr);
+  
+  let html = `<h4>Actividades del ${dateStr}</h4>`;
+
+  if (evs.length > 0) {
+    html += `
+      <ul>
+        ${evs.map(e => `
+          <li>
+            <span class="dot" style="background:${e.color}"></span>
+            <div>
+              <strong>${e.titulo}</strong>
+              <p style="font-size:11px; color:var(--text-muted)">Tipo: ${e.tipo.toUpperCase()}</p>
+            </div>
+          </li>
+        `).join('')}
+      </ul>`;
+  } else {
+    html += `<p style="font-size:13px">No hay actividades programadas para este día.</p>`;
+  }
+
+  // Si es docente, permitimos agregar parciales
+  if (isDocente) {
+    html += `
+      <button class="btn-primary" id="btnNewExam" style="width:100%; margin-top:15px; font-size:12px; padding:10px;">
+        + Programar Parcial
+      </button>`;
+  }
+
+  details.innerHTML = html;
+
+  if (isDocente) {
+    $('#btnNewExam').onclick = () => renderExamForm($('#drawerBody'), dateStr);
+  }
+}
+
+/**
+ * Renderiza el formulario de carga de parciales
+ */
+function renderExamForm(body, dateStr) {
+  body.innerHTML = `
+    <button class="btn-secondary" id="btnBackCal" style="margin-bottom:15px; font-size:12px; padding:5px 10px;">
+      ← Volver al calendario
+    </button>
+    <h3 style="margin-bottom:20px; font-family:var(--font-display)">Programar Parcial</h3>
+    <p style="font-size:13px; margin-bottom:15px; color:var(--text-soft)">Fecha seleccionada: <strong>${dateStr}</strong></p>
+    
+    <form id="examForm" class="password-form is-visible" style="display:flex; flex-direction:column; gap:15px;">
+      <div class="form-group">
+        <label>Materia</label>
+        <select name="materia" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-strong);" required>
+          <option value="Lógica Computacional">Lógica Computacional</option>
+          <option value="Programación I">Programación I</option>
+          <option value="Análisis Matemático">Análisis Matemático</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Título / Descripción corta</label>
+        <input type="text" name="titulo" placeholder="Ej: Primer Parcial - Unidades 1 a 3" required>
+      </div>
+      <button type="submit" class="btn-primary" style="margin-top:10px">Guardar en Calendario</button>
+    </form>
+  `;
+
+  $('#btnBackCal').onclick = () => renderCalendar(body);
+
+  $('#examForm').onsubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    const nuevoParcial = {
+      fecha: dateStr,
+      titulo: `${formData.get('materia')}: ${formData.get('titulo')}`,
+      tipo: 'parcial',
+      color: '#E67E5B' // Color naranja para parciales
+    };
+
+    // Guardamos en el estado local (Mock)
+    if (!state.calendario.eventos) state.calendario.eventos = [];
+    state.calendario.eventos.push(nuevoParcial);
+
+    // Feedback y regreso al calendario
+    alert('Parcial programado con éxito. Los alumnos recibirán una notificación.');
+    renderCalendar(body);
+  };
+}
+
 function renderEventsList() {}
 function renderFullNews() {}
 function renderRegulations() {}
@@ -1023,6 +1215,13 @@ window.__FALLBACK_DATA__ = {
       { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.", tipo: "success", fecha: "2026-04-27T09:00:00", leida: false },
       { id: 2, titulo: "Cierre de inscripciones", descripcion: "Las inscripciones a mesas de Julio cierran el 10/07.", tipo: "warning", fecha: "2026-04-26T14:30:00", leida: false },
       { id: 3, titulo: "Workshop de Python", descripcion: "El CE abrió cupos para el taller de Pandas, NumPy y Scikit-learn.", tipo: "info", fecha: "2026-04-25T11:00:00", leida: false }
+    ]
+  },
+  calendario: {
+    eventos: [
+      { fecha: '2026-04-28', titulo: 'Entrega TP Programación', tipo: 'tp', color: '#06b6d4' },
+      { fecha: '2026-04-30', titulo: 'Parcial Análisis Matemático', tipo: 'parcial', color: '#E67E5B' },
+      { fecha: '2026-05-05', titulo: 'Workshop Python', tipo: 'evento', color: '#F5A623' }
     ]
   }
 };
