@@ -13,13 +13,15 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario:         'data/usuario.json',
-  novedades:       'data/novedades.json',
-  eventos:         'data/eventos.json',
-  calendario:      'data/calendario.json',
-  reglamentacion:  'data/reglamentacion.json',
-  notificaciones:  'data/notificaciones.json',
+  usuario:         'json/usuario.json',
+  novedades:       'json/novedades.json',
+  eventos:         'json/eventos.json',
+  calendario:      'json/calendario.json',
+  reglamentacion:  'json/reglamentacion.json',
+  notificaciones:  'json/notificaciones.json',
 };
+
+const SESSION_STORAGE_KEY = 'cedSession';
 
 /* ----------------------------------------------------------------
    1. HELPERS (utilidades genéricas)
@@ -39,7 +41,7 @@ async function fetchJSON(url) {
   } catch (err) {
     console.warn(`[API Mock] No se pudo cargar ${url}. Verificá que estés corriendo un servidor local.`, err);
     // Devolvemos el fallback desde window si existe (por si no hay servidor)
-    const key = url.replace('data/', '').replace('.json', '');
+    const key = url.replace(/(?:data|json)\//, '').replace('.json', '');
     return window.__FALLBACK_DATA__?.[key] || null;
   }
 }
@@ -103,6 +105,11 @@ const state = {
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
+  if (!isAuthenticated()) {
+    window.location.href = 'log.html';
+    return;
+  }
+
   // Cargamos todo en paralelo desde la "API Mock"
   const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones] = await Promise.all([
     fetchJSON(API.usuario),
@@ -114,6 +121,7 @@ async function init() {
   ]);
 
   Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones });
+  applySessionToUser();
 
   // Renderizamos las secciones del dashboard
   renderUserHeader();
@@ -1000,8 +1008,38 @@ function bindNavigation() {
   });
 
   $('#logoutConfirm')?.addEventListener('click', () => {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
     window.location.href = 'index.html';
   });
+}
+
+function applySessionToUser() {
+  const session = getSession();
+  if (!session || !state.usuario) return;
+
+  const perfilMap = {
+    estudiante: 'Alumno',
+    docente: 'Docente',
+    delegado: 'Delegado',
+    administrador: 'Administrador',
+  };
+
+  state.usuario.nombre = session.nombre || state.usuario.nombre;
+  state.usuario.perfil = perfilMap[session.rol] || state.usuario.perfil;
+  state.usuario.usuario = session.usuario || state.usuario.usuario;
+}
+
+function getSession() {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
+
+function isAuthenticated() {
+  const session = getSession();
+  return Boolean(session && session.usuario && session.rol);
 }
 
 /* ----------------------------------------------------------------
@@ -1018,6 +1056,13 @@ window.__FALLBACK_DATA__ = {
     proximas_fechas: [{ fecha: "20/07/2026", materia: "Lógica Computacional", tipo: "Examen Final" }],
     notificaciones_sin_leer: 3, clases_hoy: 3, eventos_semana: 2
   },
+  usuarios: [
+    { usuario: "santiago", password: "1234", rol: "estudiante", nombre: "Santiago Chiale" },
+    { usuario: "alumno", password: "alumno", rol: "estudiante", nombre: "Alumno de Prueba" },
+    { usuario: "docente", password: "docente", rol: "docente", nombre: "Prof. Ana López" },
+    { usuario: "delegado", password: "delegado", rol: "delegado", nombre: "Delegado de Prueba" },
+    { usuario: "admin", password: "admin", rol: "administrador", nombre: "Administrador del Sistema" }
+  ],
   notificaciones: {
     notificaciones: [
       { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.", tipo: "success", fecha: "2026-04-27T09:00:00", leida: false },
