@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<!--
+=================================================================
+  PROYECTO: Centro de Estudiantes Digital - ISFDyT 57
+  ARCHIVO:  centro.html
+  USO:      Landing pública del Centro de Estudiantes.
+            Inspirada en la estructura de https://21.edu.ar/acceso-estudiantes
+            adaptada al sistema de diseño del portal del estudiante.
+=================================================================
+-->
+<html lang="es">
+<head>
+  <!-- === META Y CONFIG === -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Centro de Estudiantes — ISFDyT 57</title>
+
+  <!-- === TIPOGRAFÍAS === -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- === ESTILOS === -->
+  <link rel="stylesheet" href="css/public.css" />
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+
+<body>
+
+  <!--
+    ================================================================
+    NAVBAR PÚBLICO — sticky con backdrop difuminado
+    ================================================================
+  -->
+  <nav class="public-nav" aria-label="Navegación principal">
+    <div class="container public-nav__row">
+
+      <!-- Logo + nombre del instituto -->
+      <div class="public-nav__brand">
+        <div class="public-nav__logo">
+          <strong>57</strong>
+          <small>ISFDyT</small>
+        </div>
+        <div class="public-nav__brand-text">
+          <strong>Centro de Estudiantes</strong>
+          <span>ISFDyT N.° 57 · Juana Paula Manso</span>
+        </div>
+      </div>
+
+      <!-- Contenedor para agrupar navegación y botón de ingreso -->
+      <div class="public-nav__actions-group">
+        <!-- Links de navegación con menús desplegables -->
+        <ul class="public-nav__links">
+          <li class="nav-item-dropdown">
+            <a class="public-nav__link" href="#">Instituto</a>
+            <ul class="dropdown-content">
+              <li><a href="#">Quienes somos</a></li>
+              <li><a href="#">Autoridades</a></li>
+              <li><a href="#">Convocatorias</a></li>
+            </ul>
+          </li>
+          <li class="nav-item-dropdown">
+            <a class="public-nav__link" href="#">Académico</a>
+            <ul class="dropdown-content">
+              <li class="dropdown-submenu">
+                <span class="submenu-title">Profesorados</span>
+                <ul class="submenu-content">
+                  <li><a href="#">Profesorado de Inglés</a></li>
+                  <li><a href="#">Profesorado Ed. Inicial</a></li>
+                  <li><a href="#">Profesorado de Matemáticas</a></li>
+                </ul>
+              </li>
+              <li class="dropdown-submenu">
+                <span class="submenu-title">Tecnicaturas</span>
+                <ul class="submenu-content">
+                  <li><a href="#">Tec. en Ciencia de Datos e IA</a></li>
+                  <li><a href="#">Tec. en Enfermería</a></li>
+                  <li><a href="#">Tec. en Trabajo Social</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item-dropdown">
+            <a class="public-nav__link" href="#">Egresados</a>
+            <ul class="dropdown-content">
+              <li><a href="#">Comunidad</a></li>
+              <li><a href="#">Actualización profesional</a></li>
+              <li><a href="#">Testimonios</a></li>
+            </ul>
+          </li>
+          <li class="nav-item-dropdown">
+            <a class="public-nav__link" href="#">Contactos</a>
+            <ul class="dropdown-content">
+              <li><a href="#">Mail</a></li>
+              <li><a href="#">Ubicación</a></li>
+              <li><a href="#">Horarios</a></li>
+              <li><a href="#">Redes sociales</a></li>
+            </ul>
+          </li>
+        </ul>
+
+      <!-- CTA: dispara el modal de login -->
+      <button class="btn-login-trigger" data-open-login type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="5" y="11" width="14" height="10" rx="2"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>
+        </svg>
+        Ingresar
+      </button>
+      </div>
+      </div>
+    </div>
+  </nav>
+
+  <!--
+    ================================================================
+    HERO — Mensaje principal + ilustración geométrica
+    ================================================================
+  -->
+  <header class="hero">
+    <div class="container hero__inner">
+
+      <!-- Texto del hero -->
+      <div data-animate="fade-up">
+        <span class="hero__eyebrow">Año Lectivo 2026</span>
+        <h1 class="hero__title">
+          Encontrá todo lo que necesitás para tu cursada.
+        </h1>
+        <p class="hero__subtitle">
+          Tu portal de acceso a novedades, calendario académico, eventos del Centro de Estudiantes y reglamentación institucional. Todo en un solo lugar.
+        </p>
+        <div class="hero__actions">
+          <button class="btn-primary" data-open-login type="button">
+            Acceder al portal
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <a class="btn-secondary" href="#accesos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 8v4l3 3" stroke-linecap="round"/>
+            </svg>
+            Conocé más
+          </a>
+        </div>
+      </div>
+
+      <!-- Ilustración decorativa: composición de figuras estudiantil -->
+      <div class="hero__art" data-animate="fade-up" style="--delay: 0.15s" aria-hidden="true">
+<img src="img/estudiante.png" alt="Ilustración decorativa" />
+      </div>
+
+    </div>
+  </header>
+
+  <!--
+    ================================================================
+    SECCIÓN: ACCESOS DIRECTOS
+    Tiles tipo dashboard, similar al "Estudiantes" de UES21.
+    ================================================================
+  -->
+  <section class="section" id="accesos" aria-labelledby="accesos-titulo">
+    <div class="container">
+
+      <div class="section__head" data-animate="fade-up">
+        <span class="section__eyebrow">Lo que encontrás acá</span>
+        <h2 class="section__title" id="accesos-titulo">Tus accesos directos</h2>
+        <p class="section__lead">
+          Todo lo que necesitás para gestionar tu vida académica en el instituto, organizado en un solo portal.
+        </p>
+      </div>
+
+      <div class="access-grid">
+
+        <!-- Tile 1: Portal del Estudiante -->
+        <button class="access-tile" data-open-login type="button"
+                style="--tile-accent: #2C3E87; --tile-bg: #E3E9FA;"
+                data-animate="fade-up" data-delay="0.05s">
+          <div class="access-tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="3" width="7" height="9" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="5" rx="1.5"/>
+              <rect x="14" y="12" width="7" height="9" rx="1.5"/>
+              <rect x="3" y="16" width="7" height="5" rx="1.5"/>
+            </svg>
+          </div>
+          <h3 class="access-tile__title">Portal del Estudiante</h3>
+          <p class="access-tile__desc">Tu dashboard personal: novedades, calendario, eventos y reglamentación.</p>
+          <span class="access-tile__arrow">
+            Ingresar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- Tile 2: Aula Virtual -->
+        <a class="access-tile" href="#"
+           style="--tile-accent: #4A67C9; --tile-bg: rgba(74, 103, 201, 0.12);"
+           data-animate="fade-up" data-delay="0.1s">
+          <div class="access-tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="13" rx="2"/>
+              <path d="M8 21h8M12 17v4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="access-tile__title">Aula Virtual</h3>
+          <p class="access-tile__desc">Material de cátedra, entregas y videoconferencias de tus materias.</p>
+          <span class="access-tile__arrow">
+            Acceder
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- Tile 3: Reglamentación -->
+        <a class="access-tile" href="#"
+           style="--tile-accent: #8B5CF6; --tile-bg: rgba(139, 92, 246, 0.12);"
+           data-animate="fade-up" data-delay="0.15s">
+          <div class="access-tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M6 3h9l5 5v13H6z"/>
+              <path d="M15 3v5h5M9 13h6M9 17h6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="access-tile__title">Reglamentación</h3>
+          <p class="access-tile__desc">Reglamentos académicos, régimen de asistencia y planes de estudio.</p>
+          <span class="access-tile__arrow">
+            Consultar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- Tile 4: Biblioteca -->
+        <a class="access-tile" href="#"
+           style="--tile-accent: #3DAA6A; --tile-bg: rgba(61, 170, 106, 0.12);"
+           data-animate="fade-up" data-delay="0.2s">
+          <div class="access-tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 4h7v16H4zM13 4h7v16h-7z"/>
+              <path d="M4 8h7M4 12h7M4 16h7M13 8h7M13 12h7" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="access-tile__title">Biblioteca Digital</h3>
+          <p class="access-tile__desc">Catálogo de libros, papers y material académico de todas las carreras.</p>
+          <span class="access-tile__arrow">
+            Explorar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- Tile 5: Trámites -->
+        <a class="access-tile" href="#"
+           style="--tile-accent: #F5A623; --tile-bg: rgba(245, 166, 35, 0.16);"
+           data-animate="fade-up" data-delay="0.25s">
+          <div class="access-tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 4h6l1 3h4v13H4V7h4z"/>
+              <path d="M9 12h6M9 16h4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="access-tile__title">Trámites Online</h3>
+          <p class="access-tile__desc">Solicitá certificados, equivalencias e inscripciones a finales sin moverte.</p>
+          <span class="access-tile__arrow">
+            Iniciar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- Tile 6: Bienestar -->
+        <a class="access-tile" href="#"
+           style="--tile-accent: #E67E5B; --tile-bg: rgba(230, 126, 91, 0.14);"
+           data-animate="fade-up" data-delay="0.3s">
+          <div class="access-tile__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 21C12 21 4 15 4 9a4 4 0 0 1 8-1 4 4 0 0 1 8 1c0 6-8 12-8 12Z"/>
+            </svg>
+          </div>
+          <h3 class="access-tile__title">Bienestar Estudiantil</h3>
+          <p class="access-tile__desc">Becas, orientación psicopedagógica y acompañamiento durante tu carrera.</p>
+          <span class="access-tile__arrow">
+            Consultar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!--
+    ================================================================
+    SECCIÓN: PRÓXIMOS EVENTOS (3 destacados)
+    ================================================================
+  -->
+  <section class="section section--soft" id="eventos" aria-labelledby="eventos-titulo">
+    <div class="container">
+
+      <div class="section__head" data-animate="fade-up">
+        <span class="section__eyebrow">Lo que se viene</span>
+        <h2 class="section__title" id="eventos-titulo">Próximos eventos</h2>
+        <p class="section__lead">
+          Encuentros, talleres y actividades que organiza el Centro de Estudiantes para vos.
+        </p>
+      </div>
+
+      <div class="events-row">
+
+        <!-- Evento 1 -->
+        <article class="event-card-public" style="--ev-color: #4A67C9; --ev-color-2: #2C3E87;" data-animate="fade-up" data-delay="0.05s">
+          <div class="event-card-public__media">
+            <div class="event-card-public__date">
+              <span class="event-card-public__day">25</span>
+              <span class="event-card-public__month">Abr</span>
+            </div>
+            <span class="event-card-public__cat">Académico</span>
+          </div>
+          <div class="event-card-public__body">
+            <h3 class="event-card-public__title">Charla: Ética y sesgos en IA</h3>
+            <p class="event-card-public__excerpt">Conferencia magistral con la Dra. Laura Fernández sobre los desafíos éticos del desarrollo de modelos de inteligencia artificial.</p>
+          </div>
+        </article>
+
+        <!-- Evento 2 -->
+        <article class="event-card-public" style="--ev-color: #F5A623; --ev-color-2: #E67E5B;" data-animate="fade-up" data-delay="0.1s">
+          <div class="event-card-public__media">
+            <div class="event-card-public__date">
+              <span class="event-card-public__day">05</span>
+              <span class="event-card-public__month">May</span>
+            </div>
+            <span class="event-card-public__cat">Workshop</span>
+          </div>
+          <div class="event-card-public__body">
+            <h3 class="event-card-public__title">Workshop de Python para Data Science</h3>
+            <p class="event-card-public__excerpt">Tres jornadas intensivas sobre Pandas, NumPy y Scikit-learn. Cupos limitados, abierto a todas las carreras.</p>
+          </div>
+        </article>
+
+        <!-- Evento 3 -->
+        <article class="event-card-public" style="--ev-color: #8B5CF6; --ev-color-2: #4A67C9;" data-animate="fade-up" data-delay="0.15s">
+          <div class="event-card-public__media">
+            <div class="event-card-public__date">
+              <span class="event-card-public__day">10</span>
+              <span class="event-card-public__month">May</span>
+            </div>
+            <span class="event-card-public__cat">Social</span>
+          </div>
+          <div class="event-card-public__body">
+            <h3 class="event-card-public__title">Fiesta de Bienvenida a Ingresantes</h3>
+            <p class="event-card-public__excerpt">Encuentro de integración con música en vivo, food trucks y sorteos para los nuevos estudiantes del ciclo 2026.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!--
+    ================================================================
+    CTA FINAL — banner navy con botón de acceso
+    ================================================================
+  -->
+  <section class="container" id="contacto">
+    <div class="final-cta" data-animate="fade-up">
+      <div class="final-cta__inner">
+        <h2 class="final-cta__title">¿Listo para empezar?
+        <p class="final-cta__lead">
+          Ingresá al portal de Inscripciones y accedé a la oferta academica.
+        </p>
+        <button class="btn-primary" data-open-login type="button">
+          Inscribirse
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!--
+    ================================================================
+    FOOTER MINIMALISTA
+    ================================================================
+  -->
+  <footer class="public-footer">
+    <div class="container public-footer__row">
+      <div>
+        <strong>ISFDyT N.° 57</strong> · Juana Paula Manso · Chascomús
+      </div>
+      <div>© 2026 Centro de Estudiantes Digital · Hecho con compromiso estudiantil</div>
+    </div>
+  </footer>
+
+  <!--
+    ================================================================
+    MODAL DE LOGIN — overlay con backdrop difuminado
+    Aparece centrado al clickear cualquier botón [data-open-login].
+    ================================================================
+  -->
+  <div class="login-overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle" aria-hidden="true">
+
+    <div class="login-card">
+
+      <!-- Botón cerrar -->
+      <button class="login-card__close" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Logo del instituto -->
+      <div class="login-card__logo" aria-hidden="true">
+        <strong>57</strong>
+        <small>ISFDyT</small>
+      </div>
+
+      <h2 class="login-card__title" id="loginTitle">Iniciar sesión</h2>
+      <p class="login-card__subtitle">Accedé al portal con tu usuario institucional</p>
+
+      <!-- Formulario -->
+      <form class="login-form" id="loginForm" novalidate>
+        <div class="login-form__field">
+          <label for="username">Usuario</label>
+          <input
+            type="text"
+            id="username"
+            class="login-form__input"
+            placeholder="Ej: santiago"
+            autocomplete="username"
+            required
+          />
+        </div>
+
+        <div class="login-form__field">
+          <label for="password">Contraseña</label>
+          <input
+            type="password"
+            id="password"
+            class="login-form__input"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="login-form__submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="5" y="11" width="14" height="10" rx="2"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>
+          </svg>
+          Ingresar
+        </button>
+
+        <div class="login-error" id="errorMessage" role="alert"></div>
+        <div class="login-success-banner">✓ ¡Bienvenido! Redirigiendo al portal...</div>
+      </form>
+
+      <!-- Pista con credenciales de prueba -->
+      <div class="login-hint">
+        <strong>Datos de prueba:</strong> usuario <code>santiago</code> · contraseña <code>1234</code>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- === SCRIPT === -->
+  <script src="js/login.js" defer></script>
+</body>
+</html>

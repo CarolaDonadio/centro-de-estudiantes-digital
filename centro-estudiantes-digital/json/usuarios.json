@@ -1,0 +1,32 @@
+[
+  {
+    "usuario": "santiago",
+    "password": "1234",
+    "rol": "estudiante",
+    "nombre": "Santiago Chiale"
+  },
+  {
+    "usuario": "alumno",
+    "password": "alumno",
+    "rol": "estudiante",
+    "nombre": "Alumno de Prueba"
+  },
+  {
+    "usuario": "docente",
+    "password": "docente",
+    "rol": "docente",
+    "nombre": "Prof. Ana López"
+  },
+  {
+    "usuario": "delegado",
+    "password": "delegado",
+    "rol": "delegado",
+    "nombre": "Delegado de Prueba"
+  },
+  {
+    "usuario": "admin",
+    "password": "admin",
+    "rol": "administrador",
+    "nombre": "Administrador del Sistema"
+  }
+]

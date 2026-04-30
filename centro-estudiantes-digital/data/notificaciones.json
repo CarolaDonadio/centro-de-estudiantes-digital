@@ -1,0 +1,44 @@
+{
+  "notificaciones": [
+    {
+      "id": 1,
+      "titulo": "Inscripción confirmada",
+      "descripcion": "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.",
+      "tipo": "success",
+      "fecha": "2026-04-27T09:00:00",
+      "leida": false
+    },
+    {
+      "id": 2,
+      "titulo": "Cierre de inscripciones",
+      "descripcion": "Las inscripciones a mesas de examen de Julio cierran el 10/07. ¡No te quedes afuera!",
+      "tipo": "warning",
+      "fecha": "2026-04-26T14:30:00",
+      "leida": false
+    },
+    {
+      "id": 3,
+      "titulo": "Workshop de Python",
+      "descripcion": "El CE abrió cupos para el taller de Pandas, NumPy y Scikit-learn. Cupos limitados.",
+      "tipo": "info",
+      "fecha": "2026-04-25T11:00:00",
+      "leida": false
+    },
+    {
+      "id": 4,
+      "titulo": "Cambio de aula",
+      "descripcion": "Programación I del martes 28/04 pasa al Aula 5. Consultá el campus para más info.",
+      "tipo": "info",
+      "fecha": "2026-04-24T08:00:00",
+      "leida": true
+    },
+    {
+      "id": 5,
+      "titulo": "Vencimiento de beca",
+      "descripcion": "El plazo para presentar la documentación de la beca de movilidad vence el 30/04.",
+      "tipo": "warning",
+      "fecha": "2026-04-22T16:00:00",
+      "leida": true
+    }
+  ]
+}

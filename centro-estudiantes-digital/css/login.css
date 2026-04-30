@@ -1,0 +1,360 @@
+/* ================================================================
+   ARCHIVO: login.css
+   USO:     Card de login + sistema de modal con backdrop difuminado.
+            Se reutiliza en log.html (standalone) y en centro.html (popup).
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. OVERLAY DEL MODAL — fondo difuminado
+       Se activa con la clase .is-open mediante JavaScript.
+---------------------------------------------------------------- */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 25, 0.42);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.login-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ----------------------------------------------------------------
+   2. CARD DE LOGIN
+       Misma card se usa para el modal y para la versión standalone.
+       En standalone se renderiza directamente sobre el body.
+---------------------------------------------------------------- */
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 38px 34px 32px;
+  background: var(--bg-elevated);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transform: translateY(20px) scale(0.96);
+  opacity: 0;
+  transition:
+    transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 280ms ease-out;
+}
+
+/* Cuando el overlay está abierto, la card aparece con un pequeño "pop" */
+.login-overlay.is-open .login-card,
+.login-card.is-standalone {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Borde superior decorativo: línea de gradiente como en las cards del dashboard */
+.login-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 32px;
+  right: 32px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--brand-300) 30%, var(--accent-amber) 70%, transparent);
+  opacity: 0.7;
+}
+
+/* Detalle decorativo: círculos sutiles en la esquina */
+.login-card::after {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74, 103, 201, 0.07), transparent 70%);
+  pointer-events: none;
+}
+
+/* Botón "✕" para cerrar el modal (solo visible en modo modal) */
+.login-card__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  background: var(--bg-soft);
+  transition: background var(--t-fast), color var(--t-fast);
+  z-index: 2;
+}
+
+.login-card__close:hover {
+  background: var(--brand-100);
+  color: var(--brand-700);
+}
+
+.login-card__close svg { width: 18px; height: 18px; }
+
+/* Cuando es standalone, ocultamos el botón cerrar */
+.login-card.is-standalone .login-card__close { display: none; }
+
+/* Logo arriba */
+.login-card__logo {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  border-radius: var(--r-full);
+  background: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  line-height: 1;
+  box-shadow: var(--sh-brand);
+  position: relative;
+}
+
+.login-card__logo strong {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.login-card__logo small {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  margin-top: 2px;
+}
+
+/* Encabezado */
+.login-card__title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  text-align: center;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.login-card__subtitle {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-bottom: 26px;
+}
+
+/* Formulario */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.login-form__field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.login-form__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.login-form__input::placeholder { color: var(--text-muted); }
+
+.login-form__input:focus {
+  outline: none;
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px rgba(74, 103, 201, 0.18);
+}
+
+/* Botón principal "Ingresar" */
+.login-form__submit {
+  margin-top: 6px;
+  padding: 13px 20px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+
+.login-form__submit svg { width: 14px; height: 14px; }
+
+.login-form__submit:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sh-brand);
+}
+
+.login-form__submit:active { transform: translateY(0); }
+
+/* Estado deshabilitado mientras autentica */
+.login-form__submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
+/* Mensaje de error */
+.login-error {
+  display: none;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: rgba(230, 126, 91, 0.1);
+  border-left: 3px solid var(--accent-coral);
+  color: #A04030;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.login-error.is-visible {
+  display: block;
+  animation: shake 0.4s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+/* Línea de ayuda con credenciales de prueba */
+.login-hint {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-strong);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.login-hint code {
+  background: var(--bg-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--brand-700);
+  border: 1px solid var(--border);
+}
+
+/* ----------------------------------------------------------------
+   3. ESTADO DE ÉXITO — feedback antes de redirigir
+---------------------------------------------------------------- */
+.login-card.is-success .login-form,
+.login-card.is-success .login-hint {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.login-success-banner {
+  display: none;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: rgba(61, 170, 106, 0.1);
+  border-left: 3px solid var(--accent-green);
+  color: #1F6B3D;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.login-card.is-success .login-success-banner {
+  display: block;
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* ----------------------------------------------------------------
+   4. PÁGINA STANDALONE (log.html sin estar dentro de modal)
+       Centra la card en el viewport con un fondo más rico.
+---------------------------------------------------------------- */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-page::before {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  background:
+    radial-gradient(circle at 15% 25%, rgba(37, 99, 235, 0.25), transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(14, 165, 233, 0.18), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-page .login-card { z-index: 1; }
+
+/* Link "volver al inicio" en la versión standalone */
+.login-back {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--r-full);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  z-index: 2;
+  transition: transform var(--t-fast);
+}
+
+.login-back svg { width: 12px; height: 12px; }
+
+.login-back:hover {
+  transform: translateX(-2px);
+  color: var(--brand-700);
+}

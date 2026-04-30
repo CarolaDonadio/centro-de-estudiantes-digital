@@ -1,0 +1,30 @@
+# Dependencias
+node_modules/
+vendor/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Variables de entorno
+.env
+.env.local
+
+# Build
+dist/
+build/
+
+# Servidor local
+.php_cs.cache
+writable/cache/
+writable/logs/
+writable/session/
+writable/uploads/
