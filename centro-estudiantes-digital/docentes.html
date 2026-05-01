@@ -1647,9 +1647,9 @@
     document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-visible'));
     document.getElementById('logoutConfirm').addEventListener('click', () => {
       logoutModal.classList.remove('is-visible');
-      // En Fase 2 → DELETE /api/auth/logout y redirección a centro.html
+      localStorage.removeItem('cedSession');
       showToast('Sesión cerrada', 'Redirigiendo al portal institucional…');
-      setTimeout(() => { window.location.href = 'centro.html'; }, 900);
+      setTimeout(() => { window.location.href = 'index.html'; }, 900);
     });
 
     /* ============================================================
@@ -1701,6 +1701,10 @@
 
   })();
   </script>
+
+  <!-- Autenticación, logout centralizado y validación de rol -->
+  <script src="js/logout.js"></script>
+  <script src="js/teacher-auth.js"></script>
 
 </body>
 </html>

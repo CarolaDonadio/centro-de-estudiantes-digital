@@ -21,7 +21,8 @@ const API = {
   notificaciones:  'json/notificaciones.json',
 };
 
-const SESSION_STORAGE_KEY = 'cedSession';
+// TODO: donde lo declara??
+// const SESSION_STORAGE_KEY = 'cedSession';
 
 /* ----------------------------------------------------------------
    1. HELPERS (utilidades genéricas)
@@ -106,6 +107,15 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   if (!isAuthenticated()) {
+    window.location.href = 'log.html';
+    return;
+  }
+
+  const session = getSession();
+  const allowedRoles = ['estudiante', 'alumno', 'delegado'];
+  if (!allowedRoles.includes(session?.rol?.toLowerCase())) {
+    console.warn('[Dashboard Alumnos] Acceso denegado. Rol:', session?.rol);
+    localStorage.removeItem(SESSION_STORAGE_KEY);
     window.location.href = 'log.html';
     return;
   }

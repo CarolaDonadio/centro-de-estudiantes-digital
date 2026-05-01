@@ -2133,9 +2133,10 @@
     document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-visible'));
     document.getElementById('logoutConfirm').addEventListener('click', () => {
       logoutModal.classList.remove('is-visible');
+      localStorage.removeItem('cedSession');
       auditar('login', 'sesión', 'Cierre de sesión del administrador');
       showToast('Sesión cerrada', 'Redirigiendo al portal institucional…');
-      setTimeout(() => { window.location.href = 'centro.html'; }, 900);
+      setTimeout(() => { window.location.href = 'index.html'; }, 900);
     });
 
     const notifPanel = document.getElementById('notifPanel');
@@ -2187,6 +2188,10 @@
 
   })();
   </script>
+
+  <!-- Autenticación, logout centralizado y validación de rol -->
+  <script src="js/logout.js"></script>
+  <script src="js/admin-auth.js"></script>
 
 </body>
 </html>
