@@ -72,6 +72,18 @@
           </button>
         </li>
 
+        <!-- BOTÓN: Calendario -->
+        <li>
+          <button class="nav-btn" data-drawer="calendario" aria-label="Calendario Académico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
+              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Calendario</span>
+          </button>
+        </li>
+
         <!-- BOTÓN 3: Mis Inscripciones -->
         <li>
           <button class="nav-btn" data-drawer="inscripciones" aria-label="Mis Inscripciones">
@@ -129,7 +141,7 @@
 
     <!--
       HEADER: Saludo personalizado + Nav de secciones + Campana notificaciones
-      Los datos del usuario se cargan dinámicamente desde data/usuario.json
+      Los datos del usuario se cargan dinámicamente desde json/usuario.json
     -->
     <header class="header" data-animate="fade-down">
 
@@ -360,6 +372,7 @@
   </div>
 
   <!-- === SCRIPT PRINCIPAL DE LA APLICACIÓN === -->
+  <script src="js/logout.js"></script>
   <script src="js/app.js" defer></script>
 </body>
 </html>

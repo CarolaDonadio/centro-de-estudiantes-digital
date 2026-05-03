@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<!--
+=================================================================
+  PROYECTO: Centro de Estudiantes Digital - ISFDyT 57
+  ARCHIVO: admin.html (Panel del Administrador)
+  FASE 1 - Sprint 5: Mesa de control con poder absoluto
+  Hereda el sistema de diseño de la Fase 1 (css/styles.css)
+=================================================================
+  Cumplimiento de la consigna del proyecto integrador (4.4):
+  · Gestión de usuarios (CRUD + activar/desactivar)
+  · Asignación de roles (cambia el perfil de cualquier usuario)
+  · Gestión de categorías de novedades
+  · Gestión y versionado de reglamentos
+  · Configuración general
+  · Consulta de auditoría (logs de acciones)
+
+  Comportamientos clave implementados:
+  · Auditoría automática: toda acción del admin queda registrada
+  · Confirmación destructiva: requiere tipear "CONFIRMAR"
+  · Soft delete con papelera y restauración
+  · Modo "Ver como…" con banner permanente
+  · Reglamentos versionados (no se sobrescriben)
+  · Diferenciación visual coral (vs ámbar del docente)
+=================================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Panel de Administración - ISFDyT 57 Juana Paula Manso" />
+  <title>ISFDyT 57 · Panel Administrador</title>
+
+  <!-- === MISMA TIPOGRAFÍA QUE EL RESTO DE LA PLATAFORMA === -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- === ESTILOS HEREDADOS DEL PROYECTO === -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!--
+    Extensiones específicas del panel admin.
+    Reutilizan los design tokens del proyecto.
+  -->
+  <style>
+    /* ============================================================
+       BANNER DE IMPERSONACIÓN (modo "Ver como…")
+       Aparece arriba de todo cuando el admin actúa como otro usuario.
+       ============================================================ */
+    .impersonate-banner {
+      position: sticky;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: none;
+      align-items: center;
+      gap: 1rem;
+      padding: .8rem 1.2rem;
+      background: linear-gradient(135deg, #F5A623, #E67E5B);
+      color: #fff;
+      font: 600 .85rem/1.3 'Manrope', sans-serif;
+      box-shadow: 0 4px 16px -4px rgba(230, 126, 91, .55);
+    }
+    .impersonate-banner.is-visible { display: flex; }
+    .impersonate-banner svg {
+      width: 18px; height: 18px;
+      stroke: currentColor; fill: none; stroke-width: 2;
+      flex-shrink: 0;
+    }
+    .impersonate-banner__main { flex: 1; }
+    .impersonate-banner__main strong {
+      display: block;
+      font: 700 .92rem 'Bricolage Grotesque', serif;
+    }
+    .impersonate-banner__exit {
+      padding: .5rem 1rem;
+      font: 700 .78rem/1 'Manrope', sans-serif;
+      background: rgba(255, 255, 255, .95);
+      color: var(--brand-900, #1A1D4A);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .2s ease;
+    }
+    .impersonate-banner__exit:hover { transform: translateY(-1px); }
+
+    /* ============================================================
+       PILL DE ROL (rojo/coral en lugar del ámbar del docente)
+       ============================================================ */
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font: 600 .68rem/1 'Manrope', sans-serif;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #fff;
+      background: linear-gradient(135deg, #C0392B, #E67E5B);
+      padding: .35rem .65rem .35rem .55rem;
+      border-radius: 999px;
+      box-shadow: 0 4px 10px -4px rgba(192, 57, 43, .5);
+      margin-bottom: .35rem;
+    }
+    .role-pill svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none; stroke-width: 2.4;
+    }
+
+    /* ============================================================
+       AVATAR CON ESCUDO (diferenciador visual del admin)
+       ============================================================ */
+    .avatar--admin {
+      position: relative;
+      background: linear-gradient(135deg, #C0392B, #1A1D4A) !important;
+    }
+    .avatar--admin::after {
+      content: "";
+      position: absolute;
+      bottom: -3px; right: -3px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C0392B' stroke-width='2.4'><path d='M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z'/><path d='M9 12l2 2 4-4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+      background-size: 12px;
+      background-repeat: no-repeat;
+      background-position: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+    }
+
+    /* ============================================================
+       BOTÓN PRIMARIO DEL ADMIN (acción rápida del header)
+       ============================================================ */
+    .header__action {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .55rem .9rem;
+      font: 600 .82rem/1 'Manrope', sans-serif;
+      color: #fff;
+      background: linear-gradient(135deg, #C0392B, #E67E5B);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px -6px rgba(192, 57, 43, .5);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .header__action:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px -8px rgba(192, 57, 43, .6);
+    }
+    .header__action svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none; stroke-width: 2.2;
+    }
+
+    /* ============================================================
+       TARJETAS DE "ACCIONES PENDIENTES" (variante admin)
+       Reaprovechan el grid de events pero con look operativo.
+       ============================================================ */
+    .pending-card {
+      position: relative;
+      padding: 1rem 1.1rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .25);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .pending-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: var(--pending-color, #F5A623);
+    }
+    .pending-card__type {
+      display: inline-block;
+      font: 600 .65rem/1 'Manrope', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--pending-color, #F5A623);
+      background: color-mix(in srgb, var(--pending-color, #F5A623) 12%, white);
+      padding: .3rem .55rem;
+      border-radius: 5px;
+      margin-bottom: .6rem;
+    }
+    .pending-card__title {
+      margin: 0 0 .25rem;
+      font: 700 .96rem/1.25 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .pending-card__sub {
+      margin: 0 0 .9rem;
+      font: 400 .8rem/1.4 'Manrope', sans-serif;
+      color: #5a5d6e;
+    }
+    .pending-card__actions {
+      display: flex;
+      gap: .4rem;
+    }
+    .pending-card__btn {
+      flex: 1;
+      padding: .5rem .7rem;
+      font: 600 .78rem/1 'Manrope', sans-serif;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .2s ease;
+    }
+    .pending-card__btn:hover { transform: translateY(-1px); }
+    .pending-card__btn--ok {
+      background: var(--accent-green, #3DAA6A);
+      color: #fff;
+    }
+    .pending-card__btn--no {
+      background: #fff;
+      color: var(--accent-coral, #E67E5B);
+      border: 1px solid rgba(230, 126, 91, .35);
+    }
+
+    /* ============================================================
+       FEED DE AUDITORÍA (variante de news-list)
+       ============================================================ */
+    .audit-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      padding: .9rem 1rem .9rem 1.3rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .22);
+      border-radius: 11px;
+      margin-bottom: .55rem;
+    }
+    .audit-item::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 14%; bottom: 14%;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: var(--audit-color, var(--brand-500, #4A67C9));
+    }
+    .audit-item__icon {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--audit-color, #4A67C9) 12%, white);
+      color: var(--audit-color, #4A67C9);
+    }
+    .audit-item__icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; }
+    .audit-item__head {
+      display: flex; gap: .5rem; align-items: center; flex-wrap: wrap;
+      margin-bottom: .15rem;
+    }
+    .audit-item__action {
+      font: 600 .65rem/1 'Manrope', sans-serif;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--audit-color, #4A67C9);
+      background: color-mix(in srgb, var(--audit-color, #4A67C9) 10%, white);
+      padding: .25rem .45rem;
+      border-radius: 5px;
+    }
+    .audit-item__time {
+      font: 500 .72rem/1 'Manrope', sans-serif;
+      color: #8a8d9c;
+    }
+    .audit-item__desc {
+      margin: 0;
+      font: 500 .85rem/1.35 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .audit-item__detail {
+      margin: .15rem 0 0;
+      font: 400 .76rem/1.3 'Manrope', sans-serif;
+      color: #6c6f80;
+    }
+    .audit-item__user {
+      align-self: center;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: .25rem;
+      font: 500 .72rem/1 'Manrope', sans-serif;
+      color: #6c6f80;
+      white-space: nowrap;
+    }
+    .audit-item__user b {
+      color: var(--brand-900, #1A1D4A);
+      font-family: 'Bricolage Grotesque', serif;
+      font-weight: 700;
+    }
+
+    /* ============================================================
+       MESA DE CONTROL: TABLA DE USUARIOS
+       ============================================================ */
+    .user-row {
+      display: grid;
+      grid-template-columns: 36px 1fr auto auto;
+      gap: .8rem;
+      align-items: center;
+      padding: .65rem .8rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .22);
+      border-radius: 10px;
+      margin-bottom: .35rem;
+      transition: box-shadow .2s ease;
+    }
+    .user-row:hover { box-shadow: 0 6px 16px -10px rgba(26, 29, 74, .25); }
+    .user-row[data-inactive="true"] { opacity: .6; }
+    .user-row__avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--brand-500, #4A67C9), var(--brand-300, #8FA3E3));
+      color: #fff;
+      font: 700 .76rem/1 'Manrope', sans-serif;
+    }
+    .user-row__avatar[data-rol="admin"]    { background: linear-gradient(135deg, #C0392B, #1A1D4A); }
+    .user-row__avatar[data-rol="docente"]  { background: linear-gradient(135deg, #F5A623, #E67E5B); }
+    .user-row__avatar[data-rol="delegado"] { background: linear-gradient(135deg, #8B5CF6, #4A67C9); }
+    .user-row__name {
+      margin: 0;
+      font: 600 .88rem/1.2 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .user-row__meta {
+      margin: .15rem 0 0;
+      font: 400 .72rem/1.2 'Manrope', sans-serif;
+      color: #8a8d9c;
+    }
+    .user-row__rol {
+      padding: .25rem .55rem;
+      font: 600 .68rem/1 'Manrope', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border-radius: 999px;
+    }
+    .user-row__rol[data-rol="alumno"]    { background: rgba(74, 103, 201, .12);  color: #2C3E87; }
+    .user-row__rol[data-rol="docente"]   { background: rgba(245, 166, 35, .15); color: #B5781C; }
+    .user-row__rol[data-rol="delegado"]  { background: rgba(139, 92, 246, .12); color: #6B3CC4; }
+    .user-row__rol[data-rol="admin"]     { background: rgba(192, 57, 43, .12);  color: #C0392B; }
+
+    .user-row__menu {
+      position: relative;
+    }
+    .user-row__menu-btn {
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      border: none;
+      background: transparent;
+      color: #8a8d9c;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+    .user-row__menu-btn:hover { background: var(--brand-100, #E3E9FA); color: var(--brand-700, #2C3E87); }
+    .user-row__menu-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .user-row__menu-dropdown {
+      position: absolute;
+      top: calc(100% + 4px); right: 0;
+      min-width: 180px;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .3);
+      border-radius: 10px;
+      box-shadow: 0 14px 28px -10px rgba(26, 29, 74, .25);
+      padding: .35rem;
+      display: none;
+      z-index: 20;
+    }
+    .user-row__menu.is-open .user-row__menu-dropdown { display: block; }
+    .user-row__menu-dropdown button {
+      width: 100%;
+      text-align: left;
+      padding: .55rem .7rem;
+      font: 500 .82rem/1.2 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      background: transparent;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex;
+      gap: .55rem;
+      align-items: center;
+    }
+    .user-row__menu-dropdown button:hover { background: var(--brand-100, #E3E9FA); }
+    .user-row__menu-dropdown button.is-danger { color: var(--accent-coral, #E67E5B); }
+    .user-row__menu-dropdown button.is-danger:hover { background: rgba(230, 126, 91, .1); }
+    .user-row__menu-dropdown button svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.9; }
+    .user-row__menu-dropdown hr {
+      border: none;
+      border-top: 1px solid rgba(143, 163, 227, .25);
+      margin: .25rem 0;
+    }
+
+    /* ============================================================
+       FORMULARIOS (alta de usuario, edición, etc.)
+       ============================================================ */
+    .admin-form {
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+    }
+    .admin-form__row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .7rem;
+    }
+    .admin-form label {
+      display: flex; flex-direction: column; gap: .3rem;
+      font: 600 .72rem/1 'Manrope', sans-serif;
+      color: var(--brand-700, #2C3E87);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .admin-form input,
+    .admin-form select,
+    .admin-form textarea {
+      font: 400 .9rem/1.3 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      padding: .65rem .8rem;
+      border: 1px solid rgba(143, 163, 227, .45);
+      border-radius: 9px;
+      background: #fff;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .admin-form input:focus,
+    .admin-form select:focus,
+    .admin-form textarea:focus {
+      border-color: var(--accent-coral, #E67E5B);
+      box-shadow: 0 0 0 3px rgba(230, 126, 91, .15);
+    }
+    .admin-form__submit {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .75rem 1.3rem;
+      font: 700 .85rem/1 'Manrope', sans-serif;
+      color: #fff;
+      background: linear-gradient(135deg, #C0392B, #E67E5B);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px -8px rgba(192, 57, 43, .5);
+      transition: transform .2s ease;
+    }
+    .admin-form__submit:hover { transform: translateY(-1px); }
+    .admin-form__submit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+    /* ============================================================
+       TABS COMPARTIDOS (heredados del docente)
+       ============================================================ */
+    .drawer__tabs {
+      display: flex;
+      gap: .35rem;
+      padding: .25rem;
+      background: var(--brand-100, #E3E9FA);
+      border-radius: 10px;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .drawer__tab {
+      flex: 1;
+      min-width: 80px;
+      padding: .55rem .7rem;
+      font: 600 .8rem/1 'Manrope', sans-serif;
+      color: var(--brand-700, #2C3E87);
+      background: transparent;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+    .drawer__tab.is-active {
+      background: #fff;
+      color: var(--brand-900, #1A1D4A);
+      box-shadow: 0 4px 10px -4px rgba(26, 29, 74, .15);
+    }
+    .drawer__tab .badge {
+      display: inline-block;
+      padding: .1rem .35rem;
+      margin-left: .25rem;
+      font-size: .65rem;
+      background: rgba(192, 57, 43, .12);
+      color: #C0392B;
+      border-radius: 999px;
+    }
+
+    .drawer__search {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .65rem .85rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .35);
+      border-radius: 10px;
+      margin-bottom: .8rem;
+    }
+    .drawer__search svg { width: 16px; height: 16px; color: #8a8d9c; stroke: currentColor; fill: none; stroke-width: 2; }
+    .drawer__search input {
+      flex: 1;
+      border: none; outline: none;
+      font: 400 .88rem/1 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      background: transparent;
+    }
+
+    /* ============================================================
+       MODAL DE CONFIRMACIÓN DESTRUCTIVA (con tipeo "CONFIRMAR")
+       ============================================================ */
+    .danger-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 29, 74, .55);
+      backdrop-filter: blur(8px);
+      display: none;
+      place-items: center;
+      z-index: 300;
+    }
+    .danger-modal.is-visible { display: grid; }
+    .danger-modal__card {
+      width: min(440px, calc(100vw - 2rem));
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.6rem;
+      box-shadow: 0 24px 60px -10px rgba(0, 0, 0, .35);
+      border-top: 6px solid #C0392B;
+    }
+    .danger-modal__icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: rgba(192, 57, 43, .1);
+      color: #C0392B;
+      display: grid; place-items: center;
+      margin-bottom: 1rem;
+    }
+    .danger-modal__icon svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .danger-modal__title {
+      margin: 0 0 .5rem;
+      font: 700 1.2rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .danger-modal__msg {
+      margin: 0 0 1.2rem;
+      font: 400 .9rem/1.45 'Manrope', sans-serif;
+      color: #5a5d6e;
+    }
+    .danger-modal__msg strong { color: var(--brand-900, #1A1D4A); }
+    .danger-modal__hint {
+      font: 600 .72rem/1.3 'Manrope', sans-serif;
+      color: #6c6f80;
+      letter-spacing: .04em;
+      margin-bottom: .4rem;
+    }
+    .danger-modal__hint code {
+      font: 700 .82rem 'Bricolage Grotesque', serif;
+      color: #C0392B;
+      letter-spacing: .1em;
+      background: rgba(192, 57, 43, .08);
+      padding: 0 .35rem;
+      border-radius: 4px;
+    }
+    .danger-modal__input {
+      width: 100%;
+      padding: .7rem .9rem;
+      font: 600 .95rem/1 'Bricolage Grotesque', serif;
+      letter-spacing: .15em;
+      color: var(--brand-900, #1A1D4A);
+      border: 2px solid rgba(192, 57, 43, .25);
+      border-radius: 9px;
+      outline: none;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+    }
+    .danger-modal__input:focus { border-color: #C0392B; }
+    .danger-modal__actions {
+      display: flex; gap: .55rem; justify-content: flex-end;
+    }
+    .danger-modal__cancel {
+      padding: .7rem 1.1rem;
+      font: 600 .82rem 'Manrope', sans-serif;
+      background: transparent;
+      color: var(--brand-700, #2C3E87);
+      border: 1px solid rgba(143, 163, 227, .45);
+      border-radius: 9px;
+      cursor: pointer;
+    }
+    .danger-modal__confirm {
+      padding: .7rem 1.3rem;
+      font: 700 .82rem 'Manrope', sans-serif;
+      background: #C0392B;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      opacity: .35;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .danger-modal__confirm.is-armed {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ============================================================
+       Categorías y catálogos en chips editables
+       ============================================================ */
+    .cat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .45rem .7rem .45rem .65rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .3);
+      border-radius: 999px;
+      margin: 0 .35rem .4rem 0;
+      font: 600 .82rem 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .cat-chip__dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--cat-color, #4A67C9);
+    }
+    .cat-chip__del {
+      background: transparent;
+      border: none;
+      color: #8a8d9c;
+      cursor: pointer;
+      padding: 0 .15rem;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .cat-chip__del:hover { color: var(--accent-coral, #E67E5B); }
+
+    /* ============================================================
+       Reglamentos versionados
+       ============================================================ */
+    .regl-row {
+      padding: .9rem 1rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .25);
+      border-radius: 11px;
+      margin-bottom: .55rem;
+    }
+    .regl-row__head {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: .8rem;
+      margin-bottom: .35rem;
+    }
+    .regl-row__title {
+      margin: 0;
+      font: 700 .95rem/1.25 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .regl-row__ver {
+      font: 700 .68rem/1 'Manrope', sans-serif;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .3rem .55rem;
+      background: linear-gradient(135deg, #C0392B, #E67E5B);
+      color: #fff;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .regl-row__meta {
+      font: 400 .76rem/1.3 'Manrope', sans-serif;
+      color: #6c6f80;
+      margin: 0 0 .55rem;
+    }
+    .regl-row__history {
+      display: flex; gap: .35rem; flex-wrap: wrap;
+      padding-top: .55rem;
+      border-top: 1px dashed rgba(143, 163, 227, .35);
+    }
+    .regl-row__history small {
+      font: 500 .7rem 'Manrope', sans-serif;
+      color: #8a8d9c;
+      padding: .25rem .5rem;
+      background: var(--brand-100, #E3E9FA);
+      border-radius: 5px;
+    }
+
+    /* ============================================================
+       Toast (igual que docente)
+       ============================================================ */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem; right: 1.5rem;
+      max-width: 380px;
+      padding: .9rem 1.1rem .9rem 1rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 18px 40px -10px rgba(26, 29, 74, .35);
+      border-left: 4px solid var(--toast-color, var(--accent-green, #3DAA6A));
+      transform: translateX(120%);
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999;
+      display: flex;
+      gap: .7rem;
+      align-items: flex-start;
+    }
+    .toast.is-visible { transform: translateX(0); }
+    .toast__icon {
+      width: 28px; height: 28px; flex-shrink: 0;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--toast-color, #3DAA6A) 15%, white);
+      color: var(--toast-color, #3DAA6A);
+      display: grid; place-items: center;
+    }
+    .toast__icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+    .toast strong {
+      display: block;
+      font: 700 .85rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+      margin-bottom: .15rem;
+    }
+    .toast span {
+      font: 400 .76rem/1.4 'Manrope', sans-serif;
+      color: #5a5d6e;
+    }
+
+    .header__nav { gap: .9rem; }
+
+    @media (max-width: 720px) {
+      .admin-form__row { grid-template-columns: 1fr; }
+      .audit-item { grid-template-columns: auto 1fr; }
+      .audit-item__user { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- BANNER DE IMPERSONACIÓN (modo "Ver como…") -->
+  <div class="impersonate-banner" id="imperBanner" role="alert">
+    <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><circle cx="12" cy="11" r="2.5"/><path d="M9.5 15c.7-.6 1.6-1 2.5-1s1.8.4 2.5 1" stroke-linecap="round"/></svg>
+    <div class="impersonate-banner__main">
+      <strong id="imperWho">Estás viendo el portal como…</strong>
+      <span>Modo de inspección activo · Las acciones que realices quedan registradas en auditoría.</span>
+    </div>
+    <button class="impersonate-banner__exit" id="imperExit">Volver al panel admin</button>
+  </div>
+
+  <!--
+    ================================================================
+    SIDEBAR IZQUIERDO - 5 funcionales + logout
+    ================================================================
+  -->
+  <aside class="sidebar" aria-label="Navegación principal del administrador">
+
+    <div class="sidebar__logo" aria-label="ISFDyT 57 Juana Paula Manso">
+      <span class="logo-number">57</span>
+      <span class="logo-text">ISFDyT</span>
+      <span class="logo-sub">J. P. Manso</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <ul role="list">
+
+        <!-- 1) Mi Perfil -->
+        <li>
+          <button class="nav-btn" data-drawer="perfil" aria-label="Mi Perfil">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Mi Perfil</span>
+          </button>
+        </li>
+
+        <!-- 2) Usuarios y Roles -->
+        <li>
+          <button class="nav-btn" data-drawer="usuarios" aria-label="Usuarios y Roles">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="9" cy="8" r="3.5" />
+              <path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round" />
+              <circle cx="17" cy="9" r="2.6" />
+              <path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Usuarios y Roles</span>
+          </button>
+        </li>
+
+        <!-- 3) Contenido y Moderación -->
+        <li>
+          <button class="nav-btn" data-drawer="contenido" aria-label="Contenido y Moderación">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"/>
+              <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Contenido</span>
+          </button>
+        </li>
+
+        <!-- 4) Catálogos del Sistema -->
+        <li>
+          <button class="nav-btn" data-drawer="catalogos" aria-label="Catálogos del Sistema">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <ellipse cx="12" cy="5" rx="8" ry="2.5"/>
+              <path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/>
+              <path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/>
+            </svg>
+            <span class="nav-btn__tooltip">Catálogos</span>
+          </button>
+        </li>
+
+        <!-- 5) Auditoría y Sistema -->
+        <li>
+          <button class="nav-btn" data-drawer="auditoria" aria-label="Auditoría y Sistema">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="M21 21l-4.3-4.3" stroke-linecap="round"/>
+              <path d="M11 7v4l2.5 2" stroke-linecap="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Auditoría</span>
+          </button>
+        </li>
+
+        <!-- 6) Cerrar sesión -->
+        <li class="nav-btn--bottom">
+          <button class="nav-btn nav-btn--danger" id="logoutBtn" aria-label="Cerrar sesión">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke-linecap="round" />
+              <path d="M10 17l5-5-5-5M15 12H3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Cerrar Sesión</span>
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+  </aside>
+
+  <!--
+    ================================================================
+    CONTENIDO PRINCIPAL: Header + Grid de tarjetas
+    ================================================================
+  -->
+  <main class="main">
+
+    <header class="header" data-animate="fade-down">
+
+      <div class="header__greeting">
+        <div class="avatar avatar--admin" id="userAvatar" aria-hidden="true">RA</div>
+
+        <div class="header__text">
+          <span class="role-pill">
+            <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"/></svg>
+            Administrador
+          </span>
+          <h1 class="header__title">
+            Hola, <strong id="userName">Roxana Álvarez</strong>
+          </h1>
+          <p class="header__subtitle" id="userSummary">
+            Sistema con <strong id="kpiActivos">142 usuarios activos</strong>,
+            <strong id="kpiPendientes">4 acciones pendientes</strong> y
+            <strong id="kpiAuditoria">28 eventos en auditoría hoy</strong>.
+          </p>
+        </div>
+      </div>
+
+      <nav class="header__nav" aria-label="Acciones rápidas">
+        <a href="#docs" class="header__link">Documentación</a>
+        <a href="#backup" class="header__link">Respaldos</a>
+
+        <button class="header__action" data-drawer-trigger="usuarios" data-quick="newUser" aria-label="Crear nuevo usuario">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          Nuevo usuario
+        </button>
+
+        <button class="bell-btn" id="bellBtn" aria-label="Notificaciones del sistema" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M10 21a2 2 0 0 0 4 0" stroke-linecap="round" />
+          </svg>
+          <span class="bell-btn__badge" id="bellBadge">7</span>
+        </button>
+      </nav>
+
+    </header>
+
+    <!--
+      GRID PRINCIPAL: tres zonas (idéntico al alumno y docente)
+      - Izquierda arriba:  Estado del Sistema (reemplaza Tu Carrera)
+      - Izquierda abajo:   Acciones Pendientes (reemplaza Eventos)
+      - Derecha:           Auditoría Reciente  (reemplaza Novedades)
+    -->
+    <section class="grid">
+
+      <!-- === TARJETA 1: ESTADO DEL SISTEMA === -->
+      <article class="card card--career" data-animate="fade-up" style="--delay: 0.1s">
+        <header class="card__header">
+          <span class="eyebrow">Estado del Sistema</span>
+          <h2 class="card__title">ISFDyT 57 · Producción</h2>
+        </header>
+
+        <div class="card__body career-body">
+
+          <!-- Item 1: Usuarios totales / activos -->
+          <div class="career-item">
+            <div class="career-icon career-icon--soft">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="9" cy="8" r="3.5"/>
+                <path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/>
+                <circle cx="17" cy="9" r="2.6"/>
+                <path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <p class="career-label">Usuarios activos</p>
+              <p class="career-value">
+                <span id="userCount">142</span>
+                <span class="career-muted">de <span id="userTotal">156</span></span>
+              </p>
+              <div class="progress">
+                <div class="progress__fill" id="userProgress" style="width: 91%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2: Almacenamiento del servidor -->
+          <div class="career-item">
+            <div class="career-icon career-icon--warm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <ellipse cx="12" cy="5" rx="8" ry="2.5"/>
+                <path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/>
+                <path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/>
+              </svg>
+            </div>
+            <div>
+              <p class="career-label">Almacenamiento</p>
+              <p class="career-value career-value--small">
+                3.4 GB <span class="career-muted">/ 10 GB</span>
+              </p>
+              <p class="career-tag">Sistema operativo</p>
+            </div>
+          </div>
+
+          <div class="career-ornament" aria-hidden="true">
+            <svg viewBox="0 0 200 120">
+              <path d="M10 90 Q50 40 100 60 T190 50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+              <circle cx="170" cy="40" r="3" fill="currentColor" opacity="0.6"/>
+              <circle cx="100" cy="60" r="2" fill="currentColor" opacity="0.4"/>
+              <circle cx="40" cy="75" r="2" fill="currentColor" opacity="0.5"/>
+            </svg>
+          </div>
+        </div>
+      </article>
+
+      <!-- === TARJETA 2: ACCIONES PENDIENTES === -->
+      <article class="card card--events" data-animate="fade-up" style="--delay: 0.25s">
+
+        <svg class="card-watermark" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+          <path d="M100 20 L115 75 L172 80 L128 115 L142 170 L100 138 L58 170 L72 115 L28 80 L85 75 Z"/>
+          <circle cx="100" cy="100" r="62" stroke-dasharray="3 6" opacity="0.5"/>
+        </svg>
+
+        <header class="card__header">
+          <span class="eyebrow">
+            <svg class="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 7v5l3 3" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="9"/>
+            </svg>
+            Requieren tu atención
+          </span>
+          <h2 class="card__title">Acciones Pendientes</h2>
+        </header>
+
+        <div class="events-grid" id="pendingContainer">
+          <!-- JS inyecta -->
+        </div>
+
+        <div class="events-actions" id="pendingActions"></div>
+      </article>
+
+      <!-- === TARJETA 3: AUDITORÍA RECIENTE === -->
+      <article class="card card--news" data-animate="fade-up" style="--delay: 0.4s">
+
+        <svg class="card-watermark" viewBox="0 0 220 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M5 20 Q40 5 80 25 T160 20 T215 28" />
+          <path d="M5 50 Q40 35 80 55 T160 50 T215 58" opacity="0.7"/>
+          <path d="M5 80 Q40 65 80 85 T160 80 T215 88" opacity="0.45"/>
+        </svg>
+
+        <header class="card__header card__header--row">
+          <div>
+            <span class="eyebrow">
+              <svg class="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7"/>
+                <path d="M21 21l-4.3-4.3" stroke-linecap="round"/>
+              </svg>
+              Trazabilidad
+            </span>
+            <h2 class="card__title">Auditoría Reciente</h2>
+          </div>
+
+          <div class="news-filters" id="auditFilters">
+            <button class="chip chip--active" data-filter="todas">Todas</button>
+            <button class="chip" data-filter="crear">Crear</button>
+            <button class="chip" data-filter="editar">Editar</button>
+            <button class="chip" data-filter="eliminar">Eliminar</button>
+            <button class="chip" data-filter="login">Login</button>
+            <button class="chip" data-filter="impersonar">Impersonar</button>
+          </div>
+        </header>
+
+        <div class="news-list" id="auditList">
+          <!-- JS inyecta -->
+        </div>
+      </article>
+
+    </section>
+  </main>
+
+  <!-- DRAWER LATERAL -->
+  <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-hidden="true">
+    <header class="drawer__header">
+      <div class="drawer__title-wrap">
+        <div class="drawer__icon" id="drawerIcon"></div>
+        <h2 class="drawer__title" id="drawerTitle">Título</h2>
+      </div>
+      <button class="drawer__close" id="drawerClose" aria-label="Cerrar panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+    <div class="drawer__body" id="drawerBody"></div>
+  </aside>
+
+  <!-- PANEL DE NOTIFICACIONES DEL SISTEMA -->
+  <div class="notif-panel" id="notifPanel" aria-hidden="true" role="dialog" aria-label="Notificaciones del sistema">
+    <div class="notif-panel__header">
+      <h3 class="notif-panel__title">Sistema</h3>
+      <button class="notif-panel__clear" id="notifMarkAll">Marcar todo leído</button>
+    </div>
+    <div class="notif-panel__list" id="notifList"></div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN DE SALIDA -->
+  <div class="modal-overlay" id="logoutModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-card__body">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="modal-card__icon">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+          <path d="M10 17l5-5-5-5M15 12H3" />
+        </svg>
+        <h3 class="modal-card__title">¿Cerrar sesión de administrador?</h3>
+      </div>
+      <div class="modal-card__actions">
+        <button class="btn-secondary" id="logoutCancel">Cancelar</button>
+        <button class="btn-primary" id="logoutConfirm">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN DESTRUCTIVA (con tipeo "CONFIRMAR") -->
+  <div class="danger-modal" id="dangerModal" role="alertdialog" aria-modal="true">
+    <div class="danger-modal__card">
+      <div class="danger-modal__icon">
+        <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" stroke-linecap="round"/><path d="M10.3 3.86l-8.18 14.18A2 2 0 0 0 3.84 21h16.32a2 2 0 0 0 1.72-2.96L13.7 3.86a2 2 0 0 0-3.4 0z"/></svg>
+      </div>
+      <h3 class="danger-modal__title" id="dangerTitle">Acción destructiva</h3>
+      <p class="danger-modal__msg" id="dangerMsg">Esta acción no se puede deshacer.</p>
+      <p class="danger-modal__hint">Para confirmar, escribí <code>CONFIRMAR</code>:</p>
+      <input type="text" class="danger-modal__input" id="dangerInput" autocomplete="off" placeholder="CONFIRMAR" />
+      <div class="danger-modal__actions">
+        <button class="danger-modal__cancel" id="dangerCancel">Cancelar</button>
+        <button class="danger-modal__confirm" id="dangerConfirm">Eliminar definitivamente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="toast__icon">
+      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <strong id="toastTitle">Acción completada</strong>
+      <span id="toastMsg">Registrada en auditoría.</span>
+    </div>
+  </div>
+
+  <!--
+    ================================================================
+    SCRIPT INLINE: lógica del admin con datos demo.
+    En Fase 2 → endpoints CodeIgniter 4 + tabla `auditoria` en MySQL.
+    ================================================================
+  -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ============================================================
+       1) DATA MOCK
+       ============================================================ */
+    const admin = {
+      nombre: 'Roxana Álvarez',
+      iniciales: 'RA',
+      legajo: 'AD-001',
+      dni: '24.812.453',
+      cargo: 'Coordinadora de Sistemas',
+      email: 'admin@isfdyt57.edu.ar',
+      ultimoLogin: 'Hoy · 08:15'
+    };
+
+    // Universo de usuarios (incluye los 4 perfiles)
+    const usuarios = [
+      { id:1,  nombre:'Santiago Chiale',     legajo:'A-23110', dni:'42.815.622', email:'santiago@correo.com',     rol:'alumno',   activo:true,  ultimoLogin:'hace 2 h'  },
+      { id:2,  nombre:'Ana Suárez',          legajo:'A-23104', dni:'43.108.991', email:'ana.suarez@correo.com',   rol:'alumno',   activo:true,  ultimoLogin:'hace 5 h'  },
+      { id:3,  nombre:'Bruno Pereyra',       legajo:'A-23211', dni:'43.992.005', email:'bperreyra@correo.com',    rol:'alumno',   activo:true,  ultimoLogin:'ayer'      },
+      { id:4,  nombre:'Camila Ríos',         legajo:'A-23308', dni:'44.012.110', email:'camilarios@correo.com',   rol:'alumno',   activo:true,  ultimoLogin:'hace 30 m' },
+      { id:5,  nombre:'Diego Falcón',        legajo:'A-23415', dni:'42.110.887', email:'dfalcon@correo.com',      rol:'alumno',   activo:false, ultimoLogin:'hace 12 d' },
+      { id:6,  nombre:'Eva Montero',         legajo:'A-23502', dni:'43.581.402', email:'eva.montero@correo.com',  rol:'alumno',   activo:true,  ultimoLogin:'hoy'        },
+      { id:7,  nombre:'Federico Núñez',      legajo:'A-23617', dni:'42.450.108', email:'fnunez@correo.com',       rol:'delegado', activo:true,  ultimoLogin:'hace 1 h'   },
+      { id:8,  nombre:'Gabriela Iturrioz',   legajo:'A-23728', dni:'42.991.103', email:'giturrioz@correo.com',    rol:'alumno',   activo:true,  ultimoLogin:'hace 3 h'   },
+      { id:9,  nombre:'Carlos Mendoza',      legajo:'D-2401',  dni:'28.456.789', email:'cmendoza@isfdyt57.edu.ar', rol:'docente', activo:true,  ultimoLogin:'hace 20 m'  },
+      { id:10, nombre:'Patricia Lema',       legajo:'D-2398',  dni:'27.880.514', email:'plema@isfdyt57.edu.ar',    rol:'docente', activo:true,  ultimoLogin:'ayer'       },
+      { id:11, nombre:'Hernán Torres',       legajo:'D-2410',  dni:'31.225.901', email:'htorres@isfdyt57.edu.ar',  rol:'docente', activo:true,  ultimoLogin:'hace 4 h'   },
+      { id:12, nombre:'Sofía Aguirre',       legajo:'A-23801', dni:'44.105.667', email:'sofiaa@correo.com',       rol:'delegado', activo:true,  ultimoLogin:'hace 6 h'   },
+      { id:13, nombre:'Roxana Álvarez',      legajo:'AD-001',  dni:'24.812.453', email:'admin@isfdyt57.edu.ar',   rol:'admin',    activo:true,  ultimoLogin:'hoy 08:15'  }
+    ];
+
+    // Acciones pendientes que requieren decisión del admin
+    const pendientes = [
+      { id:1, tipo:'Alta de cuenta',   titulo:'Solicitud de Lucas Vidal',     sub:'Quiere registrarse como alumno · Carrera: TS Datos e IA',  color:'#4A67C9' },
+      { id:2, tipo:'Reglamento',        titulo:'Régimen 2026 v3.2 a aprobar',   sub:'Subido por Coordinación · 4 cambios marcados',              color:'#F5A623' },
+      { id:3, tipo:'Reporte',            titulo:'Publicación reportada',         sub:'Delegado reportó aviso por contenido inapropiado',         color:'#E67E5B' },
+      { id:4, tipo:'Cambio de rol',      titulo:'Federico Núñez → Delegado',     sub:'Solicitud del Centro de Estudiantes (3/3 firmas)',         color:'#8B5CF6' }
+    ];
+
+    // Auditoría (las acciones más recientes del sistema, en memoria)
+    const auditoria = [
+      { id:1, fecha:'hace 5 m',  accion:'crear',     entidad:'novedad',     desc:'Nueva publicación: "Cambio de aula para parcial"',      autor:'Carlos Mendoza',      rol:'docente'  },
+      { id:2, fecha:'hace 12 m', accion:'login',     entidad:'sesión',      desc:'Inicio de sesión exitoso',                              autor:'Santiago Chiale',     rol:'alumno'   },
+      { id:3, fecha:'hace 25 m', accion:'editar',    entidad:'usuario',     desc:'Email actualizado de eva.m@old.com a eva.montero@…',    autor:'Roxana Álvarez',     rol:'admin'    },
+      { id:4, fecha:'hace 47 m', accion:'crear',     entidad:'evento',      desc:'Hackathon ISFDyT — abierto, 60 cupos',                  autor:'Federico Núñez',     rol:'delegado' },
+      { id:5, fecha:'hace 1 h',  accion:'eliminar',  entidad:'novedad',     desc:'Borrada publicación "Aviso provisional" (movida a papelera)', autor:'Roxana Álvarez', rol:'admin'    },
+      { id:6, fecha:'hace 2 h',  accion:'crear',     entidad:'usuario',     desc:'Alta de cuenta: Sofía Aguirre (delegado)',              autor:'Roxana Álvarez',     rol:'admin'    },
+      { id:7, fecha:'hace 3 h',  accion:'login',     entidad:'sesión',      desc:'Login fallido (3 intentos) - cuenta de Diego Falcón',   autor:'Sistema',             rol:'system'   },
+      { id:8, fecha:'hace 4 h',  accion:'editar',    entidad:'reglamento',  desc:'Régimen Académico → versión 3.1 publicada',             autor:'Roxana Álvarez',     rol:'admin'    },
+      { id:9, fecha:'ayer',      accion:'crear',     entidad:'categoría',   desc:'Nueva categoría: "Trámites" (color violeta)',           autor:'Roxana Álvarez',     rol:'admin'    },
+      { id:10,fecha:'ayer',      accion:'eliminar',  entidad:'usuario',     desc:'Diego Falcón → desactivado (soft delete)',              autor:'Roxana Álvarez',     rol:'admin'    }
+    ];
+
+    // Catálogos (la fuente de verdad: si el admin agrega aquí, aparece en docente y alumno)
+    const categorias = [
+      { id:1, nombre:'Académico',     color:'#4A67C9' },
+      { id:2, nombre:'Social',         color:'#E67E5B' },
+      { id:3, nombre:'Institucional',  color:'#2C3E87' },
+      { id:4, nombre:'Urgente',        color:'#C0392B' },
+      { id:5, nombre:'Trámites',       color:'#8B5CF6' }
+    ];
+    const carreras = [
+      { id:1, codigo:'TS-CDIA', nombre:'Tecnicatura en Ciencias de Datos e IA', alumnos:48 },
+      { id:2, codigo:'TS-AS',    nombre:'Tecnicatura en Análisis de Sistemas',  alumnos:62 },
+      { id:3, codigo:'TS-DS',    nombre:'Tecnicatura en Desarrollo de Software', alumnos:34 }
+    ];
+    const reglamentos = [
+      { id:1, titulo:'Régimen Académico 2026',  version:'3.1', fecha:'15/04/2026', autor:'Coordinación', historial:['v3.0 (10/03)','v2.5 (12/2025)','v2.0 (08/2025)'] },
+      { id:2, titulo:'Reglamento de Convivencia', version:'2.0', fecha:'02/03/2026', autor:'Dirección',     historial:['v1.5 (06/2025)','v1.0 (03/2025)'] },
+      { id:3, titulo:'Régimen de Becas 2026',     version:'1.0', fecha:'20/02/2026', autor:'Coordinación',  historial:[] },
+      { id:4, titulo:'Estatuto Centro Estudiantes',version:'4.2', fecha:'10/01/2026', autor:'CE',             historial:['v4.0 (09/2025)','v3.0 (03/2024)'] }
+    ];
+
+    /* ============================================================
+       2) AUDITORÍA AUTOMÁTICA
+       Toda acción del admin se registra como entrada nueva.
+       En Fase 2 → INSERT INTO auditoria (...)
+       ============================================================ */
+    function auditar(accion, entidad, desc) {
+      auditoria.unshift({
+        id: Date.now(),
+        fecha: 'recién',
+        accion,
+        entidad,
+        desc,
+        autor: admin.nombre,
+        rol: 'admin'
+      });
+      renderAuditoria(currentAuditFilter);
+      // Refrescar el contador del header
+      document.getElementById('kpiAuditoria').textContent = (auditoria.filter(a => a.fecha === 'recién' || a.fecha.includes('m')).length + 28) + ' eventos en auditoría hoy';
+    }
+
+    /* ============================================================
+       3) RENDER INICIAL DE LAS TRES TARJETAS
+       ============================================================ */
+
+    // Tarjeta 2 → Acciones Pendientes
+    function renderPendientes() {
+      const c = document.getElementById('pendingContainer');
+      c.innerHTML = pendientes.map(p => `
+        <article class="pending-card" style="--pending-color:${p.color}">
+          <span class="pending-card__type">${p.tipo}</span>
+          <h3 class="pending-card__title">${p.titulo}</h3>
+          <p class="pending-card__sub">${p.sub}</p>
+          <div class="pending-card__actions">
+            <button class="pending-card__btn pending-card__btn--ok" data-pending-ok="${p.id}">Aprobar</button>
+            <button class="pending-card__btn pending-card__btn--no" data-pending-no="${p.id}">Rechazar</button>
+          </div>
+        </article>
+      `).join('');
+      // Hooks de aprobar/rechazar
+      c.querySelectorAll('[data-pending-ok]').forEach(btn => {
+        btn.addEventListener('click', () => resolverPendiente(+btn.dataset.pendingOk, true));
+      });
+      c.querySelectorAll('[data-pending-no]').forEach(btn => {
+        btn.addEventListener('click', () => resolverPendiente(+btn.dataset.pendingNo, false));
+      });
+      document.getElementById('kpiPendientes').textContent = pendientes.length + ' acciones pendientes';
+    }
+    function resolverPendiente(id, aprobar) {
+      const idx = pendientes.findIndex(p => p.id === id);
+      if (idx < 0) return;
+      const p = pendientes[idx];
+      pendientes.splice(idx, 1);
+      renderPendientes();
+      auditar(aprobar ? 'crear' : 'eliminar', 'pendiente', `${aprobar ? 'Aprobado' : 'Rechazado'}: ${p.titulo}`);
+      showToast(
+        aprobar ? 'Aprobado' : 'Rechazado',
+        `${p.titulo} · Registrado en auditoría.`,
+        aprobar ? '#3DAA6A' : '#E67E5B'
+      );
+    }
+    renderPendientes();
+
+    // Tarjeta 3 → Auditoría Reciente
+    let currentAuditFilter = 'todas';
+    function renderAuditoria(filter = 'todas') {
+      currentAuditFilter = filter;
+      const list = document.getElementById('auditList');
+      const filtered = filter === 'todas' ? auditoria : auditoria.filter(a => a.accion === filter);
+      if (filtered.length === 0) {
+        list.innerHTML = `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin registros para este filtro.</p>`;
+        return;
+      }
+      list.innerHTML = filtered.map(a => `
+        <article class="audit-item" style="--audit-color:${colorAccion(a.accion)}">
+          <div class="audit-item__icon">${iconAccion(a.accion)}</div>
+          <div>
+            <div class="audit-item__head">
+              <span class="audit-item__action">${a.accion}</span>
+              <span class="audit-item__time">· ${a.fecha} · entidad: ${a.entidad}</span>
+            </div>
+            <p class="audit-item__desc">${a.desc}</p>
+          </div>
+          <div class="audit-item__user">
+            <b>${a.autor}</b>
+            <span>${a.rol}</span>
+          </div>
+        </article>
+      `).join('');
+    }
+    function colorAccion(a) {
+      const map = { crear:'#3DAA6A', editar:'#4A67C9', eliminar:'#E67E5B', login:'#8FA3E3', impersonar:'#F5A623' };
+      return map[a] || '#4A67C9';
+    }
+    function iconAccion(a) {
+      const map = {
+        crear:      '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>',
+        editar:     '<svg viewBox="0 0 24 24"><path d="M14 4l6 6L8 22H2v-6z" stroke-linejoin="round"/></svg>',
+        eliminar:   '<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>',
+        login:      '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        impersonar: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="20" cy="4" r="2"/></svg>'
+      };
+      return map[a] || map.editar;
+    }
+    renderAuditoria();
+
+    // Filtros del feed de auditoría
+    document.querySelectorAll('#auditFilters .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#auditFilters .chip').forEach(c => c.classList.remove('chip--active'));
+        chip.classList.add('chip--active');
+        renderAuditoria(chip.dataset.filter);
+      });
+    });
+
+    /* ============================================================
+       4) DRAWER LATERAL
+       ============================================================ */
+    const drawer = document.getElementById('drawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const drawerBody = document.getElementById('drawerBody');
+    const drawerTitle = document.getElementById('drawerTitle');
+    const drawerIcon = document.getElementById('drawerIcon');
+
+    function openDrawer(key, opts = {}) {
+      const builder = drawerContent[key];
+      if (!builder) return;
+      const { title, icon, html } = builder();
+      drawerTitle.textContent = title;
+      drawerIcon.innerHTML = icon;
+      drawerBody.innerHTML = html;
+      drawer.classList.add('is-open');
+      drawerOverlay.classList.add('is-visible');
+      drawer.setAttribute('aria-hidden', 'false');
+      // Hooks por sección
+      if (key === 'usuarios')  bindUsuariosDrawer(opts.quick);
+      if (key === 'contenido') bindContenidoDrawer();
+      if (key === 'catalogos') bindCatalogosDrawer();
+      if (key === 'auditoria') bindAuditoriaDrawer();
+      // Active state
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+      const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
+      if (active) active.classList.add('is-active');
+    }
+    function closeDrawer() {
+      drawer.classList.remove('is-open');
+      drawerOverlay.classList.remove('is-visible');
+      drawer.setAttribute('aria-hidden', 'true');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+    }
+
+    document.querySelectorAll('[data-drawer]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.drawer;
+        if (drawer.classList.contains('is-open') && document.querySelector('.nav-btn.is-active')?.dataset.drawer === key) {
+          closeDrawer();
+        } else {
+          openDrawer(key);
+        }
+      });
+    });
+    document.querySelectorAll('[data-drawer-trigger]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openDrawer(btn.dataset.drawerTrigger, { quick: btn.dataset.quick });
+      });
+    });
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer(); });
+
+    /* ============================================================
+       5) BUILDERS DEL CONTENIDO DE CADA DRAWER
+       ============================================================ */
+    const drawerContent = {
+
+      // --- Mi Perfil del Admin ---
+      perfil: () => ({
+        title: 'Mi Perfil',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round"/></svg>',
+        html: `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-bottom:1.5rem">
+            <div class="avatar avatar--admin avatar--xl" style="width:88px;height:88px;font-size:1.7rem">${admin.iniciales}</div>
+            <h3 style="margin:0;font:700 1.3rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${admin.nombre}</h3>
+            <p style="margin:0;color:#6c6f80;font:500 .85rem 'Manrope',sans-serif">${admin.email}</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+            ${profileItem('Legajo', admin.legajo)}
+            ${profileItem('DNI', admin.dni)}
+            ${profileItem('Cargo', admin.cargo)}
+            ${profileItem('Último login', admin.ultimoLogin)}
+            ${profileItem('Permisos', 'Administrador total', true)}
+            ${profileItem('Sesiones activas', '1 (esta)')}
+          </div>
+        `
+      }),
+
+      // --- Usuarios y Roles ---
+      usuarios: () => ({
+        title: 'Usuarios y Roles',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/></svg>',
+        html: `
+          <div class="drawer__tabs">
+            <button class="drawer__tab is-active" data-tab="lista">Lista (${usuarios.filter(u=>u.activo).length})</button>
+            <button class="drawer__tab" data-tab="nuevo">+ Nuevo usuario</button>
+            <button class="drawer__tab" data-tab="papelera">Papelera <span class="badge">${usuarios.filter(u=>!u.activo).length}</span></button>
+          </div>
+
+          <div id="userListPane">
+            <div style="display:flex;gap:.5rem;margin-bottom:.8rem">
+              <select id="filterRol" style="flex:1;padding:.65rem .8rem;font:500 .85rem 'Manrope',sans-serif;border:1px solid rgba(143,163,227,.45);border-radius:9px;background:#fff">
+                <option value="todos">Todos los roles</option>
+                <option value="alumno">Alumno</option>
+                <option value="docente">Docente</option>
+                <option value="delegado">Delegado</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="drawer__search">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+              <input id="userSearch" type="text" placeholder="Buscar por nombre, legajo, email…">
+            </div>
+            <div id="userList"></div>
+          </div>
+
+          <div id="userNewPane" hidden>
+            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
+              Estos datos se cargan en la base de datos del sistema. El usuario recibe un email
+              con sus credenciales temporales y deberá cambiar la contraseña en el primer login.
+            </p>
+            <form class="admin-form" id="newUserForm">
+              <div class="admin-form__row">
+                <label>Nombre completo
+                  <input type="text" name="nombre" required placeholder="Ej: María González">
+                </label>
+                <label>DNI
+                  <input type="text" name="dni" required placeholder="Sin puntos">
+                </label>
+              </div>
+              <div class="admin-form__row">
+                <label>Email
+                  <input type="email" name="email" required placeholder="usuario@dominio.com">
+                </label>
+                <label>Legajo
+                  <input type="text" name="legajo" required placeholder="A-23999 / D-2412">
+                </label>
+              </div>
+              <div class="admin-form__row">
+                <label>Rol asignado
+                  <select name="rol" required>
+                    <option value="alumno">Alumno</option>
+                    <option value="docente">Docente</option>
+                    <option value="delegado">Delegado</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </label>
+                <label>Estado inicial
+                  <select name="activo">
+                    <option value="true">Activo</option>
+                    <option value="false">Pendiente de activación</option>
+                  </select>
+                </label>
+              </div>
+              <button type="submit" class="admin-form__submit">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+                Crear usuario
+              </button>
+            </form>
+          </div>
+
+          <div id="userPapeleraPane" hidden>
+            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
+              Usuarios desactivados (soft delete). Podés restaurarlos o eliminarlos definitivamente.
+              El borrado físico requiere confirmación con tipeo.
+            </p>
+            <div id="userPapeleraList"></div>
+          </div>
+        `
+      }),
+
+      // --- Contenido y Moderación ---
+      contenido: () => ({
+        title: 'Contenido y Moderación',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        html: `
+          <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
+            Acá supervisás todo lo que docentes y delegados publicaron. Podés despublicar,
+            editar o eliminar cualquier contenido. Las eliminaciones quedan en la papelera 30 días.
+          </p>
+
+          <div class="drawer__tabs">
+            <button class="drawer__tab is-active" data-tab="novedades">Novedades</button>
+            <button class="drawer__tab" data-tab="eventos">Eventos</button>
+            <button class="drawer__tab" data-tab="materiales">Materiales</button>
+            <button class="drawer__tab" data-tab="reportados">Reportados <span class="badge">2</span></button>
+          </div>
+
+          <div id="modList">
+            ${[
+              { tipo:'aviso', titulo:'Cambio de aula para parcial', autor:'Carlos Mendoza', fecha:'hace 2h', alcance:'28 alumnos', estado:'activo' },
+              { tipo:'aviso', titulo:'Recordatorio - inscripción al recuperatorio', autor:'Carlos Mendoza', fecha:'hace 4d', alcance:'30 alumnos', estado:'activo' },
+              { tipo:'aviso', titulo:'Charla sobre integración laboral', autor:'Federico Núñez', fecha:'hace 1d', alcance:'156 (toda la institución)', estado:'activo' },
+              { tipo:'aviso', titulo:'⚠️ Aviso provisional (reportado)', autor:'Sofía Aguirre', fecha:'hace 3h', alcance:'48 alumnos', estado:'reportado' }
+            ].map((p, i) => `
+              <div class="user-row" style="grid-template-columns:1fr auto auto;padding:.85rem 1rem">
+                <div>
+                  <p class="user-row__name">${p.titulo}</p>
+                  <p class="user-row__meta">${p.autor} · ${p.fecha} · ${p.alcance}</p>
+                </div>
+                <span class="user-row__rol" data-rol="${p.estado === 'reportado' ? 'admin' : 'alumno'}">${p.estado}</span>
+                <div class="user-row__menu" data-menu>
+                  <button class="user-row__menu-btn" data-menu-btn>
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
+                  </button>
+                  <div class="user-row__menu-dropdown">
+                    <button data-mod-action="ver">👁️ Ver detalle</button>
+                    <button data-mod-action="editar">✏️ Editar</button>
+                    <button data-mod-action="despublicar">🚫 Despublicar</button>
+                    <hr>
+                    <button class="is-danger" data-mod-action="eliminar" data-titulo="${p.titulo}">🗑️ Eliminar</button>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `
+      }),
+
+      // --- Catálogos del Sistema ---
+      catalogos: () => ({
+        title: 'Catálogos del Sistema',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/><path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/></svg>',
+        html: `
+          <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
+            Las tablas maestras del sistema. Si agregás algo acá, aparece automáticamente en el
+            portal del docente y del alumno (categorías para publicar, carreras al inscribirse, etc.).
+          </p>
+
+          <div class="drawer__tabs">
+            <button class="drawer__tab is-active" data-tab="categorias">Categorías</button>
+            <button class="drawer__tab" data-tab="carreras">Carreras</button>
+            <button class="drawer__tab" data-tab="reglamentos">Reglamentos</button>
+          </div>
+
+          <div id="catCategorias">
+            <h3 style="font:700 .95rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A);margin:0 0 .5rem">Categorías de novedades</h3>
+            <p style="font:400 .78rem 'Manrope',sans-serif;color:#8a8d9c;margin:0 0 1rem">Estas categorías aparecen en el compositor de publicaciones del docente y como filtros en el feed del alumno.</p>
+            <div id="catList">
+              ${categorias.map(c => `
+                <span class="cat-chip" style="--cat-color:${c.color}">
+                  <span class="cat-chip__dot"></span>
+                  ${c.nombre}
+                  <button class="cat-chip__del" data-cat-del="${c.id}" aria-label="Eliminar categoría">×</button>
+                </span>
+              `).join('')}
+            </div>
+            <form id="newCatForm" class="admin-form" style="margin-top:1.2rem">
+              <div class="admin-form__row">
+                <label>Nombre
+                  <input type="text" name="nombre" required placeholder="Ej: Capacitación">
+                </label>
+                <label>Color
+                  <input type="color" name="color" value="#4A67C9" style="height:42px;padding:.3rem">
+                </label>
+              </div>
+              <button type="submit" class="admin-form__submit">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+                Agregar categoría
+              </button>
+            </form>
+          </div>
+
+          <div id="catCarreras" hidden>
+            <h3 style="font:700 .95rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A);margin:0 0 .8rem">Carreras del instituto</h3>
+            ${carreras.map(c => `
+              <div class="user-row" style="grid-template-columns:1fr auto">
+                <div>
+                  <p class="user-row__name">${c.nombre}</p>
+                  <p class="user-row__meta">Código: ${c.codigo} · ${c.alumnos} alumnos inscriptos</p>
+                </div>
+                <button class="course-card__manage" style="padding:.5rem .8rem;font:600 .76rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">Editar</button>
+              </div>
+            `).join('')}
+          </div>
+
+          <div id="catReglamentos" hidden>
+            <h3 style="font:700 .95rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A);margin:0 0 .5rem">Reglamentos versionados</h3>
+            <p style="font:400 .78rem 'Manrope',sans-serif;color:#8a8d9c;margin:0 0 1rem">
+              Subí una nueva versión y la anterior queda en historial. Nunca se sobrescribe el archivo original.
+            </p>
+            <div id="reglList">
+              ${reglamentos.map(r => `
+                <div class="regl-row">
+                  <div class="regl-row__head">
+                    <h4 class="regl-row__title">${r.titulo}</h4>
+                    <span class="regl-row__ver">v${r.version}</span>
+                  </div>
+                  <p class="regl-row__meta">Publicado el ${r.fecha} por ${r.autor}</p>
+                  ${r.historial.length ? `
+                    <div class="regl-row__history">
+                      ${r.historial.map(h => `<small>${h}</small>`).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+            <button id="uploadNewVersion" class="admin-form__submit" style="margin-top:1rem">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round"/><path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5v12" stroke-linecap="round"/></svg>
+              Subir nueva versión
+            </button>
+          </div>
+        `
+      }),
+
+      // --- Auditoría y Sistema ---
+      auditoria: () => ({
+        title: 'Auditoría y Sistema',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>',
+        html: `
+          <div class="drawer__tabs">
+            <button class="drawer__tab is-active" data-tab="log">Log de acciones</button>
+            <button class="drawer__tab" data-tab="config">Configuración</button>
+          </div>
+
+          <div id="auditLogPane">
+            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
+              Registro completo de acciones del sistema. <strong>No es editable.</strong>
+              Solo se puede consultar y exportar.
+            </p>
+
+            <div style="display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap">
+              <select id="auditRolFilter" style="flex:1;min-width:140px;padding:.6rem .75rem;font:500 .82rem 'Manrope',sans-serif;border:1px solid rgba(143,163,227,.45);border-radius:9px;background:#fff">
+                <option value="todos">Todos los autores</option>
+                <option value="admin">Solo admin</option>
+                <option value="docente">Docentes</option>
+                <option value="alumno">Alumnos</option>
+                <option value="delegado">Delegados</option>
+                <option value="system">Sistema</option>
+              </select>
+              <button id="auditExport" style="padding:.6rem 1rem;font:600 .82rem 'Manrope',sans-serif;background:var(--brand-100,#E3E9FA);color:var(--brand-700,#2C3E87);border:none;border-radius:9px;cursor:pointer">
+                ⬇ Exportar CSV
+              </button>
+            </div>
+
+            <div id="auditFullList"></div>
+          </div>
+
+          <div id="auditConfigPane" hidden>
+            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
+              Ajustes generales del sistema.
+            </p>
+            <div class="admin-form">
+              <label>Nombre de la institución
+                <input type="text" value="ISFDyT N°57 Juana Paula Manso">
+              </label>
+              <div class="admin-form__row">
+                <label>Inscripciones abiertas
+                  <select><option>Sí</option><option>No</option></select>
+                </label>
+                <label>Modo mantenimiento
+                  <select><option>Off</option><option>On</option></select>
+                </label>
+              </div>
+              <label>Política de contraseñas
+                <select>
+                  <option>Mínimo 8 caracteres + 1 mayúscula + 1 número</option>
+                  <option>Mínimo 12 caracteres + simbolo</option>
+                </select>
+              </label>
+              <button class="admin-form__submit" id="saveConfigBtn">Guardar configuración</button>
+            </div>
+          </div>
+        `
+      })
+    };
+
+    function profileItem(label, value, highlight = false) {
+      const styleVal = highlight
+        ? 'color:#C0392B;font-weight:700'
+        : 'color:var(--brand-900,#1A1D4A);font-weight:600';
+      return `
+        <div style="background:#fff;border:1px solid rgba(143,163,227,.25);border-radius:10px;padding:.75rem .9rem">
+          <p style="margin:0 0 .25rem;font:600 .68rem/1 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);text-transform:uppercase;letter-spacing:.08em">${label}</p>
+          <p style="margin:0;font:600 .9rem/1.2 'Manrope',sans-serif;${styleVal}">${value}</p>
+        </div>
+      `;
+    }
+
+    /* ============================================================
+       6) HOOKS POR DRAWER
+       ============================================================ */
+
+    // --- Usuarios ---
+    function bindUsuariosDrawer(quick) {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const panes = {
+        lista:    document.getElementById('userListPane'),
+        nuevo:    document.getElementById('userNewPane'),
+        papelera: document.getElementById('userPapeleraPane')
+      };
+      function showTab(t) {
+        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
+        Object.entries(panes).forEach(([k, p]) => p.hidden = k !== t);
+        if (t === 'papelera') renderPapelera();
+      }
+      tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+      if (quick === 'newUser') showTab('nuevo');
+
+      // Lista
+      const filterRol = document.getElementById('filterRol');
+      const search = document.getElementById('userSearch');
+
+      function renderUsers() {
+        const rol = filterRol.value;
+        const q = search.value.trim().toLowerCase();
+        const list = usuarios.filter(u =>
+          u.activo &&
+          (rol === 'todos' || u.rol === rol) &&
+          (!q || u.nombre.toLowerCase().includes(q) || u.legajo.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+        );
+        const cont = document.getElementById('userList');
+        if (list.length === 0) {
+          cont.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
+          return;
+        }
+        cont.innerHTML = list.map(u => {
+          const ini = u.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
+          return `
+            <div class="user-row" data-user="${u.id}">
+              <div class="user-row__avatar" data-rol="${u.rol}">${ini}</div>
+              <div>
+                <p class="user-row__name">${u.nombre}</p>
+                <p class="user-row__meta">${u.legajo} · ${u.email} · ${u.ultimoLogin}</p>
+              </div>
+              <span class="user-row__rol" data-rol="${u.rol}">${u.rol}</span>
+              <div class="user-row__menu" data-menu>
+                <button class="user-row__menu-btn" data-menu-btn aria-label="Acciones">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
+                </button>
+                <div class="user-row__menu-dropdown">
+                  <button data-action="edit"        data-id="${u.id}">✏️  Editar datos</button>
+                  <button data-action="role"        data-id="${u.id}">🔄  Cambiar rol</button>
+                  <button data-action="impersonate" data-id="${u.id}">👁️  Ver como…</button>
+                  <button data-action="reset"       data-id="${u.id}">🔑  Resetear password</button>
+                  <hr>
+                  <button class="is-danger" data-action="deactivate" data-id="${u.id}">🚫  Desactivar</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        bindUserActions();
+      }
+
+      filterRol.addEventListener('change', renderUsers);
+      search.addEventListener('input', renderUsers);
+      renderUsers();
+
+      // Form de alta
+      document.getElementById('newUserForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const nuevo = {
+          id: Date.now(),
+          nombre: data.get('nombre'),
+          legajo: data.get('legajo'),
+          dni: data.get('dni'),
+          email: data.get('email'),
+          rol: data.get('rol'),
+          activo: data.get('activo') === 'true',
+          ultimoLogin: 'nunca'
+        };
+        usuarios.push(nuevo);
+        auditar('crear', 'usuario', `Alta de cuenta: ${nuevo.nombre} (${nuevo.rol})`);
+        showToast('Usuario creado', `${nuevo.nombre} fue agregado al sistema. Recibirá un email con sus credenciales.`);
+        e.target.reset();
+        showTab('lista');
+        renderUsers();
+        document.getElementById('kpiActivos').textContent = usuarios.filter(u=>u.activo).length + ' usuarios activos';
+      });
+    }
+
+    function bindUserActions() {
+      // Toggle dropdown
+      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const menu = btn.closest('[data-menu]');
+          document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
+          menu.classList.toggle('is-open');
+        });
+      });
+
+      // Acciones
+      document.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const id = +btn.dataset.id;
+          const action = btn.dataset.action;
+          const u = usuarios.find(x => x.id === id);
+          if (!u) return;
+          // Cerrar dropdown
+          btn.closest('[data-menu]').classList.remove('is-open');
+
+          if (action === 'edit') {
+            // Demo: en Fase 2 abriría un sub-form
+            showToast('Editar usuario', `Acción registrada para ${u.nombre}.`);
+            auditar('editar', 'usuario', `Inicio de edición: ${u.nombre}`);
+          }
+          if (action === 'role') {
+            // Demo de cambio de rol cíclico para mostrar el efecto
+            const ciclo = ['alumno','delegado','docente','admin'];
+            const next = ciclo[(ciclo.indexOf(u.rol) + 1) % ciclo.length];
+            const prev = u.rol;
+            u.rol = next;
+            auditar('editar', 'usuario', `Cambio de rol: ${u.nombre} (${prev} → ${next})`);
+            showToast('Rol modificado', `${u.nombre} ahora es ${next}. En su próximo login verá el portal correspondiente.`);
+            // Refrescar la vista
+            const ev = new Event('input');
+            document.getElementById('userSearch').dispatchEvent(ev);
+          }
+          if (action === 'impersonate') {
+            startImpersonate(u);
+          }
+          if (action === 'reset') {
+            showToast('Password reseteado', `${u.nombre} recibirá un email con instrucciones para crear una nueva contraseña.`);
+            auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
+          }
+          if (action === 'deactivate') {
+            requestDangerConfirm({
+              title: '¿Desactivar este usuario?',
+              msg: `Vas a desactivar a <strong>${u.nombre}</strong>. El usuario no podrá ingresar al sistema, pero sus datos quedan guardados (soft delete) y podés restaurarlo desde la papelera.`,
+              btnLabel: 'Desactivar usuario',
+              onConfirm: () => {
+                u.activo = false;
+                auditar('eliminar', 'usuario', `${u.nombre} → desactivado (soft delete)`);
+                showToast('Usuario desactivado', `${u.nombre} ya no puede ingresar. Lo encontrás en la papelera.`, '#E67E5B');
+                document.getElementById('userSearch').dispatchEvent(new Event('input'));
+                document.getElementById('kpiActivos').textContent = usuarios.filter(u=>u.activo).length + ' usuarios activos';
+              }
+            });
+          }
+        });
+      });
+
+      // Cerrar dropdown al hacer click fuera
+      document.addEventListener('click', () => {
+        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
+      }, { once: true });
+    }
+
+    function renderPapelera() {
+      const cont = document.getElementById('userPapeleraList');
+      const inactivos = usuarios.filter(u => !u.activo);
+      if (inactivos.length === 0) {
+        cont.innerHTML = `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:'Manrope',sans-serif">La papelera está vacía.</p>`;
+        return;
+      }
+      cont.innerHTML = inactivos.map(u => {
+        const ini = u.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
+        return `
+          <div class="user-row" data-inactive="true">
+            <div class="user-row__avatar" data-rol="${u.rol}">${ini}</div>
+            <div>
+              <p class="user-row__name">${u.nombre}</p>
+              <p class="user-row__meta">${u.legajo} · desactivado</p>
+            </div>
+            <button class="course-card__manage" data-restore="${u.id}" style="padding:.45rem .7rem;font:600 .76rem 'Manrope',sans-serif;color:var(--accent-green,#3DAA6A);background:rgba(61,170,106,.12);border:none;border-radius:8px;cursor:pointer">Restaurar</button>
+            <button class="user-row__menu-btn" data-purge="${u.id}" style="color:#C0392B" aria-label="Eliminar definitivamente">
+              <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+      cont.querySelectorAll('[data-restore]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const u = usuarios.find(x => x.id === +btn.dataset.restore);
+          u.activo = true;
+          auditar('crear', 'usuario', `Restaurado: ${u.nombre} (vuelve a estar activo)`);
+          showToast('Usuario restaurado', `${u.nombre} vuelve a tener acceso al sistema.`);
+          renderPapelera();
+          document.getElementById('kpiActivos').textContent = usuarios.filter(u=>u.activo).length + ' usuarios activos';
+        });
+      });
+      cont.querySelectorAll('[data-purge]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const u = usuarios.find(x => x.id === +btn.dataset.purge);
+          requestDangerConfirm({
+            title: 'Eliminar definitivamente',
+            msg: `Vas a borrar a <strong>${u.nombre}</strong> de la base de datos de forma permanente. <strong>Esta acción no se puede deshacer.</strong> Sus publicaciones quedarán sin autor.`,
+            btnLabel: 'Borrar permanentemente',
+            onConfirm: () => {
+              const idx = usuarios.findIndex(x => x.id === u.id);
+              usuarios.splice(idx, 1);
+              auditar('eliminar', 'usuario', `BORRADO PERMANENTE: ${u.nombre} (registro físico)`);
+              showToast('Eliminado permanentemente', `${u.nombre} fue removido de la BD.`, '#C0392B');
+              renderPapelera();
+            }
+          });
+        });
+      });
+    }
+
+    // --- Contenido ---
+    function bindContenidoDrawer() {
+      // Tabs (solo demo: muestra todos los items en la primera tab)
+      document.querySelectorAll('.drawer__tab').forEach(t => {
+        t.addEventListener('click', () => {
+          document.querySelectorAll('.drawer__tab').forEach(x => x.classList.remove('is-active'));
+          t.classList.add('is-active');
+        });
+      });
+      // Menús
+      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const menu = btn.closest('[data-menu]');
+          document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
+          menu.classList.toggle('is-open');
+        });
+      });
+      document.querySelectorAll('[data-mod-action]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const action = btn.dataset.modAction;
+          const titulo = btn.dataset.titulo || 'item';
+          btn.closest('[data-menu]').classList.remove('is-open');
+          if (action === 'eliminar') {
+            requestDangerConfirm({
+              title: '¿Eliminar publicación?',
+              msg: `Vas a eliminar <strong>"${titulo}"</strong>. Se mueve a la papelera por 30 días y los alumnos dejan de verla en su feed inmediatamente.`,
+              btnLabel: 'Eliminar publicación',
+              onConfirm: () => {
+                auditar('eliminar', 'novedad', `Borrada: "${titulo}"`);
+                showToast('Publicación eliminada', `"${titulo}" ya no es visible para los alumnos.`, '#E67E5B');
+              }
+            });
+          } else {
+            auditar('editar', 'novedad', `Acción ${action} sobre: ${titulo || '(item)'}`);
+            showToast('Acción registrada', `${action} aplicado.`);
+          }
+        });
+      });
+      document.addEventListener('click', () => {
+        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
+      }, { once: true });
+    }
+
+    // --- Catálogos ---
+    function bindCatalogosDrawer() {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const panes = {
+        categorias:  document.getElementById('catCategorias'),
+        carreras:    document.getElementById('catCarreras'),
+        reglamentos: document.getElementById('catReglamentos')
+      };
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t.dataset.tab));
+        Object.entries(panes).forEach(([k,p]) => p.hidden = k !== t.dataset.tab);
+      }));
+
+      // Eliminar categoría
+      document.querySelectorAll('[data-cat-del]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = +btn.dataset.catDel;
+          const cat = categorias.find(c => c.id === id);
+          requestDangerConfirm({
+            title: '¿Eliminar categoría?',
+            msg: `Vas a eliminar la categoría <strong>"${cat.nombre}"</strong>. Las publicaciones que la usaban quedarán sin categoría asignada.`,
+            btnLabel: 'Eliminar',
+            onConfirm: () => {
+              const idx = categorias.findIndex(c => c.id === id);
+              categorias.splice(idx, 1);
+              btn.closest('.cat-chip').remove();
+              auditar('eliminar', 'categoría', `Categoría eliminada: ${cat.nombre}`);
+              showToast('Categoría eliminada', 'Ya no aparece en el compositor del docente.', '#E67E5B');
+            }
+          });
+        });
+      });
+
+      // Crear categoría
+      document.getElementById('newCatForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const nueva = {
+          id: Date.now(),
+          nombre: data.get('nombre'),
+          color: data.get('color')
+        };
+        categorias.push(nueva);
+        // Refrescar la lista
+        const list = document.getElementById('catList');
+        list.innerHTML += `
+          <span class="cat-chip" style="--cat-color:${nueva.color}">
+            <span class="cat-chip__dot"></span>
+            ${nueva.nombre}
+            <button class="cat-chip__del" data-cat-del="${nueva.id}">×</button>
+          </span>
+        `;
+        // Re-bindear el botón nuevo
+        list.lastElementChild.querySelector('[data-cat-del]').addEventListener('click', function() {
+          const cat = categorias.find(c => c.id === nueva.id);
+          requestDangerConfirm({
+            title: '¿Eliminar categoría?',
+            msg: `Vas a eliminar <strong>"${cat.nombre}"</strong>.`,
+            btnLabel: 'Eliminar',
+            onConfirm: () => {
+              const idx = categorias.findIndex(c => c.id === nueva.id);
+              categorias.splice(idx, 1);
+              this.closest('.cat-chip').remove();
+              auditar('eliminar', 'categoría', `Categoría eliminada: ${cat.nombre}`);
+            }
+          });
+        });
+        e.target.reset();
+        e.target.querySelector('input[name="color"]').value = '#4A67C9';
+        auditar('crear', 'categoría', `Nueva categoría: ${nueva.nombre} (${nueva.color})`);
+        showToast('Categoría creada', `"${nueva.nombre}" ya está disponible para publicaciones.`);
+      });
+
+      // Subir nueva versión de reglamento (simulado)
+      const upload = document.getElementById('uploadNewVersion');
+      if (upload) {
+        upload.addEventListener('click', () => {
+          // Para la demo: incrementa la versión del primer reglamento
+          const r = reglamentos[0];
+          const oldVer = r.version;
+          r.historial.unshift(`v${oldVer} (${r.fecha})`);
+          const partes = oldVer.split('.');
+          partes[partes.length - 1] = +partes[partes.length - 1] + 1;
+          r.version = partes.join('.');
+          r.fecha = new Date().toLocaleDateString('es-AR');
+          auditar('editar', 'reglamento', `${r.titulo} → versión ${r.version} publicada (anterior: v${oldVer})`);
+          showToast('Nueva versión publicada', `${r.titulo} v${r.version}. La versión ${oldVer} queda en historial.`);
+          // Refrescar la vista
+          openDrawer('catalogos');
+          setTimeout(() => document.querySelector('.drawer__tab[data-tab="reglamentos"]')?.click(), 50);
+        });
+      }
+    }
+
+    // --- Auditoría completa ---
+    function bindAuditoriaDrawer() {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const logPane = document.getElementById('auditLogPane');
+      const cfgPane = document.getElementById('auditConfigPane');
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t.dataset.tab));
+        logPane.hidden = t.dataset.tab !== 'log';
+        cfgPane.hidden = t.dataset.tab !== 'config';
+      }));
+
+      const filter = document.getElementById('auditRolFilter');
+      const list = document.getElementById('auditFullList');
+      function render() {
+        const rol = filter.value;
+        const filtered = rol === 'todos' ? auditoria : auditoria.filter(a => a.rol === rol);
+        list.innerHTML = filtered.map(a => `
+          <article class="audit-item" style="--audit-color:${colorAccion(a.accion)};margin-bottom:.4rem">
+            <div class="audit-item__icon">${iconAccion(a.accion)}</div>
+            <div>
+              <div class="audit-item__head">
+                <span class="audit-item__action">${a.accion}</span>
+                <span class="audit-item__time">· ${a.fecha} · ${a.entidad}</span>
+              </div>
+              <p class="audit-item__desc">${a.desc}</p>
+              <p class="audit-item__detail">por <b>${a.autor}</b> (${a.rol})</p>
+            </div>
+          </article>
+        `).join('');
+      }
+      filter.addEventListener('change', render);
+      render();
+
+      document.getElementById('auditExport').addEventListener('click', () => {
+        showToast('Exportación iniciada', `${auditoria.length} registros generados en CSV.`);
+        auditar('crear', 'auditoría', 'Exportación de log a CSV');
+      });
+
+      document.getElementById('saveConfigBtn')?.addEventListener('click', e => {
+        e.preventDefault();
+        auditar('editar', 'configuración', 'Configuración general modificada');
+        showToast('Configuración guardada', 'Los cambios se aplicarán en el próximo login de los usuarios.');
+      });
+    }
+
+    /* ============================================================
+       7) IMPERSONACIÓN ("Ver como…")
+       ============================================================ */
+    function startImpersonate(u) {
+      requestDangerConfirm({
+        title: `¿Iniciar inspección como ${u.nombre}?`,
+        msg: `Vas a ver el portal del sistema con la sesión de <strong>${u.nombre}</strong> (${u.rol}). Esto se registra en auditoría y queda visible para el usuario inspeccionado en su próximo login. <strong>Solo úsalo para soporte o auditoría.</strong>`,
+        btnLabel: 'Iniciar inspección',
+        confirmWord: 'INSPECCIONAR',
+        onConfirm: () => {
+          auditar('impersonar', 'sesión', `Inspección iniciada como ${u.nombre} (${u.rol})`);
+          // Mostrar el banner
+          document.getElementById('imperWho').textContent = `Estás viendo el portal como ${u.nombre} (${u.rol})`;
+          document.getElementById('imperBanner').classList.add('is-visible');
+          closeDrawer();
+          showToast('Modo inspección activo', `En Fase 2 esto te llevaría al portal del ${u.rol}.`, '#F5A623');
+        }
+      });
+    }
+    document.getElementById('imperExit').addEventListener('click', () => {
+      document.getElementById('imperBanner').classList.remove('is-visible');
+      auditar('impersonar', 'sesión', 'Inspección finalizada');
+      showToast('Inspección cerrada', 'Volviste al panel de administrador.');
+    });
+
+    /* ============================================================
+       8) CONFIRMACIÓN DESTRUCTIVA (con tipeo)
+       ============================================================ */
+    const dangerModal = document.getElementById('dangerModal');
+    const dangerTitle = document.getElementById('dangerTitle');
+    const dangerMsg = document.getElementById('dangerMsg');
+    const dangerInput = document.getElementById('dangerInput');
+    const dangerConfirm = document.getElementById('dangerConfirm');
+    const dangerCancel = document.getElementById('dangerCancel');
+    let dangerHandler = null;
+    let dangerExpectedWord = 'CONFIRMAR';
+
+    function requestDangerConfirm({ title, msg, btnLabel, onConfirm, confirmWord = 'CONFIRMAR' }) {
+      dangerTitle.textContent = title;
+      dangerMsg.innerHTML = msg;
+      dangerConfirm.textContent = btnLabel || 'Eliminar definitivamente';
+      dangerExpectedWord = confirmWord;
+      dangerModal.querySelector('.danger-modal__hint').innerHTML = `Para confirmar, escribí <code>${confirmWord}</code>:`;
+      dangerInput.placeholder = confirmWord;
+      dangerInput.value = '';
+      dangerConfirm.classList.remove('is-armed');
+      dangerHandler = onConfirm;
+      dangerModal.classList.add('is-visible');
+      setTimeout(() => dangerInput.focus(), 100);
+    }
+    function closeDangerModal() {
+      dangerModal.classList.remove('is-visible');
+      dangerHandler = null;
+    }
+    dangerInput.addEventListener('input', () => {
+      if (dangerInput.value.trim().toUpperCase() === dangerExpectedWord) {
+        dangerConfirm.classList.add('is-armed');
+      } else {
+        dangerConfirm.classList.remove('is-armed');
+      }
+    });
+    dangerCancel.addEventListener('click', closeDangerModal);
+    dangerModal.addEventListener('click', e => { if (e.target === dangerModal) closeDangerModal(); });
+    dangerConfirm.addEventListener('click', () => {
+      if (!dangerConfirm.classList.contains('is-armed')) return;
+      const fn = dangerHandler;
+      closeDangerModal();
+      if (fn) fn();
+    });
+
+    /* ============================================================
+       9) Logout y notificaciones (mismo patrón que docente)
+       ============================================================ */
+    const logoutModal = document.getElementById('logoutModal');
+    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-visible'));
+    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-visible'));
+    document.getElementById('logoutConfirm').addEventListener('click', () => {
+      logoutModal.classList.remove('is-visible');
+      localStorage.removeItem('cedSession');
+      auditar('login', 'sesión', 'Cierre de sesión del administrador');
+      showToast('Sesión cerrada', 'Redirigiendo al portal institucional…');
+      setTimeout(() => { window.location.href = 'index.html'; }, 900);
+    });
+
+    const notifPanel = document.getElementById('notifPanel');
+    const notifList = document.getElementById('notifList');
+    const notifBell = document.getElementById('bellBtn');
+    const notifs = [
+      { titulo: '⚠ Login fallido (3 intentos)',  msg: 'Cuenta de Diego Falcón',                              hace: 'hace 3 h' },
+      { titulo: 'Backup automático completado',     msg: 'Snapshot diario de BD: 2.1 GB',                       hace: 'hace 5 h' },
+      { titulo: 'Reglamento por aprobar',            msg: 'Coordinación subió "Régimen 2026 v3.2"',               hace: 'hace 8 h' },
+      { titulo: '📈 Pico de uso',                    msg: 'Hubo 67 logins simultáneos a las 18:00',               hace: 'ayer' },
+      { titulo: 'Solicitud de alta',                 msg: 'Lucas Vidal pidió registrarse',                        hace: 'ayer' },
+      { titulo: 'Espacio en disco',                  msg: 'Almacenamiento al 34% (3.4 GB / 10 GB)',               hace: '2 días' },
+      { titulo: 'Actualización CodeIgniter',         msg: 'Nueva versión 4.5.2 disponible',                       hace: '3 días' }
+    ];
+    notifList.innerHTML = notifs.map(n => `
+      <div style="padding:.85rem 1rem;border-bottom:1px solid rgba(143,163,227,.2)">
+        <p style="margin:0 0 .15rem;font:700 .85rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${n.titulo}</p>
+        <p style="margin:0 0 .25rem;font:400 .8rem/1.4 'Manrope',sans-serif;color:#5a5d6e">${n.msg}</p>
+        <p style="margin:0;font:500 .7rem 'Manrope',sans-serif;color:#8a8d9c">${n.hace}</p>
+      </div>
+    `).join('');
+    notifBell.addEventListener('click', e => {
+      e.stopPropagation();
+      notifPanel.classList.toggle('is-visible');
+    });
+    document.addEventListener('click', e => {
+      if (!notifPanel.contains(e.target) && !notifBell.contains(e.target)) {
+        notifPanel.classList.remove('is-visible');
+      }
+    });
+    document.getElementById('notifMarkAll').addEventListener('click', () => {
+      document.getElementById('bellBadge').style.display = 'none';
+      notifPanel.classList.remove('is-visible');
+    });
+
+    /* ============================================================
+       10) Toast
+       ============================================================ */
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function showToast(title, msg, color = '#3DAA6A') {
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMsg').textContent = msg;
+      toast.style.setProperty('--toast-color', color);
+      toast.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
+    }
+
+  })();
+  </script>
+
+  <!-- Autenticación, logout centralizado y validación de rol -->
+  <script src="js/logout.js"></script>
+  <script src="js/admin-auth.js"></script>
+
+</body>
+</html>
