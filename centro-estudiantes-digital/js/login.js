@@ -13,7 +13,11 @@ async function loadMockUsers() {
 }
 
 function saveSession(user) {
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user));
+  try {
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user));
+  } catch (e) {
+    console.log('error al guardar session', e)
+  }
 }
 
 function getSession() {
@@ -27,6 +31,18 @@ function getSession() {
 function isAuthenticated() {
   const session = getSession();
   return Boolean(session && session.usuario && session.rol);
+}
+
+function getRoleDashboard(rol) {
+  const roleMap = {
+    estudiante: 'alumnos.html',
+    alumno: 'alumnos.html',
+    docente: 'docentes.html',
+    delegado: 'alumnos.html',
+    admin: 'admin.html',
+    administrador: 'admin.html',
+  };
+  return roleMap[rol?.toLowerCase()] || 'alumnos.html';
 }
 
 function showError(message, errorElement) {
@@ -54,7 +70,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (session) {
     if (window.location.pathname.endsWith('log.html')) {
-      window.location.href = 'alumnos.html';
+      const dashboard = getRoleDashboard(session.rol);
+      window.location.href = dashboard;
       return;
     }
   }
@@ -63,7 +80,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   openBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       if (session) {
-        window.location.href = 'alumnos.html';
+        const dashboard = getRoleDashboard(session.rol);
+        window.location.href = dashboard;
         return;
       }
       if (!loginOverlay) return;
@@ -129,7 +147,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     loginCard.classList.add('is-success');
 
     setTimeout(() => {
-      window.location.href = 'alumnos.html';
+      const dashboard = getRoleDashboard(session.rol);
+      window.location.href = dashboard;
     }, 900);
   });
 });

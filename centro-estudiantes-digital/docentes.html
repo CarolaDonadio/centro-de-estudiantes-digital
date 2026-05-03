@@ -20,6 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Portal Docente - ISFDyT 57 Juana Paula Manso" />
   <title>ISFDyT 57 · Portal Docente</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
   <!-- === MISMA TIPOGRAFÍA QUE EL PORTAL DEL ALUMNO === -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1643,13 +1644,11 @@
        6) Logout (mismo flujo que el portal del alumno)
        ============================================================ */
     const logoutModal = document.getElementById('logoutModal');
-    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-visible'));
-    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-visible'));
+    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
+    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
     document.getElementById('logoutConfirm').addEventListener('click', () => {
-      logoutModal.classList.remove('is-visible');
-      // En Fase 2 → DELETE /api/auth/logout y redirección a centro.html
-      showToast('Sesión cerrada', 'Redirigiendo al portal institucional…');
-      setTimeout(() => { window.location.href = 'centro.html'; }, 900);
+      logoutModal.classList.remove('is-open');
+      performLogout();
     });
 
     /* ============================================================
@@ -1701,6 +1700,10 @@
 
   })();
   </script>
+
+  <!-- Autenticación, logout centralizado y validación de rol -->
+  <script src="js/logout.js"></script>
+  <script src="js/teacher-auth.js"></script>
 
 </body>
 </html>
