@@ -20,6 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Portal Docente - ISFDyT 57 Juana Paula Manso" />
   <title>ISFDyT 57 · Portal Docente</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
   <!-- === MISMA TIPOGRAFÍA QUE EL PORTAL DEL ALUMNO === -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -716,6 +717,19 @@
           </button>
         </li>
 
+        <!-- 5) Calendario (nuevo) -->
+        <li>
+          <button class="nav-btn" data-drawer="calendario" aria-label="Calendario Docente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
+              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Calendario</span>
+          </button>
+        </li>
+
+
         <!-- 5) Publicaciones (sustituye "Centro de Estudiantes") -->
         <li>
           <button class="nav-btn" data-drawer="publicar" aria-label="Publicar para alumnos">
@@ -725,7 +739,7 @@
             <span class="nav-btn__tooltip">Publicar</span>
           </button>
         </li>
-
+        
         <!-- 6) Cerrar sesión -->
         <li class="nav-btn--bottom">
           <button class="nav-btn nav-btn--danger" id="logoutBtn" aria-label="Cerrar sesión">
@@ -1005,6 +1019,13 @@
       email: 'cmendoza@isfdyt57.edu.ar'
     };
 
+    const state = {
+      calendarioMes: null,
+      calendario: {
+        eventos: []
+      }
+    };
+
     const cursos = [
       { id: 1, nombre: 'Lógica Computacional', anio: '1°', alumnos: 28, asistencia: 86, color: '#4A67C9', proxima: 'Mañana 18:00' },
       { id: 2, nombre: 'Matemática Aplicada',  anio: '2°', alumnos: 22, asistencia: 79, color: '#F5A623', proxima: 'Jueves 20:00' },
@@ -1038,6 +1059,14 @@
       { dia: 'VIE', num: '01', titulo: 'Lógica Computacional', sub: 'Parcial 1 · 28 alumnos',    tipo: 'Examen',    from: '#E67E5B', to: '#F19A7B' },
       { dia: 'LUN', num: '04', titulo: 'Algoritmos I',          sub: 'Repaso pre-parcial',         tipo: 'Clase',     from: '#8B5CF6', to: '#A78BF7' }
     ];
+
+    // Map existing 'clases' data to calendar events format
+    state.calendario.eventos = clases.map(c => {
+      const today = new Date();
+      const day = c.dia === 'MAÑ' ? today.getDate() + 1 : (c.dia === 'MIÉ' ? today.getDate() + 2 : (c.dia === 'VIE' ? today.getDate() + 4 : today.getDate())); // Simplified date logic for demo
+      const date = new Date(today.getFullYear(), today.getMonth(), day);
+      return { fecha: date.toISOString().slice(0, 10), titulo: `${c.titulo} - ${c.sub}`, tipo: c.tipo.toLowerCase(), color: c.from };
+    });
 
     // Publicaciones que ya hizo el docente (estas vendrían de la BD).
     // Cualquier publicación nueva se prepende a este array y aparecerá
@@ -1178,6 +1207,13 @@
        3.1) Builders del contenido de cada drawer
        ============================================================ */
     const drawerContent = {
+      // Common icon for calendar
+      iconCalendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" /><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" /></svg>',
+
+      // Formats an ISO date to "dd MMM" in Spanish.
+      formatDay: (isoDate) => {
+        const d = new Date(isoDate); const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']; return { dia: d.getDate(), mes: meses[d.getMonth()] };
+      },
 
       // --- Mi Perfil ---
       perfil: () => ({
@@ -1383,6 +1419,33 @@
        4) HOOKS PARA FUNCIONALIDADES INTERACTIVAS DEL DRAWER
        ============================================================ */
 
+    // --- Calendario ---
+    function bindCalendarDrawer() {
+      const date = state.calendarioMes || new Date();
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      const firstDay = new Date(year, month, 1).getDay(); // 0 is Sunday
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const eventos = state.calendario.eventos;
+
+      document.getElementById('calMonthYear').textContent = `${monthNames[month]} ${year}`;
+      document.getElementById('calendarGrid').innerHTML = generateCalendarGrid(year, month, firstDay, daysInMonth, eventos);
+
+      document.getElementById('calPrev').onclick = () => {
+        state.calendarioMes.setMonth(state.calendarioMes.getMonth() - 1);
+        bindCalendarDrawer();
+      };
+      document.getElementById('calNext').onclick = () => {
+        state.calendarioMes.setMonth(state.calendarioMes.getMonth() + 1);
+        bindCalendarDrawer();
+      };
+
+      document.querySelectorAll('.cal-cell').forEach(cell => {
+        cell.onclick = () => { document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('is-today')); cell.classList.add('is-today'); showDayDetails(cell.dataset.date, eventos); };
+      });
+    }
+
     // --- Material: drag & drop, browse, listado ---
     function bindMaterialDrawer() {
       renderMateriales();
@@ -1581,13 +1644,11 @@
        6) Logout (mismo flujo que el portal del alumno)
        ============================================================ */
     const logoutModal = document.getElementById('logoutModal');
-    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-visible'));
-    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-visible'));
+    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
+    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
     document.getElementById('logoutConfirm').addEventListener('click', () => {
-      logoutModal.classList.remove('is-visible');
-      // En Fase 2 → DELETE /api/auth/logout y redirección a centro.html
-      showToast('Sesión cerrada', 'Redirigiendo al portal institucional…');
-      setTimeout(() => { window.location.href = 'centro.html'; }, 900);
+      logoutModal.classList.remove('is-open');
+      performLogout();
     });
 
     /* ============================================================
@@ -1639,6 +1700,10 @@
 
   })();
   </script>
+
+  <!-- Autenticación, logout centralizado y validación de rol -->
+  <script src="js/logout.js"></script>
+  <script src="js/teacher-auth.js"></script>
 
 </body>
 </html>

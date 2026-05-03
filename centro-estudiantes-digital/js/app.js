@@ -13,12 +13,12 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario:         'data/usuario.json',
-  novedades:       'data/novedades.json',
-  eventos:         'data/eventos.json',
-  calendario:      'data/calendario.json',
-  reglamentacion:  'data/reglamentacion.json',
-  notificaciones:  'data/notificaciones.json',
+  usuario:         'json/usuario.json',
+  novedades:       'json/novedades.json',
+  eventos:         'json/eventos.json',
+  calendario:      'json/calendario.json',
+  reglamentacion:  'json/reglamentacion.json',
+  notificaciones:  'json/notificaciones.json',
 };
 
 /* ----------------------------------------------------------------
@@ -39,7 +39,7 @@ async function fetchJSON(url) {
   } catch (err) {
     console.warn(`[API Mock] No se pudo cargar ${url}. Verificá que estés corriendo un servidor local.`, err);
     // Devolvemos el fallback desde window si existe (por si no hay servidor)
-    const key = url.replace('data/', '').replace('.json', '');
+    const key = url.replace('json/', '').replace('.json', '');
     return window.__FALLBACK_DATA__?.[key] || null;
   }
 }
@@ -135,7 +135,8 @@ function renderUserHeader() {
   const u = state.usuario;
   if (!u) return;
 
-  $('#userName').textContent = u.nombre;
+  const session = JSON.parse(localStorage.getItem('cedSession'));
+  $('#userName').textContent = session?.nombre || u.nombre;
   $('#userAvatar').textContent = u.avatar;
 
   const resumen =
@@ -365,7 +366,7 @@ function renderNewsList() {
   }
 
   cont.innerHTML = lista.map(n => {
-    const cat = categorias.find(c => c.id === n.categoria_id) || { color:'#4A67C9' };
+    const cat = categorias.find(c => c.id === n.categoria_id) || { color:'#2563eb' };
     const destacadaCls = n.destacada ? ' news-item--featured' : '';
     const star = n.destacada ? '<span class="news-item__star">★ DESTACADA</span>' : '';
     const adjunto = n.adjunto ? `
@@ -558,11 +559,11 @@ function renderProfile(body) {
 ---------------------------------------------------------------- */
 function renderMaterias(body) {
   const materias = [
-    { nombre: 'Análisis Matemático I',  docente: 'Ing. García',  dias: ['Lun', 'Mié'], hora: '18–21hs', color: '#3A5BA9', nota: null,  estado: 'Cursando' },
-    { nombre: 'Programación I',         docente: 'Lic. Chaves',  dias: ['Mar', 'Jue'], hora: '19–22hs', color: '#E67E5B', nota: 7,     estado: 'Cursando' },
+    { nombre: 'Análisis Matemático I',  docente: 'Ing. García',  dias: ['Lun', 'Mié'], hora: '18–21hs', color: '#2563eb', nota: null,  estado: 'Cursando' },
+    { nombre: 'Programación I',         docente: 'Lic. Chaves',  dias: ['Mar', 'Jue'], hora: '19–22hs', color: '#06b6d4', nota: 7,     estado: 'Cursando' },
     { nombre: 'Álgebra Lineal',         docente: 'Prof. Rossi',  dias: ['Vie'],        hora: '18–22hs', color: '#3DAA6A', nota: 8,     estado: 'Cursando' },
-    { nombre: 'Sistemas Operativos',    docente: 'Ing. Torres',  dias: ['Mié'],        hora: '19–22hs', color: '#8B5CF6', nota: null,  estado: 'Cursando' },
-    { nombre: 'Lógica Computacional',   docente: 'Dr. López',    dias: ['Lun'],        hora: '19–22hs', color: '#F5A623', nota: 6,     estado: 'Cursando' },
+    { nombre: 'Sistemas Operativos',    docente: 'Ing. Torres',  dias: ['Mié'],        hora: '19–22hs', color: '#3b82f6', nota: null,  estado: 'Cursando' },
+    { nombre: 'Lógica Computacional',   docente: 'Dr. López',    dias: ['Lun'],        hora: '19–22hs', color: '#0ea5e9', nota: 6,     estado: 'Cursando' },
   ];
 
   body.innerHTML = `
@@ -622,7 +623,7 @@ function renderInscripciones(body) {
   body.innerHTML = `
     <div class="inscr-section">
       <div class="inscr-section__header">
-        <div class="inscr-section__icon" style="background:rgba(58,91,169,.1);color:#3A5BA9">${bookIcon}</div>
+        <div class="inscr-section__icon" style="background:rgba(37,99,235,.1);color:#2563eb">${bookIcon}</div>
         <div class="inscr-section__info">
           <p class="inscr-section__label">Materias cursadas</p>
           <h3 class="inscr-section__title">1er Cuatrimestre 2026</h3>
@@ -644,7 +645,7 @@ function renderInscripciones(body) {
 
     <div class="inscr-section">
       <div class="inscr-section__header">
-        <div class="inscr-section__icon" style="background:rgba(230,126,91,.1);color:#E67E5B">${calIcon}</div>
+        <div class="inscr-section__icon" style="background:rgba(6,182,212,.1);color:#06b6d4">${calIcon}</div>
         <div class="inscr-section__info">
           <p class="inscr-section__label">Mesas de examen</p>
           <h3 class="inscr-section__title">Turno Julio 2026</h3>
@@ -724,7 +725,7 @@ function renderCarrera(body) {
     <p class="drawer-section-label">Accesos rápidos</p>
     <div class="career-links">
       <a class="career-link" href="#" tabindex="0">
-        <div class="career-link__icon" style="background:rgba(58,91,169,.1);color:#3A5BA9">${globeIcon}</div>
+        <div class="career-link__icon" style="background:rgba(37,99,235,.1);color:#2563eb">${globeIcon}</div>
         <span>Campus Virtual</span>
       </a>
       <a class="career-link" href="#" tabindex="0">
@@ -732,7 +733,7 @@ function renderCarrera(body) {
         <span>Aula Virtual</span>
       </a>
       <a class="career-link" href="#" tabindex="0">
-        <div class="career-link__icon" style="background:rgba(245,166,35,.1);color:#F5A623">${calIcon}</div>
+        <div class="career-link__icon" style="background:rgba(14,165,233,.1);color:#0ea5e9">${calIcon}</div>
         <span>Mi Asistencia</span>
       </a>
     </div>
@@ -772,8 +773,8 @@ function renderCarrera(body) {
 ---------------------------------------------------------------- */
 function renderCentro(body) {
   const delegados = [
-    { nombre: 'Valentina Ríos',   cargo: 'Presidenta',  carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#8B5CF6' },
-    { nombre: 'Mateo Fernández',  cargo: 'Secretario',  carrera: 'Tecnicatura en Redes',    avatar: 'MF', color: '#3A5BA9' },
+    { nombre: 'Valentina Ríos',   cargo: 'Presidenta',  carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
+    { nombre: 'Mateo Fernández',  cargo: 'Secretario',  carrera: 'Tecnicatura en Redes',    avatar: 'MF', color: '#2563eb' },
     { nombre: 'Lucía Aramburu',   cargo: 'Tesorera',    carrera: 'Prog. Universitaria',     avatar: 'LA', color: '#3DAA6A' },
   ];
 
@@ -829,7 +830,7 @@ function renderCentro(body) {
 
     <p class="drawer-section-label">Contacto</p>
     <div class="ce-links">
-      <a class="ce-link" href="#" tabindex="0" style="--lk-color:#E67E5B">
+      <a class="ce-link" href="#" tabindex="0" style="--lk-color:#06b6d4">
         <span class="ce-link__icon">${igIcon}</span>
         <span>Instagram</span>
         <span class="ce-link__handle">@ce.isfdyt57</span>
@@ -839,7 +840,7 @@ function renderCentro(body) {
         <span>WhatsApp</span>
         <span class="ce-link__handle">Grupo general</span>
       </a>
-      <a class="ce-link" href="#" tabindex="0" style="--lk-color:#3A5BA9">
+      <a class="ce-link" href="#" tabindex="0" style="--lk-color:#2563eb">
         <span class="ce-link__icon">${mailIcon}</span>
         <span>Mail</span>
         <span class="ce-link__handle">ce@isfdyt57.edu.ar</span>
@@ -1000,7 +1001,7 @@ function bindNavigation() {
   });
 
   $('#logoutConfirm')?.addEventListener('click', () => {
-    window.location.href = 'index.html';
+    performLogout();
   });
 }
 
