@@ -1643,13 +1643,11 @@
        6) Logout (mismo flujo que el portal del alumno)
        ============================================================ */
     const logoutModal = document.getElementById('logoutModal');
-    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-visible'));
-    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-visible'));
+    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
+    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
     document.getElementById('logoutConfirm').addEventListener('click', () => {
-      logoutModal.classList.remove('is-visible');
-      localStorage.removeItem('cedSession');
-      showToast('Sesión cerrada', 'Redirigiendo al portal institucional…');
-      setTimeout(() => { window.location.href = 'index.html'; }, 900);
+      logoutModal.classList.remove('is-open');
+      performLogout();
     });
 
     /* ============================================================

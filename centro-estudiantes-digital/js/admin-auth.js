@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!isAuthenticated()) {
     console.warn('[Admin] No hay sesión activa.');
-    window.location.href = 'log.html';
+    window.location.href = 'index.html';
     return;
   }
 
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!allowedRoles.includes(session?.rol?.toLowerCase())) {
     console.warn('[Admin] Acceso denegado. Rol:', session?.rol);
     localStorage.removeItem(SESSION_STORAGE_KEY);
-    window.location.href = 'log.html';
+    window.location.href = 'index.html';
     return;
   }
 
