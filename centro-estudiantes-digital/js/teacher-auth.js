@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Inyectar nombre del docente en el header
-  const userName = document.getElementById('teacherName');
+  const userName = document.getElementById('userName');
   if (userName) {
     userName.textContent = session.nombre || 'Docente';
   }

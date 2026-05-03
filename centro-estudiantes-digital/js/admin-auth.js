@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Inyectar nombre del admin en el header
-  const userName = document.getElementById('adminName');
+  const userName = document.getElementById('userName');
   if (userName) {
     userName.textContent = session.nombre || 'Administrador';
   }

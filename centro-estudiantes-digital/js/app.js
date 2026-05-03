@@ -13,12 +13,12 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario:         'data/usuario.json',
-  novedades:       'data/novedades.json',
-  eventos:         'data/eventos.json',
-  calendario:      'data/calendario.json',
-  reglamentacion:  'data/reglamentacion.json',
-  notificaciones:  'data/notificaciones.json',
+  usuario:         'json/usuario.json',
+  novedades:       'json/novedades.json',
+  eventos:         'json/eventos.json',
+  calendario:      'json/calendario.json',
+  reglamentacion:  'json/reglamentacion.json',
+  notificaciones:  'json/notificaciones.json',
 };
 
 /* ----------------------------------------------------------------
@@ -39,7 +39,7 @@ async function fetchJSON(url) {
   } catch (err) {
     console.warn(`[API Mock] No se pudo cargar ${url}. Verificá que estés corriendo un servidor local.`, err);
     // Devolvemos el fallback desde window si existe (por si no hay servidor)
-    const key = url.replace('data/', '').replace('.json', '');
+    const key = url.replace('json/', '').replace('.json', '');
     return window.__FALLBACK_DATA__?.[key] || null;
   }
 }
@@ -135,7 +135,8 @@ function renderUserHeader() {
   const u = state.usuario;
   if (!u) return;
 
-  $('#userName').textContent = u.nombre;
+  const session = JSON.parse(localStorage.getItem('cedSession'));
+  $('#userName').textContent = session?.nombre || u.nombre;
   $('#userAvatar').textContent = u.avatar;
 
   const resumen =
