@@ -1462,22 +1462,19 @@
                   <input type="text" name="nombre" required placeholder="Ej: María González">
                 </label>
                 <label>Usuario
-                  <input type="text" name="usuario" required placeholder="Ej: maria.gonzalez">
+                  <input type="text" name="usuario" required placeholder="Ej: maria123" pattern="[a-z0-9]+" title="Solo minúsculas y números">
                 </label>
               </div>
               <div class="admin-form__row">
+                <label>Contraseña
+                  <input type="password" name="password" required placeholder="Contraseña inicial">
+                </label>
                 <label>Rol asignado
                   <select name="rol" required>
                     <option value="alumno">Alumno</option>
                     <option value="docente">Docente</option>
                     <option value="delegado">Delegado</option>
                     <option value="admin">Administrador</option>
-                  </select>
-                </label>
-                <label>Estado inicial
-                  <select name="activo">
-                    <option value="true">Activo</option>
-                    <option value="false">Pendiente de activación</option>
                   </select>
                 </label>
               </div>
@@ -1573,8 +1570,6 @@
                 </button>
                 <div class="user-row__menu-dropdown">
                   <button data-action="edit"        data-id="${u.id}">✏️  Editar datos</button>
-                  <button data-action="role"        data-id="${u.id}">🔄  Cambiar rol</button>
-                  <button data-action="impersonate" data-id="${u.id}">👁️  Ver como…</button>
                   <button data-action="reset"       data-id="${u.id}">🔑  Resetear password</button>
                   <hr>
                   <button class="is-danger" data-action="deactivate" data-id="${u.id}">🚫  Desactivar</button>
@@ -1598,8 +1593,9 @@
           id: Date.now(),
           nombre: data.get('nombre'),
           usuario: data.get('usuario') || data.get('nombre').toLowerCase().split(' ')[0],
+          password: data.get('password'),
           rol: data.get('rol'),
-          activo: data.get('activo') === 'true',
+          activo: true,
           ultimoLogin: 'nunca'
         };
         usuarios.push(nuevo);
@@ -1635,27 +1631,10 @@
           btn.closest('[data-menu]').classList.remove('is-open');
 
           if (action === 'edit') {
-            // Demo: en Fase 2 abriría un sub-form
-            showToast('Editar usuario', `Acción registrada para ${u.nombre}.`);
-            auditar('editar', 'usuario', `Inicio de edición: ${u.nombre}`);
-          }
-          if (action === 'role') {
-            // Demo de cambio de rol cíclico para mostrar el efecto
-            const ciclo = ['alumno','delegado','docente','admin'];
-            const next = ciclo[(ciclo.indexOf(u.rol) + 1) % ciclo.length];
-            const prev = u.rol;
-            u.rol = next;
-            auditar('editar', 'usuario', `Cambio de rol: ${u.nombre} (${prev} → ${next})`);
-            showToast('Rol modificado', `${u.nombre} ahora es ${next}. En su próximo login verá el portal correspondiente.`);
-            // Refrescar la vista
-            const ev = new Event('input');
-            document.getElementById('userSearch').dispatchEvent(ev);
-          }
-          if (action === 'impersonate') {
-            startImpersonate(u);
+            showEditForm(u);
           }
           if (action === 'reset') {
-            showToast('Password reseteado', `${u.nombre} recibirá un email con instrucciones para crear una nueva contraseña.`);
+            showToast('Password reseteado', `${u.nombre} recibirá instrucciones para crear una nueva contraseña.`);
             auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
           }
           if (action === 'deactivate') {
@@ -1679,6 +1658,56 @@
       document.addEventListener('click', () => {
         document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
       }, { once: true });
+    }
+
+    function showEditForm(u) {
+      const cont = document.getElementById('userList');
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="editBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar: ${u.nombre}</h3>
+        <form class="admin-form" id="editUserForm">
+          <div class="admin-form__row">
+            <label>Nombre completo
+              <input type="text" name="nombre" required value="${u.nombre}">
+            </label>
+            <label>Usuario
+              <input type="text" name="usuario" required value="${u.usuario}" pattern="[a-z0-9]+" title="Solo minúsculas y números">
+            </label>
+          </div>
+          <div class="admin-form__row">
+            <label>Nueva contraseña <small style="font-weight:400;text-transform:none;letter-spacing:0">(dejar vacío para no cambiar)</small>
+              <input type="password" name="password" placeholder="Nueva contraseña">
+            </label>
+            <label>Rol asignado
+              <select name="rol" required>
+                <option value="alumno" ${u.rol === 'alumno' ? 'selected' : ''}>Alumno</option>
+                <option value="docente" ${u.rol === 'docente' ? 'selected' : ''}>Docente</option>
+                <option value="delegado" ${u.rol === 'delegado' ? 'selected' : ''}>Delegado</option>
+                <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+      document.getElementById('editBackBtn').addEventListener('click', () => {
+        document.getElementById('userSearch').dispatchEvent(new Event('input'));
+      });
+      document.getElementById('editUserForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        u.nombre = data.get('nombre');
+        u.usuario = data.get('usuario');
+        u.rol = data.get('rol');
+        auditar('editar', 'usuario', `Editado: ${u.nombre} (${u.rol})`);
+        showToast('Usuario actualizado', `Los datos de ${u.nombre} fueron guardados.`);
+        document.getElementById('userSearch').dispatchEvent(new Event('input'));
+      });
     }
 
     function renderPapelera() {
@@ -1734,32 +1763,7 @@
     }
 
     /* ============================================================
-       7) IMPERSONACIÓN ("Ver como…")
-       ============================================================ */
-    function startImpersonate(u) {
-      requestDangerConfirm({
-        title: `¿Iniciar inspección como ${u.nombre}?`,
-        msg: `Vas a ver el portal del sistema con la sesión de <strong>${u.nombre}</strong> (${u.rol}). Esto se registra en auditoría y queda visible para el usuario inspeccionado en su próximo login. <strong>Solo úsalo para soporte o auditoría.</strong>`,
-        btnLabel: 'Iniciar inspección',
-        confirmWord: 'INSPECCIONAR',
-        onConfirm: () => {
-          auditar('impersonar', 'sesión', `Inspección iniciada como ${u.nombre} (${u.rol})`);
-          // Mostrar el banner
-          document.getElementById('imperWho').textContent = `Estás viendo el portal como ${u.nombre} (${u.rol})`;
-          document.getElementById('imperBanner').classList.add('is-visible');
-          closeDrawer();
-          showToast('Modo inspección activo', `En Fase 2 esto te llevaría al portal del ${u.rol}.`, '#F5A623');
-        }
-      });
-    }
-    document.getElementById('imperExit').addEventListener('click', () => {
-      document.getElementById('imperBanner').classList.remove('is-visible');
-      auditar('impersonar', 'sesión', 'Inspección finalizada');
-      showToast('Inspección cerrada', 'Volviste al panel de administrador.');
-    });
-
-    /* ============================================================
-       8) CONFIRMACIÓN DESTRUCTIVA (con tipeo)
+       7) CONFIRMACIÓN DESTRUCTIVA (con tipeo)
        ============================================================ */
     const dangerModal = document.getElementById('dangerModal');
     const dangerTitle = document.getElementById('dangerTitle');
