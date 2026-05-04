@@ -1026,8 +1026,35 @@
        MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js)
        ============================================================ */
     const modulosData = window.MODULOS_DATA || {};
+    const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
+
+    async function loadReglamentacionFromJSON() {
+      if (!modulosData['mod-reglamentacion']) return;
+      try {
+        const res = await fetch('json/reglamentacion.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!Array.isArray(data.documentos)) return;
+
+        modulosData['mod-reglamentacion'].items = data.documentos.map(doc => ({
+          titulo: doc.titulo,
+          detalle: `${doc.categoria ? doc.categoria.charAt(0).toUpperCase() + doc.categoria.slice(1) : 'Normativa'} · ${doc.version || 'v1.0'} · Publicado ${doc.fecha_publicacion || '---'}`,
+          estado: 'Vigente',
+          estadoClase: 'activo',
+          link: doc.link || (doc.archivo ? `json/${doc.archivo}` : undefined)
+        }));
+
+        modulosData['mod-reglamentacion'].descripcion = 'Repositorio centralizado de documentos oficiales con versionado y búsqueda por palabras clave. Los documentos se cargan desde el JSON oficial de reglamentaciones.';
+      } catch (err) {
+        console.warn('No se pudo cargar reglamentación desde JSON:', err);
+      }
+    }
 
     function renderModuloListado(key) {
+      if (key === 'mod-reglamentacion' && !isAdminUser) {
+        return `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Acceso restringido. Solo el perfil administrador puede ver esta sección.</p>`;
+      }
+
       const mod = modulosData[key];
       if (!mod) return '<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Sin datos disponibles.</p>';
       return `
@@ -1039,7 +1066,10 @@
                 <p class="modulo-item__titulo">${item.titulo}</p>
                 <p class="modulo-item__detalle">${item.detalle}</p>
               </div>
-              <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
+              <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+                ${item.link ? `<a class="btn btn-secondary btn-sm" href="${item.link}" target="_blank" rel="noopener noreferrer">Ver documento</a>` : ''}
+                <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
+              </div>
             </div>
           `).join('')}
         </div>
@@ -1068,6 +1098,10 @@
     const mainContent = document.getElementById('mainContent');
 
     function navigateTo(key, opts = {}) {
+      if (key === 'mod-reglamentacion' && !isAdminUser) {
+        return;
+      }
+
       const builder = sectionContent[key];
       if (!builder) return;
       const { title, html } = builder();
@@ -1225,8 +1259,13 @@
       }),
     };
 
+    if (isAdminUser) {
+      await loadReglamentacionFromJSON();
+    }
+
     // Registrar secciones de los módulos del proyecto
     Object.keys(modulosData).forEach(key => {
+      if (key === 'mod-reglamentacion' && !isAdminUser) return;
       sectionContent[key] = () => ({
         title: modulosData[key].titulo,
         icon: modulosData[key].icono,
