@@ -1429,9 +1429,8 @@
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/></svg>',
         html: `
           <div class="drawer__tabs">
-            <button class="drawer__tab is-active" data-tab="lista">Lista (${usuarios.filter(u=>u.activo).length})</button>
+            <button class="drawer__tab is-active" data-tab="lista">Lista (${usuarios.length})</button>
             <button class="drawer__tab" data-tab="nuevo">+ Nuevo usuario</button>
-            <button class="drawer__tab" data-tab="papelera">Papelera <span class="badge">${usuarios.filter(u=>!u.activo).length}</span></button>
           </div>
 
           <div id="userListPane">
@@ -1484,14 +1483,6 @@
               </button>
             </form>
           </div>
-
-          <div id="userPapeleraPane" hidden>
-            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
-              Usuarios desactivados (soft delete). Podés restaurarlos o eliminarlos definitivamente.
-              El borrado físico requiere confirmación con tipeo.
-            </p>
-            <div id="userPapeleraList"></div>
-          </div>
         `
       }),
     };
@@ -1526,13 +1517,11 @@
       const tabs = document.querySelectorAll('.drawer__tab');
       const panes = {
         lista:    document.getElementById('userListPane'),
-        nuevo:    document.getElementById('userNewPane'),
-        papelera: document.getElementById('userPapeleraPane')
+        nuevo:    document.getElementById('userNewPane')
       };
       function showTab(t) {
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         Object.entries(panes).forEach(([k, p]) => p.hidden = k !== t);
-        if (t === 'papelera') renderPapelera();
       }
       tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
       if (quick === 'newUser') showTab('nuevo');
@@ -1545,7 +1534,6 @@
         const rol = filterRol.value;
         const q = search.value.trim().toLowerCase();
         const list = usuarios.filter(u =>
-          u.activo &&
           (rol === 'todos' || u.rol === rol) &&
           (!q || u.nombre.toLowerCase().includes(q) || u.usuario.toLowerCase().includes(q))
         );
@@ -1572,7 +1560,7 @@
                   <button data-action="edit"        data-id="${u.id}">✏️  Editar datos</button>
                   <button data-action="reset"       data-id="${u.id}">🔑  Resetear password</button>
                   <hr>
-                  <button class="is-danger" data-action="deactivate" data-id="${u.id}">🚫  Desactivar</button>
+                  <button class="is-danger" data-action="delete" data-id="${u.id}">🚫  Eliminar</button>
                 </div>
               </div>
             </div>
@@ -1637,17 +1625,18 @@
             showToast('Password reseteado', `${u.nombre} recibirá instrucciones para crear una nueva contraseña.`);
             auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
           }
-          if (action === 'deactivate') {
+          if (action === 'delete') {
             requestDangerConfirm({
-              title: '¿Desactivar este usuario?',
-              msg: `Vas a desactivar a <strong>${u.nombre}</strong>. El usuario no podrá ingresar al sistema, pero sus datos quedan guardados (soft delete) y podés restaurarlo desde la papelera.`,
-              btnLabel: 'Desactivar usuario',
+              title: '¿Eliminar este usuario?',
+              msg: `Vas a eliminar a <strong>${u.nombre}</strong>. Esta acción no se puede deshacer.`,
+              btnLabel: 'Eliminar usuario',
               onConfirm: () => {
-                u.activo = false;
-                auditar('eliminar', 'usuario', `${u.nombre} → desactivado (soft delete)`);
-                showToast('Usuario desactivado', `${u.nombre} ya no puede ingresar. Lo encontrás en la papelera.`, '#E67E5B');
+                const idx = usuarios.findIndex(x => x.id === u.id);
+                usuarios.splice(idx, 1);
+                auditar('eliminar', 'usuario', `Eliminado: ${u.nombre}`);
+                showToast('Usuario eliminado', `${u.nombre} fue removido del sistema.`, '#E67E5B');
                 document.getElementById('userSearch').dispatchEvent(new Event('input'));
-                document.getElementById('kpiActivos').textContent = usuarios.filter(u=>u.activo).length + ' usuarios activos';
+                document.getElementById('kpiActivos').textContent = usuarios.length + ' usuarios activos';
               }
             });
           }
@@ -1707,58 +1696,6 @@
         auditar('editar', 'usuario', `Editado: ${u.nombre} (${u.rol})`);
         showToast('Usuario actualizado', `Los datos de ${u.nombre} fueron guardados.`);
         document.getElementById('userSearch').dispatchEvent(new Event('input'));
-      });
-    }
-
-    function renderPapelera() {
-      const cont = document.getElementById('userPapeleraList');
-      const inactivos = usuarios.filter(u => !u.activo);
-      if (inactivos.length === 0) {
-        cont.innerHTML = `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:'Manrope',sans-serif">La papelera está vacía.</p>`;
-        return;
-      }
-      cont.innerHTML = inactivos.map(u => {
-        const ini = u.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
-        return `
-          <div class="user-row" data-inactive="true">
-            <div class="user-row__avatar" data-rol="${u.rol}">${ini}</div>
-            <div>
-              <p class="user-row__name">${u.nombre}</p>
-              <p class="user-row__meta">@${u.usuario} · desactivado</p>
-            </div>
-            <button class="course-card__manage" data-restore="${u.id}" style="padding:.45rem .7rem;font:600 .76rem 'Manrope',sans-serif;color:var(--accent-green,#3DAA6A);background:rgba(61,170,106,.12);border:none;border-radius:8px;cursor:pointer">Restaurar</button>
-            <button class="user-row__menu-btn" data-purge="${u.id}" style="color:#C0392B" aria-label="Eliminar definitivamente">
-              <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>
-            </button>
-          </div>
-        `;
-      }).join('');
-      cont.querySelectorAll('[data-restore]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const u = usuarios.find(x => x.id === +btn.dataset.restore);
-          u.activo = true;
-          auditar('crear', 'usuario', `Restaurado: ${u.nombre} (vuelve a estar activo)`);
-          showToast('Usuario restaurado', `${u.nombre} vuelve a tener acceso al sistema.`);
-          renderPapelera();
-          document.getElementById('kpiActivos').textContent = usuarios.filter(u=>u.activo).length + ' usuarios activos';
-        });
-      });
-      cont.querySelectorAll('[data-purge]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const u = usuarios.find(x => x.id === +btn.dataset.purge);
-          requestDangerConfirm({
-            title: 'Eliminar definitivamente',
-            msg: `Vas a borrar a <strong>${u.nombre}</strong> de la base de datos de forma permanente. <strong>Esta acción no se puede deshacer.</strong> Sus publicaciones quedarán sin autor.`,
-            btnLabel: 'Borrar permanentemente',
-            onConfirm: () => {
-              const idx = usuarios.findIndex(x => x.id === u.id);
-              usuarios.splice(idx, 1);
-              auditar('eliminar', 'usuario', `BORRADO PERMANENTE: ${u.nombre} (registro físico)`);
-              showToast('Eliminado permanentemente', `${u.nombre} fue removido de la BD.`, '#C0392B');
-              renderPapelera();
-            }
-          });
-        });
       });
     }
 
