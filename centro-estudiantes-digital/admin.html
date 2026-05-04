@@ -1113,38 +1113,59 @@
     ================================================================
   -->
   <script>
-  (function () {
+  (async function () {
     'use strict';
 
     /* ============================================================
-       1) DATA MOCK
+       1) DATOS DINÁMICOS (desde sesión y JSON)
        ============================================================ */
+
+    // Perfil del admin desde la sesión activa en localStorage
+    const session = JSON.parse(localStorage.getItem('cedSession')) || {};
+    const adminNombre = session.nombre || 'Administrador';
+    const adminIniciales = adminNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+
     const admin = {
-      nombre: 'Roxana Álvarez',
-      iniciales: 'RA',
-      legajo: 'AD-001',
-      dni: '24.812.453',
-      cargo: 'Coordinadora de Sistemas',
-      email: 'admin@isfdyt57.edu.ar',
-      ultimoLogin: 'Hoy · 08:15'
+      nombre: adminNombre,
+      iniciales: adminIniciales,
+      usuario: session.usuario || '',
+      rol: session.rol || 'administrador',
+      loggedAt: session.loggedAt || ''
     };
 
-    // Universo de usuarios (incluye los 4 perfiles)
-    const usuarios = [
-      { id:1,  nombre:'Santiago Chiale',     legajo:'A-23110', dni:'42.815.622', email:'santiago@correo.com',     rol:'alumno',   activo:true,  ultimoLogin:'hace 2 h'  },
-      { id:2,  nombre:'Ana Suárez',          legajo:'A-23104', dni:'43.108.991', email:'ana.suarez@correo.com',   rol:'alumno',   activo:true,  ultimoLogin:'hace 5 h'  },
-      { id:3,  nombre:'Bruno Pereyra',       legajo:'A-23211', dni:'43.992.005', email:'bperreyra@correo.com',    rol:'alumno',   activo:true,  ultimoLogin:'ayer'      },
-      { id:4,  nombre:'Camila Ríos',         legajo:'A-23308', dni:'44.012.110', email:'camilarios@correo.com',   rol:'alumno',   activo:true,  ultimoLogin:'hace 30 m' },
-      { id:5,  nombre:'Diego Falcón',        legajo:'A-23415', dni:'42.110.887', email:'dfalcon@correo.com',      rol:'alumno',   activo:false, ultimoLogin:'hace 12 d' },
-      { id:6,  nombre:'Eva Montero',         legajo:'A-23502', dni:'43.581.402', email:'eva.montero@correo.com',  rol:'alumno',   activo:true,  ultimoLogin:'hoy'        },
-      { id:7,  nombre:'Federico Núñez',      legajo:'A-23617', dni:'42.450.108', email:'fnunez@correo.com',       rol:'delegado', activo:true,  ultimoLogin:'hace 1 h'   },
-      { id:8,  nombre:'Gabriela Iturrioz',   legajo:'A-23728', dni:'42.991.103', email:'giturrioz@correo.com',    rol:'alumno',   activo:true,  ultimoLogin:'hace 3 h'   },
-      { id:9,  nombre:'Carlos Mendoza',      legajo:'D-2401',  dni:'28.456.789', email:'cmendoza@isfdyt57.edu.ar', rol:'docente', activo:true,  ultimoLogin:'hace 20 m'  },
-      { id:10, nombre:'Patricia Lema',       legajo:'D-2398',  dni:'27.880.514', email:'plema@isfdyt57.edu.ar',    rol:'docente', activo:true,  ultimoLogin:'ayer'       },
-      { id:11, nombre:'Hernán Torres',       legajo:'D-2410',  dni:'31.225.901', email:'htorres@isfdyt57.edu.ar',  rol:'docente', activo:true,  ultimoLogin:'hace 4 h'   },
-      { id:12, nombre:'Sofía Aguirre',       legajo:'A-23801', dni:'44.105.667', email:'sofiaa@correo.com',       rol:'delegado', activo:true,  ultimoLogin:'hace 6 h'   },
-      { id:13, nombre:'Roxana Álvarez',      legajo:'AD-001',  dni:'24.812.453', email:'admin@isfdyt57.edu.ar',   rol:'admin',    activo:true,  ultimoLogin:'hoy 08:15'  }
-    ];
+    // Cargar usuarios desde usuarios.json
+    let usuariosJSON = [];
+    try {
+      const res = await fetch('json/usuarios.json');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      usuariosJSON = await res.json();
+    } catch (err) {
+      console.warn('[Admin] No se pudo cargar usuarios.json:', err);
+    }
+
+    // Mapear datos del JSON al formato interno
+    const usuarios = usuariosJSON.map((u, idx) => {
+      const rolMap = { estudiante: 'alumno', administrador: 'admin' };
+      const rolNorm = rolMap[u.rol] || u.rol;
+      return {
+        id: idx + 1,
+        nombre: u.nombre,
+        usuario: u.usuario,
+        rol: rolNorm,
+        activo: true,
+        ultimoLogin: '—'
+      };
+    });
+
+    // Actualizar header con datos del usuario logueado
+    const userAvatarEl = document.getElementById('userAvatar');
+    const userNameEl = document.getElementById('userName');
+    if (userAvatarEl) userAvatarEl.textContent = admin.iniciales;
+    if (userNameEl) userNameEl.textContent = admin.nombre;
+
+    // Actualizar KPIs con datos reales
+    const kpiActivos = document.getElementById('kpiActivos');
+    if (kpiActivos) kpiActivos.textContent = usuarios.filter(u => u.activo).length + ' usuarios activos';
 
     // Acciones pendientes que requieren decisión del admin
     const pendientes = [
@@ -1391,13 +1412,11 @@
           <div style="display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-bottom:1.5rem">
             <div class="avatar avatar--admin avatar--xl" style="width:88px;height:88px;font-size:1.7rem">${admin.iniciales}</div>
             <h3 style="margin:0;font:700 1.3rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${admin.nombre}</h3>
-            <p style="margin:0;color:#6c6f80;font:500 .85rem 'Manrope',sans-serif">${admin.email}</p>
+            <p style="margin:0;color:#6c6f80;font:500 .85rem 'Manrope',sans-serif">${admin.usuario}</p>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
-            ${profileItem('Legajo', admin.legajo)}
-            ${profileItem('DNI', admin.dni)}
-            ${profileItem('Cargo', admin.cargo)}
-            ${profileItem('Último login', admin.ultimoLogin)}
+            ${profileItem('Usuario', admin.usuario)}
+            ${profileItem('Rol', admin.rol)}
             ${profileItem('Permisos', 'Administrador total', true)}
             ${profileItem('Sesiones activas', '1 (esta)')}
           </div>
@@ -1427,31 +1446,23 @@
             </div>
             <div class="drawer__search">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
-              <input id="userSearch" type="text" placeholder="Buscar por nombre, legajo, email…">
+              <input id="userSearch" type="text" placeholder="Buscar por nombre o usuario…">
             </div>
             <div id="userList"></div>
           </div>
 
           <div id="userNewPane" hidden>
             <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
-              Estos datos se cargan en la base de datos del sistema. El usuario recibe un email
-              con sus credenciales temporales y deberá cambiar la contraseña en el primer login.
+              Estos datos se cargan en la base de datos del sistema. El usuario recibe sus credenciales
+              y deberá cambiar la contraseña en el primer login.
             </p>
             <form class="admin-form" id="newUserForm">
               <div class="admin-form__row">
                 <label>Nombre completo
                   <input type="text" name="nombre" required placeholder="Ej: María González">
                 </label>
-                <label>DNI
-                  <input type="text" name="dni" required placeholder="Sin puntos">
-                </label>
-              </div>
-              <div class="admin-form__row">
-                <label>Email
-                  <input type="email" name="email" required placeholder="usuario@dominio.com">
-                </label>
-                <label>Legajo
-                  <input type="text" name="legajo" required placeholder="A-23999 / D-2412">
+                <label>Usuario
+                  <input type="text" name="usuario" required placeholder="Ej: maria.gonzalez">
                 </label>
               </div>
               <div class="admin-form__row">
@@ -1539,7 +1550,7 @@
         const list = usuarios.filter(u =>
           u.activo &&
           (rol === 'todos' || u.rol === rol) &&
-          (!q || u.nombre.toLowerCase().includes(q) || u.legajo.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+          (!q || u.nombre.toLowerCase().includes(q) || u.usuario.toLowerCase().includes(q))
         );
         const cont = document.getElementById('userList');
         if (list.length === 0) {
@@ -1553,7 +1564,7 @@
               <div class="user-row__avatar" data-rol="${u.rol}">${ini}</div>
               <div>
                 <p class="user-row__name">${u.nombre}</p>
-                <p class="user-row__meta">${u.legajo} · ${u.email} · ${u.ultimoLogin}</p>
+                <p class="user-row__meta">@${u.usuario} · ${u.rol} · ${u.ultimoLogin}</p>
               </div>
               <span class="user-row__rol" data-rol="${u.rol}">${u.rol}</span>
               <div class="user-row__menu" data-menu>
@@ -1586,16 +1597,14 @@
         const nuevo = {
           id: Date.now(),
           nombre: data.get('nombre'),
-          legajo: data.get('legajo'),
-          dni: data.get('dni'),
-          email: data.get('email'),
+          usuario: data.get('usuario') || data.get('nombre').toLowerCase().split(' ')[0],
           rol: data.get('rol'),
           activo: data.get('activo') === 'true',
           ultimoLogin: 'nunca'
         };
         usuarios.push(nuevo);
         auditar('crear', 'usuario', `Alta de cuenta: ${nuevo.nombre} (${nuevo.rol})`);
-        showToast('Usuario creado', `${nuevo.nombre} fue agregado al sistema. Recibirá un email con sus credenciales.`);
+        showToast('Usuario creado', `${nuevo.nombre} fue agregado al sistema.`);
         e.target.reset();
         showTab('lista');
         renderUsers();
@@ -1686,7 +1695,7 @@
             <div class="user-row__avatar" data-rol="${u.rol}">${ini}</div>
             <div>
               <p class="user-row__name">${u.nombre}</p>
-              <p class="user-row__meta">${u.legajo} · desactivado</p>
+              <p class="user-row__meta">@${u.usuario} · desactivado</p>
             </div>
             <button class="course-card__manage" data-restore="${u.id}" style="padding:.45rem .7rem;font:600 .76rem 'Manrope',sans-serif;color:var(--accent-green,#3DAA6A);background:rgba(61,170,106,.12);border:none;border-radius:8px;cursor:pointer">Restaurar</button>
             <button class="user-row__menu-btn" data-purge="${u.id}" style="color:#C0392B" aria-label="Eliminar definitivamente">
