@@ -29,6 +29,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Panel de Administración - ISFDyT 57 Juana Paula Manso" />
   <title>ISFDyT 57 · Panel Administrador</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
   <!-- === MISMA TIPOGRAFÍA QUE EL RESTO DE LA PLATAFORMA === -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -40,6 +41,7 @@
 
   <!-- === ESTILOS HEREDADOS DEL PROYECTO === -->
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/admin/modulos.css" />
 
   <!--
     Extensiones específicas del panel admin.
@@ -785,38 +787,51 @@
           </button>
         </li>
 
-        <!-- 3) Contenido y Moderación -->
+        <!-- === MÓDULOS DEL PROYECTO === -->
+        <li class="nav-separator" aria-hidden="true"><hr></li>
+
+        <!-- Módulo 2: Novedades -->
         <li>
-          <button class="nav-btn" data-drawer="contenido" aria-label="Contenido y Moderación">
+          <button class="nav-btn" data-drawer="mod-novedades" aria-label="Novedades">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"/>
-              <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/>
+              <path d="M14 2v6h6" stroke-linejoin="round"/>
+              <path d="M16 13H8M16 17H8M10 9H8" stroke-linecap="round"/>
             </svg>
-            <span class="nav-btn__tooltip">Contenido</span>
+            <span class="nav-btn__tooltip">Novedades</span>
           </button>
         </li>
 
-        <!-- 4) Catálogos del Sistema -->
+        <!-- Módulo 3: Calendario Académico -->
         <li>
-          <button class="nav-btn" data-drawer="catalogos" aria-label="Catálogos del Sistema">
+          <button class="nav-btn" data-drawer="mod-calendario" aria-label="Calendario Académico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <ellipse cx="12" cy="5" rx="8" ry="2.5"/>
-              <path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/>
-              <path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/>
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
             </svg>
-            <span class="nav-btn__tooltip">Catálogos</span>
+            <span class="nav-btn__tooltip">Calendario</span>
           </button>
         </li>
 
-        <!-- 5) Auditoría y Sistema -->
+        <!-- Módulo 4: Reglamentación -->
         <li>
-          <button class="nav-btn" data-drawer="auditoria" aria-label="Auditoría y Sistema">
+          <button class="nav-btn" data-drawer="mod-reglamentacion" aria-label="Reglamentación">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <circle cx="11" cy="11" r="7"/>
-              <path d="M21 21l-4.3-4.3" stroke-linecap="round"/>
-              <path d="M11 7v4l2.5 2" stroke-linecap="round"/>
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke-linejoin="round"/>
             </svg>
-            <span class="nav-btn__tooltip">Auditoría</span>
+            <span class="nav-btn__tooltip">Reglamentación</span>
+          </button>
+        </li>
+
+        <!-- Módulo 5: Eventos -->
+        <li>
+          <button class="nav-btn" data-drawer="mod-eventos" aria-label="Eventos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke-linejoin="round"/>
+              <path d="M4 22v-7" stroke-linecap="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Eventos</span>
           </button>
         </li>
 
@@ -1088,6 +1103,9 @@
     </div>
   </div>
 
+  <!-- Datos de los módulos del proyecto -->
+  <script src="js/admin/modulos.js"></script>
+
   <!--
     ================================================================
     SCRIPT INLINE: lógica del admin con datos demo.
@@ -1169,6 +1187,30 @@
       { id:3, titulo:'Régimen de Becas 2026',     version:'1.0', fecha:'20/02/2026', autor:'Coordinación',  historial:[] },
       { id:4, titulo:'Estatuto Centro Estudiantes',version:'4.2', fecha:'10/01/2026', autor:'CE',             historial:['v4.0 (09/2025)','v3.0 (03/2024)'] }
     ];
+
+    /* ============================================================
+       MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js)
+       ============================================================ */
+    const modulosData = window.MODULOS_DATA || {};
+
+    function renderModuloListado(key) {
+      const mod = modulosData[key];
+      if (!mod) return '<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Sin datos disponibles.</p>';
+      return `
+        <p class="modulo-descripcion">${mod.descripcion}</p>
+        <div class="modulo-list">
+          ${mod.items.map(item => `
+            <div class="modulo-item">
+              <div class="modulo-item__info">
+                <p class="modulo-item__titulo">${item.titulo}</p>
+                <p class="modulo-item__detalle">${item.detalle}</p>
+              </div>
+              <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
 
     /* ============================================================
        2) AUDITORÍA AUTOMÁTICA
@@ -1305,9 +1347,6 @@
       drawer.setAttribute('aria-hidden', 'false');
       // Hooks por sección
       if (key === 'usuarios')  bindUsuariosDrawer(opts.quick);
-      if (key === 'contenido') bindContenidoDrawer();
-      if (key === 'catalogos') bindCatalogosDrawer();
-      if (key === 'auditoria') bindAuditoriaDrawer();
       // Active state
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
       const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
@@ -1447,202 +1486,16 @@
           </div>
         `
       }),
-
-      // --- Contenido y Moderación ---
-      contenido: () => ({
-        title: 'Contenido y Moderación',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        html: `
-          <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
-            Acá supervisás todo lo que docentes y delegados publicaron. Podés despublicar,
-            editar o eliminar cualquier contenido. Las eliminaciones quedan en la papelera 30 días.
-          </p>
-
-          <div class="drawer__tabs">
-            <button class="drawer__tab is-active" data-tab="novedades">Novedades</button>
-            <button class="drawer__tab" data-tab="eventos">Eventos</button>
-            <button class="drawer__tab" data-tab="materiales">Materiales</button>
-            <button class="drawer__tab" data-tab="reportados">Reportados <span class="badge">2</span></button>
-          </div>
-
-          <div id="modList">
-            ${[
-              { tipo:'aviso', titulo:'Cambio de aula para parcial', autor:'Carlos Mendoza', fecha:'hace 2h', alcance:'28 alumnos', estado:'activo' },
-              { tipo:'aviso', titulo:'Recordatorio - inscripción al recuperatorio', autor:'Carlos Mendoza', fecha:'hace 4d', alcance:'30 alumnos', estado:'activo' },
-              { tipo:'aviso', titulo:'Charla sobre integración laboral', autor:'Federico Núñez', fecha:'hace 1d', alcance:'156 (toda la institución)', estado:'activo' },
-              { tipo:'aviso', titulo:'⚠️ Aviso provisional (reportado)', autor:'Sofía Aguirre', fecha:'hace 3h', alcance:'48 alumnos', estado:'reportado' }
-            ].map((p, i) => `
-              <div class="user-row" style="grid-template-columns:1fr auto auto;padding:.85rem 1rem">
-                <div>
-                  <p class="user-row__name">${p.titulo}</p>
-                  <p class="user-row__meta">${p.autor} · ${p.fecha} · ${p.alcance}</p>
-                </div>
-                <span class="user-row__rol" data-rol="${p.estado === 'reportado' ? 'admin' : 'alumno'}">${p.estado}</span>
-                <div class="user-row__menu" data-menu>
-                  <button class="user-row__menu-btn" data-menu-btn>
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
-                  </button>
-                  <div class="user-row__menu-dropdown">
-                    <button data-mod-action="ver">👁️ Ver detalle</button>
-                    <button data-mod-action="editar">✏️ Editar</button>
-                    <button data-mod-action="despublicar">🚫 Despublicar</button>
-                    <hr>
-                    <button class="is-danger" data-mod-action="eliminar" data-titulo="${p.titulo}">🗑️ Eliminar</button>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `
-      }),
-
-      // --- Catálogos del Sistema ---
-      catalogos: () => ({
-        title: 'Catálogos del Sistema',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/><path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/></svg>',
-        html: `
-          <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
-            Las tablas maestras del sistema. Si agregás algo acá, aparece automáticamente en el
-            portal del docente y del alumno (categorías para publicar, carreras al inscribirse, etc.).
-          </p>
-
-          <div class="drawer__tabs">
-            <button class="drawer__tab is-active" data-tab="categorias">Categorías</button>
-            <button class="drawer__tab" data-tab="carreras">Carreras</button>
-            <button class="drawer__tab" data-tab="reglamentos">Reglamentos</button>
-          </div>
-
-          <div id="catCategorias">
-            <h3 style="font:700 .95rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A);margin:0 0 .5rem">Categorías de novedades</h3>
-            <p style="font:400 .78rem 'Manrope',sans-serif;color:#8a8d9c;margin:0 0 1rem">Estas categorías aparecen en el compositor de publicaciones del docente y como filtros en el feed del alumno.</p>
-            <div id="catList">
-              ${categorias.map(c => `
-                <span class="cat-chip" style="--cat-color:${c.color}">
-                  <span class="cat-chip__dot"></span>
-                  ${c.nombre}
-                  <button class="cat-chip__del" data-cat-del="${c.id}" aria-label="Eliminar categoría">×</button>
-                </span>
-              `).join('')}
-            </div>
-            <form id="newCatForm" class="admin-form" style="margin-top:1.2rem">
-              <div class="admin-form__row">
-                <label>Nombre
-                  <input type="text" name="nombre" required placeholder="Ej: Capacitación">
-                </label>
-                <label>Color
-                  <input type="color" name="color" value="#4A67C9" style="height:42px;padding:.3rem">
-                </label>
-              </div>
-              <button type="submit" class="admin-form__submit">
-                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
-                Agregar categoría
-              </button>
-            </form>
-          </div>
-
-          <div id="catCarreras" hidden>
-            <h3 style="font:700 .95rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A);margin:0 0 .8rem">Carreras del instituto</h3>
-            ${carreras.map(c => `
-              <div class="user-row" style="grid-template-columns:1fr auto">
-                <div>
-                  <p class="user-row__name">${c.nombre}</p>
-                  <p class="user-row__meta">Código: ${c.codigo} · ${c.alumnos} alumnos inscriptos</p>
-                </div>
-                <button class="course-card__manage" style="padding:.5rem .8rem;font:600 .76rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">Editar</button>
-              </div>
-            `).join('')}
-          </div>
-
-          <div id="catReglamentos" hidden>
-            <h3 style="font:700 .95rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A);margin:0 0 .5rem">Reglamentos versionados</h3>
-            <p style="font:400 .78rem 'Manrope',sans-serif;color:#8a8d9c;margin:0 0 1rem">
-              Subí una nueva versión y la anterior queda en historial. Nunca se sobrescribe el archivo original.
-            </p>
-            <div id="reglList">
-              ${reglamentos.map(r => `
-                <div class="regl-row">
-                  <div class="regl-row__head">
-                    <h4 class="regl-row__title">${r.titulo}</h4>
-                    <span class="regl-row__ver">v${r.version}</span>
-                  </div>
-                  <p class="regl-row__meta">Publicado el ${r.fecha} por ${r.autor}</p>
-                  ${r.historial.length ? `
-                    <div class="regl-row__history">
-                      ${r.historial.map(h => `<small>${h}</small>`).join('')}
-                    </div>
-                  ` : ''}
-                </div>
-              `).join('')}
-            </div>
-            <button id="uploadNewVersion" class="admin-form__submit" style="margin-top:1rem">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round"/><path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5v12" stroke-linecap="round"/></svg>
-              Subir nueva versión
-            </button>
-          </div>
-        `
-      }),
-
-      // --- Auditoría y Sistema ---
-      auditoria: () => ({
-        title: 'Auditoría y Sistema',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>',
-        html: `
-          <div class="drawer__tabs">
-            <button class="drawer__tab is-active" data-tab="log">Log de acciones</button>
-            <button class="drawer__tab" data-tab="config">Configuración</button>
-          </div>
-
-          <div id="auditLogPane">
-            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
-              Registro completo de acciones del sistema. <strong>No es editable.</strong>
-              Solo se puede consultar y exportar.
-            </p>
-
-            <div style="display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap">
-              <select id="auditRolFilter" style="flex:1;min-width:140px;padding:.6rem .75rem;font:500 .82rem 'Manrope',sans-serif;border:1px solid rgba(143,163,227,.45);border-radius:9px;background:#fff">
-                <option value="todos">Todos los autores</option>
-                <option value="admin">Solo admin</option>
-                <option value="docente">Docentes</option>
-                <option value="alumno">Alumnos</option>
-                <option value="delegado">Delegados</option>
-                <option value="system">Sistema</option>
-              </select>
-              <button id="auditExport" style="padding:.6rem 1rem;font:600 .82rem 'Manrope',sans-serif;background:var(--brand-100,#E3E9FA);color:var(--brand-700,#2C3E87);border:none;border-radius:9px;cursor:pointer">
-                ⬇ Exportar CSV
-              </button>
-            </div>
-
-            <div id="auditFullList"></div>
-          </div>
-
-          <div id="auditConfigPane" hidden>
-            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
-              Ajustes generales del sistema.
-            </p>
-            <div class="admin-form">
-              <label>Nombre de la institución
-                <input type="text" value="ISFDyT N°57 Juana Paula Manso">
-              </label>
-              <div class="admin-form__row">
-                <label>Inscripciones abiertas
-                  <select><option>Sí</option><option>No</option></select>
-                </label>
-                <label>Modo mantenimiento
-                  <select><option>Off</option><option>On</option></select>
-                </label>
-              </div>
-              <label>Política de contraseñas
-                <select>
-                  <option>Mínimo 8 caracteres + 1 mayúscula + 1 número</option>
-                  <option>Mínimo 12 caracteres + simbolo</option>
-                </select>
-              </label>
-              <button class="admin-form__submit" id="saveConfigBtn">Guardar configuración</button>
-            </div>
-          </div>
-        `
-      })
     };
+
+    // Registrar drawers de los módulos del proyecto
+    Object.keys(modulosData).forEach(key => {
+      drawerContent[key] = () => ({
+        title: modulosData[key].titulo,
+        icon: modulosData[key].icono,
+        html: renderModuloListado(key)
+      });
+    });
 
     function profileItem(label, value, highlight = false) {
       const styleVal = highlight
@@ -1871,190 +1724,6 @@
       });
     }
 
-    // --- Contenido ---
-    function bindContenidoDrawer() {
-      // Tabs (solo demo: muestra todos los items en la primera tab)
-      document.querySelectorAll('.drawer__tab').forEach(t => {
-        t.addEventListener('click', () => {
-          document.querySelectorAll('.drawer__tab').forEach(x => x.classList.remove('is-active'));
-          t.classList.add('is-active');
-        });
-      });
-      // Menús
-      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          const menu = btn.closest('[data-menu]');
-          document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
-          menu.classList.toggle('is-open');
-        });
-      });
-      document.querySelectorAll('[data-mod-action]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          const action = btn.dataset.modAction;
-          const titulo = btn.dataset.titulo || 'item';
-          btn.closest('[data-menu]').classList.remove('is-open');
-          if (action === 'eliminar') {
-            requestDangerConfirm({
-              title: '¿Eliminar publicación?',
-              msg: `Vas a eliminar <strong>"${titulo}"</strong>. Se mueve a la papelera por 30 días y los alumnos dejan de verla en su feed inmediatamente.`,
-              btnLabel: 'Eliminar publicación',
-              onConfirm: () => {
-                auditar('eliminar', 'novedad', `Borrada: "${titulo}"`);
-                showToast('Publicación eliminada', `"${titulo}" ya no es visible para los alumnos.`, '#E67E5B');
-              }
-            });
-          } else {
-            auditar('editar', 'novedad', `Acción ${action} sobre: ${titulo || '(item)'}`);
-            showToast('Acción registrada', `${action} aplicado.`);
-          }
-        });
-      });
-      document.addEventListener('click', () => {
-        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
-      }, { once: true });
-    }
-
-    // --- Catálogos ---
-    function bindCatalogosDrawer() {
-      const tabs = document.querySelectorAll('.drawer__tab');
-      const panes = {
-        categorias:  document.getElementById('catCategorias'),
-        carreras:    document.getElementById('catCarreras'),
-        reglamentos: document.getElementById('catReglamentos')
-      };
-      tabs.forEach(t => t.addEventListener('click', () => {
-        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t.dataset.tab));
-        Object.entries(panes).forEach(([k,p]) => p.hidden = k !== t.dataset.tab);
-      }));
-
-      // Eliminar categoría
-      document.querySelectorAll('[data-cat-del]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = +btn.dataset.catDel;
-          const cat = categorias.find(c => c.id === id);
-          requestDangerConfirm({
-            title: '¿Eliminar categoría?',
-            msg: `Vas a eliminar la categoría <strong>"${cat.nombre}"</strong>. Las publicaciones que la usaban quedarán sin categoría asignada.`,
-            btnLabel: 'Eliminar',
-            onConfirm: () => {
-              const idx = categorias.findIndex(c => c.id === id);
-              categorias.splice(idx, 1);
-              btn.closest('.cat-chip').remove();
-              auditar('eliminar', 'categoría', `Categoría eliminada: ${cat.nombre}`);
-              showToast('Categoría eliminada', 'Ya no aparece en el compositor del docente.', '#E67E5B');
-            }
-          });
-        });
-      });
-
-      // Crear categoría
-      document.getElementById('newCatForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const data = new FormData(e.target);
-        const nueva = {
-          id: Date.now(),
-          nombre: data.get('nombre'),
-          color: data.get('color')
-        };
-        categorias.push(nueva);
-        // Refrescar la lista
-        const list = document.getElementById('catList');
-        list.innerHTML += `
-          <span class="cat-chip" style="--cat-color:${nueva.color}">
-            <span class="cat-chip__dot"></span>
-            ${nueva.nombre}
-            <button class="cat-chip__del" data-cat-del="${nueva.id}">×</button>
-          </span>
-        `;
-        // Re-bindear el botón nuevo
-        list.lastElementChild.querySelector('[data-cat-del]').addEventListener('click', function() {
-          const cat = categorias.find(c => c.id === nueva.id);
-          requestDangerConfirm({
-            title: '¿Eliminar categoría?',
-            msg: `Vas a eliminar <strong>"${cat.nombre}"</strong>.`,
-            btnLabel: 'Eliminar',
-            onConfirm: () => {
-              const idx = categorias.findIndex(c => c.id === nueva.id);
-              categorias.splice(idx, 1);
-              this.closest('.cat-chip').remove();
-              auditar('eliminar', 'categoría', `Categoría eliminada: ${cat.nombre}`);
-            }
-          });
-        });
-        e.target.reset();
-        e.target.querySelector('input[name="color"]').value = '#4A67C9';
-        auditar('crear', 'categoría', `Nueva categoría: ${nueva.nombre} (${nueva.color})`);
-        showToast('Categoría creada', `"${nueva.nombre}" ya está disponible para publicaciones.`);
-      });
-
-      // Subir nueva versión de reglamento (simulado)
-      const upload = document.getElementById('uploadNewVersion');
-      if (upload) {
-        upload.addEventListener('click', () => {
-          // Para la demo: incrementa la versión del primer reglamento
-          const r = reglamentos[0];
-          const oldVer = r.version;
-          r.historial.unshift(`v${oldVer} (${r.fecha})`);
-          const partes = oldVer.split('.');
-          partes[partes.length - 1] = +partes[partes.length - 1] + 1;
-          r.version = partes.join('.');
-          r.fecha = new Date().toLocaleDateString('es-AR');
-          auditar('editar', 'reglamento', `${r.titulo} → versión ${r.version} publicada (anterior: v${oldVer})`);
-          showToast('Nueva versión publicada', `${r.titulo} v${r.version}. La versión ${oldVer} queda en historial.`);
-          // Refrescar la vista
-          openDrawer('catalogos');
-          setTimeout(() => document.querySelector('.drawer__tab[data-tab="reglamentos"]')?.click(), 50);
-        });
-      }
-    }
-
-    // --- Auditoría completa ---
-    function bindAuditoriaDrawer() {
-      const tabs = document.querySelectorAll('.drawer__tab');
-      const logPane = document.getElementById('auditLogPane');
-      const cfgPane = document.getElementById('auditConfigPane');
-      tabs.forEach(t => t.addEventListener('click', () => {
-        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t.dataset.tab));
-        logPane.hidden = t.dataset.tab !== 'log';
-        cfgPane.hidden = t.dataset.tab !== 'config';
-      }));
-
-      const filter = document.getElementById('auditRolFilter');
-      const list = document.getElementById('auditFullList');
-      function render() {
-        const rol = filter.value;
-        const filtered = rol === 'todos' ? auditoria : auditoria.filter(a => a.rol === rol);
-        list.innerHTML = filtered.map(a => `
-          <article class="audit-item" style="--audit-color:${colorAccion(a.accion)};margin-bottom:.4rem">
-            <div class="audit-item__icon">${iconAccion(a.accion)}</div>
-            <div>
-              <div class="audit-item__head">
-                <span class="audit-item__action">${a.accion}</span>
-                <span class="audit-item__time">· ${a.fecha} · ${a.entidad}</span>
-              </div>
-              <p class="audit-item__desc">${a.desc}</p>
-              <p class="audit-item__detail">por <b>${a.autor}</b> (${a.rol})</p>
-            </div>
-          </article>
-        `).join('');
-      }
-      filter.addEventListener('change', render);
-      render();
-
-      document.getElementById('auditExport').addEventListener('click', () => {
-        showToast('Exportación iniciada', `${auditoria.length} registros generados en CSV.`);
-        auditar('crear', 'auditoría', 'Exportación de log a CSV');
-      });
-
-      document.getElementById('saveConfigBtn')?.addEventListener('click', e => {
-        e.preventDefault();
-        auditar('editar', 'configuración', 'Configuración general modificada');
-        showToast('Configuración guardada', 'Los cambios se aplicarán en el próximo login de los usuarios.');
-      });
-    }
-
     /* ============================================================
        7) IMPERSONACIÓN ("Ver como…")
        ============================================================ */
@@ -2129,13 +1798,11 @@
        9) Logout y notificaciones (mismo patrón que docente)
        ============================================================ */
     const logoutModal = document.getElementById('logoutModal');
-    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-visible'));
-    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-visible'));
+    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
+    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
     document.getElementById('logoutConfirm').addEventListener('click', () => {
-      logoutModal.classList.remove('is-visible');
-      auditar('login', 'sesión', 'Cierre de sesión del administrador');
-      showToast('Sesión cerrada', 'Redirigiendo al portal institucional…');
-      setTimeout(() => { window.location.href = 'centro.html'; }, 900);
+      logoutModal.classList.remove('is-open');
+      performLogout();
     });
 
     const notifPanel = document.getElementById('notifPanel');
@@ -2187,6 +1854,10 @@
 
   })();
   </script>
+
+  <!-- Autenticación, logout centralizado y validación de rol -->
+  <script src="js/logout.js"></script>
+  <script src="js/admin-auth.js"></script>
 
 </body>
 <<<<<<< Updated upstream
