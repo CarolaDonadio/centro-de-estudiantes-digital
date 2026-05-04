@@ -1,6 +1,6 @@
 /* ================================================================
-   AUTENTICACIÓN Y VALIDACIÓN DE ROL - Panel de Administrador
-   Verifica que el usuario sea admin antes de acceder
+   AUTENTICACIÓN Y VALIDACIÓN DE ROL - Panel de Administración
+   Verifica que el usuario tenga un rol permitido antes de acceder
 ================================================================ */
 
 // const SESSION_STORAGE_KEY = 'cedSession';
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const allowedRoles = ['admin', 'administrador'];
+  const allowedRoles = ['admin', 'administrador', 'docente', 'delegado'];
   if (!allowedRoles.includes(session?.rol?.toLowerCase())) {
     console.warn('[Admin] Acceso denegado. Rol:', session?.rol);
     localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -35,11 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Inyectar nombre del admin en el header
+  // Inyectar nombre en el header
   const userName = document.getElementById('userName');
   if (userName) {
-    userName.textContent = session.nombre || 'Administrador';
+    userName.textContent = session.nombre || 'Usuario';
   }
 
-  console.log('[Admin] Panel abierto por:', session.nombre);
+  // Ocultar opciones exclusivas de admin para otros roles
+  const isAdmin = ['admin', 'administrador'].includes(session.rol.toLowerCase());
+  if (!isAdmin) {
+    document.querySelectorAll('[data-admin-only]').forEach(el => {
+      el.style.display = 'none';
+    });
+  }
+
+  console.log('[Admin] Panel abierto por:', session.nombre, '(' + session.rol + ')');
 });
