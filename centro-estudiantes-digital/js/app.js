@@ -19,6 +19,8 @@ const API = {
   calendario:      'json/calendario.json',
   reglamentacion:  'json/reglamentacion.json',
   notificaciones:  'json/notificaciones.json',
+  carreras:        'json/carreras.json',
+  materias:        'json/materias.json',
 };
 
 /* ----------------------------------------------------------------
@@ -70,6 +72,45 @@ function softColor(hex, alpha = 0.14) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+/** Sistema de permisos por rol */
+function getPermisos(rol) {
+  const permisos = {
+    estudiante: {
+      verNovedades: true,
+      publicarNovedades: false,
+      gestionarUsuarios: false,
+      gestionarCategorias: false,
+      publicarGenerales: false,
+      publicarMaterias: false
+    },
+    docente: {
+      verNovedades: true,
+      publicarNovedades: true,
+      gestionarUsuarios: false,
+      gestionarCategorias: false,
+      publicarGenerales: false,
+      publicarMaterias: true
+    },
+    delegado: {
+      verNovedades: true,
+      publicarNovedades: true,
+      gestionarUsuarios: false,
+      gestionarCategorias: false,
+      publicarGenerales: true,
+      publicarMaterias: true
+    },
+    administrador: {
+      verNovedades: true,
+      publicarNovedades: true,
+      gestionarUsuarios: true,
+      gestionarCategorias: true,
+      publicarGenerales: true,
+      publicarMaterias: true
+    }
+  };
+  return permisos[rol] || permisos.estudiante;
+}
+
 /* ----------------------------------------------------------------
    2. ESTADO GLOBAL DE LA APP
 ---------------------------------------------------------------- */
@@ -80,6 +121,11 @@ const state = {
   calendario: null,
   reglamentacion: null,
   filtroNovedad: 'todas',
+  filtroCarrera: 'todas',
+  filtroMateria: 'todas',
+  filtroFecha: 'todas', // opciones: 'todas', 'hoy', 'semana', 'mes'
+  carreras: null,
+  materias: null,
   calendarioMes: null,        // Date actual mostrada en el drawer
 
   // Set con los IDs de eventos a los que el usuario se inscribió.
@@ -104,16 +150,23 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   // Cargamos todo en paralelo desde la "API Mock"
-  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones] = await Promise.all([
+  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias] = await Promise.all([
     fetchJSON(API.usuario),
     fetchJSON(API.novedades),
     fetchJSON(API.eventos),
     fetchJSON(API.calendario),
     fetchJSON(API.reglamentacion),
     fetchJSON(API.notificaciones),
+    fetchJSON(API.carreras),
+    fetchJSON(API.materias),
   ]);
 
-  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones });
+  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias });
+
+  // Obtener rol del usuario actual desde sessionStorage
+  const session = JSON.parse(localStorage.getItem('cedSession') || sessionStorage.getItem('cedSession') || '{}');
+  state.rol = session.rol || 'estudiante';
+  state.permisos = getPermisos(state.rol);
 
   // Renderizamos las secciones del dashboard
   renderUserHeader();
@@ -122,11 +175,138 @@ async function init() {
   renderNewsFilters();
   renderNewsList();
 
+  // Aplicar permisos a la UI
+  applyPermisosUI();
+}
+
+/** Aplica permisos a elementos de la UI */
+function applyPermisosUI() {
+  const btnPublicar = $('#btnPublicar');
+  if (btnPublicar && state.permisos.publicarNovedades) {
+    btnPublicar.style.display = 'flex';
+    btnPublicar.addEventListener('click', () => openPublicarModal());
+  }
+}
+
+/** Abre el modal de publicar novedad */
+function openPublicarModal() {
+  const modal = $('#publicarModal');
+  const form = $('#publicarForm');
+
+  // Limpiar formulario
+  form.reset();
+
+  // Poblar selects
+  const categoriaSelect = form.querySelector('[name="categoria"]');
+  const carreraSelect = form.querySelector('[name="carrera"]');
+  const materiaSelect = form.querySelector('[name="materia"]');
+
+  // Categorías
+  categoriaSelect.innerHTML = '<option value="">Seleccionar categoría</option>' +
+    state.novedades.categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+
+  // Carreras
+  carreraSelect.innerHTML = '<option value="">Todas las carreras</option>' +
+    state.carreras.carreras.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+
+  // Materias
+  materiaSelect.innerHTML = '<option value="">Todas las materias</option>' +
+    state.materias.materias.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('');
+
+  // Bind eventos
+  $('#cancelarPublicar').addEventListener('click', () => closePublicarModal());
+  $('#confirmarPublicar').addEventListener('click', () => publicarNovedad());
+
+  // Mostrar modal
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+/** Cierra el modal de publicar */
+function closePublicarModal() {
+  const modal = $('#publicarModal');
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+/** Publica una nueva novedad */
+function publicarNovedad() {
+  const form = $('#publicarForm');
+  const formData = new FormData(form);
+
+  // Validar formulario
+  const titulo = formData.get('titulo').trim();
+  const categoria = formData.get('categoria');
+  const contenido = formData.get('contenido').trim();
+
+  if (!titulo || !categoria || !contenido) {
+    alert('Por favor complete todos los campos obligatorios.');
+    return;
+  }
+
+  // Crear nueva novedad
+  const nuevaNovedad = {
+    id: Date.now(),
+    titulo,
+    contenido,
+    categoria_id: parseInt(categoria),
+    categoria: state.novedades.categorias.find(c => c.id === parseInt(categoria))?.nombre || 'Sin categoría',
+    autor_id: 1, // ID del usuario actual (mock)
+    autor: state.usuario.nombre,
+    materia_id: formData.get('materia') ? parseInt(formData.get('materia')) : null,
+    carrera_id: formData.get('carrera') ? parseInt(formData.get('carrera')) : null,
+    destacada: formData.get('destacada') === 'on',
+    fecha: new Date().toISOString(),
+    adjunto: null
+  };
+
+  // Agregar a la lista de novedades
+  state.novedades.novedades.unshift(nuevaNovedad);
+
+  // Cerrar modal y refrescar lista
+  closePublicarModal();
+  renderNewsList();
+
+  // Mostrar notificación de éxito
+  showToast('Novedad publicada', 'La novedad ha sido publicada exitosamente.');
+}
+
+/** Muestra una notificación toast */
+function showToast(title, message, color = '#3DAA6A') {
+  // Crear toast element si no existe
+  let toast = $('#toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    toast.innerHTML = `
+      <div class="toast__icon">
+        <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <strong id="toastTitle">${title}</strong>
+        <span id="toastMsg">${message}</span>
+      </div>
+    `;
+    document.body.appendChild(toast);
+  } else {
+    $('#toastTitle').textContent = title;
+    $('#toastMsg').textContent = message;
+  }
+
+  toast.style.setProperty('--toast-color', color);
+  toast.classList.add('is-visible');
+
+  setTimeout(() => {
+    toast.classList.remove('is-visible');
+  }, 3000);
+}
+
   // Bindeamos los eventos de UI
   bindNavigation();
   bindDrawerControls();
   bindNotifications();
-}
+//}
 
 /* ----------------------------------------------------------------
    4. RENDER: Header + Saludo
@@ -314,27 +494,68 @@ function inscribirseEvento(id) {
 function renderNewsFilters() {
   const cont = $('#newsFilters');
   const cats = state.novedades?.categorias || [];
+  const carreras = state.carreras?.carreras || [];
+  const materias = state.materias?.materias || [];
 
-  // El "Todas" ya está hardcodeado, agregamos el resto dinámicamente
-  cats.forEach(c => {
-    const chip = document.createElement('button');
-    chip.className = 'chip';
-    chip.dataset.filter = c.id;
-    chip.textContent = c.nombre;
+  // Crear estructura de filtros avanzados
+  cont.innerHTML = `
+    <div class="filter-row">
+      <div class="filter-group">
+        <label class="filter-label">Categoría:</label>
+        <div class="filter-chips">
+          <button class="chip chip--active" data-filter="todas">Todas</button>
+          ${cats.map(c => `<button class="chip" data-filter="${c.id}">${c.nombre}</button>`).join('')}
+        </div>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Carrera:</label>
+        <select id="filterCarrera" class="filter-select">
+          <option value="todas">Todas las carreras</option>
+          ${carreras.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Materia:</label>
+        <select id="filterMateria" class="filter-select">
+          <option value="todas">Todas las materias</option>
+          ${materias.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('')}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Fecha:</label>
+        <select id="filterFecha" class="filter-select">
+          <option value="todas">Todas las fechas</option>
+          <option value="hoy">Hoy</option>
+          <option value="semana">Esta semana</option>
+          <option value="mes">Este mes</option>
+        </select>
+      </div>
+    </div>
+  `;
+
+  // Bind eventos para chips de categoría
+  cont.querySelectorAll('[data-filter]').forEach(chip => {
     chip.addEventListener('click', () => {
-      state.filtroNovedad = String(c.id);
-      $$('.chip', cont).forEach(x => x.classList.remove('chip--active'));
+      cont.querySelectorAll('[data-filter]').forEach(x => x.classList.remove('chip--active'));
       chip.classList.add('chip--active');
+      state.filtroNovedad = chip.dataset.filter;
       renderNewsList();
     });
-    cont.appendChild(chip);
   });
 
-  // Bindeamos el chip "Todas"
-  $('[data-filter="todas"]').addEventListener('click', (e) => {
-    state.filtroNovedad = 'todas';
-    $$('.chip', cont).forEach(x => x.classList.remove('chip--active'));
-    e.currentTarget.classList.add('chip--active');
+  // Bind eventos para selects
+  $('#filterCarrera').addEventListener('change', (e) => {
+    state.filtroCarrera = e.target.value;
+    renderNewsList();
+  });
+
+  $('#filterMateria').addEventListener('change', (e) => {
+    state.filtroMateria = e.target.value;
+    renderNewsList();
+  });
+
+  $('#filterFecha').addEventListener('change', (e) => {
+    state.filtroFecha = e.target.value;
     renderNewsList();
   });
 }
@@ -344,10 +565,40 @@ function renderNewsList() {
   const novedades = state.novedades?.novedades || [];
   const categorias = state.novedades?.categorias || [];
 
-  // Filtrado
+  // Filtrado por categoría
   let lista = [...novedades];
   if (state.filtroNovedad !== 'todas') {
     lista = lista.filter(n => String(n.categoria_id) === state.filtroNovedad);
+  }
+
+  // Filtrado por carrera
+  if (state.filtroCarrera !== 'todas') {
+    lista = lista.filter(n => n.carrera_id === null || String(n.carrera_id) === state.filtroCarrera);
+  }
+
+  // Filtrado por materia
+  if (state.filtroMateria !== 'todas') {
+    lista = lista.filter(n => n.materia_id === null || String(n.materia_id) === state.filtroMateria);
+  }
+
+  // Filtrado por fecha
+  if (state.filtroFecha !== 'todas') {
+    const now = new Date();
+    lista = lista.filter(n => {
+      const fechaNoticia = new Date(n.fecha);
+      switch (state.filtroFecha) {
+        case 'hoy':
+          return fechaNoticia.toDateString() === now.toDateString();
+        case 'semana':
+          const semanaAtras = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          return fechaNoticia >= semanaAtras;
+        case 'mes':
+          const mesAtras = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+          return fechaNoticia >= mesAtras;
+        default:
+          return true;
+      }
+    });
   }
 
   // Ordenar por destacada + fecha
@@ -359,7 +610,7 @@ function renderNewsList() {
   if (!lista.length) {
     cont.innerHTML = `
       <div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">
-        No hay novedades en esta categoría todavía.
+        No hay novedades que coincidan con los filtros seleccionados.
       </div>
     `;
     return;
