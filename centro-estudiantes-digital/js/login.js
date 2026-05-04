@@ -37,8 +37,8 @@ function getRoleDashboard(rol) {
   const roleMap = {
     estudiante: 'alumnos.html',
     alumno: 'alumnos.html',
-    docente: 'docentes.html',
-    delegado: 'alumnos.html',
+    docente: 'admin.html',
+    delegado: 'admin.html',
     admin: 'admin.html',
     administrador: 'admin.html',
   };
