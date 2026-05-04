@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "nombre": "estudiante",
+    "descripcion": "Alumno regular del instituto"
+  },
+  {
+    "id": 2,
+    "nombre": "docente",
+    "descripcion": "Profesor o ayudante de cátedra"
+  },
+  {
+    "id": 3,
+    "nombre": "delegado",
+    "descripcion": "Representante estudiantil del centro de estudiantes"
+  },
+  {
+    "id": 4,
+    "nombre": "administrador",
+    "descripcion": "Administrador del sistema con acceso total"
+  }
+]
