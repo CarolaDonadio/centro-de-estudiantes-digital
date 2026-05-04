@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "codigo": "TSP",
+    "nombre": "Tecnicatura Superior en Programación"
+  },
+  {
+    "id": 2,
+    "codigo": "TSE",
+    "nombre": "Tecnicatura Superior en Enfermería"
+  },
+  {
+    "id": 3,
+    "codigo": "PEI",
+    "nombre": "Profesorado de Educación Inicial"
+  },
+  {
+    "id": 4,
+    "codigo": "PEP",
+    "nombre": "Profesorado de Educación Primaria"
+  },
+  {
+    "id": 5,
+    "codigo": "PES",
+    "nombre": "Profesorado de Educación Secundaria en Matemática"
+  }
+]
