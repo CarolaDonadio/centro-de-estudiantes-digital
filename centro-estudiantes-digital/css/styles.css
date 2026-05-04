@@ -997,7 +997,7 @@ ul {
 }
 
 /* -------- TARJETA: NOVEDADES -------- */
-.news-filters {
+/* .news-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -1137,6 +1137,46 @@ ul {
   color: var(--brand-500);
   margin-top: 6px;
   font-weight: 600;
+} */
+
+/* ===============================
+   NOVEDADES (USANDO TU SISTEMA)
+=============================== */
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.news-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.news-item:last-child {
+  border-bottom: none;
+}
+
+.news-item__meta {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.news-item__title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.news-item__content {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* reutiliza tus chips si ya existen */
+.news-filters {
+  display: flex;
+  gap: 6px;
 }
 
 /* ----------------------------------------------------------------
