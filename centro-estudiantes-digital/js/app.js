@@ -223,9 +223,9 @@ function renderEvents() {
     });
   });
 
-  // Click en el cuerpo de la tarjeta abre el drawer de eventos
+  // Click en el cuerpo de la tarjeta abre el drawer del Centro Estudiantil (gestiona eventos)
   $$('.event-card', cont).forEach(el => {
-    el.addEventListener('click', () => openDrawer('eventos'));
+    el.addEventListener('click', () => openDrawer('centro'));
   });
 }
 
@@ -302,10 +302,10 @@ function inscribirseEvento(id) {
   ev.inscriptos++;
   state.inscripciones.add(id);
 
-  // Refrescamos la home y, si está abierto, también el drawer de eventos
+  // Refrescamos la home y, si está abierto el drawer del centro, también lo actualizamos
   renderEvents();
-  if (state.drawerActivo === 'eventos') {
-    renderEventsList($('#drawerBody'));
+  if (state.drawerActivo === 'centro') {
+    renderCentro($('#drawerBody'));
   }
 }
 
@@ -919,16 +919,15 @@ function renderCalendar(body) {
   calHTML += `<button class="chip ${state.calendarioFiltro === 'todos' ? 'chip--active' : ''}" data-cal-filter="todos">Todos</button>`;
   tipos.forEach(t => {
     const isAct = state.calendarioFiltro === t.id ? 'chip--active' : '';
-    // Usar el color del tipo para el borde/texto del chip activo (se manejará en CSS o estilo inline)
-    const extraStyle = isAct ? \`background-color: \${softColor(t.color, 0.15)}; color: \${t.color}; border-color: \${t.color};\` : '';
-    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="\${extraStyle}">\${t.nombre}</button>`;
+    const extraStyle = isAct ? `background-color: ${softColor(t.color, 0.15)}; color: ${t.color}; border-color: ${t.color};` : '';
+    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="${extraStyle}">${t.nombre}</button>`;
   });
   calHTML += `</div>`;
 
   // Días de la semana
   calHTML += `<div class="calendar-grid"><div class="calendar-weekdays">`;
   diasSemana.forEach(d => {
-    calHTML += `<div class="calendar-weekday">\${d}</div>`;
+    calHTML += `<div class="calendar-weekday">${d}</div>`;
   });
   calHTML += `</div><div class="calendar-days">`;
 
@@ -947,7 +946,7 @@ function renderCalendar(body) {
     
     let dotsHTML = '<div class="calendar-day-events">';
     dayEvents.slice(0, 3).forEach(e => {
-      dotsHTML += `<span class="calendar-dot" style="background-color: \${e.color}" title="\${e.titulo}"></span>`;
+      dotsHTML += `<span class="calendar-dot" style="background-color: ${e.color}" title="${e.titulo}"></span>`;
     });
     if (dayEvents.length > 3) {
       dotsHTML += `<span class="calendar-dot calendar-dot--more" title="Más eventos"></span>`;
@@ -957,9 +956,9 @@ function renderCalendar(body) {
     const dayClass = isToday ? 'calendar-day calendar-day--today' : 'calendar-day';
     const hasEventsClass = dayEvents.length > 0 ? 'calendar-day--has-events' : '';
     calHTML += `
-      <div class="\${dayClass} \${hasEventsClass}">
-        <span class="calendar-day-num">\${d}</span>
-        \${dotsHTML}
+      <div class="${dayClass} ${hasEventsClass}">
+        <span class="calendar-day-num">${d}</span>
+        ${dotsHTML}
       </div>
     `;
   }
@@ -972,7 +971,7 @@ function renderCalendar(body) {
   });
 
   calHTML += `<div class="calendar-event-list">`;
-  calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de \${meses[month]}</p>`;
+  calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
   
   if (eventosDelMesFlat.length === 0) {
     calHTML += `<div class="notif-empty" style="margin-top:16px;">
@@ -986,14 +985,14 @@ function renderCalendar(body) {
     eventosDelMesFlat.forEach(e => {
       const [y, m, d] = e.fecha.split('-');
       calHTML += `
-        <div class="cal-list-item" style="--ev-color: \${e.color}">
+        <div class="cal-list-item" style="--ev-color: ${e.color}">
           <div class="cal-list-date">
-            <span class="cal-list-day">\${d}</span>
-            <span class="cal-list-month">\${meses[parseInt(m)-1].substring(0,3).toUpperCase()}</span>
+            <span class="cal-list-day">${d}</span>
+            <span class="cal-list-month">${meses[parseInt(m)-1].substring(0,3).toUpperCase()}</span>
           </div>
           <div class="cal-list-body">
-            <h4 class="cal-list-title">\${e.titulo}</h4>
-            <span class="cal-list-type" style="color: \${e.color}; background-color: \${softColor(e.color)}">\${tipos.find(t=>t.id===e.tipo)?.nombre || 'Evento'}</span>
+            <h4 class="cal-list-title">${e.titulo}</h4>
+            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t=>t.id===e.tipo)?.nombre || 'Evento'}</span>
           </div>
         </div>
       `;
