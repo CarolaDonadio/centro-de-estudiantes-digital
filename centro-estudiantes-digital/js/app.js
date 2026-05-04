@@ -407,7 +407,7 @@ function buildNormativaItem(doc) {
         <h3>${doc.titulo}</h3>
         <p>${doc.descripcion}</p>
       </div>
-      <a class="btn btn-secondary" href="${doc.archivo || '#'}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento ${doc.titulo}">VER DOCUMENTO</a>
+      <a class="btn btn-secondary" href="${doc.link || '#'}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento ${doc.titulo}">VER DOCUMENTO</a>
     </article>
   `;
 }
