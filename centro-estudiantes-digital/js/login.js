@@ -1,6 +1,13 @@
 const SESSION_STORAGE_KEY = 'cedSession';
 const API_USERS = 'json/usuarios.json';
 
+const PERFIL_MAP = {
+  1: 'estudiante',
+  2: 'docente',
+  3: 'delegado',
+  4: 'administrador'
+};
+
 async function loadMockUsers() {
   try {
     const res = await fetch(API_USERS);
@@ -134,12 +141,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    if (match.activo === false) {
+      showError('Tu cuenta está desactivada. Contactá al administrador.', errorMessage);
+      return;
+    }
+
     hideError(errorMessage);
 
+    const rol = PERFIL_MAP[match.perfil_id] || 'estudiante';
     const session = {
+      id: match.id,
       usuario: match.usuario,
       nombre: match.nombre,
-      rol: match.rol,
+      email: match.email,
+      rol: rol,
       loggedAt: new Date().toISOString(),
     };
     saveSession(session);
