@@ -311,6 +311,44 @@
       </article>
 
     </section>
+
+    <!-- === SECCIÓN DE REGLAMENTACIÓN Y NORMATIVAS === -->
+    <section id="reglamentacion" class="section section--reglamentacion" aria-labelledby="reglamentacionTitle">
+      <div class="section__header">
+        <span class="eyebrow">Normativas y Documentos</span>
+        <h2 class="section__title" id="reglamentacionTitle">Reglamentación institucional</h2>
+        <p class="section__intro">
+          Accedé a reglamentos, resoluciones y comunicaciones oficiales del instituto. También podés ir directamente al portal de normativa oficial para una búsqueda más completa.
+        </p>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Categorías de normativa">
+        <button type="button" class="chip chip--active" role="tab" aria-selected="true">Resoluciones</button>
+        <button type="button" class="chip" role="tab">Disposiciones</button>
+        <button type="button" class="chip" role="tab">Circulares</button>
+        <button type="button" class="chip" role="tab">Comunicaciones</button>
+      </div>
+
+      <div class="reglamentacion-search">
+        <label class="sr-only" for="reglamentacionSearch">Buscar normativas</label>
+        <input id="reglamentacionSearch" class="search-input" type="search" placeholder="Buscar normativas por palabra clave" autocomplete="off">
+
+        <div class="search-categories" role="group" aria-label="Filtrar por categoría">
+          <button type="button" class="chip chip--active" data-filter-category="todas">Todas</button>
+          <button type="button" class="chip" data-filter-category="centro de estudiantes">Centro de estudiantes</button>
+          <button type="button" class="chip" data-filter-category="tecnicatura">Tecnicatura</button>
+          <button type="button" class="chip" data-filter-category="profesorado">Profesorado</button>
+          <button type="button" class="chip" data-filter-category="institucional">Institucional</button>
+        </div>
+      </div>
+
+      <div class="doc-list" id="reglamentacionList"></div>
+
+      <div class="section__cta">
+        <p class="section__note">Si necesitás buscar más reglamentos oficiales, accedé al portal externo de normativa educativa.</p>
+        <a class="btn btn-primary" href="https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa" target="_blank" rel="noopener noreferrer">Ir al portal de normativa</a>
+      </div>
+    </section>
   </main>
 
   <!--

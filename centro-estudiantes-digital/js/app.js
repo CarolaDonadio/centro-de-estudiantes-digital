@@ -80,6 +80,8 @@ const state = {
   calendario: null,
   reglamentacion: null,
   filtroNovedad: 'todas',
+  reglamentacionQuery: '',
+  reglamentacionCategory: 'todas',
   calendarioMes: null,        // Date actual mostrada en el drawer
 
   // Set con los IDs de eventos a los que el usuario se inscribió.
@@ -121,11 +123,13 @@ async function init() {
   renderEvents();
   renderNewsFilters();
   renderNewsList();
+  renderReglamentacion();
 
   // Bindeamos los eventos de UI
   bindNavigation();
   bindDrawerControls();
   bindNotifications();
+  bindReglamentacionSearch();
 }
 
 /* ----------------------------------------------------------------
@@ -394,6 +398,77 @@ function renderNewsList() {
       </article>
     `;
   }).join('');
+}
+
+function buildNormativaItem(doc) {
+  return `
+    <article class="doc-item">
+      <div>
+        <h3>${doc.titulo}</h3>
+        <p>${doc.descripcion}</p>
+      </div>
+      <a class="btn btn-secondary" href="${doc.archivo || '#'}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento ${doc.titulo}">VER DOCUMENTO</a>
+    </article>
+  `;
+}
+
+function bindReglamentacionSearch() {
+  const searchInput = $('#reglamentacionSearch');
+  const categoryButtons = $$('.search-categories .chip');
+
+  if (!searchInput || !categoryButtons.length) return;
+
+  searchInput.addEventListener('input', (event) => {
+    state.reglamentacionQuery = event.target.value;
+    renderReglamentacion();
+  });
+
+  categoryButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.reglamentacionCategory = btn.dataset.filterCategory;
+      categoryButtons.forEach(x => x.classList.remove('chip--active'));
+      btn.classList.add('chip--active');
+      renderReglamentacion();
+    });
+  });
+}
+
+function getReglamentacionFiltered() {
+  const query = state.reglamentacionQuery.trim().toLowerCase();
+  const category = state.reglamentacionCategory;
+  const docs = state.reglamentacion?.documentos || [];
+
+  return docs.filter(doc => {
+    const categoryMatch = category === 'todas' || String(doc.categoria).toLowerCase() === category;
+    if (!categoryMatch) return false;
+
+    if (!query) return true;
+
+    const searchable = [
+      doc.titulo,
+      doc.descripcion,
+      ...(doc.palabras_clave || []),
+      doc.categoria || '',
+    ].join(' ').toLowerCase();
+    return searchable.includes(query);
+  });
+}
+
+function renderReglamentacion() {
+  const cont = $('#reglamentacionList');
+  if (!cont) return;
+
+  const lista = getReglamentacionFiltered();
+  if (!lista.length) {
+    cont.innerHTML = `
+      <div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">
+        No se encontraron normativas con esos filtros.
+      </div>
+    `;
+    return;
+  }
+
+  cont.innerHTML = lista.map(buildNormativaItem).join('');
 }
 
 function bindDrawerControls() {

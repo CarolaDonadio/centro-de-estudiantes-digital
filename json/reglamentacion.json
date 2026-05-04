@@ -1,0 +1,184 @@
+{
+  "documentos": [
+    {
+      "id": 1,
+      "titulo": "Reglamento Académico Institucional",
+      "descripcion": "Normativa general sobre cursadas, correlatividades y régimen de exámenes.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/reglamento_academico_2026.pdf",
+      "palabras_clave": ["cursada", "exámenes", "correlatividades", "regularidad"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2026-03-01",
+      "version": "v3.2"
+    },
+    {
+      "id": 2,
+      "titulo": "Régimen de Asistencia y Promoción",
+      "descripcion": "Condiciones para mantener la regularidad y promoción directa de las materias.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/regimen_asistencia.pdf",
+      "palabras_clave": ["asistencia", "promoción", "regularidad", "faltas"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2026-02-15",
+      "version": "v2.0"
+    },
+    {
+      "id": 3,
+      "titulo": "Reglamento del Centro de Estudiantes",
+      "descripcion": "Estatuto interno del CE, elecciones y funciones de los representantes.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/reglamento_ce.pdf",
+      "palabras_clave": ["centro", "estudiantes", "delegados", "elecciones"],
+      "categoria": "centro de estudiantes",
+      "fecha_publicacion": "2025-11-20",
+      "version": "v1.5"
+    },
+    {
+      "id": 4,
+      "titulo": "Código de Convivencia",
+      "descripcion": "Normas de convivencia dentro del establecimiento y procedimientos disciplinarios.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/codigo_convivencia.pdf",
+      "palabras_clave": ["convivencia", "disciplina", "derechos", "obligaciones"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2025-08-10",
+      "version": "v4.1"
+    },
+    {
+      "id": 5,
+      "titulo": "Plan de Estudios - Ciencias de Datos e IA",
+      "descripcion": "Estructura curricular completa, materias, cargas horarias y correlatividades.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/plan_estudios_cd_ia.pdf",
+      "palabras_clave": ["plan", "estudios", "ciencias", "datos", "IA", "correlatividades"],
+      "categoria": "tecnicatura",
+      "fecha_publicacion": "2024-03-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 6,
+      "titulo": "Búsqueda de Reglamentos en Portal Educativo",
+      "descripcion": "Acceso directo al portal oficial para búsqueda avanzada de normativa educativa.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa",
+      "palabras_clave": ["búsqueda", "portal", "externo", "normativa"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2026-05-04",
+      "version": "N/A"
+    },
+    {
+      "id": 7,
+      "titulo": "Resolución 5886-03 - Criterios para acceder a la cobertura de cátedras",
+      "descripcion": "Define los criterios para la cobertura de cátedras en institutos de educación superior.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-5886-03.pdf",
+      "palabras_clave": ["cátedras", "cobertura", "criterios", "institutos"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2003-12-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 8,
+      "titulo": "Resolución 3121-04 - Condiciones para la figura de ayudante de cátedra y las formas de acreditación",
+      "descripcion": "Regula los requisitos de acreditación para ayudantes de cátedra.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-3121-04.pdf",
+      "palabras_clave": ["ayudante de cátedra", "acreditación", "profesorado"],
+      "categoria": "profesorado",
+      "fecha_publicacion": "2004-06-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 9,
+      "titulo": "Resolución 4900-05 - Estatuto para Centros de estudiantes",
+      "descripcion": "Aprueba el estatuto y las normas de funcionamiento de los centros de estudiantes.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-4900-05.pdf",
+      "palabras_clave": ["centros de estudiantes", "estatuto", "funcionamiento"],
+      "categoria": "centro de estudiantes",
+      "fecha_publicacion": "2005-09-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 10,
+      "titulo": "Resolución 2947-05 - Pautas de Funcionamiento de las Unidades Académicas",
+      "descripcion": "Establece pautas de funcionamiento para las unidades académicas de la Subsecretaría de Educación.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-2947-05.pdf",
+      "palabras_clave": ["unidades académicas", "funcionamiento", "Subsecretaría de Educación"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2005-11-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 11,
+      "titulo": "Resolución 2383-05 - Institutos de Educación Superior",
+      "descripcion": "Normativa sobre el funcionamiento y organización de los institutos de educación superior.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-2383-05.pdf",
+      "palabras_clave": ["institutos", "educación superior", "organización"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2005-08-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 12,
+      "titulo": "Resolución 4042-09 - Consejo Provincial de Educación Superior",
+      "descripcion": "Aprueba la creación y las funciones del Consejo Provincial de Educación Superior.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-4042-09.pdf",
+      "palabras_clave": ["Consejo Provincial", "educación superior", "gobierno"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2009-05-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 13,
+      "titulo": "Resolución 4043-09 - Se legisla el Reglamento Académico Marco",
+      "descripcion": "Aprueba el Reglamento Académico Marco para institutos de educación superior.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-4043-09.pdf",
+      "palabras_clave": ["Reglamento Académico Marco", "institutos", "normativa"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2009-05-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 14,
+      "titulo": "Resolución 4044-09 - Consejo Académico Institucional (CAI)",
+      "descripcion": "Establece la conformación y funciones del Consejo Académico Institucional.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-4044-09.pdf",
+      "palabras_clave": ["CAI", "Consejo Académico", "institucional"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2009-05-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 15,
+      "titulo": "Resolución 1504-11 - Criterios para la imposición de nombres de los institutos",
+      "descripcion": "Define los criterios para la imposición de nombres a los institutos educativos.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-1504-11.pdf",
+      "palabras_clave": ["nombres", "institutos", "criterios"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2011-04-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 16,
+      "titulo": "Resolución 1639-17 - Modificaciones a las equivalencias de la 4043",
+      "descripcion": "Introduce modificaciones a las equivalencias establecidas por la Resolución 4043-09.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-1639-17.pdf",
+      "palabras_clave": ["equivalencias", "4043", "profesorado"],
+      "categoria": "profesorado",
+      "fecha_publicacion": "2017-08-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 17,
+      "titulo": "Resolución Conjunta 1161-20 - Modificación Anexo 1 Resolución 5886-03",
+      "descripcion": "Modifica el Anexo 1 de la 5886-03 sobre selección por evaluación de títulos, antecedentes y oposición.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-conjunta-1161-20.pdf",
+      "palabras_clave": ["selección", "evaluación", "títulos", "antecedentes", "oposición"],
+      "categoria": "profesorado",
+      "fecha_publicacion": "2020-06-01",
+      "version": "v1.0"
+    },
+    {
+      "id": 18,
+      "titulo": "Resolución Conjunta 1872-20 - Currículum Prioritario y pautas de evaluación",
+      "descripcion": "Aprueba el documento Currículum Prioritario y pautas de evaluación, acreditación y promoción para todos los niveles educativos.",
+      "archivo": "https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa/resolucion-conjunta-1872-20.pdf",
+      "palabras_clave": ["Currículum Prioritario", "evaluación", "acreditación", "promoción"],
+      "categoria": "institucional",
+      "fecha_publicacion": "2020-09-01",
+      "version": "v1.0"
+    }
+  ]
+}
