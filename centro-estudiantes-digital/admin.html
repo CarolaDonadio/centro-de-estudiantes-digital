@@ -969,19 +969,52 @@
       console.warn('[Admin] No se pudo cargar usuarios.json:', err);
     }
 
+    // Cargar carreras desde carreras.json
+    let carreras = [];
+    try {
+      const res = await fetch('json/carreras.json');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      carreras = await res.json();
+    } catch (err) {
+      console.warn('[Admin] No se pudo cargar carreras.json:', err);
+    }
+
+    // Mapeo de perfil_id a rol
+    const PERFIL_MAP = { 1: 'alumno', 2: 'docente', 3: 'delegado', 4: 'admin' };
+
+    // Helper: genera <option> de carreras
+    function carreraOptions(selectedId) {
+      return `<option value="">— Sin asignar —</option>` +
+        carreras.map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${c.codigo} – ${c.nombre}</option>`).join('');
+    }
+
     // Mapear datos del JSON al formato interno
-    const usuarios = usuariosJSON.map((u, idx) => {
-      const rolMap = { estudiante: 'alumno', administrador: 'admin' };
-      const rolNorm = rolMap[u.rol] || u.rol;
-      return {
-        id: idx + 1,
-        nombre: u.nombre,
-        usuario: u.usuario,
-        rol: rolNorm,
-        activo: true,
-        ultimoLogin: '—'
-      };
-    });
+    const usuarios = usuariosJSON.map(u => ({
+      id: u.id,
+      nombre: u.nombre,
+      usuario: u.usuario,
+      email: u.email,
+      dni: u.dni,
+      rol: PERFIL_MAP[u.perfil_id] || 'alumno',
+      perfil_id: u.perfil_id,
+      carrera_id: u.carrera_id,
+      activo: u.activo,
+      created_at: u.created_at
+    }));
+
+    // Enriquecer admin con datos completos del JSON
+    const adminFullData = usuarios.find(u => u.usuario === admin.usuario);
+    if (adminFullData) {
+      admin.email = adminFullData.email || '';
+      admin.dni = adminFullData.dni || '';
+      admin.carrera_id = adminFullData.carrera_id;
+    }
+
+    // Helper: nombre de carrera por id
+    function getCarreraNombre(id) {
+      const c = carreras.find(x => x.id === id);
+      return c ? `${c.codigo} – ${c.nombre}` : '—';
+    }
 
     // Actualizar header con datos del usuario logueado
     const userAvatarEl = document.getElementById('userAvatar');
@@ -1044,6 +1077,7 @@
       `;
       // Hooks por sección
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
+      if (key === 'perfil') bindPerfilSection();
       // Active state en el menú
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
       const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
@@ -1062,7 +1096,7 @@
        ============================================================ */
     const sectionContent = {
 
-      // --- Mi Perfil del Admin ---
+      // --- Mi Perfil ---
       perfil: () => ({
         title: 'Mi Perfil',
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round"/></svg>',
@@ -1072,10 +1106,43 @@
             <h3 style="margin:0;font:700 1.3rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${admin.nombre}</h3>
             <p style="margin:0;color:#6c6f80;font:500 .85rem 'Manrope',sans-serif">${admin.usuario}</p>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.5rem">
             ${profileItem('Usuario', admin.usuario)}
             ${profileItem('Rol', admin.rol)}
+            ${profileItem('Email', admin.email || '—')}
+            ${profileItem('Carrera', admin.carrera_id ? getCarreraNombre(admin.carrera_id) : '—')}
           </div>
+          <h4 style="margin:0 0 .8rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar mis datos</h4>
+          <form id="profileEditForm" class="admin-form" style="max-width:480px">
+            <div class="admin-form__row">
+              <label>Nombre completo
+                <input type="text" name="nombre" required value="${admin.nombre}">
+              </label>
+              <label>Email
+                <input type="email" name="email" required value="${admin.email || ''}">
+              </label>
+            </div>
+            <button type="submit" class="admin-form__submit" style="margin-top:.8rem">
+              <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Guardar cambios
+            </button>
+          </form>
+          <hr style="margin:1.5rem 0;border:none;border-top:1px solid rgba(143,163,227,.25)">
+          <h4 style="margin:0 0 .8rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Cambiar contraseña</h4>
+          <form id="profilePasswordForm" class="admin-form" style="max-width:480px">
+            <div class="admin-form__row">
+              <label>Contraseña actual
+                <input type="password" name="currentPassword" required placeholder="Tu contraseña actual">
+              </label>
+              <label>Nueva contraseña
+                <input type="password" name="newPassword" required placeholder="Nueva contraseña" minlength="4">
+              </label>
+            </div>
+            <button type="submit" class="admin-form__submit" style="margin-top:.8rem">
+              <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke-linecap="round"/></svg>
+              Cambiar contraseña
+            </button>
+          </form>
         `
       }),
 
@@ -1116,8 +1183,16 @@
                 <label>Nombre completo
                   <input type="text" name="nombre" required placeholder="Ej: María González">
                 </label>
+                <label>DNI
+                  <input type="text" name="dni" required placeholder="Ej: 40123456" pattern="[0-9]{7,8}" title="7 u 8 dígitos numéricos">
+                </label>
+              </div>
+              <div class="admin-form__row">
                 <label>Usuario
                   <input type="text" name="usuario" required placeholder="Ej: maria123" pattern="[a-z0-9]+" title="Solo minúsculas y números">
+                </label>
+                <label>Email
+                  <input type="email" name="email" required placeholder="Ej: maria@isfdyt57.edu.ar">
                 </label>
               </div>
               <div class="admin-form__row">
@@ -1130,6 +1205,13 @@
                     <option value="docente">Docente</option>
                     <option value="delegado">Delegado</option>
                     <option value="admin">Administrador</option>
+                  </select>
+                </label>
+              </div>
+              <div class="admin-form__row">
+                <label>Carrera
+                  <select name="carrera_id">
+                    ${carreraOptions(null)}
                   </select>
                 </label>
               </div>
@@ -1165,8 +1247,63 @@
     }
 
     /* ============================================================
-       6) HOOKS POR DRAWER
+       6) HOOKS POR SECCIÓN
        ============================================================ */
+
+    // --- Perfil ---
+    function bindPerfilSection() {
+      const form = document.getElementById('profileEditForm');
+      if (!form) return;
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(form);
+        const nuevoNombre = data.get('nombre').trim();
+        const nuevoEmail = data.get('email').trim();
+        if (!nuevoNombre || !nuevoEmail) return;
+
+        admin.nombre = nuevoNombre;
+        admin.email = nuevoEmail;
+        admin.iniciales = nuevoNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+
+        // Actualizar sesión en localStorage
+        const session = JSON.parse(localStorage.getItem('cedSession')) || {};
+        session.nombre = admin.nombre;
+        session.email = admin.email;
+        localStorage.setItem('cedSession', JSON.stringify(session));
+
+        // Actualizar header
+        const userAvatarEl = document.getElementById('userAvatar');
+        const userNameEl = document.getElementById('userName');
+        if (userAvatarEl) userAvatarEl.textContent = admin.iniciales;
+        if (userNameEl) userNameEl.textContent = admin.nombre;
+
+        showToast('Perfil actualizado', 'Tu nombre y email fueron guardados.');
+        navigateTo('perfil');
+      });
+
+      // Cambio de contraseña
+      const passForm = document.getElementById('profilePasswordForm');
+      if (!passForm) return;
+      passForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(passForm);
+        const currentPass = data.get('currentPassword');
+        const newPass = data.get('newPassword');
+
+        // Verificar contraseña actual contra usuarios.json cargado
+        const userRecord = usuariosJSON.find(u => u.usuario === admin.usuario);
+        if (userRecord && userRecord.password !== currentPass) {
+          showToast('Error', 'La contraseña actual es incorrecta.', '#E67E5B');
+          return;
+        }
+
+        // Actualizar en memoria
+        if (userRecord) userRecord.password = newPass;
+
+        showToast('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente.');
+        passForm.reset();
+      });
+    }
 
     // --- Usuarios ---
     function bindUsuariosDrawer(quick) {
@@ -1205,7 +1342,7 @@
               <div class="user-row__avatar" data-rol="${u.rol}">${ini}</div>
               <div>
                 <p class="user-row__name">${u.nombre}</p>
-                <p class="user-row__meta">@${u.usuario} · ${u.rol} · ${u.ultimoLogin}</p>
+                <p class="user-row__meta">@${u.usuario} · ${u.rol} · ${u.email || ''}</p>
               </div>
               <span class="user-row__rol" data-rol="${u.rol}">${u.rol}</span>
               <div class="user-row__menu" data-menu>
@@ -1236,11 +1373,13 @@
         const nuevo = {
           id: Date.now(),
           nombre: data.get('nombre'),
-          usuario: data.get('usuario') || data.get('nombre').toLowerCase().split(' ')[0],
-          password: data.get('password'),
+          dni: data.get('dni'),
+          usuario: data.get('usuario'),
+          email: data.get('email'),
           rol: data.get('rol'),
+          carrera_id: data.get('carrera_id') ? +data.get('carrera_id') : null,
           activo: true,
-          ultimoLogin: 'nunca'
+          created_at: new Date().toISOString()
         };
         usuarios.push(nuevo);
         auditar('crear', 'usuario', `Alta de cuenta: ${nuevo.nombre} (${nuevo.rol})`);
@@ -1315,8 +1454,16 @@
             <label>Nombre completo
               <input type="text" name="nombre" required value="${u.nombre}">
             </label>
+            <label>DNI
+              <input type="text" name="dni" required value="${u.dni || ''}" pattern="[0-9]{7,8}" title="7 u 8 dígitos numéricos">
+            </label>
+          </div>
+          <div class="admin-form__row">
             <label>Usuario
               <input type="text" name="usuario" required value="${u.usuario}" pattern="[a-z0-9]+" title="Solo minúsculas y números">
+            </label>
+            <label>Email
+              <input type="email" name="email" required value="${u.email || ''}">
             </label>
           </div>
           <div class="admin-form__row">
@@ -1329,6 +1476,13 @@
                 <option value="docente" ${u.rol === 'docente' ? 'selected' : ''}>Docente</option>
                 <option value="delegado" ${u.rol === 'delegado' ? 'selected' : ''}>Delegado</option>
                 <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option>
+              </select>
+            </label>
+          </div>
+          <div class="admin-form__row">
+            <label>Carrera
+              <select name="carrera_id">
+                ${carreraOptions(u.carrera_id)}
               </select>
             </label>
           </div>
@@ -1345,8 +1499,11 @@
         e.preventDefault();
         const data = new FormData(e.target);
         u.nombre = data.get('nombre');
+        u.dni = data.get('dni');
         u.usuario = data.get('usuario');
+        u.email = data.get('email');
         u.rol = data.get('rol');
+        u.carrera_id = data.get('carrera_id') ? +data.get('carrera_id') : null;
         auditar('editar', 'usuario', `Editado: ${u.nombre} (${u.rol})`);
         showToast('Usuario actualizado', `Los datos de ${u.nombre} fueron guardados.`);
         document.getElementById('userSearch').dispatchEvent(new Event('input'));
