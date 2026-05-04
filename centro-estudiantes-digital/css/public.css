@@ -10,27 +10,27 @@
       coherencia visual entre la landing pública y el portal interno.
 ---------------------------------------------------------------- */
 :root {
-  --brand-900: #0F1419;
-  --brand-700: #1a3a52;
-  --brand-500: #2563eb;
-  --brand-300: #60a5fa;
-  --brand-100: #dbeafe;
+  --brand-900: #1A1D4A;
+  --brand-700: #2C3E87;
+  --brand-500: #4A67C9;
+  --brand-300: #8FA3E3;
+  --brand-100: #E3E9FA;
 
-  --accent-amber: #0ea5e9;
-  --accent-coral: #06b6d4;
-  --accent-violet: #3b82f6;
+  --accent-amber: #F5A623;
+  --accent-coral: #E67E5B;
+  --accent-violet: #8B5CF6;
   --accent-green: #3DAA6A;
 
-  --bg: #f0f4f8;
+  --bg: #F5F5FB;
   --bg-elevated: #FFFFFF;
-  --bg-soft: #f8fafc;
+  --bg-soft: #FAFAFE;
   --surface-tint: rgba(255, 255, 255, 0.72);
-  --border: rgba(15, 20, 25, 0.08);
-  --border-strong: rgba(15, 20, 25, 0.14);
+  --border: rgba(26, 29, 74, 0.08);
+  --border-strong: rgba(26, 29, 74, 0.14);
 
-  --text: #0f172a;
-  --text-soft: #334155;
-  --text-muted: #64748b;
+  --text: #14163A;
+  --text-soft: #4F5372;
+  --text-muted: #9095B0;
 
   --r-sm: 10px;
   --r-md: 16px;
@@ -38,10 +38,10 @@
   --r-xl: 28px;
   --r-full: 999px;
 
-  --sh-sm: 0 2px 8px rgba(15, 20, 25, 0.06), 0 1px 2px rgba(15, 20, 25, 0.04);
-  --sh-md: 0 8px 24px rgba(15, 20, 25, 0.08), 0 2px 6px rgba(15, 20, 25, 0.04);
-  --sh-lg: 0 24px 48px rgba(15, 20, 25, 0.14), 0 4px 12px rgba(15, 20, 25, 0.06);
-  --sh-brand: 0 12px 32px rgba(37, 99, 235, 0.28);
+  --sh-sm: 0 2px 8px rgba(26, 29, 74, 0.06), 0 1px 2px rgba(26, 29, 74, 0.04);
+  --sh-md: 0 8px 24px rgba(26, 29, 74, 0.08), 0 2px 6px rgba(26, 29, 74, 0.04);
+  --sh-lg: 0 24px 48px rgba(26, 29, 74, 0.14), 0 4px 12px rgba(26, 29, 74, 0.06);
+  --sh-brand: 0 12px 32px rgba(74, 103, 201, 0.28);
 
   --font-display: "Bricolage Grotesque", "Fraunces", Georgia, serif;
   --font-body: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -62,9 +62,9 @@ body {
   color: var(--text);
   background: var(--bg);
   background-image:
-    radial-gradient(circle at 8% 12%, rgba(96, 165, 250, 0.18) 0%, transparent 38%),
-    radial-gradient(circle at 92% 88%, rgba(14, 165, 233, 0.08) 0%, transparent 42%),
-    linear-gradient(180deg, #f0f4f8 0%, #e8eef5 100%);
+    radial-gradient(circle at 8% 12%, rgba(143, 163, 227, 0.22) 0%, transparent 38%),
+    radial-gradient(circle at 92% 88%, rgba(245, 166, 35, 0.10) 0%, transparent 42%),
+    linear-gradient(180deg, #F5F5FB 0%, #ECEEF8 100%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   line-height: 1.55;
@@ -336,8 +336,8 @@ img { max-width: 100%; height: auto; }
   gap: 8px;
   padding: 6px 12px;
   border-radius: var(--r-full);
-  background: rgba(14, 165, 233, 0.14);
-  color: #0369a1;
+  background: rgba(245, 166, 35, 0.14);
+  color: #B47008;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.2px;
@@ -351,7 +351,7 @@ img { max-width: 100%; height: auto; }
   height: 8px;
   border-radius: 50%;
   background: var(--accent-amber);
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+  box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.2);
 }
 
 .hero__title {
@@ -706,8 +706,8 @@ img { max-width: 100%; height: auto; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 15% 20%, rgba(14,165,233,0.18), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(96,165,250,0.18), transparent 40%);
+    radial-gradient(circle at 15% 20%, rgba(245,166,35,0.18), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(143,163,227,0.18), transparent 40%);
   pointer-events: none;
 }
 
@@ -735,13 +735,13 @@ img { max-width: 100%; height: auto; }
 
 .final-cta .btn-primary {
   background: var(--accent-amber);
-  color: #fff;
-  box-shadow: 0 12px 24px rgba(14, 165, 233, 0.4);
+  color: var(--brand-900);
+  box-shadow: 0 12px 24px rgba(245, 166, 35, 0.4);
 }
 
 .final-cta .btn-primary:hover {
-  background: #00d9ff;
-  box-shadow: 0 16px 32px rgba(14, 165, 233, 0.5);
+  background: #FFB845;
+  box-shadow: 0 16px 32px rgba(245, 166, 35, 0.5);
 }
 
 /* ----------------------------------------------------------------

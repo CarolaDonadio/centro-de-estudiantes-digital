@@ -15,7 +15,7 @@ centro-estudiantes-digital/
 │   └── styles.css          # Estilos responsivos + animaciones (Sprint 2)
 ├── js/
 │   └── app.js              # Lógica: fetch JSON, drawer, calendario, filtros (Sprint 3-5)
-├── json/                   # API Mock — estos JSON se consumen por fetch()
+├── data/                   # API Mock — estos JSON se consumen por fetch()
 │   ├── usuario.json        # Datos del estudiante logueado
 │   ├── novedades.json      # Feed con categorías (Módulo 2)
 │   ├── eventos.json        # Eventos CE con cupos (Módulo 5)
@@ -194,7 +194,7 @@ refactor: extraer helpers de fecha a módulo utils
 
 ---
 
-## 👤 Usuario de prueba actual (hardcodeado en `json/usuario.json`)
+## 👤 Usuario de prueba actual (hardcodeado en `data/usuario.json`)
 
 ```
 Nombre:    Santiago Chiale

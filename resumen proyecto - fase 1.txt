@@ -30,7 +30,7 @@ centro-estudiantes-digital/
 ├── js/
 │   ├── login.js             ← Autenticación + manejo del modal
 │   └── app.js               ← Lógica del dashboard
-├── json/                    ← API Mock
+├── data/                    ← API Mock
 │   ├── usuarios.json        ← Credenciales de los 4 perfiles
 │   ├── usuario.json         ← Datos del estudiante logueado
 │   ├── novedades.json       ← Feed con categorías
@@ -69,7 +69,7 @@ Auto-focus en el input de usuario al abrir.
 
 Lógica de autenticación (login.js):
 
-fetch('json/usuarios.json') con manejo de errores.
+fetch('data/usuarios.json') con manejo de errores.
 Validación cliente: campos vacíos.
 Estado de carga: botón deshabilitado con texto "Verificando...".
 Si falla: banner coral con animación shake (0.4s).
@@ -193,7 +193,7 @@ Roadmap de la Fase 2 sprint por sprint.
 
 🔜 Roadmap pendiente (Fase 2)
 SprintTarea1Setup CodeIgniter 4 + PHP 8.x, migraciones, seeders2Autenticación y roles con CI4 Shield3CRUD de novedades con API REST4Gestión de eventos e inscripciones server-side5Calendario conectado a BD + reportes6Hardening (CSRF, SQL Injection) + PHPUnit
-Cuando llegue el momento del backend, reemplazás los fetch('json/*.json') por endpoints REST tipo fetch('/api/eventos'), ajustás el js/login.js para que haga POST /api/auth/login con CI4 Shield, y el resto del frontend queda intacto.
+Cuando llegue el momento del backend, reemplazás los fetch('data/*.json') por endpoints REST tipo fetch('/api/eventos'), ajustás el js/login.js para que haga POST /api/auth/login con CI4 Shield, y el resto del frontend queda intacto.
 
 ✅ Estado actual
 100% Frontend funcional con los 5 módulos obligatorios implementados, autenticación mock con 4 perfiles, navegación completa entre las tres páginas (centro.html → modal login → index.html), y diseño coherente entre la landing pública y el portal interno. Listo para subir a la rama master en GitHub.

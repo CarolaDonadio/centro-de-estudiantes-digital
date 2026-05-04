@@ -1,0 +1,23 @@
+{
+  "id": 1,
+  "dni": "43987654",
+  "nombre": "Santiago Chiale",
+  "email": "santiago.chiale@isfdyt57.edu.ar",
+  "perfil_id": 1,
+  "perfil": "Alumno",
+  "carrera_id": 3,
+  "carrera": "Ciencias de Datos e IA",
+  "avatar": "SC",
+  "activo": true,
+  "materias_cursadas": 5,
+  "materias_totales": 30,
+  "legajo": "2024-0342",
+  "cohorte": 2024,
+  "proximas_fechas": [
+    { "fecha": "20/07/2026", "materia": "Lógica Computacional", "tipo": "Examen Final" },
+    { "fecha": "28/07/2026", "materia": "Estadística Aplicada", "tipo": "Primer Parcial" }
+  ],
+  "notificaciones_sin_leer": 3,
+  "clases_hoy": 3,
+  "eventos_semana": 2
+}
