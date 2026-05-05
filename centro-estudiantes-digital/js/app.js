@@ -420,6 +420,7 @@ function openDrawer(type) {
     inscripciones:  { title: 'Mis Inscripciones',   icon: iconInscript,  render: renderInscripciones },
     carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
     centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
+    novedades:      { title: 'Novedades',           icon: iconNews,      render: renderNovedades     },
   };
 
   const cfg = config[type];
@@ -496,6 +497,12 @@ const iconLogout = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
     <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
     <path d="M10 17l5-5-5-5M15 12H3" stroke-linecap="round"/>
+  </svg>`;
+
+const iconNews = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <path d="M4 6h16M4 10h16M4 14h8M4 18h8"/>
+    <circle cx="18" cy="18" r="2"/>
   </svg>`;
 
 /* ----------------------------------------------------------------
@@ -847,6 +854,83 @@ function renderCentro(body) {
       </a>
     </div>
   `;
+}
+
+function renderNovedades(body) {
+  const novedades = state.novedades?.novedades || [];
+  const categorias = state.novedades?.categorias || [];
+
+  // Filtros por categoría
+  const filtrosHTML = `
+    <div class="drawer__filters">
+      <button class="chip chip--active" data-filter="todas">Todas</button>
+      ${categorias.map(c => `<button class="chip" data-filter="${c.id}">${c.nombre}</button>`).join('')}
+    </div>
+  `;
+
+  // Lista de novedades filtrada
+  let listaFiltrada = [...novedades];
+  const filtroActual = state.filtroNovedad || 'todas';
+  if (filtroActual !== 'todas') {
+    listaFiltrada = listaFiltrada.filter(n => String(n.categoria_id) === filtroActual);
+  }
+
+  // Ordenar: destacadas primero, luego por fecha
+  listaFiltrada.sort((a, b) => {
+    if (a.destacada !== b.destacada) return b.destacada - a.destacada;
+    return new Date(b.fecha) - new Date(a.fecha);
+  });
+
+  const listaHTML = listaFiltrada.length ? listaFiltrada.map(n => {
+    const cat = categorias.find(c => c.id === n.categoria_id) || { color: '#2563eb' };
+    const destacadaCls = n.destacada ? ' news-drawer-item--featured' : '';
+    const star = n.destacada ? '<span class="news-drawer-item__star">★</span>' : '';
+    const adjunto = n.adjunto ? `
+      <div class="news-drawer-item__attach">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 11l-9 9a5 5 0 0 1-7-7l10-10a3 3 0 0 1 4 4L9 17a1 1 0 0 1-2-2l8-8"/>
+        </svg>
+        ${n.adjunto}
+      </div>` : '';
+
+    return `
+      <article class="news-drawer-item${destacadaCls}" style="--news-color:${cat.color}">
+        <div class="news-drawer-item__header">
+          <span class="news-drawer-item__category" style="color:${cat.color}">${n.categoria}</span>
+          <span class="news-drawer-item__date">${timeAgo(n.fecha)}</span>
+          ${star}
+        </div>
+        <h3 class="news-drawer-item__title">${n.titulo}</h3>
+        <p class="news-drawer-item__content">${n.contenido}</p>
+        ${adjunto}
+      </article>
+    `;
+  }).join('') : `
+    <div class="news-drawer-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+        <path d="M10 21a2 2 0 0 0 4 0"/>
+      </svg>
+      <p>No hay novedades en esta categoría</p>
+    </div>
+  `;
+
+  body.innerHTML = `
+    ${filtrosHTML}
+    <div class="news-drawer-list">
+      ${listaHTML}
+    </div>
+  `;
+
+  // Bind de filtros
+  body.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      state.filtroNovedad = chip.dataset.filter;
+      body.querySelectorAll('.chip').forEach(c => c.classList.remove('chip--active'));
+      chip.classList.add('chip--active');
+      renderNovedades(body); // Re-render
+    });
+  });
 }
 
 function renderCalendar() {}
