@@ -732,6 +732,134 @@
       .audit-item { grid-template-columns: auto 1fr; }
       .audit-item__user { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
     }
+
+    /* ============================================================
+       ESTILOS PARA NOVEDADES
+       ============================================================ */
+    .novedad-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid rgba(143,163,227,.25);
+      border-radius: 10px;
+      margin-bottom: .5rem;
+      background: #fff;
+    }
+    .novedad-row__info { flex: 1; }
+    .novedad-row__titulo {
+      margin: 0 0 .25rem;
+      font: 600 .9rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .novedad-row__meta {
+      margin: 0;
+      font: 500 .75rem/1.3 'Manrope', sans-serif;
+      color: #6c6f80;
+    }
+    .novedad-row__menu {
+      position: relative;
+    }
+    .novedad-row__menu-btn {
+      padding: .5rem;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #6c6f80;
+      transition: background .2s;
+    }
+    .novedad-row__menu-btn:hover { background: rgba(143,163,227,.1); }
+    .novedad-row__menu-dropdown {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: #fff;
+      border: 1px solid rgba(143,163,227,.25);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px -4px rgba(0,0,0,.1);
+      z-index: 10;
+      min-width: 120px;
+      display: none;
+    }
+    .novedad-row__menu.is-open .novedad-row__menu-dropdown { display: block; }
+    .novedad-row__menu-dropdown button {
+      display: block;
+      width: 100%;
+      padding: .75rem 1rem;
+      background: none;
+      border: none;
+      text-align: left;
+      font: 500 .85rem 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      cursor: pointer;
+      border-radius: 0;
+    }
+    .novedad-row__menu-dropdown button:hover { background: rgba(143,163,227,.1); }
+
+    .categoria-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid rgba(143,163,227,.25);
+      border-radius: 10px;
+      margin-bottom: .5rem;
+      background: #fff;
+    }
+    .categoria-row__color {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+    .categoria-row__name {
+      margin: 0;
+      font: 600 .9rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .categoria-row__menu { /* similar a novedad-row__menu */ }
+
+    .admin-form__row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .admin-form__row label {
+      flex: 1;
+    }
+    .admin-form__row label input,
+    .admin-form__row label select {
+      width: 100%;
+    }
+    .admin-form textarea {
+      width: 100%;
+      padding: .65rem .8rem;
+      font: 500 .85rem 'Manrope', sans-serif;
+      border: 1px solid rgba(143,163,227,.45);
+      border-radius: 9px;
+      background: #fff;
+      resize: vertical;
+    }
+    .admin-form__submit {
+      padding: .75rem 1.5rem;
+      font: 600 .9rem 'Manrope', sans-serif;
+      color: #fff;
+      background: #3DAA6A;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      transition: transform .2s;
+    }
+    .admin-form__submit:hover { transform: translateY(-1px); }
+    .admin-form__submit svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+    }
   </style>
 </head>
 
@@ -952,6 +1080,7 @@
     const adminIniciales = adminNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
 
     const admin = {
+      id: 4,
       nombre: adminNombre,
       iniciales: adminIniciales,
       usuario: session.usuario || '',
@@ -982,6 +1111,18 @@
         ultimoLogin: '—'
       };
     });
+
+    // Cargar novedades y categorías
+    let novedades = [];
+    let categorias = [];
+    try {
+      const resp = await fetch('json/novedades.json');
+      const data = await resp.json();
+      novedades = data.novedades || [];
+      categorias = data.categorias || [];
+    } catch (e) {
+      console.error('Error loading novedades data', e);
+    }
 
     // Actualizar header con datos del usuario logueado
     const userAvatarEl = document.getElementById('userAvatar');
@@ -1044,6 +1185,7 @@
       `;
       // Hooks por sección
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
+      if (key === 'mod-novedades') bindNovedadesDrawer();
       // Active state en el menú
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
       const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
@@ -1150,6 +1292,12 @@
         icon: modulosData[key].icono,
         html: renderModuloListado(key)
       });
+    });
+
+    sectionContent['mod-novedades'] = () => ({
+      title: 'Novedades',
+      icon: modulosData['mod-novedades'].icono,
+      html: renderNovedadesAdmin()
     });
 
     function profileItem(label, value, highlight = false) {
@@ -1354,10 +1502,401 @@
     }
 
     /* ============================================================
-       7) CONFIRMACIÓN DESTRUCTIVA (con tipeo)
+       FUNCIONES PARA NOVEDADES
        ============================================================ */
-    const dangerModal = document.getElementById('dangerModal');
-    const dangerTitle = document.getElementById('dangerTitle');
+
+    function renderNovedadesAdmin() {
+      return `
+        <div class="drawer__tabs">
+          <button class="drawer__tab is-active" data-tab="lista">Lista (${novedades.length})</button>
+          <button class="drawer__tab" data-tab="nueva">+ Nueva novedad</button>
+          <button class="drawer__tab" data-tab="categorias">Categorías (${categorias.length})</button>
+        </div>
+
+        <div id="novedadesListPane">
+          <div style="display:flex;gap:.5rem;margin-bottom:.8rem">
+            <select id="filterCategoria" style="flex:1;padding:.65rem .8rem;font:500 .85rem 'Manrope',sans-serif;border:1px solid rgba(143,163,227,.45);border-radius:9px;background:#fff">
+              <option value="todos">Todas las categorías</option>
+              ${categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+            </select>
+          </div>
+          <div class="drawer__search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+            <input id="novedadesSearch" type="text" placeholder="Buscar por título o contenido…">
+          </div>
+          <div id="novedadesList"></div>
+        </div>
+
+        <div id="novedadesNewPane" hidden>
+          <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
+            Crea una nueva novedad para publicar en el sistema.
+          </p>
+          <form class="admin-form" id="newNovedadForm">
+            <div class="admin-form__row">
+              <label>Título
+                <input type="text" name="titulo" required placeholder="Título de la novedad">
+              </label>
+              <label>Categoría
+                <select name="categoria_id" required>
+                  ${categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+                </select>
+              </label>
+            </div>
+            <label>Contenido
+              <textarea name="contenido" required placeholder="Describe la novedad..." rows="4"></textarea>
+            </label>
+            <div class="admin-form__row">
+              <label>
+                <input type="checkbox" name="destacada"> Destacar esta novedad
+              </label>
+              <label>Adjunto (opcional)
+                <input type="text" name="adjunto" placeholder="Nombre del archivo adjunto">
+              </label>
+            </div>
+            <button type="submit" class="admin-form__submit">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+              Publicar novedad
+            </button>
+          </form>
+        </div>
+
+        <div id="categoriasPane" hidden>
+          <div style="display:flex;gap:.5rem;margin-bottom:.8rem">
+            <button id="newCategoriaBtn" style="padding:.65rem 1rem;font:600 .85rem 'Manrope',sans-serif;color:#fff;background:#3DAA6A;border:none;border-radius:9px;cursor:pointer">+ Nueva categoría</button>
+          </div>
+          <div id="categoriasList"></div>
+        </div>
+      `;
+    }
+
+    function bindNovedadesDrawer() {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const panes = {
+        lista: document.getElementById('novedadesListPane'),
+        nueva: document.getElementById('novedadesNewPane'),
+        categorias: document.getElementById('categoriasPane')
+      };
+      function showTab(t) {
+        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
+        Object.entries(panes).forEach(([k, p]) => p.hidden = k !== t);
+      }
+      tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+
+      // Lista
+      const filterCategoria = document.getElementById('filterCategoria');
+      const search = document.getElementById('novedadesSearch');
+
+      function renderNovedades() {
+        const cat = filterCategoria.value;
+        const q = search.value.trim().toLowerCase();
+        const list = novedades.filter(n =>
+          (cat === 'todos' || n.categoria_id == cat) &&
+          (!q || n.titulo.toLowerCase().includes(q) || n.contenido.toLowerCase().includes(q))
+        );
+        const cont = document.getElementById('novedadesList');
+        if (list.length === 0) {
+          cont.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
+          return;
+        }
+        cont.innerHTML = list.map(n => {
+          const catObj = categorias.find(c => c.id == n.categoria_id);
+          const color = catObj ? catObj.color : '#666';
+          return `
+            <div class="novedad-row" data-id="${n.id}">
+              <div class="novedad-row__info">
+                <p class="novedad-row__titulo">${n.titulo}</p>
+                <p class="novedad-row__meta">${n.categoria} · ${n.autor} · ${new Date(n.fecha).toLocaleDateString()} ${n.destacada ? '· ⭐ Destacada' : ''}</p>
+              </div>
+              <div class="novedad-row__menu" data-menu>
+                <button class="novedad-row__menu-btn" data-menu-btn aria-label="Acciones">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
+                </button>
+                <div class="novedad-row__menu-dropdown">
+                  <button data-action="edit" data-id="${n.id}">✏️ Editar</button>
+                  <button data-action="delete" data-id="${n.id}">🗑️ Eliminar</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        bindNovedadActions();
+      }
+
+      filterCategoria.addEventListener('change', renderNovedades);
+      search.addEventListener('input', renderNovedades);
+      renderNovedades();
+
+      // Form nueva novedad
+      document.getElementById('newNovedadForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const nueva = {
+          id: Date.now(),
+          titulo: data.get('titulo'),
+          contenido: data.get('contenido'),
+          categoria_id: +data.get('categoria_id'),
+          categoria: categorias.find(c => c.id == data.get('categoria_id')).nombre,
+          autor_id: admin.id,
+          autor: admin.nombre,
+          destacada: data.has('destacada'),
+          fecha: new Date().toISOString(),
+          adjunto: data.get('adjunto') || null
+        };
+        novedades.push(nueva);
+        auditar('crear', 'novedad', `Nueva: ${nueva.titulo}`);
+        showToast('Novedad publicada', `${nueva.titulo} fue agregada al sistema.`);
+        e.target.reset();
+        showTab('lista');
+        renderNovedades();
+      });
+
+      // Categorías
+      function renderCategorias() {
+        const cont = document.getElementById('categoriasList');
+        cont.innerHTML = categorias.map(c => `
+          <div class="categoria-row" data-id="${c.id}">
+            <div class="categoria-row__color" style="background:${c.color}"></div>
+            <div>
+              <p class="categoria-row__name">${c.nombre}</p>
+            </div>
+            <div class="categoria-row__menu" data-menu>
+              <button class="categoria-row__menu-btn" data-menu-btn aria-label="Acciones">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
+              </button>
+              <div class="categoria-row__menu-dropdown">
+                <button data-action="edit-cat" data-id="${c.id}">✏️ Editar</button>
+                <button data-action="delete-cat" data-id="${c.id}">🗑️ Eliminar</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        bindCategoriaActions();
+      }
+
+      document.getElementById('newCategoriaBtn').addEventListener('click', () => {
+        showNewCategoriaForm();
+      });
+
+      renderCategorias();
+    }
+
+    function bindNovedadActions() {
+      // Toggle dropdown
+      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const menu = btn.closest('[data-menu]');
+          document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
+          menu.classList.toggle('is-open');
+        });
+      });
+
+      // Acciones
+      document.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const id = +btn.dataset.id;
+          const action = btn.dataset.action;
+          const n = novedades.find(x => x.id === id);
+          if (!n) return;
+          // Cerrar dropdown
+          btn.closest('[data-menu]').classList.remove('is-open');
+
+          if (action === 'edit') {
+            showEditNovedadForm(n);
+          }
+          if (action === 'delete') {
+            requestDangerConfirm({
+              title: '¿Eliminar esta novedad?',
+              msg: `Vas a eliminar "<strong>${n.titulo}</strong>". Esta acción no se puede deshacer.`,
+              btnLabel: 'Eliminar novedad',
+              onConfirm: () => {
+                const idx = novedades.findIndex(x => x.id === n.id);
+                novedades.splice(idx, 1);
+                auditar('eliminar', 'novedad', `Eliminada: ${n.titulo}`);
+                showToast('Novedad eliminada', `${n.titulo} fue removida del sistema.`, '#E67E5B');
+                document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+              }
+            });
+          }
+        });
+      });
+
+      // Cerrar dropdown al hacer click fuera
+      document.addEventListener('click', () => {
+        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
+      }, { once: true });
+    }
+
+    function bindCategoriaActions() {
+      // Similar a bindNovedadActions, pero para categorías
+      document.querySelectorAll('.categoria-row [data-menu-btn]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const menu = btn.closest('[data-menu]');
+          document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
+          menu.classList.toggle('is-open');
+        });
+      });
+
+      document.querySelectorAll('.categoria-row [data-action]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const id = +btn.dataset.id;
+          const action = btn.dataset.action;
+          const c = categorias.find(x => x.id === id);
+          if (!c) return;
+          btn.closest('[data-menu]').classList.remove('is-open');
+
+          if (action === 'edit-cat') {
+            showEditCategoriaForm(c);
+          }
+          if (action === 'delete-cat') {
+            requestDangerConfirm({
+              title: '¿Eliminar esta categoría?',
+              msg: `Vas a eliminar "<strong>${c.nombre}</strong>". Las novedades de esta categoría no se eliminarán, pero quedarán sin categoría.`,
+              btnLabel: 'Eliminar categoría',
+              onConfirm: () => {
+                const idx = categorias.findIndex(x => x.id === c.id);
+                categorias.splice(idx, 1);
+                auditar('eliminar', 'categoria', `Eliminada: ${c.nombre}`);
+                showToast('Categoría eliminada', `${c.nombre} fue removida del sistema.`, '#E67E5B');
+                renderCategorias();
+              }
+            });
+          }
+        });
+      });
+
+      document.addEventListener('click', () => {
+        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
+      }, { once: true });
+    }
+
+    function showNewCategoriaForm() {
+      const cont = document.getElementById('categoriasList');
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="categoriaBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Nueva categoría</h3>
+        <form class="admin-form" id="newCategoriaForm">
+          <div class="admin-form__row">
+            <label>Nombre
+              <input type="text" name="nombre" required placeholder="Nombre de la categoría">
+            </label>
+            <label>Color
+              <input type="color" name="color" value="#3A5BA9">
+            </label>
+          </div>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            Crear categoría
+          </button>
+        </form>
+      `;
+      document.getElementById('categoriaBackBtn').addEventListener('click', () => renderCategorias());
+      document.getElementById('newCategoriaForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const nueva = {
+          id: Math.max(...categorias.map(c => c.id)) + 1,
+          nombre: data.get('nombre'),
+          color: data.get('color')
+        };
+        categorias.push(nueva);
+        auditar('crear', 'categoria', `Nueva: ${nueva.nombre}`);
+        showToast('Categoría creada', `${nueva.nombre} fue agregada al sistema.`);
+        renderCategorias();
+      });
+    }
+
+    function showEditCategoriaForm(c) {
+      const cont = document.getElementById('categoriasList');
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="categoriaBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar: ${c.nombre}</h3>
+        <form class="admin-form" id="editCategoriaForm">
+          <div class="admin-form__row">
+            <label>Nombre
+              <input type="text" name="nombre" required value="${c.nombre}">
+            </label>
+            <label>Color
+              <input type="color" name="color" value="${c.color}">
+            </label>
+          </div>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+      document.getElementById('categoriaBackBtn').addEventListener('click', () => renderCategorias());
+      document.getElementById('editCategoriaForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        c.nombre = data.get('nombre');
+        c.color = data.get('color');
+        auditar('editar', 'categoria', `Editada: ${c.nombre}`);
+        showToast('Categoría actualizada', `Los datos de ${c.nombre} fueron guardados.`);
+        renderCategorias();
+      });
+    }
+
+    function showEditNovedadForm(n) {
+      const cont = document.getElementById('novedadesList');
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="novedadBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar: ${n.titulo}</h3>
+        <form class="admin-form" id="editNovedadForm">
+          <div class="admin-form__row">
+            <label>Título
+              <input type="text" name="titulo" required value="${n.titulo}">
+            </label>
+            <label>Categoría
+              <select name="categoria_id" required>
+                ${categorias.map(c => `<option value="${c.id}" ${c.id == n.categoria_id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+              </select>
+            </label>
+          </div>
+          <label>Contenido
+            <textarea name="contenido" required rows="4">${n.contenido}</textarea>
+          </label>
+          <div class="admin-form__row">
+            <label>
+              <input type="checkbox" name="destacada" ${n.destacada ? 'checked' : ''}> Destacar esta novedad
+            </label>
+            <label>Adjunto (opcional)
+              <input type="text" name="adjunto" value="${n.adjunto || ''}" placeholder="Nombre del archivo adjunto">
+            </label>
+          </div>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+      document.getElementById('novedadBackBtn').addEventListener('click', () => {
+        document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+      });
+      document.getElementById('editNovedadForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        n.titulo = data.get('titulo');
+        n.contenido = data.get('contenido');
+        n.categoria_id = +data.get('categoria_id');
+        n.categoria = categorias.find(c => c.id == n.categoria_id).nombre;
+        n.destacada = data.has('destacada');
+        n.adjunto = data.get('adjunto') || null;
+        auditar('editar', 'novedad', `Editada: ${n.titulo}`);
+        showToast('Novedad actualizada', `Los datos de ${n.titulo} fueron guardados.`);
+        document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+      });
+    }
     const dangerMsg = document.getElementById('dangerMsg');
     const dangerInput = document.getElementById('dangerInput');
     const dangerConfirm = document.getElementById('dangerConfirm');
