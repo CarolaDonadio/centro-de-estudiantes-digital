@@ -417,7 +417,6 @@ function openDrawer(type) {
   const config = {
     perfil:         { title: 'Mi Perfil',           icon: iconUser,      render: renderProfile       },
     materias:       { title: 'Mis Materias',        icon: iconBook,      render: renderMaterias      },
-    novedades:      { title: 'Novedades',           icon: iconNews,      render: renderNovedades     },
     inscripciones:  { title: 'Mis Inscripciones',   icon: iconInscript,  render: renderInscripciones },
     carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
     centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
@@ -485,13 +484,6 @@ const iconCareer = `
 const iconStar = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
     <path d="M12 2l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 15.5 6.8 18.2l1-5.8L3.5 8.2l5.9-.9z"/>
-  </svg>`;
-
-const iconNews = `
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/>
-    <path d="M14 2v6h6" stroke-linejoin="round"/>
-    <path d="M16 13H8M16 17H8M10 9H8" stroke-linecap="round"/>
   </svg>`;
 
 const iconDoc = `
