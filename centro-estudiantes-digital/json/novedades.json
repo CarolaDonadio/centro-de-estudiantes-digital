@@ -23,8 +23,8 @@
       "id": 2,
       "titulo": "Nuevo Workshop de Python para Data Science",
       "contenido": "El Centro de Estudiantes organiza un taller intensivo de 3 jornadas sobre librerías esenciales: Pandas, NumPy y Scikit-learn. Cupos limitados.",
-      "categoria_id": 2,
-      "categoria": "Eventos",
+      "categoria_id": 3,
+      "categoria": "Institucional",
       "autor_id": 5,
       "autor": "Centro de Estudiantes",
       "materia_id": null,
@@ -42,8 +42,8 @@
       "id": 3,
       "titulo": "Beca de movilidad estudiantil 2026",
       "contenido": "Convocatoria abierta para la beca de intercambio con universidades de España. Documentación requerida en el portal.",
-      "categoria_id": 3,
-      "categoria": "Becas",
+      "categoria_id": 1,
+      "categoria": "Académico",
       "autor_id": 2,
       "autor": "Departamento de Bienestar",
       "materia_id": null,
@@ -62,7 +62,7 @@
       "titulo": "Actualización del reglamento de correlatividades",
       "contenido": "Se publicó la versión 2026 del reglamento académico con las nuevas correlatividades para todas las carreras.",
       "categoria_id": 4,
-      "categoria": "Reglamentación",
+      "categoria": "Urgente",
       "autor_id": 1,
       "autor": "Rectorado",
       "materia_id": null,
@@ -81,7 +81,7 @@
       "titulo": "Charla: Ética y Sesgos en Modelos de IA",
       "contenido": "Invitada especial: Dra. Laura Fernández del CONICET. Jueves 25/04 a las 18hs en el Aula Magna.",
       "categoria_id": 2,
-      "categoria": "Eventos",
+      "categoria": "Social",
       "autor_id": 5,
       "autor": "Centro de Estudiantes",
       "materia_id": null,
@@ -98,8 +98,8 @@
   ],
   "categorias": [
     { "id": 1, "nombre": "Académico", "color": "#3A5BA9" },
-    { "id": 2, "nombre": "Eventos", "color": "#E67E5B" },
-    { "id": 3, "nombre": "Becas", "color": "#3DAA6A" },
-    { "id": 4, "nombre": "Reglamentación", "color": "#8B5CF6" }
+    { "id": 2, "nombre": "Social", "color": "#E67E5B" },
+    { "id": 3, "nombre": "Institucional", "color": "#3DAA6A" },
+    { "id": 4, "nombre": "Urgente", "color": "#DC2626" }
   ]
 }
