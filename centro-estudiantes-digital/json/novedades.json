@@ -13,11 +13,7 @@
       "destacada": true,
       "fecha": "2026-04-20T10:30:00",
       "adjunto": "cronograma_mesas_julio.pdf",
-      "icono": "academic",
-      "visibilidad": "public",
-      "puede_crear": ["admin", "docente"],
-      "requiere_carrera": false,
-      "requiere_materia": false
+      "icono": "academic"
     },
     {
       "id": 2,
@@ -32,11 +28,7 @@
       "destacada": true,
       "fecha": "2026-04-19T14:00:00",
       "adjunto": null,
-      "icono": "event",
-      "visibilidad": "carrera",
-      "puede_crear": ["admin", "delegado"],
-      "requiere_carrera": true,
-      "requiere_materia": false
+      "icono": "event"
     },
     {
       "id": 3,
@@ -51,11 +43,7 @@
       "destacada": false,
       "fecha": "2026-04-18T09:15:00",
       "adjunto": "formulario_beca.pdf",
-      "icono": "scholarship",
-      "visibilidad": "public",
-      "puede_crear": ["admin"],
-      "requiere_carrera": false,
-      "requiere_materia": false
+      "icono": "scholarship"
     },
     {
       "id": 4,
@@ -70,11 +58,7 @@
       "destacada": false,
       "fecha": "2026-04-15T16:45:00",
       "adjunto": "reglamento_2026.pdf",
-      "icono": "document",
-      "visibilidad": "public",
-      "puede_crear": ["admin"],
-      "requiere_carrera": false,
-      "requiere_materia": false
+      "icono": "document"
     },
     {
       "id": 5,
@@ -89,11 +73,7 @@
       "destacada": false,
       "fecha": "2026-04-12T11:20:00",
       "adjunto": null,
-      "icono": "event",
-      "visibilidad": "carrera",
-      "puede_crear": ["admin", "delegado"],
-      "requiere_carrera": true,
-      "requiere_materia": false
+      "icono": "event"
     }
   ],
   "categorias": [
