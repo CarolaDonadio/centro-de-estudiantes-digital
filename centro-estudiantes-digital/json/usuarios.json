@@ -1,32 +1,67 @@
 [
   {
+    "id": 1,
+    "dni": "40123456",
+    "nombre": "Santiago Chiale",
     "usuario": "santiago",
+    "email": "santiago.chiale@alumno.isfdyt57.edu.ar",
     "password": "1234",
-    "rol": "estudiante",
-    "nombre": "Santiago Chiale"
+    "password_hash": "$2b$10$xJ3qZ7kV9RfG5hN1mW2QeOYpL8dA4cT6vB0sU3iX7wK9jR5nE1fGa",
+    "perfil_id": 1,
+    "carrera_id": 1,
+    "activo": true,
+    "created_at": "2025-03-10T08:30:00"
   },
   {
+    "id": 2,
+    "dni": "41987654",
+    "nombre": "Alumno de Prueba",
     "usuario": "alumno",
+    "email": "alumno.prueba@alumno.isfdyt57.edu.ar",
     "password": "alumno",
-    "rol": "estudiante",
-    "nombre": "Alumno de Prueba"
+    "password_hash": "$2b$10$aB3cD4eF5gH6iJ7kL8mN9oPqRsTuVwXyZ0AbCdEfGhIjKlMnOpQr",
+    "perfil_id": 1,
+    "carrera_id": 2,
+    "activo": true,
+    "created_at": "2025-03-15T10:00:00"
   },
   {
+    "id": 3,
+    "dni": "28456789",
+    "nombre": "Prof. Ana López",
     "usuario": "docente",
+    "email": "ana.lopez@isfdyt57.edu.ar",
     "password": "docente",
-    "rol": "docente",
-    "nombre": "Prof. Ana López"
+    "password_hash": "$2b$10$rS4tU5vW6xY7zA8bC9dE0fGhIjKlMnOpQrStUvWxYzAbCdEfGhIj",
+    "perfil_id": 2,
+    "carrera_id": 1,
+    "activo": true,
+    "created_at": "2025-02-20T14:15:00"
   },
   {
+    "id": 4,
+    "dni": "42567890",
+    "nombre": "Delegado de Prueba",
     "usuario": "delegado",
+    "email": "delegado@alumno.isfdyt57.edu.ar",
     "password": "delegado",
-    "rol": "delegado",
-    "nombre": "Delegado de Prueba"
+    "password_hash": "$2b$10$kL8mN9oPqRsTuVwXyZ0AbCdEfGhIjKlMnOpQrStUvWxYzAbCdEfG",
+    "perfil_id": 3,
+    "carrera_id": 1,
+    "activo": true,
+    "created_at": "2025-04-01T09:45:00"
   },
   {
+    "id": 5,
+    "dni": "30789012",
+    "nombre": "Administrador del Sistema",
     "usuario": "admin",
+    "email": "admin@isfdyt57.edu.ar",
     "password": "admin",
-    "rol": "administrador",
-    "nombre": "Administrador del Sistema"
+    "password_hash": "$2b$10$zAbCdEfGhIjKlMnOpQrStUvWxYzAbCdEfGhIjKlMnOpQrStUvWxY",
+    "perfil_id": 4,
+    "carrera_id": null,
+    "activo": true,
+    "created_at": "2025-01-05T12:00:00"
   }
 ]

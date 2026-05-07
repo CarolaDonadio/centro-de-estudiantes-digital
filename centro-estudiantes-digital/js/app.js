@@ -80,7 +80,10 @@ const state = {
   calendario: null,
   reglamentacion: null,
   filtroNovedad: 'todas',
+  reglamentacionQuery: '',
+  reglamentacionCategory: 'todas',
   calendarioMes: null,        // Date actual mostrada en el drawer
+  calendarioFiltro: 'todos',  // Filtro de eventos del calendario
 
   // Set con los IDs de eventos a los que el usuario se inscribió.
   // Se mantiene en memoria; en Fase 2 se persistirá en BD vía API REST.
@@ -121,11 +124,13 @@ async function init() {
   renderEvents();
   renderNewsFilters();
   renderNewsList();
+  renderReglamentacion();
 
   // Bindeamos los eventos de UI
   bindNavigation();
   bindDrawerControls();
   bindNotifications();
+  bindReglamentacionSearch();
 }
 
 /* ----------------------------------------------------------------
@@ -222,9 +227,9 @@ function renderEvents() {
     });
   });
 
-  // Click en el cuerpo de la tarjeta abre el drawer de eventos
+  // Click en el cuerpo de la tarjeta abre el drawer del Centro Estudiantil (gestiona eventos)
   $$('.event-card', cont).forEach(el => {
-    el.addEventListener('click', () => openDrawer('eventos'));
+    el.addEventListener('click', () => openDrawer('centro'));
   });
 }
 
@@ -301,10 +306,10 @@ function inscribirseEvento(id) {
   ev.inscriptos++;
   state.inscripciones.add(id);
 
-  // Refrescamos la home y, si está abierto, también el drawer de eventos
+  // Refrescamos la home y, si está abierto el drawer del centro, también lo actualizamos
   renderEvents();
-  if (state.drawerActivo === 'eventos') {
-    renderEventsList($('#drawerBody'));
+  if (state.drawerActivo === 'centro') {
+    renderCentro($('#drawerBody'));
   }
 }
 
@@ -396,6 +401,77 @@ function renderNewsList() {
   }).join('');
 }
 
+function buildNormativaItem(doc) {
+  return `
+    <article class="doc-item">
+      <div>
+        <h3>${doc.titulo}</h3>
+        <p>${doc.descripcion}</p>
+      </div>
+      <a class="btn btn-secondary" href="${doc.link || '#'}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento ${doc.titulo}">VER DOCUMENTO</a>
+    </article>
+  `;
+}
+
+function bindReglamentacionSearch() {
+  const searchInput = $('#reglamentacionSearch');
+  const categoryButtons = $$('.search-categories .chip');
+
+  if (!searchInput || !categoryButtons.length) return;
+
+  searchInput.addEventListener('input', (event) => {
+    state.reglamentacionQuery = event.target.value;
+    renderReglamentacion();
+  });
+
+  categoryButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.reglamentacionCategory = btn.dataset.filterCategory;
+      categoryButtons.forEach(x => x.classList.remove('chip--active'));
+      btn.classList.add('chip--active');
+      renderReglamentacion();
+    });
+  });
+}
+
+function getReglamentacionFiltered() {
+  const query = state.reglamentacionQuery.trim().toLowerCase();
+  const category = state.reglamentacionCategory;
+  const docs = state.reglamentacion?.documentos || [];
+
+  return docs.filter(doc => {
+    const categoryMatch = category === 'todas' || String(doc.categoria).toLowerCase() === category;
+    if (!categoryMatch) return false;
+
+    if (!query) return true;
+
+    const searchable = [
+      doc.titulo,
+      doc.descripcion,
+      ...(doc.palabras_clave || []),
+      doc.categoria || '',
+    ].join(' ').toLowerCase();
+    return searchable.includes(query);
+  });
+}
+
+function renderReglamentacion() {
+  const cont = $('#reglamentacionList');
+  if (!cont) return;
+
+  const lista = getReglamentacionFiltered();
+  if (!lista.length) {
+    cont.innerHTML = `
+      <div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">
+        No se encontraron normativas con esos filtros.
+      </div>
+    `;
+    return;
+  }
+
+  cont.innerHTML = lista.map(buildNormativaItem).join('');
+}
+
 function bindDrawerControls() {
   $('#drawerClose').addEventListener('click', closeDrawer);
   $('#drawerOverlay').addEventListener('click', closeDrawer);
@@ -421,6 +497,7 @@ function openDrawer(type) {
     carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
     centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
     novedades:      { title: 'Novedades',           icon: iconNews,      render: renderNovedades     },
+    calendario:     { title: 'Calendario Académico',icon: iconCalendar,  render: renderCalendar      },
   };
 
   const cfg = config[type];
@@ -503,6 +580,13 @@ const iconNews = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
     <path d="M4 6h16M4 10h16M4 14h8M4 18h8"/>
     <circle cx="18" cy="18" r="2"/>
+  </svg>`;
+
+const iconCalendar = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
+    <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" />
   </svg>`;
 
 /* ----------------------------------------------------------------
@@ -933,7 +1017,169 @@ function renderNovedades(body) {
   });
 }
 
-function renderCalendar() {}
+
+/* ----------------------------------------------------------------
+   16. DRAWER: CALENDARIO ACADÉMICO
+---------------------------------------------------------------- */
+function renderCalendar(body) {
+  if (!state.calendarioMes) {
+    state.calendarioMes = new Date(2026, 2, 1); // Marzo 2026 por defecto (inicio ciclo lectivo)
+  }
+
+  const currentDate = state.calendarioMes;
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+  // Obtener primer y último día del mes
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  
+  // Calcular celdas vacías al principio
+  let startingDay = firstDay.getDay(); 
+
+  // Obtener todos los eventos y tipos
+  const eventos = state.calendario?.eventos_calendario || [];
+  const tipos = state.calendario?.tipos || [];
+
+  // Filtrar eventos si hay un filtro activo
+  let eventosFiltrados = eventos;
+  if (state.calendarioFiltro !== 'todos') {
+    eventosFiltrados = eventos.filter(e => e.tipo === state.calendarioFiltro);
+  }
+
+  // Agrupar eventos por día en el mes actual
+  const eventosDelMes = {};
+  eventosFiltrados.forEach(e => {
+    const [evYear, evMonth, evDay] = e.fecha.split('-');
+    if (parseInt(evYear) === year && parseInt(evMonth) - 1 === month) {
+      const d = parseInt(evDay);
+      if (!eventosDelMes[d]) eventosDelMes[d] = [];
+      eventosDelMes[d].push(e);
+    }
+  });
+
+  // Generar HTML del Header del Calendario
+  let calHTML = `
+    <div class="calendar-header">
+      <button class="cal-nav-btn" id="prevMonth" aria-label="Mes anterior">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <h3 class="calendar-title">${meses[month]} ${year}</h3>
+      <button class="cal-nav-btn" id="nextMonth" aria-label="Mes siguiente">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  `;
+
+  // Filtros de categorías
+  calHTML += `<div class="news-filters" style="margin-bottom: 24px; flex-wrap: wrap;">`;
+  calHTML += `<button class="chip ${state.calendarioFiltro === 'todos' ? 'chip--active' : ''}" data-cal-filter="todos">Todos</button>`;
+  tipos.forEach(t => {
+    const isAct = state.calendarioFiltro === t.id ? 'chip--active' : '';
+    const extraStyle = isAct ? `background-color: ${softColor(t.color, 0.15)}; color: ${t.color}; border-color: ${t.color};` : '';
+    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="${extraStyle}">${t.nombre}</button>`;
+  });
+  calHTML += `</div>`;
+
+  // Días de la semana
+  calHTML += `<div class="calendar-grid"><div class="calendar-weekdays">`;
+  diasSemana.forEach(d => {
+    calHTML += `<div class="calendar-weekday">${d}</div>`;
+  });
+  calHTML += `</div><div class="calendar-days">`;
+
+  // Celdas vacías
+  for (let i = 0; i < startingDay; i++) {
+    calHTML += `<div class="calendar-day calendar-day--empty"></div>`;
+  }
+
+  // Días del mes
+  const hoy = new Date();
+  const esMesActual = hoy.getFullYear() === year && hoy.getMonth() === month;
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const isToday = esMesActual && hoy.getDate() === d;
+    const dayEvents = eventosDelMes[d] || [];
+    
+    let dotsHTML = '<div class="calendar-day-events">';
+    dayEvents.slice(0, 3).forEach(e => {
+      dotsHTML += `<span class="calendar-dot" style="background-color: ${e.color}" title="${e.titulo}"></span>`;
+    });
+    if (dayEvents.length > 3) {
+      dotsHTML += `<span class="calendar-dot calendar-dot--more" title="Más eventos"></span>`;
+    }
+    dotsHTML += '</div>';
+
+    const dayClass = isToday ? 'calendar-day calendar-day--today' : 'calendar-day';
+    const hasEventsClass = dayEvents.length > 0 ? 'calendar-day--has-events' : '';
+    calHTML += `
+      <div class="${dayClass} ${hasEventsClass}">
+        <span class="calendar-day-num">${d}</span>
+        ${dotsHTML}
+      </div>
+    `;
+  }
+  calHTML += `</div></div>`; // Cerrar days y grid
+
+  // Listado inferior de eventos del mes
+  let eventosDelMesFlat = [];
+  Object.keys(eventosDelMes).sort((a,b) => parseInt(a) - parseInt(b)).forEach(dia => {
+    eventosDelMes[dia].forEach(e => eventosDelMesFlat.push(e));
+  });
+
+  calHTML += `<div class="calendar-event-list">`;
+  calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
+  
+  if (eventosDelMesFlat.length === 0) {
+    calHTML += `<div class="notif-empty" style="margin-top:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
+        </svg>
+        <p>No hay eventos registrados.</p>
+      </div>`;
+  } else {
+    eventosDelMesFlat.forEach(e => {
+      const [y, m, d] = e.fecha.split('-');
+      calHTML += `
+        <div class="cal-list-item" style="--ev-color: ${e.color}">
+          <div class="cal-list-date">
+            <span class="cal-list-day">${d}</span>
+            <span class="cal-list-month">${meses[parseInt(m)-1].substring(0,3).toUpperCase()}</span>
+          </div>
+          <div class="cal-list-body">
+            <h4 class="cal-list-title">${e.titulo}</h4>
+            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t=>t.id===e.tipo)?.nombre || 'Evento'}</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+  calHTML += `</div>`;
+
+  body.innerHTML = calHTML;
+
+  // Bindings para navegar mes
+  body.querySelector('#prevMonth').addEventListener('click', () => {
+    state.calendarioMes = new Date(year, month - 1, 1);
+    renderCalendar(body);
+  });
+  body.querySelector('#nextMonth').addEventListener('click', () => {
+    state.calendarioMes = new Date(year, month + 1, 1);
+    renderCalendar(body);
+  });
+
+  // Bindings para filtros
+  body.querySelectorAll('.chip[data-cal-filter]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      state.calendarioFiltro = e.currentTarget.dataset.calFilter;
+      renderCalendar(body);
+    });
+  });
+}
 function renderEventsList() {}
 function renderFullNews() {}
 function renderRegulations() {}
