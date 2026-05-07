@@ -422,6 +422,7 @@ function openDrawer(type) {
     carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
     centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
     calendario:     { title: 'Calendario Académico',icon: iconCalendar,  render: renderCalendar      },
+    eventos:        { title: 'Eventos',             icon: iconEvents,  render: renderEventos       },
   };
 
   const cfg = config[type];
@@ -505,6 +506,13 @@ const iconCalendar = `
     <rect x="3" y="4" width="18" height="16" rx="2" />
     <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
     <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" />
+  </svg>`;
+
+const iconEvents = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <path d="M9 18V5l12-2v13"/>
+    <circle cx="6" cy="18" r="3"/>
+    <circle cx="18" cy="16" r="3"/>
   </svg>`;
 
 /* ----------------------------------------------------------------
@@ -856,6 +864,36 @@ function renderCentro(body) {
       </a>
     </div>
   `;
+}
+
+/* ----------------------------------------------------------------
+   15. DRAWER: EVENTOS
+---------------------------------------------------------------- */
+function renderEventos(body) {
+  const eventos = state.eventos?.eventos || [];
+
+  // Ordenamos por fecha (más próximos primero)
+  const ordenados = [...eventos].sort(
+    (a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)
+  );
+
+  body.innerHTML = `
+    <div class="events-list-drawer">
+      ${ordenados.map(ev => buildEventCardHTML(ev)).join('')}
+    </div>
+  `;
+
+  // Bindeo: click en el botón "Inscribirme" de cada tarjeta
+  $$('.event-card__cta', body).forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = Number(btn.dataset.eventId);
+      inscribirseEvento(id);
+      // Mostrar permiso generado
+      const ev = state.eventos.eventos.find(x => x.id === id);
+      alert(`Permiso de inscripción generado para: ${ev.titulo}`);
+    });
+  });
 }
 
 /* ----------------------------------------------------------------

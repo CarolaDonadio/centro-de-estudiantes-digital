@@ -1263,7 +1263,12 @@ ul {
   border-radius: var(--r-full);
 }
 
-/* -------- Contenido: PERFIL -------- */
+/* -------- Contenido: EVENTOS -------- */
+.events-list-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 .profile-hero {
   display: flex;
   flex-direction: column;
