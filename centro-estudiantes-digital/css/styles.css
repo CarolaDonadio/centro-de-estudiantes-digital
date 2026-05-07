@@ -2232,6 +2232,56 @@ ul {
   max-width: 720px;
 }
 
+.section--reglamentacion .faq {
+  margin-top: 26px;
+  display: grid;
+  gap: 14px;
+}
+
+.section--reglamentacion .faq .section__subtitle {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--brand-700);
+}
+
+.section--reglamentacion .faq details {
+  padding: 16px 18px;
+  border-radius: var(--r-md);
+  background: var(--bg-default);
+  border: 1px solid var(--border);
+}
+
+.section--reglamentacion .faq summary {
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+}
+
+.section--reglamentacion .faq summary::marker {
+  display: none;
+}
+
+.section--reglamentacion .faq summary::after {
+  content: '+';
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 1.15rem;
+  color: var(--brand-500);
+}
+
+.section--reglamentacion .faq details[open] summary::after {
+  content: '−';
+}
+
+.section--reglamentacion .faq p {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
 /* ----------------------------------------------------------------
    DRAWER: MATERIAS
 ---------------------------------------------------------------- */

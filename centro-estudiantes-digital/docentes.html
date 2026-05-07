@@ -934,6 +934,68 @@
       </article>
 
     </section>
+
+    <!-- === SECCIÓN DE REGLAMENTACIÓN Y NORMATIVAS === -->
+    <section id="reglamentacion" class="section section--reglamentacion" aria-labelledby="reglamentacionTitle">
+      <div class="section__header">
+        <span class="eyebrow">Normativas y Documentos</span>
+        <h2 class="section__title" id="reglamentacionTitle">Reglamentación institucional</h2>
+        <p class="section__intro">
+          Accedé a reglamentos, resoluciones y comunicaciones oficiales del instituto. También podés ir directamente al portal de normativa oficial para una búsqueda más completa.
+        </p>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Categorías de normativa">
+        <button type="button" class="chip chip--active" role="tab" aria-selected="true">Resoluciones</button>
+        <button type="button" class="chip" role="tab">Disposiciones</button>
+        <button type="button" class="chip" role="tab">Circulares</button>
+        <button type="button" class="chip" role="tab">Comunicaciones</button>
+      </div>
+
+      <div class="reglamentacion-search">
+        <label class="sr-only" for="reglamentacionSearch">Buscar normativas</label>
+        <input id="reglamentacionSearch" class="search-input" type="search" placeholder="Buscar normativas por palabra clave" autocomplete="off">
+
+        <div class="search-categories" role="group" aria-label="Filtrar por categoría">
+          <button type="button" class="chip chip--active" data-filter-category="todas">Todas</button>
+          <button type="button" class="chip" data-filter-category="centro de estudiantes">Centro de estudiantes</button>
+          <button type="button" class="chip" data-filter-category="tecnicatura">Tecnicatura</button>
+          <button type="button" class="chip" data-filter-category="profesorado">Profesorado</button>
+          <button type="button" class="chip" data-filter-category="institucional">Institucional</button>
+        </div>
+      </div>
+
+      <div class="doc-list" id="reglamentacionList"></div>
+
+      <section class="faq" aria-labelledby="reglamentacionFaqTitle">
+        <h3 class="section__subtitle" id="reglamentacionFaqTitle">Preguntas frecuentes</h3>
+
+        <details>
+          <summary>¿Cómo busco un reglamento específico?</summary>
+          <p>Usá el campo de búsqueda para filtrar por palabras clave del título, la descripción o las categorías. También podés seleccionar una categoría para ver solo los documentos relacionados.</p>
+        </details>
+
+        <details>
+          <summary>¿Qué significan las categorías disponibles?</summary>
+          <p>Las categorías ayudan a clasificar los documentos: Resoluciones, Disposiciones, Circulares y Comunicaciones. Seleccioná la categoría que mejor describa el tipo de normativa que estás buscando.</p>
+        </details>
+
+        <details>
+          <summary>¿Puedo descargar los reglamentos desde esta página?</summary>
+          <p>Sí. Cada documento tiene un botón "VER DOCUMENTO" que abre el archivo oficial en una nueva pestaña para que puedas revisarlo y descargarlo directamente.</p>
+        </details>
+
+        <details>
+          <summary>¿Dónde encuentro la versión más reciente de un reglamento?</summary>
+          <p>Los documentos que se muestran aquí provienen del repositorio oficial. Si necesitás mayor certeza sobre la versión más actual, podés ir al portal externo de normativa educativa al final de esta sección.</p>
+        </details>
+      </section>
+
+      <div class="section__cta">
+        <p class="section__note">Si necesitás buscar más reglamentos oficiales, accedé al portal externo de normativa educativa.</p>
+        <a class="btn btn-primary" href="https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa" target="_blank" rel="noopener noreferrer">Ir al portal de normativa</a>
+      </div>
+    </section>
   </main>
 
   <!--
@@ -1697,6 +1759,107 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
     }
+
+    /* ============================================================
+       9) REGLAMENTACIÓN - Lógica para la sección de normativas
+       ============================================================ */
+    // Estado para reglamentación
+    let reglamentacionState = {
+      reglamentacion: null,
+      reglamentacionQuery: '',
+      reglamentacionCategory: 'todas'
+    };
+
+    // Fetch JSON de reglamentación
+    async function fetchReglamentacion() {
+      try {
+        const res = await fetch('json/reglamentacion.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        reglamentacionState.reglamentacion = await res.json();
+        renderReglamentacion();
+      } catch (err) {
+        console.warn('[Reglamentación] No se pudo cargar:', err);
+      }
+    }
+
+    // Render de la lista de documentos
+    function renderReglamentacion() {
+      const cont = document.getElementById('reglamentacionList');
+      if (!cont) return;
+
+      const lista = getReglamentacionFiltered();
+      if (!lista.length) {
+        cont.innerHTML = `
+          <div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">
+            No se encontraron normativas con esos filtros.
+          </div>
+        `;
+        return;
+      }
+
+      cont.innerHTML = lista.map(buildNormativaItem).join('');
+    }
+
+    // Filtrar documentos
+    function getReglamentacionFiltered() {
+      const query = reglamentacionState.reglamentacionQuery.trim().toLowerCase();
+      const category = reglamentacionState.reglamentacionCategory;
+      const docs = reglamentacionState.reglamentacion?.documentos || [];
+
+      return docs.filter(doc => {
+        const categoryMatch = category === 'todas' || String(doc.categoria).toLowerCase() === category;
+        if (!categoryMatch) return false;
+
+        if (!query) return true;
+
+        const searchable = [
+          doc.titulo,
+          doc.descripcion,
+          ...(doc.palabras_clave || []),
+          doc.categoria || '',
+        ].join(' ').toLowerCase();
+        return searchable.includes(query);
+      });
+    }
+
+    // Construir HTML de un item de normativa
+    function buildNormativaItem(doc) {
+      return `
+        <article class="doc-item">
+          <div>
+            <h3>${doc.titulo}</h3>
+            <p>${doc.descripcion}</p>
+          </div>
+          <a class="btn btn-secondary" href="${doc.link || '#'}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento ${doc.titulo}">VER DOCUMENTO</a>
+        </article>
+      `;
+    }
+
+    // Bind de búsqueda y filtros
+    function bindReglamentacionSearch() {
+      const searchInput = document.getElementById('reglamentacionSearch');
+      const categoryButtons = document.querySelectorAll('.search-categories .chip');
+
+      if (!searchInput || !categoryButtons.length) return;
+
+      searchInput.addEventListener('input', (event) => {
+        reglamentacionState.reglamentacionQuery = event.target.value;
+        renderReglamentacion();
+      });
+
+      categoryButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          categoryButtons.forEach(x => x.classList.remove('chip--active'));
+          btn.classList.add('chip--active');
+          reglamentacionState.reglamentacionCategory = btn.dataset.filterCategory;
+          renderReglamentacion();
+        });
+      });
+    }
+
+    // Inicializar reglamentación
+    fetchReglamentacion();
+    bindReglamentacionSearch();
 
   })();
   </script>
