@@ -251,6 +251,138 @@
       "palabras_clave": ["anexo", "currículum prioritario", "docencia", "evalución"],
       "fecha_publicacion": "2021-09-01",
       "version": "1.0"
+    },
+    {
+      "id": 22,
+      "tipo": "disposicion",
+      "titulo": "Disposición 30-05 - Proyectos Anuales de Cátedra",
+      "descripcion": "Se detallan los puntos que deben contener los proyectos anuales de cátedra.",
+      "archivo": "disposicion_30_05_proyectos_anuales_catedra.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2021-04/disposicion_30_05_proyectos_anuales_catedra.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["proyectos anuales", "cátedra", "planificación", "docencia"],
+      "fecha_publicacion": "2021-04-01",
+      "version": "1.0"
+    },
+    {
+      "id": 23,
+      "tipo": "disposicion",
+      "titulo": "Disposición 1-20 - Pautas Complementarias de Evaluación y Acreditación",
+      "descripcion": "Aprueba las pautas complementarias de la RESOC – 2020 – 1872-GDEBA-DGCYE, para la evaluación y la acreditación en el Nivel de Educación Superior.",
+      "archivo": "disposicion_1_20_pautas_complementarias_evaluacion_acreditacion.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2021-09/disposicion_1_20_pautas_complementarias_evaluacion_acreditacion.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["pautas complementarias", "evaluación", "acreditación", "educación superior"],
+      "fecha_publicacion": "2021-09-01",
+      "version": "1.0"
+    },
+    {
+      "id": 24,
+      "tipo": "anexo",
+      "titulo": "Anexo Disposición 1-20 - Pautas para la Evaluación y Acreditación",
+      "descripcion": "Se detallan las pautas para la evaluación y la acreditación en el Nivel Superior.",
+      "archivo": "anexo_disposicion_1_20_pautas_evaluacion_acreditacion.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2021-09/anexo_disposicion_1_20_pautas_evaluacion_acreditacion.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["anexo", "pautas", "evaluación", "acreditación", "nivel superior"],
+      "fecha_publicacion": "2021-09-01",
+      "version": "1.0"
+    },
+    {
+      "id": 25,
+      "tipo": "circular",
+      "titulo": "Circular Técnica nº1-20 - Propuesta de Trabajo en Contexto de ASPO",
+      "descripcion": "Propuesta de trabajo en contexto de Aislamiento Social Preventivo y Obligatorio.",
+      "archivo": "circular_tecnica_1_20_propuesta_trabajo_aspo.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2020-04/circular_tecnica_1_20_propuesta_trabajo_aspo.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["circular técnica", "ASPO", "pandemia", "trabajo", "aislamiento"],
+      "fecha_publicacion": "2020-04-01",
+      "version": "1.0"
+    },
+    {
+      "id": 26,
+      "tipo": "circular",
+      "titulo": "Circular Técnica Conjunta n° 1-20 - Evaluación en el Nivel Superior en Tiempos de Pandemia",
+      "descripcion": "Sobre la evaluación en el Nivel Superior en tiempos de pandemia.",
+      "archivo": "circular_tecnica_conjunta_1_20_evaluacion_nivel_superior_pandemia.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2020-04/circular_tecnica_conjunta_1_20_evaluacion_nivel_superior_pandemia.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["circular técnica conjunta", "evaluación", "nivel superior", "pandemia", "COVID-19"],
+      "fecha_publicacion": "2020-04-01",
+      "version": "1.0"
+    },
+    {
+      "id": 27,
+      "tipo": "circular",
+      "titulo": "Circular Técnica Conjunta n° 2-20 - Mesas de Examen en Contexto de ASPO",
+      "descripcion": "Sobre mesas de examen en contexto de Aislamiento Social Preventivo y Obligatorio.",
+      "archivo": "circular_tecnica_conjunta_2_20_mesas_examen_aspo.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2020-04/circular_tecnica_conjunta_2_20_mesas_examen_aspo.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["circular técnica conjunta", "mesas de examen", "ASPO", "evaluación", "pandemia"],
+      "fecha_publicacion": "2020-04-01",
+      "version": "1.0"
+    },
+    {
+      "id": 28,
+      "tipo": "circular",
+      "titulo": "Circular Técnica Conjunta n° 2-20 (Ampliatoria)",
+      "descripcion": "Circular Técnica Conjunta n° 2-20 ampliatoria.",
+      "archivo": "circular_tecnica_conjunta_2_20_ampliatoria.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2020-04/circular_tecnica_conjunta_2_20_ampliatoria.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["circular técnica conjunta", "ampliatoria", "mesas de examen", "ASPO"],
+      "fecha_publicacion": "2020-04-01",
+      "version": "1.0"
+    },
+    {
+      "id": 29,
+      "tipo": "circular",
+      "titulo": "Circular Técnico Conjunta Nº3-20 - Prórroga de Mandatos Institucionales",
+      "descripcion": "Prórroga de mandatos institucionales.",
+      "archivo": "circular_tecnico_conjunta_3_20_prorroga_mandatos_institucionales.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2020-04/circular_tecnico_conjunta_3_20_prorroga_mandatos_institucionales.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["circular técnico conjunta", "prórroga", "mandatos", "institucionales", "gobierno"],
+      "fecha_publicacion": "2020-04-01",
+      "version": "1.0"
+    },
+    {
+      "id": 30,
+      "tipo": "comunicacion",
+      "titulo": "Comunicación 1-20 - Presentación de Autoridades de Formación Docente",
+      "descripcion": "Presentación de autoridades de la Dirección de Formación Docente Inicial y de la Dirección de Formación Docente.",
+      "archivo": "comunicacion_1_20_presentacion_autoridades_formacion_docente.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2020-04/comunicacion_1_20_presentacion_autoridades_formacion_docente.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["comunicación", "autoridades", "formación docente", "dirección", "presentación"],
+      "fecha_publicacion": "2020-04-01",
+      "version": "1.0"
+    },
+    {
+      "id": 31,
+      "tipo": "comunicacion",
+      "titulo": "Comunicación 2-20 - Postergación del Inicio de Postítulos Docentes",
+      "descripcion": "Postergación del inicio de los postítulos docentes y las disposiciones pertinentes.",
+      "archivo": "comunicacion_2_20_postergacion_postitulos_docentes.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2020-04/comunicacion_2_20_postergacion_postitulos_docentes.pdf",
+      "categoria": "profesorado",
+      "palabras_clave": ["comunicación", "postergación", "postítulos", "docentes", "pandemia"],
+      "fecha_publicacion": "2020-04-01",
+      "version": "1.0"
+    },
+    {
+      "id": 32,
+      "tipo": "comunicacion",
+      "titulo": "Comunicación 3-20 - Presentación Subdirectora Desarrollo Curricular y Medidas ASPO",
+      "descripcion": "Presentación de la Subdirectora de Desarrollo Curricular. Mesas de exámenes e inscripciones materias ASPO.",
+      "archivo": "comunicacion_3_20_presentacion_subdirectora_desarrollo_curricular_aspo.pdf",
+      "link": "https://abc.gob.ar/secretarias/sites/default/files/2020-04/comunicacion_3_20_presentacion_subdirectora_desarrollo_curricular_aspo.pdf",
+      "categoria": "institucional",
+      "palabras_clave": ["comunicación", "subdirectora", "desarrollo curricular", "mesas de examen", "inscripciones", "ASPO"],
+      "fecha_publicacion": "2020-04-01",
+      "version": "1.0"
     }
   ]
 }
