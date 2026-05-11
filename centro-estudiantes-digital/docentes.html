@@ -1233,9 +1233,10 @@
       drawerOverlay.classList.add('is-visible');
       drawer.setAttribute('aria-hidden', 'false');
       // Hooks específicos por sección
-      if (key === 'material')  bindMaterialDrawer();
-      if (key === 'publicar')  bindPublishDrawer();
-      if (key === 'alumnos')   bindStudentsDrawer();
+      if (key === 'material')   bindMaterialDrawer();
+      if (key === 'publicar')   bindPublishDrawer();
+      if (key === 'alumnos')    bindStudentsDrawer();
+      if (key === 'calendario') bindCalendarDrawer();
       // Marca el botón activo
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
       const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
@@ -1462,6 +1463,13 @@
             `).join('')}
           </div>
         `
+      }),
+
+      // --- Calendario Docente ---
+      calendario: () => ({
+        title: 'Calendario Docente',
+        icon: drawerContent.iconCalendar,
+        html: ''   // bindCalendarDrawer() inyecta el contenido real
       })
     };
 
@@ -1481,31 +1489,200 @@
        4) HOOKS PARA FUNCIONALIDADES INTERACTIVAS DEL DRAWER
        ============================================================ */
 
-    // --- Calendario ---
+    // --- Calendario Docente ---
     function bindCalendarDrawer() {
-      const date = state.calendarioMes || new Date();
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-      const firstDay = new Date(year, month, 1).getDay(); // 0 is Sunday
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const eventos = state.calendario.eventos;
+      if (!state.calendarioMes) state.calendarioMes = new Date();
+      const body   = document.getElementById('drawerBody');
+      const year   = state.calendarioMes.getFullYear();
+      const month  = state.calendarioMes.getMonth();
+      const meses  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      const semana = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 
-      document.getElementById('calMonthYear').textContent = `${monthNames[month]} ${year}`;
-      document.getElementById('calendarGrid').innerHTML = generateCalendarGrid(year, month, firstDay, daysInMonth, eventos);
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDay  = new Date(year, month + 1, 0).getDate();
+      const eventos  = state.calendario.eventos || [];
 
-      document.getElementById('calPrev').onclick = () => {
-        state.calendarioMes.setMonth(state.calendarioMes.getMonth() - 1);
-        bindCalendarDrawer();
-      };
-      document.getElementById('calNext').onclick = () => {
-        state.calendarioMes.setMonth(state.calendarioMes.getMonth() + 1);
-        bindCalendarDrawer();
-      };
-
-      document.querySelectorAll('.cal-cell').forEach(cell => {
-        cell.onclick = () => { document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('is-today')); cell.classList.add('is-today'); showDayDetails(cell.dataset.date, eventos); };
+      // Agrupar por día en el mes actual
+      const porDia = {};
+      eventos.forEach(e => {
+        const [eY, eM, eD] = e.fecha.split('-').map(Number);
+        if (eY === year && eM - 1 === month) {
+          if (!porDia[eD]) porDia[eD] = [];
+          porDia[eD].push(e);
+        }
       });
+
+      // ── Cabecera de navegación
+      let html = `
+        <div class="calendar-header">
+          <button class="cal-nav-btn" id="calPrevDoc" aria-label="Mes anterior">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <h3 class="calendar-title">${meses[month]} ${year}</h3>
+          <button class="cal-nav-btn" id="calNextDoc" aria-label="Mes siguiente">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="calendar-grid">
+          <div class="calendar-weekdays">
+            ${semana.map(d => `<div class="calendar-weekday">${d}</div>`).join('')}
+          </div>
+          <div class="calendar-days">
+            ${'<div class="calendar-day calendar-day--empty"></div>'.repeat(firstDay)}
+      `;
+
+      // ── Días del mes
+      const hoy = new Date();
+      const esMesActual = hoy.getFullYear() === year && hoy.getMonth() === month;
+
+      for (let d = 1; d <= lastDay; d++) {
+        const dayEvs = porDia[d] || [];
+        const isHoy  = esMesActual && hoy.getDate() === d;
+        const cls    = ['calendar-day', isHoy && 'calendar-day--today', dayEvs.length && 'calendar-day--has-events'].filter(Boolean).join(' ');
+        const dots   = dayEvs.slice(0, 3).map(e => `<span class="calendar-dot" style="background:${e.color}" title="${e.titulo}"></span>`).join('')
+                       + (dayEvs.length > 3 ? '<span class="calendar-dot calendar-dot--more"></span>' : '');
+        html += `<div class="${cls}"><span class="calendar-day-num">${d}</span><div class="calendar-day-events">${dots}</div></div>`;
+      }
+      html += `</div></div>`;
+
+      // ── Listado de eventos del mes
+      const flat = Object.keys(porDia).sort((a, b) => +a - +b).flatMap(d => porDia[d]);
+      html += `<div class="calendar-event-list"><p class="drawer-section-label" style="margin-top:24px;">Eventos de ${meses[month]}</p>`;
+
+      if (!flat.length) {
+        html += `<div class="notif-empty" style="margin-top:16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="16" rx="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
+          </svg>
+          <p>Sin eventos este mes.</p></div>`;
+      } else {
+        flat.forEach(e => {
+          const [, eM, eD] = e.fecha.split('-');
+          html += `
+            <div class="cal-list-item" style="--ev-color:${e.color}">
+              <div class="cal-list-date">
+                <span class="cal-list-day">${eD}</span>
+                <span class="cal-list-month">${meses[+eM-1].substring(0,3).toUpperCase()}</span>
+              </div>
+              <div class="cal-list-body">
+                <h4 class="cal-list-title">${e.titulo}</h4>
+                <span class="cal-list-type" style="color:${e.color};background:${e.color}20">${e.tipo.charAt(0).toUpperCase() + e.tipo.slice(1)}</span>
+              </div>
+            </div>`;
+        });
+      }
+      html += `</div>`;
+
+      // ── Panel de acción: Cargar Fecha de Examen (perfil docente)
+      html += `
+        <div class="cal-acciones" style="margin-top:28px;">
+          <p class="drawer-section-label" style="margin-top:0;margin-bottom:10px;">Acciones disponibles</p>
+          <div class="cal-acciones__btns">
+            <button class="btn-primary cal-accion-btn" id="btnCargarExamenDoc">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="3" y="4" width="18" height="16" rx="2"/>
+                <path d="M3 9h18M8 3v4M16 3v4M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Cargar Fecha de Examen
+            </button>
+          </div>
+        </div>`;
+
+      body.innerHTML = html;
+
+      // ── Bindings de navegación
+      body.querySelector('#calPrevDoc').addEventListener('click', () => {
+        state.calendarioMes = new Date(year, month - 1, 1);
+        bindCalendarDrawer();
+      });
+      body.querySelector('#calNextDoc').addEventListener('click', () => {
+        state.calendarioMes = new Date(year, month + 1, 1);
+        bindCalendarDrawer();
+      });
+
+      // ── Binding del botón de acción
+      body.querySelector('#btnCargarExamenDoc').addEventListener('click', () => abrirModalExamenDocente());
+    }
+
+    function abrirModalExamenDocente() {
+      document.getElementById('docCalModal')?.remove();
+      const modal = document.createElement('div');
+      modal.id = 'docCalModal';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.innerHTML = `
+        <div class="cal-modal-overlay">
+          <div class="cal-modal-card">
+            <div class="cal-modal-header">
+              <h3 class="cal-modal-title">Cargar Fecha de Examen</h3>
+              <button class="cal-modal-close" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <form id="formExamenDoc" class="cal-modal-form">
+              <label class="cal-modal-label">
+                Materia
+                <select name="materia" required>
+                  <option value="">Seleccioná una materia…</option>
+                  ${cursos.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('')}
+                </select>
+              </label>
+              <div class="cal-modal-row">
+                <label class="cal-modal-label">
+                  Fecha
+                  <input type="date" name="fecha" required>
+                </label>
+                <label class="cal-modal-label">
+                  Horario
+                  <input type="time" name="horario" required>
+                </label>
+              </div>
+              <label class="cal-modal-label">
+                Tipo
+                <select name="tipo_examen" required>
+                  <option value="Parcial">Parcial</option>
+                  <option value="Final">Final</option>
+                  <option value="Recuperatorio">Recuperatorio</option>
+                </select>
+              </label>
+              <div class="cal-modal-actions">
+                <button type="button" class="btn-secondary" id="cancelarExamenDoc">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar examen</button>
+              </div>
+            </form>
+          </div>
+        </div>`;
+
+      document.body.appendChild(modal);
+      const cerrar = () => modal.remove();
+      modal.querySelector('.cal-modal-close').addEventListener('click', cerrar);
+      modal.querySelector('#cancelarExamenDoc').addEventListener('click', cerrar);
+      modal.querySelector('.cal-modal-overlay').addEventListener('click', e => {
+        if (e.target === modal.querySelector('.cal-modal-overlay')) cerrar();
+      });
+      document.addEventListener('keydown', function onEsc(e) {
+        if (e.key === 'Escape') { cerrar(); document.removeEventListener('keydown', onEsc); }
+      });
+      modal.querySelector('#formExamenDoc').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        guardarExamenDocente({ materia: data.get('materia'), fecha: data.get('fecha'), horario: data.get('horario'), tipo: data.get('tipo_examen') });
+        cerrar();
+      });
+    }
+
+    function guardarExamenDocente({ materia, fecha, horario, tipo }) {
+      state.calendario.eventos.push({ fecha, titulo: `${tipo}: ${materia} — ${horario}hs`, tipo: 'examen', color: '#3A5BA9' });
+      const [y, m] = fecha.split('-').map(Number);
+      state.calendarioMes = new Date(y, m - 1, 1);
+      bindCalendarDrawer();
     }
 
     // --- Material: drag & drop, browse, listado ---
