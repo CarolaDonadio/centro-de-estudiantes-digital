@@ -2161,6 +2161,26 @@ ul {
   margin-bottom: 24px;
 }
 
+/* Estilos específicos para chips de reglamentación con degradado azul */
+.section--reglamentacion .chip {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  transition: all var(--t-fast);
+}
+
+.section--reglamentacion .chip:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.section--reglamentacion .chip--active {
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
 .section--reglamentacion .doc-list {
   display: grid;
   gap: 14px;
