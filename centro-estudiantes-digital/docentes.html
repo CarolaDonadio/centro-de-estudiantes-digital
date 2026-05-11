@@ -921,10 +921,10 @@
 
           <div class="news-filters" id="pubFilters">
             <button class="chip chip--active" data-filter="todas">Todas</button>
-            <button class="chip" data-filter="aviso">Avisos</button>
-            <button class="chip" data-filter="material">Materiales</button>
-            <button class="chip" data-filter="evaluacion">Evaluaciones</button>
-            <button class="chip" data-filter="calificacion">Calificaciones</button>
+            <button class="chip" data-filter="academico">Académico</button>
+            <button class="chip" data-filter="social">Social</button>
+            <button class="chip" data-filter="institucional">Institucional</button>
+            <button class="chip" data-filter="urgente">Urgente</button>
           </div>
         </header>
 
@@ -1134,11 +1134,11 @@
     // Cualquier publicación nueva se prepende a este array y aparecerá
     // automáticamente en el feed del alumno en Fase 2 (vía endpoint compartido).
     const publicaciones = [
-      { id: 5, tipo: 'aviso',        titulo: 'Cambio de aula para el parcial', extracto: 'El parcial del viernes se rinde en el aula 301 (no en la 204).', curso: 'Lógica Computacional', alcance: 28, lecturas: 21, hace: 'hace 2h', color: '#F5A623' },
-      { id: 4, tipo: 'material',     titulo: 'Subido: Apunte Unidad 3',         extracto: 'Funciones lógicas, leyes de De Morgan y simplificación.',         curso: 'Lógica Computacional', alcance: 28, lecturas: 23, hace: 'hace 1 día', color: '#4A67C9' },
-      { id: 3, tipo: 'evaluacion',   titulo: 'Programado: Parcial 1',            extracto: 'Viernes 1 de mayo, 18:00 hs. Temario: unidades 1 a 3.',           curso: 'Lógica Computacional', alcance: 28, lecturas: 28, hace: 'hace 2 días', color: '#E67E5B' },
-      { id: 2, tipo: 'calificacion', titulo: 'Notas TP integrador',              extracto: 'Subidas las correcciones del TP integrador (22 de 28 trabajos).', curso: 'Matemática Aplicada',  alcance: 22, lecturas: 19, hace: 'hace 3 días', color: '#3DAA6A' },
-      { id: 1, tipo: 'aviso',        titulo: 'Recordatorio - inscripción',       extracto: 'Cierre de inscripción al recuperatorio: 10 de mayo.',              curso: 'Algoritmos I',          alcance: 30, lecturas: 25, hace: 'hace 4 días', color: '#F5A623' }
+      { id: 5, tipo: 'urgente',      titulo: 'Cambio de aula para el parcial', extracto: 'El parcial del viernes se rinde en el aula 301 (no en la 204).', curso: 'Lógica Computacional', alcance: 28, lecturas: 21, hace: 'hace 2h', color: '#E67E5B' },
+      { id: 4, tipo: 'academico',    titulo: 'Subido: Apunte Unidad 3',         extracto: 'Funciones lógicas, leyes de De Morgan y simplificación.',         curso: 'Lógica Computacional', alcance: 28, lecturas: 23, hace: 'hace 1 día', color: '#2C3E87' },
+      { id: 3, tipo: 'institucional',titulo: 'Programado: Parcial 1',            extracto: 'Viernes 1 de mayo, 18:00 hs. Temario: unidades 1 a 3.',           curso: 'Lógica Computacional', alcance: 28, lecturas: 28, hace: 'hace 2 días', color: '#F5A623' },
+      { id: 2, tipo: 'academico',    titulo: 'Notas TP integrador',              extracto: 'Subidas las correcciones del TP integrador (22 de 28 trabajos).', curso: 'Matemática Aplicada',  alcance: 22, lecturas: 19, hace: 'hace 3 días', color: '#2C3E87' },
+      { id: 1, tipo: 'social',       titulo: 'Recordatorio - Evento CE',         extracto: 'No te olvides de la jornada de integración el próximo sábado.',    curso: 'Algoritmos I',          alcance: 30, lecturas: 25, hace: 'hace 4 días', color: '#3DAA6A' }
     ];
 
     /* ============================================================
@@ -1195,12 +1195,12 @@
     }
     function iconForType(t) {
       const map = {
-        aviso:        '<svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3" stroke-linecap="round"/></svg>',
-        material:     '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6"/></svg>',
-        evaluacion:   '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        calificacion: '<svg viewBox="0 0 24 24"><path d="M12 2l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 15.5 6.8 18.2l1-5.8L3.5 8.2l5.9-.9z"/></svg>'
+        academico:     '<svg viewBox="0 0 24 24"><path d="M12 2l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 15.5 6.8 18.2l1-5.8L3.5 8.2l5.9-.9z"/></svg>',
+        social:        '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        institucional: '<svg viewBox="0 0 24 24"><path d="M3 21h18M3 10h18M5 21V10M19 21V10M9 21V10M15 21V10M12 3l9 7H3l9-7z" stroke-linejoin="round"/></svg>',
+        urgente:       '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       };
-      return map[t] || map.aviso;
+      return map[t] || map.academico;
     }
     renderPubs();
 
@@ -1398,10 +1398,10 @@
               <div class="pub-form__row">
                 <label>Tipo
                   <select name="tipo" required>
-                    <option value="aviso">📢 Aviso</option>
-                    <option value="material">📎 Material</option>
-                    <option value="evaluacion">📅 Evaluación / Examen</option>
-                    <option value="calificacion">⭐ Calificación</option>
+                    <option value="academico">📚 Académico</option>
+                    <option value="social">🎉 Social</option>
+                    <option value="institucional">🏛️ Institucional</option>
+                    <option value="urgente">⚠ Urgente</option>
                   </select>
                 </label>
                 <label>Materia destinataria
@@ -1432,7 +1432,7 @@
                 <div>
                   Esta publicación aparecerá <strong>automáticamente en el feed de novedades</strong>
                   y en el calendario de los alumnos del curso seleccionado.
-                  Si elegís tipo <strong>Evaluación</strong>, también se agenda en su calendario académico.
+                  Si elegís tipo <strong>Urgente</strong>, se notificará con prioridad alta.
                 </div>
               </div>
               <button type="submit" class="pub-form__submit">
@@ -1623,7 +1623,7 @@
         const cursoId = +data.get('curso');
         const cursoObj = cursos.find(c => c.id === cursoId);
         const tipo = data.get('tipo');
-        const colorMap = { aviso:'#F5A623', material:'#4A67C9', evaluacion:'#E67E5B', calificacion:'#3DAA6A' };
+        const colorMap = { academico:'#2C3E87', social:'#3DAA6A', institucional:'#F5A623', urgente:'#E67E5B' };
 
         publicaciones.unshift({
           id: Date.now(),
