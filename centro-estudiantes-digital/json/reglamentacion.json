@@ -2,6 +2,7 @@
   "documentos": [
     {
       "id": 1,
+      "tipo": "resolucion",
       "titulo": "Resolución 2022-43193672 - Diseño Curricular Profesorado de Educación Secundaria en Biología",
       "descripcion": "Resolución que establece el diseño curricular del Profesorado de Educación Secundaria en Biología.",
       "archivo": "Resolucion-2022-43193672-Diseño-Curricular-Profesorado-Biologia.pdf",
@@ -13,6 +14,7 @@
     },
     {
       "id": 2,
+      "tipo": "resolucion",
       "titulo": "Resolución 2022-43193469 - Diseño Curricular del Profesorado de Ciencia Política",
       "descripcion": "Resolución que define el diseño curricular del Profesorado de Ciencia Política.",
       "archivo": "Resolucion-2022-43193469-Diseño-Curricular-Profesorado-Ciencia-Politica.pdf",
@@ -24,6 +26,7 @@
     },
     {
       "id": 3,
+      "tipo": "resolucion",
       "titulo": "Resolución 2022-43195724 - Diseño Curricular del Profesorado de Química",
       "descripcion": "Resolución que establece el diseño curricular para el Profesorado de Química.",
       "archivo": "Resolucion-2022-43195724-Diseño-Curricular-Profesorado-Quimica.pdf",
@@ -35,6 +38,7 @@
     },
     {
       "id": 4,
+      "tipo": "resolucion",
       "titulo": "Resolución 2022-43193911 - Diseño Curricular del Profesorado de Economía",
       "descripcion": "Resolución que define el diseño curricular del Profesorado de Economía.",
       "archivo": "Resolucion-2022-43193911-Diseño-Curricular-Profesorado-Economia.pdf",
@@ -46,6 +50,7 @@
     },
     {
       "id": 5,
+      "tipo": "resolucion",
       "titulo": "Resolución 2022-43195438 - Diseño Curricular del Profesorado de Historia",
       "descripcion": "Resolución que establece el diseño curricular del Profesorado de Historia.",
       "archivo": "Resolucion-2022-43195438-Diseño-Curricular-Profesorado-Historia.pdf",
@@ -57,6 +62,7 @@
     },
     {
       "id": 6,
+      "tipo": "resolucion",
       "titulo": "Resolución 2022-43192390 - Diseño Curricular del Profesorado de Filosofía",
       "descripcion": "Resolución que define el diseño curricular del Profesorado de Filosofía.",
       "archivo": "Resolucion-2022-43192390-Diseño-Curricular-Profesorado-Filosofia.pdf",
@@ -68,6 +74,7 @@
     },
     {
       "id": 7,
+      "tipo": "resolucion",
       "titulo": "Resolución 2022-43194287 - Diseño Curricular del Profesorado de Física",
       "descripcion": "Resolución que establece el diseño curricular del Profesorado de Física.",
       "archivo": "Resolucion-2022-43194287-Diseño-Curricular-Profesorado-Fisica.pdf",
@@ -79,6 +86,7 @@
     },
     {
       "id": 8,
+      "tipo": "resolucion",
       "titulo": "Resolución 2022-43195171 - Diseño Curricular del Profesorado de Geografía",
       "descripcion": "Resolución que define el diseño curricular del Profesorado de Geografía.",
       "archivo": "Resolucion-2022-43195171-Diseño-Curricular-Profesorado-Geografia.pdf",
@@ -90,6 +98,7 @@
     },
     {
       "id": 9,
+      "tipo": "resolucion",
       "titulo": "Resolución 5886-03 - Criterios para acceder a la cobertura de cátedras",
       "descripcion": "Resolución que establece los criterios para la cobertura de cátedras en institutos de educación superior.",
       "archivo": "resolucion_5886_03_criterios_para_acceder_a_la_cobertura_de_catedras.pdf",
@@ -101,6 +110,7 @@
     },
     {
       "id": 10,
+      "tipo": "resolucion",
       "titulo": "Resolución 3121-04 - Condiciones para la figura de ayudante de cátedra y las formas de acreditación",
       "descripcion": "Resolución que reglamenta la figura de ayudante de cátedra y sus formas de acreditación.",
       "archivo": "resolucion_3121_04_condiciones_para_la_figura_de_ayudante_de_catedra.pdf",
@@ -112,6 +122,7 @@
     },
     {
       "id": 11,
+      "tipo": "resolucion",
       "titulo": "Resolución 4900-05 - Estatuto para Centros de Estudiantes",
       "descripcion": "Resolución que aprueba el estatuto para los centros de estudiantes de institutos de educación superior.",
       "archivo": "resolucion_4900_05_estatuto_centros_de_estudiantes.pdf",
@@ -123,6 +134,7 @@
     },
     {
       "id": 12,
+      "tipo": "resolucion",
       "titulo": "Resolución 2947-05 - Pautas de Funcionamiento de las Unidades Académicas",
       "descripcion": "Resolución que establece pautas de funcionamiento de las unidades académicas de la Subsecretaría de Educación.",
       "archivo": "resolucion_2947_05_unidades_academicas.pdf",
@@ -134,6 +146,7 @@
     },
     {
       "id": 13,
+      "tipo": "resolucion",
       "titulo": "Resolución 2383-05 - Institutos de Educación Superior",
       "descripcion": "Resolución que regula los institutos de educación superior y su organización.",
       "archivo": "resolucion_2383_05_institutos_educacion_superior.pdf",
@@ -145,6 +158,7 @@
     },
     {
       "id": 14,
+      "tipo": "resolucion",
       "titulo": "Resolución 4042-09 - Consejo Provincial de Educación Superior",
       "descripcion": "Resolución que regula el funcionamiento del Consejo Provincial de Educación Superior.",
       "archivo": "resolucion_4042_09_consejo_provincial_educacion_superior.pdf",
@@ -156,6 +170,7 @@
     },
     {
       "id": 15,
+      "tipo": "resolucion",
       "titulo": "Resolución 4043-09 - Reglamento Académico Marco",
       "descripcion": "Resolución que legisla el Reglamento Académico Marco para institutos de educación superior.",
       "archivo": "resolucion_4043_09_reglamento_academico_marco.pdf",
@@ -167,6 +182,7 @@
     },
     {
       "id": 16,
+      "tipo": "resolucion",
       "titulo": "Resolución 4044-09 - Consejo Académico Institucional (CAI)",
       "descripcion": "Resolución que crea y regula el Consejo Académico Institucional (CAI).",
       "archivo": "resolucion_4044_09_consejo_academico_institucional.pdf",
@@ -178,6 +194,7 @@
     },
     {
       "id": 17,
+      "tipo": "resolucion",
       "titulo": "Resolución 1504-11 - Criterios para la imposición de nombres de los institutos",
       "descripcion": "Resolución que establece criterios para la asignación de nombres a los institutos educativos.",
       "archivo": "resolucion_1504_11_criterios_nombres_institutos.pdf",
@@ -189,6 +206,7 @@
     },
     {
       "id": 18,
+      "tipo": "resolucion",
       "titulo": "Resolución 1639-17 - Modificaciones a las equivalencias de la 4043",
       "descripcion": "Resolución que modifica las equivalencias previstas en la Resolución 4043-09.",
       "archivo": "resolucion_1639_17_modificaciones_equivalencias_4043.pdf",
@@ -200,6 +218,7 @@
     },
     {
       "id": 19,
+      "tipo": "resolucion",
       "titulo": "Resolución Conjunta 1161-20 - Modificación Anexo I Resolución 5886-03",
       "descripcion": "Resolución conjunta que modifica el Anexo I de la Resolución 5886-03 sobre selección por evaluación.",
       "archivo": "Resolucion-conjunta-1161-20-modificacion-anexo1-5886-03.pdf",
@@ -211,6 +230,7 @@
     },
     {
       "id": 20,
+      "tipo": "resolucion",
       "titulo": "Resolución Conjunta 1872-20 - Currículum Prioritario",
       "descripcion": "Resolución conjunta que aprueba el Currículum Prioritario y pautas de evaluación para distintos niveles educativos.",
       "archivo": "Resolucion-conjunta-1872-20-curriculum-prioritario.pdf",
@@ -222,6 +242,7 @@
     },
     {
       "id": 21,
+      "tipo": "anexo",
       "titulo": "Anexo I - Currículum Prioritario",
       "descripcion": "Anexo que detalla el Currículum Prioritario aprobado por la Resolución conjunta 1872-20.",
       "archivo": "Anexo-I-Curriculum-Prioritario.pdf",

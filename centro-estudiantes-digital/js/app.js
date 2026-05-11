@@ -81,6 +81,7 @@ const state = {
   reglamentacion: null,
   filtroNovedad: 'todas',
   reglamentacionQuery: '',
+  reglamentacionType: 'todas',
   reglamentacionCategory: 'todas',
   calendarioMes: null,        // Date actual mostrada en el drawer
 
@@ -415,6 +416,7 @@ function buildNormativaItem(doc) {
 function bindReglamentacionSearch() {
   const searchInput = $('#reglamentacionSearch');
   const categoryButtons = $$('.search-categories .chip');
+  const typeButtons = $$('.tabs .chip');
 
   if (!searchInput || !categoryButtons.length) return;
 
@@ -431,14 +433,27 @@ function bindReglamentacionSearch() {
       renderReglamentacion();
     });
   });
+
+  typeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.reglamentacionType = btn.dataset.filterType;
+      typeButtons.forEach(x => x.classList.remove('chip--active'));
+      btn.classList.add('chip--active');
+      renderReglamentacion();
+    });
+  });
 }
 
 function getReglamentacionFiltered() {
   const query = state.reglamentacionQuery.trim().toLowerCase();
   const category = state.reglamentacionCategory;
+  const type = state.reglamentacionType;
   const docs = state.reglamentacion?.documentos || [];
 
   return docs.filter(doc => {
+    const typeMatch = type === 'todas' || String(doc.tipo).toLowerCase() === type;
+    if (!typeMatch) return false;
+
     const categoryMatch = category === 'todas' || String(doc.categoria).toLowerCase() === category;
     if (!categoryMatch) return false;
 
