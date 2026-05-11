@@ -818,6 +818,54 @@
       color: var(--brand-900, #1A1D4A);
     }
 
+    /* File input styling */
+    .file-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+    .file-input-label {
+      font: 600 .85rem 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .file-input-group {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .file-input-field {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+    .file-input-text {
+      display: inline-block;
+      padding: .65rem 1rem;
+      font: 500 .85rem 'Manrope', sans-serif;
+      color: #1A1D4A;
+      background: #f5f5f5;
+      border: 2px dashed rgba(143,163,227,.45);
+      border-radius: 9px;
+      transition: all .2s ease;
+      cursor: pointer;
+    }
+    .file-input-field:hover + .file-input-text {
+      background: rgba(143,163,227,.08);
+      border-color: rgba(143,163,227,.65);
+    }
+    .file-input-field:focus + .file-input-text {
+      outline: 2px solid rgba(143,163,227,.65);
+      outline-offset: 2px;
+    }
+    .file-input-field:has-file ~ .file-input-text {
+      border-color: #3DAA6A;
+      background: rgba(61,170,106,.05);
+      color: #2a8a52;
+      font-weight: 600;
+    }
+
     .admin-form__row {
       display: flex;
       gap: 1rem;
@@ -1701,6 +1749,21 @@
        ============================================================ */
 
     function renderNovedadesAdmin() {
+      const materiaField = admin.rol !== 'delegado' ? `
+            <label>Materia
+              <input list="materiasList" name="materia" placeholder="Ej: Lógica Computacional">
+              <datalist id="materiasList">
+                ${[
+                  'Lógica Computacional',
+                  'Estadística Aplicada',
+                  'Química Inorgánica',
+                  'Programación Avanzada',
+                  'Gestión Educativa'
+                ].map(m => `<option value="${m}">`).join('')}
+              </datalist>
+            </label>
+          ` : '';
+
       return `
         <div class="drawer__tabs">
           <button class="drawer__tab is-active" data-tab="lista">Lista (${novedades.length})</button>
@@ -1744,9 +1807,16 @@
               <label>
                 <input type="checkbox" name="destacada"> Destacar esta novedad
               </label>
-              <label>Adjunto (opcional)
-                <input type="text" name="adjunto" placeholder="Nombre del archivo adjunto">
-              </label>
+              ${materiaField}
+            </div>
+            <div class="admin-form__row">
+              <div class="file-input-wrapper">
+                <label for="adjunto-file" class="file-input-label">Adjunto (opcional)</label>
+                <div class="file-input-group">
+                  <input type="file" id="adjunto-file" name="adjunto" class="file-input-field">
+                  <span class="file-input-text">Seleccionar archivo</span>
+                </div>
+              </div>
             </div>
             <button type="submit" class="admin-form__submit">
               <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
@@ -1800,7 +1870,9 @@
             <div class="novedad-row" data-id="${n.id}">
               <div class="novedad-row__info">
                 <p class="novedad-row__titulo">${n.titulo}</p>
-                <p class="novedad-row__meta">${n.categoria} · ${n.autor} · ${new Date(n.fecha).toLocaleDateString()} ${n.destacada ? '· ⭐ Destacada' : ''}</p>
+                <p class="novedad-row__meta">
+                  ${n.categoria} · ${n.autor} · ${new Date(n.fecha).toLocaleDateString()}${n.materia ? ` · ${n.materia}` : ''} ${n.destacada ? '· ⭐ Destacada' : ''}
+                </p>
               </div>
               <div class="novedad-row__menu" data-menu>
                 <button class="novedad-row__menu-btn" data-menu-btn aria-label="Acciones">
@@ -1825,6 +1897,7 @@
       document.getElementById('newNovedadForm').addEventListener('submit', e => {
         e.preventDefault();
         const data = new FormData(e.target);
+        const adjuntoFile = document.getElementById('adjunto-file').files[0];
         const nueva = {
           id: Date.now(),
           titulo: data.get('titulo'),
@@ -1835,15 +1908,32 @@
           autor: admin.nombre,
           destacada: data.has('destacada'),
           fecha: new Date().toISOString(),
-          adjunto: data.get('adjunto') || null
+          materia: data.get('materia')?.trim() || null,
+          adjunto: adjuntoFile ? adjuntoFile.name : null
         };
         novedades.push(nueva);
-        auditar('crear', 'novedad', `Nueva: ${nueva.titulo}`);
+        auditar('crear', 'novedad', `Nueva: ${nueva.titulo}` + (adjuntoFile ? ` (archivo: ${adjuntoFile.name})` : ''));
         showToast('Novedad publicada', `${nueva.titulo} fue agregada al sistema.`);
         e.target.reset();
+        document.querySelector('.file-input-text').textContent = 'Seleccionar archivo';
         showTab('lista');
         renderNovedades();
       });
+
+      // Handle file input change
+      const fileInput = document.getElementById('adjunto-file');
+      if (fileInput) {
+        fileInput.addEventListener('change', e => {
+          const fileText = document.querySelector('.file-input-text');
+          if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const fileSize = (e.target.files[0].size / 1024).toFixed(1);
+            fileText.textContent = `📎 ${fileName} (${fileSize} KB)`;
+          } else {
+            fileText.textContent = 'Seleccionar archivo';
+          }
+        });
+      }
 
       // Categorías
       function renderCategorias() {
@@ -2086,6 +2176,7 @@
         n.categoria_id = +data.get('categoria_id');
         n.categoria = categorias.find(c => c.id == n.categoria_id).nombre;
         n.destacada = data.has('destacada');
+        n.materia = data.get('materia')?.trim() || null;
         n.adjunto = data.get('adjunto') || null;
         auditar('editar', 'novedad', `Editada: ${n.titulo}`);
         showToast('Novedad actualizada', `Los datos de ${n.titulo} fueron guardados.`);

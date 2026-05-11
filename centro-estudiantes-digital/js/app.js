@@ -19,6 +19,7 @@ const API = {
   calendario:      'json/calendario.json',
   reglamentacion:  'json/reglamentacion.json',
   notificaciones:  'json/notificaciones.json',
+  carreras:        'json/carreras.json',
 };
 
 /* ----------------------------------------------------------------
@@ -61,6 +62,17 @@ function timeAgo(isoDate) {
   return d.toLocaleDateString('es-AR');
 }
 
+function getUniqueNewsSubjects() {
+  const items = state.novedades?.novedades || [];
+  const map = new Map();
+  items.forEach(n => {
+    if (!n.materia_id) return;
+    const nombre = n.materia ? String(n.materia).trim() : `Materia ${n.materia_id}`;
+    if (!map.has(n.materia_id)) map.set(n.materia_id, nombre);
+  });
+  return [...map.entries()].map(([id, nombre]) => ({ id, nombre }));
+}
+
 /** Devuelve un color "soft" a partir de un hex (para fondo de chips) */
 function softColor(hex, alpha = 0.14) {
   const h = hex.replace('#','');
@@ -82,6 +94,11 @@ const state = {
   filtroNovedad: 'todas',
   reglamentacionQuery: '',
   reglamentacionCategory: 'todas',
+  carreras: null,
+  filtroCarrera: 'todas',
+  filtroMateria: 'todas',
+  filtroFechaDesde: '',
+  filtroFechaHasta: '',
   calendarioMes: null,        // Date actual mostrada en el drawer
   calendarioFiltro: 'todos',  // Filtro de eventos del calendario
 
@@ -107,16 +124,17 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   // Cargamos todo en paralelo desde la "API Mock"
-  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones] = await Promise.all([
+  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras] = await Promise.all([
     fetchJSON(API.usuario),
     fetchJSON(API.novedades),
     fetchJSON(API.eventos),
     fetchJSON(API.calendario),
     fetchJSON(API.reglamentacion),
     fetchJSON(API.notificaciones),
+    fetchJSON(API.carreras),
   ]);
 
-  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones });
+  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras });
 
   // Renderizamos las secciones del dashboard
   renderUserHeader();
@@ -318,9 +336,16 @@ function inscribirseEvento(id) {
 ---------------------------------------------------------------- */
 function renderNewsFilters() {
   const cont = $('#newsFilters');
-  const cats = state.novedades?.categorias || [];
+  if (!cont) return;
 
-  // El "Todas" ya está hardcodeado, agregamos el resto dinámicamente
+  const cats = state.novedades?.categorias || [];
+  const careers = state.carreras || [];
+  const subjects = getUniqueNewsSubjects();
+
+  cont.innerHTML = `
+    <button class="chip chip--active" data-filter="todas">Todas</button>
+  `;
+
   cats.forEach(c => {
     const chip = document.createElement('button');
     chip.className = 'chip';
@@ -328,20 +353,78 @@ function renderNewsFilters() {
     chip.textContent = c.nombre;
     chip.addEventListener('click', () => {
       state.filtroNovedad = String(c.id);
-      $$('.chip', cont).forEach(x => x.classList.remove('chip--active'));
+      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
       chip.classList.add('chip--active');
       renderNewsList();
     });
     cont.appendChild(chip);
   });
 
-  // Bindeamos el chip "Todas"
-  $('[data-filter="todas"]').addEventListener('click', (e) => {
-    state.filtroNovedad = 'todas';
-    $$('.chip', cont).forEach(x => x.classList.remove('chip--active'));
-    e.currentTarget.classList.add('chip--active');
-    renderNewsList();
-  });
+  const allButton = cont.querySelector('button[data-filter="todas"]');
+  if (allButton) {
+    allButton.addEventListener('click', (e) => {
+      state.filtroNovedad = 'todas';
+      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
+      e.currentTarget.classList.add('chip--active');
+      renderNewsList();
+    });
+  }
+
+  const extraWrapper = document.createElement('div');
+  extraWrapper.className = 'news-filters__extra';
+  extraWrapper.innerHTML = `
+    <label class="news-filters__field">Carrera
+      <select id="newsCareerFilter">
+        <option value="todas">Todas las carreras</option>
+        ${careers.map(c => `<option value="${c.id}">${c.codigo} – ${c.nombre}</option>`).join('')}
+      </select>
+    </label>
+    <label class="news-filters__field">Materia
+      <select id="newsSubjectFilter">
+        <option value="todas">Todas las materias</option>
+        ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
+      </select>
+    </label>
+    <label class="news-filters__field">Desde
+      <input id="newsDateFrom" type="date" value="${state.filtroFechaDesde}">
+    </label>
+    <label class="news-filters__field">Hasta
+      <input id="newsDateTo" type="date" value="${state.filtroFechaHasta}">
+    </label>
+  `;
+  cont.appendChild(extraWrapper);
+
+  const careerSelect = extraWrapper.querySelector('#newsCareerFilter');
+  const subjectSelect = extraWrapper.querySelector('#newsSubjectFilter');
+  const dateFrom = extraWrapper.querySelector('#newsDateFrom');
+  const dateTo = extraWrapper.querySelector('#newsDateTo');
+
+  if (careerSelect) {
+    careerSelect.value = state.filtroCarrera;
+    careerSelect.addEventListener('change', () => {
+      state.filtroCarrera = careerSelect.value;
+      renderNewsList();
+    });
+  }
+  if (subjectSelect) {
+    subjectSelect.value = state.filtroMateria;
+    subjectSelect.addEventListener('change', () => {
+      state.filtroMateria = subjectSelect.value;
+      renderNewsList();
+    });
+  }
+  if (dateFrom) {
+    dateFrom.addEventListener('change', () => {
+      state.filtroFechaDesde = dateFrom.value;
+      renderNewsList();
+    });
+  }
+  if (dateTo) {
+    dateTo.addEventListener('change', () => {
+      state.filtroFechaHasta = dateTo.value;
+      renderNewsList();
+    });
+  }
 }
 
 function renderNewsList() {
@@ -353,6 +436,18 @@ function renderNewsList() {
   let lista = [...novedades];
   if (state.filtroNovedad !== 'todas') {
     lista = lista.filter(n => String(n.categoria_id) === state.filtroNovedad);
+  }
+  if (state.filtroCarrera !== 'todas') {
+    lista = lista.filter(n => String(n.carrera_id) === state.filtroCarrera);
+  }
+  if (state.filtroMateria !== 'todas') {
+    lista = lista.filter(n => String(n.materia_id) === state.filtroMateria);
+  }
+  if (state.filtroFechaDesde) {
+    lista = lista.filter(n => new Date(n.fecha) >= new Date(state.filtroFechaDesde));
+  }
+  if (state.filtroFechaHasta) {
+    lista = lista.filter(n => new Date(n.fecha) <= new Date(state.filtroFechaHasta));
   }
 
   // Ordenar por destacada + fecha
