@@ -1,14 +1,19 @@
 {
   "eventos_calendario": [
+    { "fecha": "2026-01-01", "titulo": "Feriado: Año Nuevo", "tipo": "feriado", "color": "#E67E5B" },
+    { "fecha": "2026-02-16", "titulo": "Feriado: Carnaval", "tipo": "feriado", "color": "#E67E5B" },
+    { "fecha": "2026-02-17", "titulo": "Feriado: Carnaval", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-03-02", "titulo": "Inscripción a materias", "tipo": "inscripcion", "color": "#3DAA6A" },
     { "fecha": "2026-03-16", "titulo": "Inicio 1er Cuatrimestre", "tipo": "academico", "color": "#F5A623" },
     { "fecha": "2026-03-24", "titulo": "Feriado: Día de la Memoria", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-04-02", "titulo": "Feriado: Día del Veterano", "tipo": "feriado", "color": "#E67E5B" },
+    { "fecha": "2026-04-03", "titulo": "Feriado: Viernes Santo", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-04-15", "titulo": "Límite: Entrega TP1", "tipo": "clase", "color": "#0ea5e9" },
     { "fecha": "2026-05-01", "titulo": "Feriado: Día del Trabajador", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-05-11", "titulo": "Semana 1ros Parciales", "tipo": "examen", "color": "#3A5BA9" },
     { "fecha": "2026-05-15", "titulo": "Fin 1ros Parciales", "tipo": "examen", "color": "#3A5BA9" },
     { "fecha": "2026-05-25", "titulo": "Feriado: Revolución de Mayo", "tipo": "feriado", "color": "#E67E5B" },
+    { "fecha": "2026-05-30", "titulo": "Feriado Local: Día de Chascomús", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-06-01", "titulo": "Charla: Intro a Data Science (CE)", "tipo": "evento", "color": "#8B5CF6" },
     { "fecha": "2026-06-15", "titulo": "Feriado: Inmortalidad Güemes", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-06-20", "titulo": "Feriado: Inmortalidad Belgrano", "tipo": "feriado", "color": "#E67E5B" },
@@ -22,6 +27,7 @@
     { "fecha": "2026-08-17", "titulo": "Feriado: Inmortalidad San Martín", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-09-11", "titulo": "Día del Maestro", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-09-21", "titulo": "Día del Estudiante / Festival CE", "tipo": "evento", "color": "#8B5CF6" },
+    { "fecha": "2026-09-24", "titulo": "Feriado Local: Fiestas Patronales", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-10-12", "titulo": "Feriado: Diversidad Cultural", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-10-13", "titulo": "Semana 1ros Parciales (2C)", "tipo": "examen", "color": "#3A5BA9" },
     { "fecha": "2026-10-30", "titulo": "Límite: Entrega TP Integrador", "tipo": "clase", "color": "#0ea5e9" },
@@ -31,7 +37,8 @@
     { "fecha": "2026-11-27", "titulo": "Cierre 2do Cuatrimestre", "tipo": "academico", "color": "#F5A623" },
     { "fecha": "2026-12-08", "titulo": "Feriado: Inmaculada Concepción", "tipo": "feriado", "color": "#E67E5B" },
     { "fecha": "2026-12-10", "titulo": "Mesas Finales (Diciembre) - Inicio", "tipo": "examen", "color": "#3A5BA9" },
-    { "fecha": "2026-12-22", "titulo": "Mesas Finales (Diciembre) - Fin", "tipo": "examen", "color": "#3A5BA9" }
+    { "fecha": "2026-12-22", "titulo": "Mesas Finales (Diciembre) - Fin", "tipo": "examen", "color": "#3A5BA9" },
+    { "fecha": "2026-12-25", "titulo": "Feriado: Navidad", "tipo": "feriado", "color": "#E67E5B" }
   ],
   "tipos": [
     { "id": "academico", "nombre": "Académico", "color": "#F5A623" },

@@ -24,6 +24,7 @@
 =================================================================
 -->
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,8 +37,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+    rel="stylesheet" />
 
   <!-- === ESTILOS HEREDADOS DEL PROYECTO === -->
   <link rel="stylesheet" href="css/styles.css" />
@@ -54,7 +54,9 @@
        ============================================================ */
     .impersonate-banner {
       position: sticky;
-      top: 0; left: 0; right: 0;
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 200;
       display: none;
       align-items: center;
@@ -65,17 +67,29 @@
       font: 600 .85rem/1.3 'Manrope', sans-serif;
       box-shadow: 0 4px 16px -4px rgba(230, 126, 91, .55);
     }
-    .impersonate-banner.is-visible { display: flex; }
+
+    .impersonate-banner.is-visible {
+      display: flex;
+    }
+
     .impersonate-banner svg {
-      width: 18px; height: 18px;
-      stroke: currentColor; fill: none; stroke-width: 2;
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
       flex-shrink: 0;
     }
-    .impersonate-banner__main { flex: 1; }
+
+    .impersonate-banner__main {
+      flex: 1;
+    }
+
     .impersonate-banner__main strong {
       display: block;
       font: 700 .92rem 'Bricolage Grotesque', serif;
     }
+
     .impersonate-banner__exit {
       padding: .5rem 1rem;
       font: 700 .78rem/1 'Manrope', sans-serif;
@@ -86,7 +100,10 @@
       cursor: pointer;
       transition: transform .2s ease;
     }
-    .impersonate-banner__exit:hover { transform: translateY(-1px); }
+
+    .impersonate-banner__exit:hover {
+      transform: translateY(-1px);
+    }
 
     /* ============================================================
        PILL DE ROL (rojo/coral en lugar del ámbar del docente)
@@ -105,9 +122,13 @@
       box-shadow: 0 4px 10px -4px rgba(192, 57, 43, .5);
       margin-bottom: .35rem;
     }
+
     .role-pill svg {
-      width: 12px; height: 12px;
-      stroke: currentColor; fill: none; stroke-width: 2.4;
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.4;
     }
 
     /* ============================================================
@@ -117,11 +138,14 @@
       position: relative;
       background: linear-gradient(135deg, #C0392B, #1A1D4A) !important;
     }
+
     .avatar--admin::after {
       content: "";
       position: absolute;
-      bottom: -3px; right: -3px;
-      width: 18px; height: 18px;
+      bottom: -3px;
+      right: -3px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       background: #fff;
       background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C0392B' stroke-width='2.4'><path d='M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z'/><path d='M9 12l2 2 4-4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
@@ -148,13 +172,18 @@
       box-shadow: 0 6px 18px -6px rgba(192, 57, 43, .5);
       transition: transform .2s ease, box-shadow .2s ease;
     }
+
     .header__action:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 22px -8px rgba(192, 57, 43, .6);
     }
+
     .header__action svg {
-      width: 14px; height: 14px;
-      stroke: currentColor; fill: none; stroke-width: 2.2;
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
     }
 
     /* ============================================================
@@ -169,6 +198,7 @@
       border-radius: 14px;
       overflow: hidden;
     }
+
     .pending-card::before {
       content: "";
       position: absolute;
@@ -176,6 +206,7 @@
       height: 4px;
       background: var(--pending-color, #F5A623);
     }
+
     .pending-card__type {
       display: inline-block;
       font: 600 .65rem/1 'Manrope', sans-serif;
@@ -187,20 +218,24 @@
       border-radius: 5px;
       margin-bottom: .6rem;
     }
+
     .pending-card__title {
       margin: 0 0 .25rem;
       font: 700 .96rem/1.25 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .pending-card__sub {
       margin: 0 0 .9rem;
       font: 400 .8rem/1.4 'Manrope', sans-serif;
       color: #5a5d6e;
     }
+
     .pending-card__actions {
       display: flex;
       gap: .4rem;
     }
+
     .pending-card__btn {
       flex: 1;
       padding: .5rem .7rem;
@@ -210,11 +245,16 @@
       cursor: pointer;
       transition: transform .2s ease;
     }
-    .pending-card__btn:hover { transform: translateY(-1px); }
+
+    .pending-card__btn:hover {
+      transform: translateY(-1px);
+    }
+
     .pending-card__btn--ok {
       background: var(--accent-green, #3DAA6A);
       color: #fff;
     }
+
     .pending-card__btn--no {
       background: #fff;
       color: var(--accent-coral, #E67E5B);
@@ -235,26 +275,44 @@
       border-radius: 11px;
       margin-bottom: .55rem;
     }
+
     .audit-item::before {
       content: "";
       position: absolute;
-      left: 0; top: 14%; bottom: 14%;
+      left: 0;
+      top: 14%;
+      bottom: 14%;
       width: 4px;
       border-radius: 0 4px 4px 0;
       background: var(--audit-color, var(--brand-500, #4A67C9));
     }
+
     .audit-item__icon {
-      width: 34px; height: 34px;
+      width: 34px;
+      height: 34px;
       border-radius: 9px;
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
       background: color-mix(in srgb, var(--audit-color, #4A67C9) 12%, white);
       color: var(--audit-color, #4A67C9);
     }
-    .audit-item__icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; }
+
+    .audit-item__icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+    }
+
     .audit-item__head {
-      display: flex; gap: .5rem; align-items: center; flex-wrap: wrap;
+      display: flex;
+      gap: .5rem;
+      align-items: center;
+      flex-wrap: wrap;
       margin-bottom: .15rem;
     }
+
     .audit-item__action {
       font: 600 .65rem/1 'Manrope', sans-serif;
       letter-spacing: .1em;
@@ -264,20 +322,24 @@
       padding: .25rem .45rem;
       border-radius: 5px;
     }
+
     .audit-item__time {
       font: 500 .72rem/1 'Manrope', sans-serif;
       color: #8a8d9c;
     }
+
     .audit-item__desc {
       margin: 0;
       font: 500 .85rem/1.35 'Manrope', sans-serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .audit-item__detail {
       margin: .15rem 0 0;
       font: 400 .76rem/1.3 'Manrope', sans-serif;
       color: #6c6f80;
     }
+
     .audit-item__user {
       align-self: center;
       display: flex;
@@ -288,6 +350,7 @@
       color: #6c6f80;
       white-space: nowrap;
     }
+
     .audit-item__user b {
       color: var(--brand-900, #1A1D4A);
       font-family: 'Bricolage Grotesque', serif;
@@ -309,29 +372,50 @@
       margin-bottom: .35rem;
       transition: box-shadow .2s ease;
     }
-    .user-row:hover { box-shadow: 0 6px 16px -10px rgba(26, 29, 74, .25); }
-    .user-row[data-inactive="true"] { opacity: .6; }
+
+    .user-row:hover {
+      box-shadow: 0 6px 16px -10px rgba(26, 29, 74, .25);
+    }
+
+    .user-row[data-inactive="true"] {
+      opacity: .6;
+    }
+
     .user-row__avatar {
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
       background: linear-gradient(135deg, var(--brand-500, #4A67C9), var(--brand-300, #8FA3E3));
       color: #fff;
       font: 700 .76rem/1 'Manrope', sans-serif;
     }
-    .user-row__avatar[data-rol="admin"]    { background: linear-gradient(135deg, #C0392B, #1A1D4A); }
-    .user-row__avatar[data-rol="docente"]  { background: linear-gradient(135deg, #F5A623, #E67E5B); }
-    .user-row__avatar[data-rol="delegado"] { background: linear-gradient(135deg, #8B5CF6, #4A67C9); }
+
+    .user-row__avatar[data-rol="admin"] {
+      background: linear-gradient(135deg, #C0392B, #1A1D4A);
+    }
+
+    .user-row__avatar[data-rol="docente"] {
+      background: linear-gradient(135deg, #F5A623, #E67E5B);
+    }
+
+    .user-row__avatar[data-rol="delegado"] {
+      background: linear-gradient(135deg, #8B5CF6, #4A67C9);
+    }
+
     .user-row__name {
       margin: 0;
       font: 600 .88rem/1.2 'Manrope', sans-serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .user-row__meta {
       margin: .15rem 0 0;
       font: 400 .72rem/1.2 'Manrope', sans-serif;
       color: #8a8d9c;
     }
+
     .user-row__rol {
       padding: .25rem .55rem;
       font: 600 .68rem/1 'Manrope', sans-serif;
@@ -339,17 +423,36 @@
       letter-spacing: .08em;
       border-radius: 999px;
     }
-    .user-row__rol[data-rol="alumno"]    { background: rgba(74, 103, 201, .12);  color: #2C3E87; }
-    .user-row__rol[data-rol="docente"]   { background: rgba(245, 166, 35, .15); color: #B5781C; }
-    .user-row__rol[data-rol="delegado"]  { background: rgba(139, 92, 246, .12); color: #6B3CC4; }
-    .user-row__rol[data-rol="admin"]     { background: rgba(192, 57, 43, .12);  color: #C0392B; }
+
+    .user-row__rol[data-rol="alumno"] {
+      background: rgba(74, 103, 201, .12);
+      color: #2C3E87;
+    }
+
+    .user-row__rol[data-rol="docente"] {
+      background: rgba(245, 166, 35, .15);
+      color: #B5781C;
+    }
+
+    .user-row__rol[data-rol="delegado"] {
+      background: rgba(139, 92, 246, .12);
+      color: #6B3CC4;
+    }
+
+    .user-row__rol[data-rol="admin"] {
+      background: rgba(192, 57, 43, .12);
+      color: #C0392B;
+    }
 
     .user-row__menu {
       position: relative;
     }
+
     .user-row__menu-btn {
-      width: 32px; height: 32px;
-      display: grid; place-items: center;
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
       border: none;
       background: transparent;
       color: #8a8d9c;
@@ -357,11 +460,24 @@
       cursor: pointer;
       transition: background .2s ease;
     }
-    .user-row__menu-btn:hover { background: var(--brand-100, #E3E9FA); color: var(--brand-700, #2C3E87); }
-    .user-row__menu-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .user-row__menu-btn:hover {
+      background: var(--brand-100, #E3E9FA);
+      color: var(--brand-700, #2C3E87);
+    }
+
+    .user-row__menu-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
     .user-row__menu-dropdown {
       position: absolute;
-      top: calc(100% + 4px); right: 0;
+      top: calc(100% + 4px);
+      right: 0;
       min-width: 180px;
       background: #fff;
       border: 1px solid rgba(143, 163, 227, .3);
@@ -371,7 +487,11 @@
       display: none;
       z-index: 20;
     }
-    .user-row__menu.is-open .user-row__menu-dropdown { display: block; }
+
+    .user-row__menu.is-open .user-row__menu-dropdown {
+      display: block;
+    }
+
     .user-row__menu-dropdown button {
       width: 100%;
       text-align: left;
@@ -386,10 +506,27 @@
       gap: .55rem;
       align-items: center;
     }
-    .user-row__menu-dropdown button:hover { background: var(--brand-100, #E3E9FA); }
-    .user-row__menu-dropdown button.is-danger { color: var(--accent-coral, #E67E5B); }
-    .user-row__menu-dropdown button.is-danger:hover { background: rgba(230, 126, 91, .1); }
-    .user-row__menu-dropdown button svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.9; }
+
+    .user-row__menu-dropdown button:hover {
+      background: var(--brand-100, #E3E9FA);
+    }
+
+    .user-row__menu-dropdown button.is-danger {
+      color: var(--accent-coral, #E67E5B);
+    }
+
+    .user-row__menu-dropdown button.is-danger:hover {
+      background: rgba(230, 126, 91, .1);
+    }
+
+    .user-row__menu-dropdown button svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+    }
+
     .user-row__menu-dropdown hr {
       border: none;
       border-top: 1px solid rgba(143, 163, 227, .25);
@@ -404,18 +541,23 @@
       flex-direction: column;
       gap: .9rem;
     }
+
     .admin-form__row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: .7rem;
     }
+
     .admin-form label {
-      display: flex; flex-direction: column; gap: .3rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
       font: 600 .72rem/1 'Manrope', sans-serif;
       color: var(--brand-700, #2C3E87);
       letter-spacing: .04em;
       text-transform: uppercase;
     }
+
     .admin-form input,
     .admin-form select,
     .admin-form textarea {
@@ -428,12 +570,14 @@
       outline: none;
       transition: border-color .15s ease, box-shadow .15s ease;
     }
+
     .admin-form input:focus,
     .admin-form select:focus,
     .admin-form textarea:focus {
       border-color: var(--accent-coral, #E67E5B);
       box-shadow: 0 0 0 3px rgba(230, 126, 91, .15);
     }
+
     .admin-form__submit {
       align-self: flex-start;
       display: inline-flex;
@@ -449,8 +593,18 @@
       box-shadow: 0 8px 20px -8px rgba(192, 57, 43, .5);
       transition: transform .2s ease;
     }
-    .admin-form__submit:hover { transform: translateY(-1px); }
-    .admin-form__submit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+    .admin-form__submit:hover {
+      transform: translateY(-1px);
+    }
+
+    .admin-form__submit svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
 
     /* ============================================================
        TABS COMPARTIDOS (heredados del docente)
@@ -464,6 +618,7 @@
       margin-bottom: 1.2rem;
       flex-wrap: wrap;
     }
+
     .drawer__tab {
       flex: 1;
       min-width: 80px;
@@ -476,11 +631,13 @@
       cursor: pointer;
       transition: background .2s ease;
     }
+
     .drawer__tab.is-active {
       background: #fff;
       color: var(--brand-900, #1A1D4A);
       box-shadow: 0 4px 10px -4px rgba(26, 29, 74, .15);
     }
+
     .drawer__tab .badge {
       display: inline-block;
       padding: .1rem .35rem;
@@ -501,10 +658,20 @@
       border-radius: 10px;
       margin-bottom: .8rem;
     }
-    .drawer__search svg { width: 16px; height: 16px; color: #8a8d9c; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .drawer__search svg {
+      width: 16px;
+      height: 16px;
+      color: #8a8d9c;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
     .drawer__search input {
       flex: 1;
-      border: none; outline: none;
+      border: none;
+      outline: none;
       font: 400 .88rem/1 'Manrope', sans-serif;
       color: var(--brand-900, #1A1D4A);
       background: transparent;
@@ -522,7 +689,11 @@
       place-items: center;
       z-index: 300;
     }
-    .danger-modal.is-visible { display: grid; }
+
+    .danger-modal.is-visible {
+      display: grid;
+    }
+
     .danger-modal__card {
       width: min(440px, calc(100vw - 2rem));
       background: #fff;
@@ -531,32 +702,49 @@
       box-shadow: 0 24px 60px -10px rgba(0, 0, 0, .35);
       border-top: 6px solid #C0392B;
     }
+
     .danger-modal__icon {
-      width: 52px; height: 52px;
+      width: 52px;
+      height: 52px;
       border-radius: 14px;
       background: rgba(192, 57, 43, .1);
       color: #C0392B;
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
       margin-bottom: 1rem;
     }
-    .danger-modal__icon svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .danger-modal__icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
     .danger-modal__title {
       margin: 0 0 .5rem;
       font: 700 1.2rem/1.2 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .danger-modal__msg {
       margin: 0 0 1.2rem;
       font: 400 .9rem/1.45 'Manrope', sans-serif;
       color: #5a5d6e;
     }
-    .danger-modal__msg strong { color: var(--brand-900, #1A1D4A); }
+
+    .danger-modal__msg strong {
+      color: var(--brand-900, #1A1D4A);
+    }
+
     .danger-modal__hint {
       font: 600 .72rem/1.3 'Manrope', sans-serif;
       color: #6c6f80;
       letter-spacing: .04em;
       margin-bottom: .4rem;
     }
+
     .danger-modal__hint code {
       font: 700 .82rem 'Bricolage Grotesque', serif;
       color: #C0392B;
@@ -565,6 +753,7 @@
       padding: 0 .35rem;
       border-radius: 4px;
     }
+
     .danger-modal__input {
       width: 100%;
       padding: .7rem .9rem;
@@ -577,10 +766,17 @@
       box-sizing: border-box;
       margin-bottom: 1rem;
     }
-    .danger-modal__input:focus { border-color: #C0392B; }
-    .danger-modal__actions {
-      display: flex; gap: .55rem; justify-content: flex-end;
+
+    .danger-modal__input:focus {
+      border-color: #C0392B;
     }
+
+    .danger-modal__actions {
+      display: flex;
+      gap: .55rem;
+      justify-content: flex-end;
+    }
+
     .danger-modal__cancel {
       padding: .7rem 1.1rem;
       font: 600 .82rem 'Manrope', sans-serif;
@@ -590,6 +786,7 @@
       border-radius: 9px;
       cursor: pointer;
     }
+
     .danger-modal__confirm {
       padding: .7rem 1.3rem;
       font: 700 .82rem 'Manrope', sans-serif;
@@ -602,6 +799,7 @@
       pointer-events: none;
       transition: opacity .2s ease;
     }
+
     .danger-modal__confirm.is-armed {
       opacity: 1;
       pointer-events: auto;
@@ -622,11 +820,14 @@
       font: 600 .82rem 'Manrope', sans-serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .cat-chip__dot {
-      width: 10px; height: 10px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--cat-color, #4A67C9);
     }
+
     .cat-chip__del {
       background: transparent;
       border: none;
@@ -636,7 +837,10 @@
       font-size: 1.1rem;
       line-height: 1;
     }
-    .cat-chip__del:hover { color: var(--accent-coral, #E67E5B); }
+
+    .cat-chip__del:hover {
+      color: var(--accent-coral, #E67E5B);
+    }
 
     /* ============================================================
        Reglamentos versionados
@@ -648,16 +852,21 @@
       border-radius: 11px;
       margin-bottom: .55rem;
     }
+
     .regl-row__head {
-      display: flex; justify-content: space-between; align-items: flex-start;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       gap: .8rem;
       margin-bottom: .35rem;
     }
+
     .regl-row__title {
       margin: 0;
       font: 700 .95rem/1.25 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .regl-row__ver {
       font: 700 .68rem/1 'Manrope', sans-serif;
       letter-spacing: .08em;
@@ -668,16 +877,21 @@
       border-radius: 6px;
       flex-shrink: 0;
     }
+
     .regl-row__meta {
       font: 400 .76rem/1.3 'Manrope', sans-serif;
       color: #6c6f80;
       margin: 0 0 .55rem;
     }
+
     .regl-row__history {
-      display: flex; gap: .35rem; flex-wrap: wrap;
+      display: flex;
+      gap: .35rem;
+      flex-wrap: wrap;
       padding-top: .55rem;
       border-top: 1px dashed rgba(143, 163, 227, .35);
     }
+
     .regl-row__history small {
       font: 500 .7rem 'Manrope', sans-serif;
       color: #8a8d9c;
@@ -691,7 +905,8 @@
        ============================================================ */
     .toast {
       position: fixed;
-      bottom: 1.5rem; right: 1.5rem;
+      bottom: 1.5rem;
+      right: 1.5rem;
       max-width: 380px;
       padding: .9rem 1.1rem .9rem 1rem;
       background: #fff;
@@ -699,133 +914,413 @@
       box-shadow: 0 18px 40px -10px rgba(26, 29, 74, .35);
       border-left: 4px solid var(--toast-color, var(--accent-green, #3DAA6A));
       transform: translateX(120%);
-      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
       z-index: 999;
       display: flex;
       gap: .7rem;
       align-items: flex-start;
     }
-    .toast.is-visible { transform: translateX(0); }
+
+    .toast.is-visible {
+      transform: translateX(0);
+    }
+
     .toast__icon {
-      width: 28px; height: 28px; flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
       border-radius: 50%;
       background: color-mix(in srgb, var(--toast-color, #3DAA6A) 15%, white);
       color: var(--toast-color, #3DAA6A);
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
     }
-    .toast__icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+    .toast__icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+    }
+
     .toast strong {
       display: block;
       font: 700 .85rem/1.2 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
       margin-bottom: .15rem;
     }
+
     .toast span {
       font: 400 .76rem/1.4 'Manrope', sans-serif;
       color: #5a5d6e;
     }
 
-    .header__nav { gap: .9rem; }
+    .header__nav {
+      gap: .9rem;
+    }
 
     /* ============================================================
        CALENDARIO (Administrador)
        ============================================================ */
-    #adminCalContainer { max-width: 440px; }
-    
+    #adminCalContainer {
+      max-width: 440px;
+    }
+
+    /* New styles for calendar layout */
+    .calendar-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      /* Calendar grid on left, event list on right */
+      gap: 1.5rem;
+      align-items: start;
+      /* Align items to the top */
+    }
+
+    .calendar-layout__grid {
+      /* Styles for the calendar grid itself */
+    }
+
+    .calendar-layout__list {
+      /* Styles for the event list */
+      max-height: 500px;
+      /* Limit height for scrolling */
+      overflow-y: auto;
+      padding-right: 5px;
+      /* Space for scrollbar */
+    }
+
+    .calendar-layout__list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .calendar-layout__list::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: var(--r-full);
+    }
+
     .cal-nav-btn {
-      display: grid; place-items: center;
-      width: 28px; height: 28px;
-      background: transparent; border: 1px solid rgba(143, 163, 227, .35);
-      border-radius: 6px; color: var(--brand-700, #2C3E87); cursor: pointer;
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      background: transparent;
+      border: 1px solid rgba(143, 163, 227, .35);
+      border-radius: 6px;
+      color: var(--brand-700, #2C3E87);
+      cursor: pointer;
       transition: background .2s ease, color .2s ease;
     }
-    .cal-nav-btn:hover { background: var(--brand-100, #E3E9FA); color: var(--brand-900, #1A1D4A); }
+
+    .cal-nav-btn:hover {
+      background: var(--brand-100, #E3E9FA);
+      color: var(--brand-900, #1A1D4A);
+    }
+
     .cal-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
     }
+
     .cal-head {
-      text-align: center; font: 600 .65rem/1 'Manrope', sans-serif;
-      text-transform: uppercase; letter-spacing: .05em; color: #8a8d9c; padding-bottom: .3rem;
+      text-align: center;
+      font: 600 .65rem/1 'Manrope', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #8a8d9c;
+      padding-bottom: .3rem;
     }
+
     .cal-cell {
-      aspect-ratio: 1; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-      padding-top: .2rem; font: 600 .75rem/1 'Manrope', sans-serif; color: var(--brand-900, #1A1D4A);
-      background: #fff; border: 1px solid rgba(143, 163, 227, .25); position: relative;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: .2rem;
+      font: 600 .75rem/1 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .25);
+      position: relative;
     }
-    .cal-cell--empty { background: transparent; border-color: transparent; }
-    .cal-cell.is-today { background: var(--brand-100, #E3E9FA); color: var(--brand-900, #1A1D4A); border-color: var(--brand-300, #8FA3E3); font-weight: 700; }
-    .cal-dots { display: flex; gap: 2px; margin-top: .15rem; flex-wrap: wrap; justify-content: center; padding: 0 3px; }
-    .cal-dot { width: 5px; height: 5px; border-radius: 50%; }
-    
-    .cal-list { display: flex; flex-direction: column; gap: .35rem; }
+
+    .cal-cell--empty {
+      background: transparent;
+      border-color: transparent;
+    }
+
+    .cal-cell.is-today {
+      background: var(--brand-100, #E3E9FA);
+      color: var(--brand-900, #1A1D4A);
+      border-color: var(--brand-300, #8FA3E3);
+      font-weight: 700;
+    }
+
+    /* Make dots more noticeable */
+    .cal-dots {
+      display: flex;
+      gap: 3px;
+      margin-top: .15rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 3px;
+    }
+
+    .cal-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Holiday style */
+    .cal-cell--holiday {
+      background: #f0f0f0;
+      /* Light gray background */
+      color: #a0a0a0;
+      /* Darker gray text */
+      border-color: #e0e0e0;
+    }
+
+    .cal-cell--holiday .calendar-day-num {
+      color: #a0a0a0;
+    }
+
+    .cal-list {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+
     .cal-list-item {
-      display: flex; align-items: center; gap: .5rem; padding: .5rem .7rem;
-      background: #fff; border: 1px solid rgba(143, 163, 227, .25); border-radius: 8px;
-      position: relative; overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem .7rem;
+      background: #fff;
+      border: 1px solid rgba(143, 163, 227, .25);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
     }
+
     .cal-list-item::before {
-      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
       background: var(--ev-color, #C0392B);
     }
-    .cal-list-dot { display: none; }
+
+    .cal-list-dot {
+      display: none;
+    }
+
     .cal-list-day {
-      font: 700 .95rem/1 'Bricolage Grotesque', serif; color: var(--brand-900, #1A1D4A);
-      min-width: 20px; text-align: center;
+      font: 700 .95rem/1 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+      min-width: 20px;
+      text-align: center;
     }
-    .cal-list-title { flex: 1; font: 500 .8rem/1.2 'Manrope', sans-serif; color: var(--brand-900, #1A1D4A); }
+
+    .cal-list-title {
+      flex: 1;
+      font: 500 .8rem/1.2 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+
     .cal-list-del {
-      background: transparent; border: none; color: #8a8d9c; width: 24px; height: 24px;
-      border-radius: 5px; display: grid; place-items: center; cursor: pointer; transition: background .2s ease, color .2s ease;
+      background: transparent;
+      border: none;
+      color: #8a8d9c;
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease;
     }
-    .cal-list-del svg { width: 14px; height: 14px; }
-    .cal-list-del:hover { background: rgba(230, 126, 91, .15); color: var(--accent-coral, #E67E5B); }
-    
-    .cal-acciones { padding-top: .8rem; border-top: 1px solid rgba(143, 163, 227, .25); }
-    .cal-acciones__btns { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+    .cal-list-del svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .cal-list-del:hover {
+      background: rgba(230, 126, 91, .15);
+      color: var(--accent-coral, #E67E5B);
+    }
+
+    .cal-acciones {
+      padding-top: .8rem;
+      border-top: 1px solid rgba(143, 163, 227, .25);
+    }
+
+    .cal-acciones__btns {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+    }
+
     .cal-accion-btn {
-      flex: 1; min-width: 130px; display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
-      padding: .5rem .7rem; font: 600 .72rem/1 'Manrope', sans-serif; color: #fff; background: var(--brand-500, #4A67C9);
-      border: none; border-radius: 7px; cursor: pointer; transition: transform .2s ease;
+      flex: 1;
+      min-width: 130px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .35rem;
+      padding: .5rem .7rem;
+      font: 600 .72rem/1 'Manrope', sans-serif;
+      color: #fff;
+      background: var(--brand-500, #4A67C9);
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: transform .2s ease;
     }
-    .cal-accion-btn:hover { transform: translateY(-1px); }
-    .cal-accion-btn svg { width: 13px; height: 13px; }
-    .cal-accion-btn--delegado, .cal-btn--delegado { background: #8B5CF6 !important; }
-    
+
+    .cal-accion-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .cal-accion-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .cal-accion-btn--delegado,
+    .cal-btn--delegado {
+      background: #8B5CF6 !important;
+    }
+
     /* Modales del calendario */
     .cal-modal-overlay {
-      position: fixed; inset: 0; background: rgba(26, 29, 74, .55); backdrop-filter: blur(4px);
-      display: grid; place-items: center; z-index: 400;
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 29, 74, .55);
+      backdrop-filter: blur(4px);
+      display: grid;
+      place-items: center;
+      z-index: 400;
     }
+
     .cal-modal-card {
-      width: min(380px, calc(100vw - 2rem)); background: #fff; border-radius: 14px;
-      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, .3); overflow: hidden;
+      width: min(380px, calc(100vw - 2rem));
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, .3);
+      overflow: hidden;
     }
+
     .cal-modal-header {
-      display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.2rem;
-      border-bottom: 1px solid rgba(143, 163, 227, .25); background: var(--brand-100, #E3E9FA);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid rgba(143, 163, 227, .25);
+      background: var(--brand-100, #E3E9FA);
     }
-    .cal-modal-title { margin: 0; font: 700 1rem/1.2 'Bricolage Grotesque', serif; color: var(--brand-900, #1A1D4A); }
+
+    .cal-modal-title {
+      margin: 0;
+      font: 700 1rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+
     .cal-modal-close {
-      background: transparent; border: none; font-size: 1.4rem; line-height: 1; color: #8a8d9c; cursor: pointer; padding: 0 .2rem;
+      background: transparent;
+      border: none;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: #8a8d9c;
+      cursor: pointer;
+      padding: 0 .2rem;
     }
-    .cal-modal-close:hover { color: var(--accent-coral, #E67E5B); }
-    .cal-modal-form { padding: 1.2rem; display: flex; flex-direction: column; gap: .8rem; }
+
+    .cal-modal-close:hover {
+      color: var(--accent-coral, #E67E5B);
+    }
+
+    .cal-modal-form {
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: .8rem;
+    }
+
     .cal-modal-label {
-      display: flex; flex-direction: column; gap: .3rem; font: 600 .7rem/1 'Manrope', sans-serif;
-      color: var(--brand-700, #2C3E87); letter-spacing: .02em; text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      font: 600 .7rem/1 'Manrope', sans-serif;
+      color: var(--brand-700, #2C3E87);
+      letter-spacing: .02em;
+      text-transform: uppercase;
     }
-    .cal-modal-label input, .cal-modal-label select, .cal-modal-label textarea {
-      font: 400 .85rem/1.3 'Manrope', sans-serif; color: var(--brand-900, #1A1D4A); padding: .55rem .7rem;
-      border: 1px solid rgba(143, 163, 227, .45); border-radius: 7px; background: #fff; outline: none;
+
+    .cal-modal-label input,
+    .cal-modal-label select,
+    .cal-modal-label textarea {
+      font: 400 .85rem/1.3 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      padding: .55rem .7rem;
+      border: 1px solid rgba(143, 163, 227, .45);
+      border-radius: 7px;
+      background: #fff;
+      outline: none;
     }
-    .cal-modal-label input:focus, .cal-modal-label select:focus, .cal-modal-label textarea:focus { border-color: var(--brand-500, #4A67C9); box-shadow: 0 0 0 3px rgba(74, 103, 201, .15); }
-    .cal-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
-    .cal-modal-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .4rem; }
+
+    .cal-modal-label input:focus,
+    .cal-modal-label select:focus,
+    .cal-modal-label textarea:focus {
+      border-color: var(--brand-500, #4A67C9);
+      box-shadow: 0 0 0 3px rgba(74, 103, 201, .15);
+    }
+
+    .cal-modal-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .7rem;
+    }
+
+    .cal-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: .5rem;
+      margin-top: .4rem;
+    }
 
     @media (max-width: 720px) {
-      .admin-form__row { grid-template-columns: 1fr; }
-      .audit-item { grid-template-columns: auto 1fr; }
-      .audit-item__user { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
+      .admin-form__row {
+        grid-template-columns: 1fr;
+      }
+
+      .audit-item {
+        grid-template-columns: auto 1fr;
+      }
+
+      .audit-item__user {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .calendar-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .calendar-layout__list {
+        max-height: 300px;
+      }
     }
   </style>
 </head>
@@ -834,7 +1329,11 @@
 
   <!-- BANNER DE IMPERSONACIÓN (modo "Ver como…") -->
   <div class="impersonate-banner" id="imperBanner" role="alert">
-    <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><circle cx="12" cy="11" r="2.5"/><path d="M9.5 15c.7-.6 1.6-1 2.5-1s1.8.4 2.5 1" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 24 24">
+      <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" />
+      <circle cx="12" cy="11" r="2.5" />
+      <path d="M9.5 15c.7-.6 1.6-1 2.5-1s1.8.4 2.5 1" stroke-linecap="round" />
+    </svg>
     <div class="impersonate-banner__main">
       <strong id="imperWho">Estás viendo el portal como…</strong>
       <span>Modo de inspección activo · Las acciones que realices quedan registradas en auditoría.</span>
@@ -883,15 +1382,17 @@
         </li>
 
         <!-- === MÓDULOS DEL PROYECTO === -->
-        <li class="nav-separator" aria-hidden="true"><hr></li>
+        <li class="nav-separator" aria-hidden="true">
+          <hr>
+        </li>
 
         <!-- Módulo 2: Novedades -->
         <li>
           <button class="nav-btn" data-drawer="mod-novedades" aria-label="Novedades">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/>
-              <path d="M14 2v6h6" stroke-linejoin="round"/>
-              <path d="M16 13H8M16 17H8M10 9H8" stroke-linecap="round"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round" />
+              <path d="M14 2v6h6" stroke-linejoin="round" />
+              <path d="M16 13H8M16 17H8M10 9H8" stroke-linecap="round" />
             </svg>
             <span class="nav-btn__tooltip">Novedades</span>
           </button>
@@ -901,8 +1402,8 @@
         <li>
           <button class="nav-btn" data-drawer="mod-calendario" aria-label="Calendario Académico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="3" y="4" width="18" height="18" rx="2"/>
-              <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
             </svg>
             <span class="nav-btn__tooltip">Calendario</span>
           </button>
@@ -912,8 +1413,8 @@
         <li data-admin-only>
           <button class="nav-btn" data-drawer="mod-reglamentacion" aria-label="Reglamentación">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round"/>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke-linejoin="round"/>
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke-linejoin="round" />
             </svg>
             <span class="nav-btn__tooltip">Reglamentación</span>
           </button>
@@ -923,8 +1424,8 @@
         <li>
           <button class="nav-btn" data-drawer="mod-eventos" aria-label="Eventos">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke-linejoin="round"/>
-              <path d="M4 22v-7" stroke-linecap="round"/>
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke-linejoin="round" />
+              <path d="M4 22v-7" stroke-linecap="round" />
             </svg>
             <span class="nav-btn__tooltip">Eventos</span>
           </button>
@@ -959,7 +1460,9 @@
 
         <div class="header__text">
           <span class="role-pill">
-            <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round" />
+            </svg>
             Administrador
           </span>
           <h1 class="header__title">
@@ -968,7 +1471,7 @@
         </div>
       </div>
 
-    
+
     </header>
 
     <!--
@@ -1000,7 +1503,10 @@
   <div class="danger-modal" id="dangerModal" role="alertdialog" aria-modal="true">
     <div class="danger-modal__card">
       <div class="danger-modal__icon">
-        <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" stroke-linecap="round"/><path d="M10.3 3.86l-8.18 14.18A2 2 0 0 0 3.84 21h16.32a2 2 0 0 0 1.72-2.96L13.7 3.86a2 2 0 0 0-3.4 0z"/></svg>
+        <svg viewBox="0 0 24 24">
+          <path d="M12 9v4M12 17h.01" stroke-linecap="round" />
+          <path d="M10.3 3.86l-8.18 14.18A2 2 0 0 0 3.84 21h16.32a2 2 0 0 0 1.72-2.96L13.7 3.86a2 2 0 0 0-3.4 0z" />
+        </svg>
       </div>
       <h3 class="danger-modal__title" id="dangerTitle">Acción destructiva</h3>
       <p class="danger-modal__msg" id="dangerMsg">Esta acción no se puede deshacer.</p>
@@ -1016,7 +1522,9 @@
   <!-- TOAST -->
   <div class="toast" id="toast" role="status" aria-live="polite">
     <div class="toast__icon">
-      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
     </div>
     <div>
       <strong id="toastTitle">Acción completada</strong>
@@ -1034,136 +1542,136 @@
     ================================================================
   -->
   <script>
-  (async function () {
-    'use strict';
+    (async function () {
+      'use strict';
 
-    /* ============================================================
-       1) DATOS DINÁMICOS (desde sesión y JSON)
-       ============================================================ */
+      /* ============================================================
+         1) DATOS DINÁMICOS (desde sesión y JSON)
+         ============================================================ */
 
-    // Perfil del admin desde la sesión activa en localStorage
-    const session = JSON.parse(localStorage.getItem('cedSession')) || {};
-    const adminNombre = session.nombre || 'Administrador';
-    const adminIniciales = adminNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+      // Perfil del admin desde la sesión activa en localStorage
+      const session = JSON.parse(localStorage.getItem('cedSession')) || {};
+      const adminNombre = session.nombre || 'Administrador';
+      const adminIniciales = adminNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
 
-    const admin = {
-      nombre: adminNombre,
-      iniciales: adminIniciales,
-      usuario: session.usuario || '',
-      rol: session.rol || 'administrador',
-      loggedAt: session.loggedAt || ''
-    };
+      const admin = {
+        nombre: adminNombre,
+        iniciales: adminIniciales,
+        usuario: session.usuario || '',
+        rol: session.rol || 'administrador',
+        loggedAt: session.loggedAt || ''
+      };
 
-    // Cargar usuarios desde usuarios.json
-    let usuariosJSON = [];
-    try {
-      const res = await fetch('json/usuarios.json');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      usuariosJSON = await res.json();
-    } catch (err) {
-      console.warn('[Admin] No se pudo cargar usuarios.json:', err);
-    }
-
-    // Cargar carreras desde carreras.json
-    let carreras = [];
-    try {
-      const res = await fetch('json/carreras.json');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      carreras = await res.json();
-    } catch (err) {
-      console.warn('[Admin] No se pudo cargar carreras.json:', err);
-    }
-
-    // Cargar calendario desde calendario.json
-    let calendarioDatos = { eventos_calendario: [], tipos: [] };
-    let adminCalMes = null;  // mes visible en el calendario del admin
-    try {
-      const res = await fetch('json/calendario.json');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      calendarioDatos = await res.json();
-    } catch (err) {
-      console.warn('[Admin] No se pudo cargar calendario.json:', err);
-    }
-
-    // Mapeo de perfil_id a rol
-    const PERFIL_MAP = { 1: 'alumno', 2: 'docente', 3: 'delegado', 4: 'admin' };
-
-    // Helper: genera <option> de carreras
-    function carreraOptions(selectedId) {
-      return `<option value="">— Sin asignar —</option>` +
-        carreras.map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${c.codigo} – ${c.nombre}</option>`).join('');
-    }
-
-    // Mapear datos del JSON al formato interno
-    const usuarios = usuariosJSON.map(u => ({
-      id: u.id,
-      nombre: u.nombre,
-      usuario: u.usuario,
-      email: u.email,
-      dni: u.dni,
-      rol: PERFIL_MAP[u.perfil_id] || 'alumno',
-      perfil_id: u.perfil_id,
-      carrera_id: u.carrera_id,
-      activo: u.activo,
-      created_at: u.created_at
-    }));
-
-    // Enriquecer admin con datos completos del JSON
-    const adminFullData = usuarios.find(u => u.usuario === admin.usuario);
-    if (adminFullData) {
-      admin.email = adminFullData.email || '';
-      admin.dni = adminFullData.dni || '';
-      admin.carrera_id = adminFullData.carrera_id;
-    }
-
-    // Helper: nombre de carrera por id
-    function getCarreraNombre(id) {
-      const c = carreras.find(x => x.id === id);
-      return c ? `${c.codigo} – ${c.nombre}` : '—';
-    }
-
-    // Actualizar header con datos del usuario logueado
-    const userAvatarEl = document.getElementById('userAvatar');
-    const userNameEl = document.getElementById('userName');
-    if (userAvatarEl) userAvatarEl.textContent = admin.iniciales;
-    if (userNameEl) userNameEl.textContent = admin.nombre;
-
-    /* ============================================================
-       MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js)
-       ============================================================ */
-    const modulosData = window.MODULOS_DATA || {};
-    const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
-
-    async function loadReglamentacionFromJSON() {
-      if (!modulosData['mod-reglamentacion']) return;
+      // Cargar usuarios desde usuarios.json
+      let usuariosJSON = [];
       try {
-        const res = await fetch('json/reglamentacion.json');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!Array.isArray(data.documentos)) return;
-
-        modulosData['mod-reglamentacion'].items = data.documentos.map(doc => ({
-          titulo: doc.titulo,
-          detalle: `${doc.categoria ? doc.categoria.charAt(0).toUpperCase() + doc.categoria.slice(1) : 'Normativa'} · ${doc.version || 'v1.0'} · Publicado ${doc.fecha_publicacion || '---'}`,
-          estado: 'Vigente',
-          estadoClase: 'activo',
-          link: doc.link || (doc.archivo ? `json/${doc.archivo}` : undefined)
-        }));
-
-        modulosData['mod-reglamentacion'].descripcion = 'Repositorio centralizado de documentos oficiales con versionado y búsqueda por palabras clave. Los documentos se cargan desde el JSON oficial de reglamentaciones.';
+        const res = await fetch('json/usuarios.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        usuariosJSON = await res.json();
       } catch (err) {
-        console.warn('No se pudo cargar reglamentación desde JSON:', err);
-      }
-    }
-
-    function renderModuloListado(key) {
-      if (key === 'mod-reglamentacion' && !isAdminUser) {
-        return `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Acceso restringido. Solo el perfil administrador puede ver esta sección.</p>`;
+        console.warn('[Admin] No se pudo cargar usuarios.json:', err);
       }
 
-      const mod = modulosData[key];
-      if (!mod) return '<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Sin datos disponibles.</p>';
-      return `
+      // Cargar carreras desde carreras.json
+      let carreras = [];
+      try {
+        const res = await fetch('json/carreras.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        carreras = await res.json();
+      } catch (err) {
+        console.warn('[Admin] No se pudo cargar carreras.json:', err);
+      }
+
+      // Cargar calendario desde calendario.json
+      let calendarioDatos = { eventos_calendario: [], tipos: [] };
+      let adminCalMes = null;  // mes visible en el calendario del admin
+      try {
+        const res = await fetch('json/calendario.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        calendarioDatos = await res.json();
+      } catch (err) {
+        console.warn('[Admin] No se pudo cargar calendario.json:', err);
+      }
+
+      // Mapeo de perfil_id a rol
+      const PERFIL_MAP = { 1: 'alumno', 2: 'docente', 3: 'delegado', 4: 'admin' };
+
+      // Helper: genera <option> de carreras
+      function carreraOptions(selectedId) {
+        return `<option value="">— Sin asignar —</option>` +
+          carreras.map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${c.codigo} – ${c.nombre}</option>`).join('');
+      }
+
+      // Mapear datos del JSON al formato interno
+      const usuarios = usuariosJSON.map(u => ({
+        id: u.id,
+        nombre: u.nombre,
+        usuario: u.usuario,
+        email: u.email,
+        dni: u.dni,
+        rol: PERFIL_MAP[u.perfil_id] || 'alumno',
+        perfil_id: u.perfil_id,
+        carrera_id: u.carrera_id,
+        activo: u.activo,
+        created_at: u.created_at
+      }));
+
+      // Enriquecer admin con datos completos del JSON
+      const adminFullData = usuarios.find(u => u.usuario === admin.usuario);
+      if (adminFullData) {
+        admin.email = adminFullData.email || '';
+        admin.dni = adminFullData.dni || '';
+        admin.carrera_id = adminFullData.carrera_id;
+      }
+
+      // Helper: nombre de carrera por id
+      function getCarreraNombre(id) {
+        const c = carreras.find(x => x.id === id);
+        return c ? `${c.codigo} – ${c.nombre}` : '—';
+      }
+
+      // Actualizar header con datos del usuario logueado
+      const userAvatarEl = document.getElementById('userAvatar');
+      const userNameEl = document.getElementById('userName');
+      if (userAvatarEl) userAvatarEl.textContent = admin.iniciales;
+      if (userNameEl) userNameEl.textContent = admin.nombre;
+
+      /* ============================================================
+         MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js)
+         ============================================================ */
+      const modulosData = window.MODULOS_DATA || {};
+      const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
+
+      async function loadReglamentacionFromJSON() {
+        if (!modulosData['mod-reglamentacion']) return;
+        try {
+          const res = await fetch('json/reglamentacion.json');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          if (!Array.isArray(data.documentos)) return;
+
+          modulosData['mod-reglamentacion'].items = data.documentos.map(doc => ({
+            titulo: doc.titulo,
+            detalle: `${doc.categoria ? doc.categoria.charAt(0).toUpperCase() + doc.categoria.slice(1) : 'Normativa'} · ${doc.version || 'v1.0'} · Publicado ${doc.fecha_publicacion || '---'}`,
+            estado: 'Vigente',
+            estadoClase: 'activo',
+            link: doc.link || (doc.archivo ? `json/${doc.archivo}` : undefined)
+          }));
+
+          modulosData['mod-reglamentacion'].descripcion = 'Repositorio centralizado de documentos oficiales con versionado y búsqueda por palabras clave. Los documentos se cargan desde el JSON oficial de reglamentaciones.';
+        } catch (err) {
+          console.warn('No se pudo cargar reglamentación desde JSON:', err);
+        }
+      }
+
+      function renderModuloListado(key) {
+        if (key === 'mod-reglamentacion' && !isAdminUser) {
+          return `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Acceso restringido. Solo el perfil administrador puede ver esta sección.</p>`;
+        }
+
+        const mod = modulosData[key];
+        if (!mod) return '<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Sin datos disponibles.</p>';
+        return `
         <p class="modulo-descripcion">${mod.descripcion}</p>
         <div class="modulo-list">
           ${mod.items.map(item => `
@@ -1180,68 +1688,68 @@
           `).join('')}
         </div>
       `;
-    }
-
-    /* ============================================================
-       2) AUDITORÍA AUTOMÁTICA
-       ============================================================ */
-    const auditoria = [];
-    function auditar(accion, entidad, desc) {
-      auditoria.unshift({
-        id: Date.now(),
-        fecha: 'recién',
-        accion,
-        entidad,
-        desc,
-        autor: admin.nombre,
-        rol: admin.rol
-      });
-    }
-
-    /* ============================================================
-       3) SISTEMA DE NAVEGACIÓN — renderiza en #mainContent
-       ============================================================ */
-    const mainContent = document.getElementById('mainContent');
-
-    function navigateTo(key, opts = {}) {
-      if (key === 'mod-reglamentacion' && !isAdminUser) {
-        return;
       }
 
-      const builder = sectionContent[key];
-      if (!builder) return;
-      const { title, html } = builder();
-      mainContent.innerHTML = `
+      /* ============================================================
+         2) AUDITORÍA AUTOMÁTICA
+         ============================================================ */
+      const auditoria = [];
+      function auditar(accion, entidad, desc) {
+        auditoria.unshift({
+          id: Date.now(),
+          fecha: 'recién',
+          accion,
+          entidad,
+          desc,
+          autor: admin.nombre,
+          rol: admin.rol
+        });
+      }
+
+      /* ============================================================
+         3) SISTEMA DE NAVEGACIÓN — renderiza en #mainContent
+         ============================================================ */
+      const mainContent = document.getElementById('mainContent');
+
+      function navigateTo(key, opts = {}) {
+        if (key === 'mod-reglamentacion' && !isAdminUser) {
+          return;
+        }
+
+        const builder = sectionContent[key];
+        if (!builder) return;
+        const { title, html } = builder();
+        mainContent.innerHTML = `
         <h2 style="margin:0 0 1.2rem;font:700 1.4rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${title}</h2>
         <div>${html}</div>
       `;
-      // Hooks por sección
-      if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
-      if (key === 'perfil') bindPerfilSection();
-      if (key === 'mod-calendario') bindAdminCalendar();
-      // Active state en el menú
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
-      const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
-      if (active) active.classList.add('is-active');
-    }
+        // Hooks por sección
+        if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
+        if (key === 'perfil') bindPerfilSection();
+        if (key === 'mod-calendario') bindAdminCalendar();
+        // Active state en el menú
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+        const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
+        if (active) active.classList.add('is-active');
+      }
 
-    // Event listeners del menú lateral
-    document.querySelectorAll('[data-drawer]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        navigateTo(btn.dataset.drawer);
+      // Event listeners del menú lateral
+      document.querySelectorAll('[data-drawer]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          navigateTo(btn.dataset.drawer);
+        });
       });
-    });
 
-    /* ============================================================
-       4) BUILDERS DEL CONTENIDO DE CADA SECCIÓN
-       ============================================================ */
-    const sectionContent = {
+      /* ============================================================
+         4) BUILDERS DEL CONTENIDO DE CADA SECCIÓN
+         ============================================================ */
+      const sectionContent = {
 
-      // --- Mi Perfil ---
-      perfil: () => ({
-        title: 'Mi Perfil',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round"/></svg>',
-        html: `
+        // --- Mi Perfil ---
+        perfil: () => ({
+          title: 'Mi Perfil',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round"/></svg>',
+          html: `
           <div style="display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-bottom:1.5rem">
             <div class="avatar avatar--admin avatar--xl" style="width:88px;height:88px;font-size:1.7rem">${admin.iniciales}</div>
             <h3 style="margin:0;font:700 1.3rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${admin.nombre}</h3>
@@ -1285,13 +1793,13 @@
             </button>
           </form>
         `
-      }),
+        }),
 
-      // --- Usuarios y Roles ---
-      usuarios: () => ({
-        title: 'Usuarios y Roles',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/></svg>',
-        html: `
+        // --- Usuarios y Roles ---
+        usuarios: () => ({
+          title: 'Usuarios y Roles',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/></svg>',
+          html: `
           <div class="drawer__tabs">
             <button class="drawer__tab is-active" data-tab="lista">Lista (${usuarios.length})</button>
             <button class="drawer__tab" data-tab="nuevo">+ Nuevo usuario</button>
@@ -1363,133 +1871,133 @@
             </form>
           </div>
         `
-      }),
-    };
+        }),
+      };
 
-    if (isAdminUser) {
-      await loadReglamentacionFromJSON();
-    }
+      if (isAdminUser) {
+        await loadReglamentacionFromJSON();
+      }
 
-    // Registrar secciones de los módulos del proyecto
-    Object.keys(modulosData).forEach(key => {
-      if (key === 'mod-reglamentacion' && !isAdminUser) return;
-      sectionContent[key] = () => ({
-        title: modulosData[key].titulo,
-        icon: modulosData[key].icono,
-        html: renderModuloListado(key)
+      // Registrar secciones de los módulos del proyecto
+      Object.keys(modulosData).forEach(key => {
+        if (key === 'mod-reglamentacion' && !isAdminUser) return;
+        sectionContent[key] = () => ({
+          title: modulosData[key].titulo,
+          icon: modulosData[key].icono,
+          html: renderModuloListado(key)
+        });
       });
-    });
 
-    // Sobreescribir la sección del calendario con la versión interactiva del admin
-    sectionContent['mod-calendario'] = () => ({
-      title: 'Calendario Académico',
-      html: `<div id="adminCalContainer"></div>`
-    });
+      // Sobreescribir la sección del calendario con la versión interactiva del admin
+      sectionContent['mod-calendario'] = () => ({
+        title: 'Calendario Académico',
+        html: `<div id="adminCalContainer"></div>`
+      });
 
-    function profileItem(label, value, highlight = false) {
-      const styleVal = highlight
-        ? 'color:#C0392B;font-weight:700'
-        : 'color:var(--brand-900,#1A1D4A);font-weight:600';
-      return `
+      function profileItem(label, value, highlight = false) {
+        const styleVal = highlight
+          ? 'color:#C0392B;font-weight:700'
+          : 'color:var(--brand-900,#1A1D4A);font-weight:600';
+        return `
         <div style="background:#fff;border:1px solid rgba(143,163,227,.25);border-radius:10px;padding:.75rem .9rem">
           <p style="margin:0 0 .25rem;font:600 .68rem/1 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);text-transform:uppercase;letter-spacing:.08em">${label}</p>
           <p style="margin:0;font:600 .9rem/1.2 'Manrope',sans-serif;${styleVal}">${value}</p>
         </div>
       `;
-    }
-
-    /* ============================================================
-       6) HOOKS POR SECCIÓN
-       ============================================================ */
-
-    // --- Perfil ---
-    function bindPerfilSection() {
-      const form = document.getElementById('profileEditForm');
-      if (!form) return;
-      form.addEventListener('submit', e => {
-        e.preventDefault();
-        const data = new FormData(form);
-        const nuevoNombre = data.get('nombre').trim();
-        const nuevoEmail = data.get('email').trim();
-        if (!nuevoNombre || !nuevoEmail) return;
-
-        admin.nombre = nuevoNombre;
-        admin.email = nuevoEmail;
-        admin.iniciales = nuevoNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-
-        // Actualizar sesión en localStorage
-        const session = JSON.parse(localStorage.getItem('cedSession')) || {};
-        session.nombre = admin.nombre;
-        session.email = admin.email;
-        localStorage.setItem('cedSession', JSON.stringify(session));
-
-        // Actualizar header
-        const userAvatarEl = document.getElementById('userAvatar');
-        const userNameEl = document.getElementById('userName');
-        if (userAvatarEl) userAvatarEl.textContent = admin.iniciales;
-        if (userNameEl) userNameEl.textContent = admin.nombre;
-
-        showToast('Perfil actualizado', 'Tu nombre y email fueron guardados.');
-        navigateTo('perfil');
-      });
-
-      // Cambio de contraseña
-      const passForm = document.getElementById('profilePasswordForm');
-      if (!passForm) return;
-      passForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const data = new FormData(passForm);
-        const currentPass = data.get('currentPassword');
-        const newPass = data.get('newPassword');
-
-        // Verificar contraseña actual contra usuarios.json cargado
-        const userRecord = usuariosJSON.find(u => u.usuario === admin.usuario);
-        if (userRecord && userRecord.password !== currentPass) {
-          showToast('Error', 'La contraseña actual es incorrecta.', '#E67E5B');
-          return;
-        }
-
-        // Actualizar en memoria
-        if (userRecord) userRecord.password = newPass;
-
-        showToast('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente.');
-        passForm.reset();
-      });
-    }
-
-    // --- Usuarios ---
-    function bindUsuariosDrawer(quick) {
-      const tabs = document.querySelectorAll('.drawer__tab');
-      const panes = {
-        lista:    document.getElementById('userListPane'),
-        nuevo:    document.getElementById('userNewPane')
-      };
-      function showTab(t) {
-        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
-        Object.entries(panes).forEach(([k, p]) => p.hidden = k !== t);
       }
-      tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
-      if (quick === 'newUser') showTab('nuevo');
 
-      // Lista
-      const filterRol = document.getElementById('filterRol');
-      const search = document.getElementById('userSearch');
+      /* ============================================================
+         6) HOOKS POR SECCIÓN
+         ============================================================ */
 
-      function renderUsers() {
-        const rol = filterRol.value;
-        const q = search.value.trim().toLowerCase();
-        const list = usuarios.filter(u =>
-          (rol === 'todos' || u.rol === rol) &&
-          (!q || u.nombre.toLowerCase().includes(q) || u.usuario.toLowerCase().includes(q))
-        );
-        const cont = document.getElementById('userList');
-        if (list.length === 0) {
-          cont.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
-          return;
+      // --- Perfil ---
+      function bindPerfilSection() {
+        const form = document.getElementById('profileEditForm');
+        if (!form) return;
+        form.addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(form);
+          const nuevoNombre = data.get('nombre').trim();
+          const nuevoEmail = data.get('email').trim();
+          if (!nuevoNombre || !nuevoEmail) return;
+
+          admin.nombre = nuevoNombre;
+          admin.email = nuevoEmail;
+          admin.iniciales = nuevoNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+
+          // Actualizar sesión en localStorage
+          const session = JSON.parse(localStorage.getItem('cedSession')) || {};
+          session.nombre = admin.nombre;
+          session.email = admin.email;
+          localStorage.setItem('cedSession', JSON.stringify(session));
+
+          // Actualizar header
+          const userAvatarEl = document.getElementById('userAvatar');
+          const userNameEl = document.getElementById('userName');
+          if (userAvatarEl) userAvatarEl.textContent = admin.iniciales;
+          if (userNameEl) userNameEl.textContent = admin.nombre;
+
+          showToast('Perfil actualizado', 'Tu nombre y email fueron guardados.');
+          navigateTo('perfil');
+        });
+
+        // Cambio de contraseña
+        const passForm = document.getElementById('profilePasswordForm');
+        if (!passForm) return;
+        passForm.addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(passForm);
+          const currentPass = data.get('currentPassword');
+          const newPass = data.get('newPassword');
+
+          // Verificar contraseña actual contra usuarios.json cargado
+          const userRecord = usuariosJSON.find(u => u.usuario === admin.usuario);
+          if (userRecord && userRecord.password !== currentPass) {
+            showToast('Error', 'La contraseña actual es incorrecta.', '#E67E5B');
+            return;
+          }
+
+          // Actualizar en memoria
+          if (userRecord) userRecord.password = newPass;
+
+          showToast('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente.');
+          passForm.reset();
+        });
+      }
+
+      // --- Usuarios ---
+      function bindUsuariosDrawer(quick) {
+        const tabs = document.querySelectorAll('.drawer__tab');
+        const panes = {
+          lista: document.getElementById('userListPane'),
+          nuevo: document.getElementById('userNewPane')
+        };
+        function showTab(t) {
+          tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
+          Object.entries(panes).forEach(([k, p]) => p.hidden = k !== t);
         }
-        cont.innerHTML = list.map(u => {
-          const ini = u.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
-          return `
+        tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+        if (quick === 'newUser') showTab('nuevo');
+
+        // Lista
+        const filterRol = document.getElementById('filterRol');
+        const search = document.getElementById('userSearch');
+
+        function renderUsers() {
+          const rol = filterRol.value;
+          const q = search.value.trim().toLowerCase();
+          const list = usuarios.filter(u =>
+            (rol === 'todos' || u.rol === rol) &&
+            (!q || u.nombre.toLowerCase().includes(q) || u.usuario.toLowerCase().includes(q))
+          );
+          const cont = document.getElementById('userList');
+          if (list.length === 0) {
+            cont.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
+            return;
+          }
+          cont.innerHTML = list.map(u => {
+            const ini = u.nombre.split(' ').map(n => n[0]).slice(0, 2).join('');
+            return `
             <div class="user-row" data-user="${u.id}">
               <div class="user-row__avatar" data-rol="${u.rol}">${ini}</div>
               <div>
@@ -1510,93 +2018,93 @@
               </div>
             </div>
           `;
-        }).join('');
-        bindUserActions();
+          }).join('');
+          bindUserActions();
+        }
+
+        filterRol.addEventListener('change', renderUsers);
+        search.addEventListener('input', renderUsers);
+        renderUsers();
+
+        // Form de alta
+        document.getElementById('newUserForm').addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(e.target);
+          const nuevo = {
+            id: Date.now(),
+            nombre: data.get('nombre'),
+            dni: data.get('dni'),
+            usuario: data.get('usuario'),
+            email: data.get('email'),
+            rol: data.get('rol'),
+            carrera_id: data.get('carrera_id') ? +data.get('carrera_id') : null,
+            activo: true,
+            created_at: new Date().toISOString()
+          };
+          usuarios.push(nuevo);
+          auditar('crear', 'usuario', `Alta de cuenta: ${nuevo.nombre} (${nuevo.rol})`);
+          showToast('Usuario creado', `${nuevo.nombre} fue agregado al sistema.`);
+          e.target.reset();
+          showTab('lista');
+          renderUsers();
+        });
       }
 
-      filterRol.addEventListener('change', renderUsers);
-      search.addEventListener('input', renderUsers);
-      renderUsers();
-
-      // Form de alta
-      document.getElementById('newUserForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const data = new FormData(e.target);
-        const nuevo = {
-          id: Date.now(),
-          nombre: data.get('nombre'),
-          dni: data.get('dni'),
-          usuario: data.get('usuario'),
-          email: data.get('email'),
-          rol: data.get('rol'),
-          carrera_id: data.get('carrera_id') ? +data.get('carrera_id') : null,
-          activo: true,
-          created_at: new Date().toISOString()
-        };
-        usuarios.push(nuevo);
-        auditar('crear', 'usuario', `Alta de cuenta: ${nuevo.nombre} (${nuevo.rol})`);
-        showToast('Usuario creado', `${nuevo.nombre} fue agregado al sistema.`);
-        e.target.reset();
-        showTab('lista');
-        renderUsers();
-      });
-    }
-
-    function bindUserActions() {
-      // Toggle dropdown
-      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          const menu = btn.closest('[data-menu]');
-          document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
-          menu.classList.toggle('is-open');
+      function bindUserActions() {
+        // Toggle dropdown
+        document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const menu = btn.closest('[data-menu]');
+            document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
+            menu.classList.toggle('is-open');
+          });
         });
-      });
 
-      // Acciones
-      document.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          const id = +btn.dataset.id;
-          const action = btn.dataset.action;
-          const u = usuarios.find(x => x.id === id);
-          if (!u) return;
-          // Cerrar dropdown
-          btn.closest('[data-menu]').classList.remove('is-open');
+        // Acciones
+        document.querySelectorAll('[data-action]').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const id = +btn.dataset.id;
+            const action = btn.dataset.action;
+            const u = usuarios.find(x => x.id === id);
+            if (!u) return;
+            // Cerrar dropdown
+            btn.closest('[data-menu]').classList.remove('is-open');
 
-          if (action === 'edit') {
-            showEditForm(u);
-          }
-          if (action === 'reset') {
-            showToast('Password reseteado', `${u.nombre} recibirá instrucciones para crear una nueva contraseña.`);
-            auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
-          }
-          if (action === 'delete') {
-            requestDangerConfirm({
-              title: '¿Eliminar este usuario?',
-              msg: `Vas a eliminar a <strong>${u.nombre}</strong>. Esta acción no se puede deshacer.`,
-              btnLabel: 'Eliminar usuario',
-              onConfirm: () => {
-                const idx = usuarios.findIndex(x => x.id === u.id);
-                usuarios.splice(idx, 1);
-                auditar('eliminar', 'usuario', `Eliminado: ${u.nombre}`);
-                showToast('Usuario eliminado', `${u.nombre} fue removido del sistema.`, '#E67E5B');
-                document.getElementById('userSearch').dispatchEvent(new Event('input'));
-              }
-            });
-          }
+            if (action === 'edit') {
+              showEditForm(u);
+            }
+            if (action === 'reset') {
+              showToast('Password reseteado', `${u.nombre} recibirá instrucciones para crear una nueva contraseña.`);
+              auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
+            }
+            if (action === 'delete') {
+              requestDangerConfirm({
+                title: '¿Eliminar este usuario?',
+                msg: `Vas a eliminar a <strong>${u.nombre}</strong>. Esta acción no se puede deshacer.`,
+                btnLabel: 'Eliminar usuario',
+                onConfirm: () => {
+                  const idx = usuarios.findIndex(x => x.id === u.id);
+                  usuarios.splice(idx, 1);
+                  auditar('eliminar', 'usuario', `Eliminado: ${u.nombre}`);
+                  showToast('Usuario eliminado', `${u.nombre} fue removido del sistema.`, '#E67E5B');
+                  document.getElementById('userSearch').dispatchEvent(new Event('input'));
+                }
+              });
+            }
+          });
         });
-      });
 
-      // Cerrar dropdown al hacer click fuera
-      document.addEventListener('click', () => {
-        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
-      }, { once: true });
-    }
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', () => {
+          document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
+        }, { once: true });
+      }
 
-    function showEditForm(u) {
-      const cont = document.getElementById('userList');
-      cont.innerHTML = `
+      function showEditForm(u) {
+        const cont = document.getElementById('userList');
+        cont.innerHTML = `
         <div style="margin-bottom:.8rem">
           <button id="editBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
         </div>
@@ -1644,146 +2152,146 @@
           </button>
         </form>
       `;
-      document.getElementById('editBackBtn').addEventListener('click', () => {
-        document.getElementById('userSearch').dispatchEvent(new Event('input'));
-      });
-      document.getElementById('editUserForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const data = new FormData(e.target);
-        u.nombre = data.get('nombre');
-        u.dni = data.get('dni');
-        u.usuario = data.get('usuario');
-        u.email = data.get('email');
-        u.rol = data.get('rol');
-        u.carrera_id = data.get('carrera_id') ? +data.get('carrera_id') : null;
-        auditar('editar', 'usuario', `Editado: ${u.nombre} (${u.rol})`);
-        showToast('Usuario actualizado', `Los datos de ${u.nombre} fueron guardados.`);
-        document.getElementById('userSearch').dispatchEvent(new Event('input'));
-      });
-    }
-
-    /* ============================================================
-       7) CONFIRMACIÓN DESTRUCTIVA (con tipeo)
-       ============================================================ */
-    const dangerModal = document.getElementById('dangerModal');
-    const dangerTitle = document.getElementById('dangerTitle');
-    const dangerMsg = document.getElementById('dangerMsg');
-    const dangerInput = document.getElementById('dangerInput');
-    const dangerConfirm = document.getElementById('dangerConfirm');
-    const dangerCancel = document.getElementById('dangerCancel');
-    let dangerHandler = null;
-    let dangerExpectedWord = 'CONFIRMAR';
-
-    function requestDangerConfirm({ title, msg, btnLabel, onConfirm, confirmWord = 'CONFIRMAR' }) {
-      dangerTitle.textContent = title;
-      dangerMsg.innerHTML = msg;
-      dangerConfirm.textContent = btnLabel || 'Eliminar definitivamente';
-      dangerExpectedWord = confirmWord;
-      dangerModal.querySelector('.danger-modal__hint').innerHTML = `Para confirmar, escribí <code>${confirmWord}</code>:`;
-      dangerInput.placeholder = confirmWord;
-      dangerInput.value = '';
-      dangerConfirm.classList.remove('is-armed');
-      dangerHandler = onConfirm;
-      dangerModal.classList.add('is-visible');
-      setTimeout(() => dangerInput.focus(), 100);
-    }
-    function closeDangerModal() {
-      dangerModal.classList.remove('is-visible');
-      dangerHandler = null;
-    }
-    dangerInput.addEventListener('input', () => {
-      if (dangerInput.value.trim().toUpperCase() === dangerExpectedWord) {
-        dangerConfirm.classList.add('is-armed');
-      } else {
-        dangerConfirm.classList.remove('is-armed');
+        document.getElementById('editBackBtn').addEventListener('click', () => {
+          document.getElementById('userSearch').dispatchEvent(new Event('input'));
+        });
+        document.getElementById('editUserForm').addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(e.target);
+          u.nombre = data.get('nombre');
+          u.dni = data.get('dni');
+          u.usuario = data.get('usuario');
+          u.email = data.get('email');
+          u.rol = data.get('rol');
+          u.carrera_id = data.get('carrera_id') ? +data.get('carrera_id') : null;
+          auditar('editar', 'usuario', `Editado: ${u.nombre} (${u.rol})`);
+          showToast('Usuario actualizado', `Los datos de ${u.nombre} fueron guardados.`);
+          document.getElementById('userSearch').dispatchEvent(new Event('input'));
+        });
       }
-    });
-    dangerCancel.addEventListener('click', closeDangerModal);
-    dangerModal.addEventListener('click', e => { if (e.target === dangerModal) closeDangerModal(); });
-    dangerConfirm.addEventListener('click', () => {
-      if (!dangerConfirm.classList.contains('is-armed')) return;
-      const fn = dangerHandler;
-      closeDangerModal();
-      if (fn) fn();
-    });
 
-    /* ============================================================
-       9) Logout y notificaciones (mismo patrón que docente)
-       ============================================================ */
-    const logoutModal = document.getElementById('logoutModal');
-    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
-    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
-    document.getElementById('logoutConfirm').addEventListener('click', () => {
-      logoutModal.classList.remove('is-open');
-      performLogout();
-    });
+      /* ============================================================
+         7) CONFIRMACIÓN DESTRUCTIVA (con tipeo)
+         ============================================================ */
+      const dangerModal = document.getElementById('dangerModal');
+      const dangerTitle = document.getElementById('dangerTitle');
+      const dangerMsg = document.getElementById('dangerMsg');
+      const dangerInput = document.getElementById('dangerInput');
+      const dangerConfirm = document.getElementById('dangerConfirm');
+      const dangerCancel = document.getElementById('dangerCancel');
+      let dangerHandler = null;
+      let dangerExpectedWord = 'CONFIRMAR';
 
-    /* (Notificaciones removidas — se implementarán en Fase 2) */
-
-    /* ============================================================
-       10) Toast
-       ============================================================ */
-    const toast = document.getElementById('toast');
-    let toastTimer;
-    function showToast(title, msg, color = '#3DAA6A') {
-      document.getElementById('toastTitle').textContent = title;
-      document.getElementById('toastMsg').textContent = msg;
-      toast.style.setProperty('--toast-color', color);
-      toast.classList.add('is-visible');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
-    }
-
-    /* ============================================================
-       11) CALENDARIO INTERACTIVO DEL ADMIN
-       ============================================================ */
-
-    function bindAdminCalendar() {
-      const container = document.getElementById('adminCalContainer');
-      if (!container) return;
-      if (!adminCalMes) adminCalMes = new Date();
-      renderCalendarioAdmin(container);
-    }
-
-    function renderCalendarioAdmin(container) {
-      const year  = adminCalMes.getFullYear();
-      const month = adminCalMes.getMonth();
-      const MESES  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-      const DIAS   = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-      const firstDay    = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const eventos     = calendarioDatos.eventos_calendario || [];
-      const today       = new Date();
-
-      // Indexar eventos del mes
-      const eventosPorDia = {};
-      eventos.forEach(ev => {
-        const d = new Date(ev.fecha + 'T00:00:00');
-        if (d.getFullYear() === year && d.getMonth() === month) {
-          const k = d.getDate();
-          if (!eventosPorDia[k]) eventosPorDia[k] = [];
-          eventosPorDia[k].push(ev);
+      function requestDangerConfirm({ title, msg, btnLabel, onConfirm, confirmWord = 'CONFIRMAR' }) {
+        dangerTitle.textContent = title;
+        dangerMsg.innerHTML = msg;
+        dangerConfirm.textContent = btnLabel || 'Eliminar definitivamente';
+        dangerExpectedWord = confirmWord;
+        dangerModal.querySelector('.danger-modal__hint').innerHTML = `Para confirmar, escribí <code>${confirmWord}</code>:`;
+        dangerInput.placeholder = confirmWord;
+        dangerInput.value = '';
+        dangerConfirm.classList.remove('is-armed');
+        dangerHandler = onConfirm;
+        dangerModal.classList.add('is-visible');
+        setTimeout(() => dangerInput.focus(), 100);
+      }
+      function closeDangerModal() {
+        dangerModal.classList.remove('is-visible');
+        dangerHandler = null;
+      }
+      dangerInput.addEventListener('input', () => {
+        if (dangerInput.value.trim().toUpperCase() === dangerExpectedWord) {
+          dangerConfirm.classList.add('is-armed');
+        } else {
+          dangerConfirm.classList.remove('is-armed');
         }
       });
+      dangerCancel.addEventListener('click', closeDangerModal);
+      dangerModal.addEventListener('click', e => { if (e.target === dangerModal) closeDangerModal(); });
+      dangerConfirm.addEventListener('click', () => {
+        if (!dangerConfirm.classList.contains('is-armed')) return;
+        const fn = dangerHandler;
+        closeDangerModal();
+        if (fn) fn();
+      });
 
-      // Construir celdas
-      let cells = '';
-      for (let i = 0; i < firstDay; i++) cells += `<div class="cal-cell cal-cell--empty"></div>`;
-      for (let d = 1; d <= daysInMonth; d++) {
-        const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-        const evs = eventosPorDia[d] || [];
-        const dots = evs.map(e => `<span class="cal-dot" style="background:${e.color}"></span>`).join('');
-        cells += `<div class="cal-cell${isToday ? ' is-today' : ''}" data-day="${d}">${d}${dots ? `<div class="cal-dots">${dots}</div>` : ''}</div>`;
+      /* ============================================================
+         9) Logout y notificaciones (mismo patrón que docente)
+         ============================================================ */
+      const logoutModal = document.getElementById('logoutModal');
+      document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
+      document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
+      document.getElementById('logoutConfirm').addEventListener('click', () => {
+        logoutModal.classList.remove('is-open');
+        performLogout();
+      });
+
+      /* (Notificaciones removidas — se implementarán en Fase 2) */
+
+      /* ============================================================
+         10) Toast
+         ============================================================ */
+      const toast = document.getElementById('toast');
+      let toastTimer;
+      function showToast(title, msg, color = '#3DAA6A') {
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastMsg').textContent = msg;
+        toast.style.setProperty('--toast-color', color);
+        toast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
       }
 
-      // Lista de eventos del mes
-      const eventosDelMes = eventos
-        .filter(ev => { const d = new Date(ev.fecha + 'T00:00:00'); return d.getFullYear() === year && d.getMonth() === month; })
-        .sort((a, b) => a.fecha.localeCompare(b.fecha));
+      /* ============================================================
+         11) CALENDARIO INTERACTIVO DEL ADMIN
+         ============================================================ */
 
-      const listaEventos = eventosDelMes.length === 0
-        ? `<p style="text-align:center;padding:1.2rem;color:#8a8d9c;font-family:'Manrope',sans-serif;font-size:.85rem">Sin eventos este mes.</p>`
-        : eventosDelMes.map(ev => {
+      function bindAdminCalendar() {
+        const container = document.getElementById('adminCalContainer');
+        if (!container) return;
+        if (!adminCalMes) adminCalMes = new Date();
+        renderCalendarioAdmin(container);
+      }
+
+      function renderCalendarioAdmin(container) {
+        const year = adminCalMes.getFullYear();
+        const month = adminCalMes.getMonth();
+        const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const eventos = calendarioDatos.eventos_calendario || [];
+        const today = new Date();
+
+        // Indexar eventos del mes
+        const eventosPorDia = {};
+        eventos.forEach(ev => {
+          const d = new Date(ev.fecha + 'T00:00:00');
+          if (d.getFullYear() === year && d.getMonth() === month) {
+            const k = d.getDate();
+            if (!eventosPorDia[k]) eventosPorDia[k] = [];
+            eventosPorDia[k].push(ev);
+          }
+        });
+
+        // Construir celdas
+        let cells = '';
+        for (let i = 0; i < firstDay; i++) cells += `<div class="cal-cell cal-cell--empty"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+          const evs = eventosPorDia[d] || [];
+          const dots = evs.map(e => `<span class="cal-dot" style="background:${e.color}"></span>`).join('');
+          cells += `<div class="cal-cell${isToday ? ' is-today' : ''}" data-day="${d}">${d}${dots ? `<div class="cal-dots">${dots}</div>` : ''}</div>`;
+        }
+
+        // Lista de eventos del mes
+        const eventosDelMes = eventos
+          .filter(ev => { const d = new Date(ev.fecha + 'T00:00:00'); return d.getFullYear() === year && d.getMonth() === month; })
+          .sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+        const listaEventos = eventosDelMes.length === 0
+          ? `<p style="text-align:center;padding:1.2rem;color:#8a8d9c;font-family:'Manrope',sans-serif;font-size:.85rem">Sin eventos este mes.</p>`
+          : eventosDelMes.map(ev => {
             const dia = new Date(ev.fecha + 'T00:00:00').getDate();
             const eventoKey = `${ev.fecha}__${ev.titulo}`;
             return `
@@ -1797,7 +2305,7 @@
               </div>`;
           }).join('');
 
-      container.innerHTML = `
+        container.innerHTML = `
         <div class="cal-nav" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem">
           <button id="adminCalPrev" class="cal-nav-btn" aria-label="Mes anterior">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1807,11 +2315,18 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
-        <div class="cal-grid">
-          ${DIAS.map(d => `<div class="cal-head">${d}</div>`).join('')}
-          ${cells}
+        <div class="calendar-layout">
+          <div class="calendar-layout__grid">
+            <div class="cal-grid">
+              ${DIAS.map(d => `<div class="cal-head">${d}</div>`).join('')}
+              ${cells}
+            </div>
+          </div>
+          <div class="calendar-layout__list">
+            <p class="drawer-section-label" style="margin-top:0;">Eventos de ${MESES[month]}</p>
+            <div class="cal-list">${listaEventos}</div>
+          </div>
         </div>
-        <div class="cal-list" style="margin-top:1.2rem">${listaEventos}</div>
         <div class="cal-acciones" style="margin-top:1.4rem">
           <p class="cal-acciones__label" style="font:600 .72rem/1 'Manrope',sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--brand-700,#2C3E87);margin:0 0 .6rem">Acciones del administrador</p>
           <div class="cal-acciones__btns">
@@ -1827,43 +2342,43 @@
         </div>
       `;
 
-      // Navegación de meses
-      document.getElementById('adminCalPrev').addEventListener('click', () => {
-        adminCalMes.setMonth(adminCalMes.getMonth() - 1);
-        renderCalendarioAdmin(container);
-      });
-      document.getElementById('adminCalNext').addEventListener('click', () => {
-        adminCalMes.setMonth(adminCalMes.getMonth() + 1);
-        renderCalendarioAdmin(container);
-      });
+        // Navegación de meses
+        document.getElementById('adminCalPrev').addEventListener('click', () => {
+          adminCalMes.setMonth(adminCalMes.getMonth() - 1);
+          renderCalendarioAdmin(container);
+        });
+        document.getElementById('adminCalNext').addEventListener('click', () => {
+          adminCalMes.setMonth(adminCalMes.getMonth() + 1);
+          renderCalendarioAdmin(container);
+        });
 
-      // Botones de acción
-      document.getElementById('adminBtnExamen').addEventListener('click', () => abrirModalExamenAdmin(container));
-      document.getElementById('adminBtnEvento').addEventListener('click', () => abrirModalEventoAdmin(container));
+        // Botones de acción
+        document.getElementById('adminBtnExamen').addEventListener('click', () => abrirModalExamenAdmin(container));
+        document.getElementById('adminBtnEvento').addEventListener('click', () => abrirModalEventoAdmin(container));
 
-      // Botones eliminar por evento
-      container.querySelectorAll('.cal-list-del').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const eventoKey = btn.dataset.eventoKey;
-          const [fechaKey, ...tituloPartes] = eventoKey.split('__');
-          const tituloKey = tituloPartes.join('__');
-          requestDangerConfirm({
-            title: '¿Eliminar este evento?',
-            msg: `Vas a eliminar <strong>${tituloKey}</strong> del <strong>${fechaKey}</strong>. Esta acción no se puede deshacer.`,
-            btnLabel: 'Eliminar evento',
-            onConfirm: () => eliminarEventoAdmin(eventoKey, container)
+        // Botones eliminar por evento
+        container.querySelectorAll('.cal-list-del').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const eventoKey = btn.dataset.eventoKey;
+            const [fechaKey, ...tituloPartes] = eventoKey.split('__');
+            const tituloKey = tituloPartes.join('__');
+            requestDangerConfirm({
+              title: '¿Eliminar este evento?',
+              msg: `Vas a eliminar <strong>${tituloKey}</strong> del <strong>${fechaKey}</strong>. Esta acción no se puede deshacer.`,
+              btnLabel: 'Eliminar evento',
+              onConfirm: () => eliminarEventoAdmin(eventoKey, container)
+            });
           });
         });
-      });
-    }
+      }
 
-    function abrirModalExamenAdmin(container) {
-      const materiasOpts = ['Lógica Computacional','Matemática Aplicada','Algoritmos I','Introducción a Python','Estadística','Base de Datos']
-        .map(m => `<option value="${m}">${m}</option>`).join('');
+      function abrirModalExamenAdmin(container) {
+        const materiasOpts = ['Lógica Computacional', 'Matemática Aplicada', 'Algoritmos I', 'Introducción a Python', 'Estadística', 'Base de Datos']
+          .map(m => `<option value="${m}">${m}</option>`).join('');
 
-      const modal = document.createElement('div');
-      modal.className = 'cal-modal-overlay';
-      modal.innerHTML = `
+        const modal = document.createElement('div');
+        modal.className = 'cal-modal-overlay';
+        modal.innerHTML = `
         <div class="cal-modal-card" role="dialog" aria-modal="true" aria-label="Cargar fecha de examen">
           <div class="cal-modal-header">
             <h3 class="cal-modal-title">Cargar Fecha de Examen</h3>
@@ -1898,36 +2413,36 @@
           </form>
         </div>
       `;
-      document.body.appendChild(modal);
-      modal.querySelector('#adminExamenCancel').addEventListener('click', () => modal.remove());
-      modal.querySelector('.cal-modal-close').addEventListener('click', () => modal.remove());
-      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-      document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
-      modal.querySelector('#adminFormExamen').addEventListener('submit', e => {
-        e.preventDefault();
-        const d = new FormData(e.target);
-        guardarExamenAdmin({ materia: d.get('materia'), fecha: d.get('fecha'), horario: d.get('horario'), tipo: d.get('tipo') }, container);
-        modal.remove();
-      });
-    }
+        document.body.appendChild(modal);
+        modal.querySelector('#adminExamenCancel').addEventListener('click', () => modal.remove());
+        modal.querySelector('.cal-modal-close').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
+        modal.querySelector('#adminFormExamen').addEventListener('submit', e => {
+          e.preventDefault();
+          const d = new FormData(e.target);
+          guardarExamenAdmin({ materia: d.get('materia'), fecha: d.get('fecha'), horario: d.get('horario'), tipo: d.get('tipo') }, container);
+          modal.remove();
+        });
+      }
 
-    function guardarExamenAdmin({ materia, fecha, horario, tipo }, container) {
-      calendarioDatos.eventos_calendario.push({
-        fecha,
-        titulo: `${tipo}: ${materia} — ${horario}hs`,
-        tipo: 'examen',
-        color: '#3A5BA9'
-      });
-      auditar('crear', 'calendario', `Examen cargado: ${tipo} de ${materia} el ${fecha}`);
-      adminCalMes = new Date(fecha + 'T00:00:00');
-      renderCalendarioAdmin(container);
-      showToast('Examen cargado', `${tipo} de ${materia} el ${fecha} fue agregado al calendario.`);
-    }
+      function guardarExamenAdmin({ materia, fecha, horario, tipo }, container) {
+        calendarioDatos.eventos_calendario.push({
+          fecha,
+          titulo: `${tipo}: ${materia} — ${horario}hs`,
+          tipo: 'examen',
+          color: '#3A5BA9'
+        });
+        auditar('crear', 'calendario', `Examen cargado: ${tipo} de ${materia} el ${fecha}`);
+        adminCalMes = new Date(fecha + 'T00:00:00');
+        renderCalendarioAdmin(container);
+        showToast('Examen cargado', `${tipo} de ${materia} el ${fecha} fue agregado al calendario.`);
+      }
 
-    function abrirModalEventoAdmin(container) {
-      const modal = document.createElement('div');
-      modal.className = 'cal-modal-overlay';
-      modal.innerHTML = `
+      function abrirModalEventoAdmin(container) {
+        const modal = document.createElement('div');
+        modal.className = 'cal-modal-overlay';
+        modal.innerHTML = `
         <div class="cal-modal-card" role="dialog" aria-modal="true" aria-label="Crear evento institucional">
           <div class="cal-modal-header">
             <h3 class="cal-modal-title">Crear Evento Institucional</h3>
@@ -1961,54 +2476,54 @@
           </form>
         </div>
       `;
-      document.body.appendChild(modal);
-      modal.querySelector('#adminEventoCancel').addEventListener('click', () => modal.remove());
-      modal.querySelector('.cal-modal-close').addEventListener('click', () => modal.remove());
-      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-      document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
-      modal.querySelector('#adminFormEvento').addEventListener('submit', e => {
-        e.preventDefault();
-        const d = new FormData(e.target);
-        guardarEventoAdmin({
-          titulo:      d.get('titulo'),
-          fecha_inicio: d.get('fecha_inicio'),
-          fecha_fin:   d.get('fecha_fin') || null,
-          descripcion: d.get('descripcion'),
-          ubicacion:   d.get('ubicacion')
-        }, container);
-        modal.remove();
-      });
-    }
-
-    function guardarEventoAdmin({ titulo, fecha_inicio, descripcion, ubicacion }, container) {
-      const tipoId = 'evento_centro';
-      const color  = '#8B5CF6';
-      if (!calendarioDatos.tipos.find(t => t.id === tipoId)) {
-        calendarioDatos.tipos.push({ id: tipoId, nombre: 'Evento CE / Institucional', color });
+        document.body.appendChild(modal);
+        modal.querySelector('#adminEventoCancel').addEventListener('click', () => modal.remove());
+        modal.querySelector('.cal-modal-close').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
+        modal.querySelector('#adminFormEvento').addEventListener('submit', e => {
+          e.preventDefault();
+          const d = new FormData(e.target);
+          guardarEventoAdmin({
+            titulo: d.get('titulo'),
+            fecha_inicio: d.get('fecha_inicio'),
+            fecha_fin: d.get('fecha_fin') || null,
+            descripcion: d.get('descripcion'),
+            ubicacion: d.get('ubicacion')
+          }, container);
+          modal.remove();
+        });
       }
-      calendarioDatos.eventos_calendario.push({ fecha: fecha_inicio, titulo, tipo: tipoId, color });
-      auditar('crear', 'calendario', `Evento institucional creado: "${titulo}" el ${fecha_inicio}${ubicacion ? ' en ' + ubicacion : ''}`);
-      adminCalMes = new Date(fecha_inicio + 'T00:00:00');
-      renderCalendarioAdmin(container);
-      showToast('Evento creado', `"${titulo}" fue publicado en el calendario.`);
-    }
 
-    function eliminarEventoAdmin(eventoKey, container) {
-      const [fecha, ...tituloPartes] = eventoKey.split('__');
-      const titulo = tituloPartes.join('__');
-      const idx = calendarioDatos.eventos_calendario.findIndex(e => e.fecha === fecha && e.titulo === titulo);
-      if (idx >= 0) {
-        const eliminado = calendarioDatos.eventos_calendario.splice(idx, 1)[0];
-        auditar('eliminar', 'calendario', `Evento eliminado: "${eliminado.titulo}" del ${eliminado.fecha}`);
-        showToast('Evento eliminado', `"${eliminado.titulo}" fue removido del calendario.`, '#E67E5B');
+      function guardarEventoAdmin({ titulo, fecha_inicio, descripcion, ubicacion }, container) {
+        const tipoId = 'evento_centro';
+        const color = '#8B5CF6';
+        if (!calendarioDatos.tipos.find(t => t.id === tipoId)) {
+          calendarioDatos.tipos.push({ id: tipoId, nombre: 'Evento CE / Institucional', color });
+        }
+        calendarioDatos.eventos_calendario.push({ fecha: fecha_inicio, titulo, tipo: tipoId, color });
+        auditar('crear', 'calendario', `Evento institucional creado: "${titulo}" el ${fecha_inicio}${ubicacion ? ' en ' + ubicacion : ''}`);
+        adminCalMes = new Date(fecha_inicio + 'T00:00:00');
+        renderCalendarioAdmin(container);
+        showToast('Evento creado', `"${titulo}" fue publicado en el calendario.`);
       }
-      renderCalendarioAdmin(container);
-    }
 
-    // Vista inicial al cargar la página
-    navigateTo('perfil');
+      function eliminarEventoAdmin(eventoKey, container) {
+        const [fecha, ...tituloPartes] = eventoKey.split('__');
+        const titulo = tituloPartes.join('__');
+        const idx = calendarioDatos.eventos_calendario.findIndex(e => e.fecha === fecha && e.titulo === titulo);
+        if (idx >= 0) {
+          const eliminado = calendarioDatos.eventos_calendario.splice(idx, 1)[0];
+          auditar('eliminar', 'calendario', `Evento eliminado: "${eliminado.titulo}" del ${eliminado.fecha}`);
+          showToast('Evento eliminado', `"${eliminado.titulo}" fue removido del calendario.`, '#E67E5B');
+        }
+        renderCalendarioAdmin(container);
+      }
 
-  })();
+      // Vista inicial al cargar la página
+      navigateTo('perfil');
+
+    })();
   </script>
 
   <!-- Autenticación, logout centralizado y validación de rol -->
@@ -2016,4 +2531,5 @@
   <script src="js/admin-auth.js"></script>
 
 </body>
+
 </html>

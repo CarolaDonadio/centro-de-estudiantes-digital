@@ -15,6 +15,7 @@
 =================================================================
 -->
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,8 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+    rel="stylesheet" />
 
   <!-- === ESTILOS HEREDADOS DEL PROYECTO === -->
   <link rel="stylesheet" href="css/styles.css" />
@@ -56,9 +56,11 @@
       border: 1px solid rgba(245, 166, 35, .35);
       margin-bottom: .35rem;
     }
+
     .role-pill::before {
       content: "";
-      width: 6px; height: 6px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: var(--accent-amber, #F5A623);
       box-shadow: 0 0 0 3px rgba(245, 166, 35, .25);
@@ -81,12 +83,15 @@
       box-shadow: 0 6px 18px -6px rgba(44, 62, 135, .55);
       transition: transform .2s ease, box-shadow .2s ease;
     }
+
     .header__action:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 22px -8px rgba(44, 62, 135, .7);
     }
+
     .header__action svg {
-      width: 14px; height: 14px;
+      width: 14px;
+      height: 14px;
       stroke: currentColor;
       fill: none;
       stroke-width: 2.2;
@@ -107,27 +112,41 @@
       border-radius: 12px;
       transition: transform .2s ease, box-shadow .2s ease;
     }
+
     .pub-item:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 24px -14px rgba(26, 29, 74, .35);
     }
+
     .pub-item::before {
       content: "";
       position: absolute;
-      left: 0; top: 14%;
+      left: 0;
+      top: 14%;
       bottom: 14%;
       width: 4px;
       border-radius: 0 4px 4px 0;
       background: var(--pub-color, var(--brand-500, #4A67C9));
     }
+
     .pub-item__icon {
-      width: 38px; height: 38px;
+      width: 38px;
+      height: 38px;
       border-radius: 10px;
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
       background: color-mix(in srgb, var(--pub-color, #4A67C9) 14%, white);
       color: var(--pub-color, #4A67C9);
     }
-    .pub-item__icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    .pub-item__icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
     .pub-item__head {
       display: flex;
       align-items: center;
@@ -135,6 +154,7 @@
       flex-wrap: wrap;
       margin-bottom: .25rem;
     }
+
     .pub-item__type {
       font: 600 .65rem/1 'Manrope', sans-serif;
       text-transform: uppercase;
@@ -144,20 +164,24 @@
       padding: .25rem .45rem;
       border-radius: 5px;
     }
+
     .pub-item__time {
       font: 500 .72rem/1 'Manrope', sans-serif;
       color: #8a8d9c;
     }
+
     .pub-item__title {
       font: 700 .98rem/1.3 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
       margin: 0 0 .15rem;
     }
+
     .pub-item__excerpt {
       font: 400 .82rem/1.45 'Manrope', sans-serif;
       color: #5a5d6e;
       margin: 0;
     }
+
     .pub-item__meta {
       display: flex;
       flex-direction: column;
@@ -167,6 +191,7 @@
       color: #6c6f80;
       white-space: nowrap;
     }
+
     .pub-item__reach {
       display: inline-flex;
       align-items: center;
@@ -174,7 +199,14 @@
       color: var(--brand-700, #2C3E87);
       font-weight: 600;
     }
-    .pub-item__reach svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .pub-item__reach svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
 
     /* ============================================================
        ZONA DE SUBIDA DE MATERIAL (drag & drop)
@@ -196,30 +228,44 @@
       transition: border-color .2s ease, background-color .2s ease;
       cursor: pointer;
     }
+
     .upload-zone:hover,
     .upload-zone.is-dragover {
       border-color: var(--accent-amber, #F5A623);
       background-color: #fff8ec;
     }
+
     .upload-zone__icon {
-      width: 54px; height: 54px;
-      display: grid; place-items: center;
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
       background: linear-gradient(135deg, var(--brand-700, #2C3E87), var(--brand-500, #4A67C9));
       color: #fff;
       border-radius: 14px;
       box-shadow: 0 12px 28px -10px rgba(44, 62, 135, .55);
     }
-    .upload-zone__icon svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    .upload-zone__icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
     .upload-zone__title {
       font: 700 1rem/1.2 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
       margin: 0;
     }
+
     .upload-zone__hint {
       font: 400 .82rem/1.4 'Manrope', sans-serif;
       color: #6c6f80;
       margin: 0;
     }
+
     .upload-zone__browse {
       color: var(--brand-700, #2C3E87);
       text-decoration: underline;
@@ -233,13 +279,17 @@
       gap: .7rem;
       margin-top: 1rem;
     }
+
     .upload-controls label {
-      display: flex; flex-direction: column; gap: .3rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
       font: 600 .72rem/1 'Manrope', sans-serif;
       color: var(--brand-700, #2C3E87);
       letter-spacing: .04em;
       text-transform: uppercase;
     }
+
     .upload-controls select,
     .upload-controls input,
     .pub-form input,
@@ -254,6 +304,7 @@
       outline: none;
       transition: border-color .15s ease, box-shadow .15s ease;
     }
+
     .upload-controls select:focus,
     .upload-controls input:focus,
     .pub-form input:focus,
@@ -272,6 +323,7 @@
       gap: .55rem;
       margin-top: 1.5rem;
     }
+
     .material-row {
       display: grid;
       grid-template-columns: auto 1fr auto auto;
@@ -282,27 +334,34 @@
       border: 1px solid rgba(143, 163, 227, .25);
       border-radius: 10px;
     }
+
     .material-row__icon {
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border-radius: 9px;
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
       background: var(--mat-bg, #E3E9FA);
       color: var(--mat-fg, #2C3E87);
       font: 700 .68rem/1 'Manrope', sans-serif;
       letter-spacing: .04em;
     }
+
     .material-row__info p {
       margin: 0;
     }
+
     .material-row__name {
       font: 600 .88rem/1.2 'Manrope', sans-serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .material-row__meta {
       font: 400 .72rem/1.2 'Manrope', sans-serif;
       color: #6c6f80;
       margin-top: .2rem !important;
     }
+
     .material-row__downloads {
       display: inline-flex;
       align-items: center;
@@ -310,19 +369,39 @@
       font: 600 .76rem/1 'Manrope', sans-serif;
       color: var(--accent-green, #3DAA6A);
     }
-    .material-row__downloads svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .material-row__downloads svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
     .material-row__del {
-      width: 30px; height: 30px;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
       border: none;
       background: transparent;
       color: var(--accent-coral, #E67E5B);
       cursor: pointer;
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
       transition: background .15s ease;
     }
-    .material-row__del:hover { background: rgba(230, 126, 91, .12); }
-    .material-row__del svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    .material-row__del:hover {
+      background: rgba(230, 126, 91, .12);
+    }
+
+    .material-row__del svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
 
     /* ============================================================
        COMPOSITOR DE PUBLICACIONES
@@ -333,23 +412,29 @@
       flex-direction: column;
       gap: .9rem;
     }
+
     .pub-form__row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: .7rem;
     }
+
     .pub-form label {
-      display: flex; flex-direction: column; gap: .3rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
       font: 600 .72rem/1 'Manrope', sans-serif;
       color: var(--brand-700, #2C3E87);
       letter-spacing: .04em;
       text-transform: uppercase;
     }
+
     .pub-form textarea {
       min-height: 110px;
       resize: vertical;
       font-family: 'Manrope', sans-serif;
     }
+
     .pub-form__notice {
       display: flex;
       gap: .6rem;
@@ -361,13 +446,21 @@
       color: #5a5d6e;
       font: 400 .82rem/1.4 'Manrope', sans-serif;
     }
-    .pub-form__notice strong { color: var(--brand-900, #1A1D4A); }
+
+    .pub-form__notice strong {
+      color: var(--brand-900, #1A1D4A);
+    }
+
     .pub-form__notice svg {
       flex-shrink: 0;
-      width: 18px; height: 18px;
+      width: 18px;
+      height: 18px;
       color: var(--accent-amber, #F5A623);
-      stroke: currentColor; fill: none; stroke-width: 1.8;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
     }
+
     .pub-form__submit {
       align-self: flex-start;
       display: inline-flex;
@@ -383,8 +476,18 @@
       box-shadow: 0 8px 22px -8px rgba(44, 62, 135, .6);
       transition: transform .2s ease;
     }
-    .pub-form__submit:hover { transform: translateY(-1px); }
-    .pub-form__submit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+    .pub-form__submit:hover {
+      transform: translateY(-1px);
+    }
+
+    .pub-form__submit svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
 
     /* ============================================================
        LISTADOS DEL DRAWER (cursos / alumnos)
@@ -401,6 +504,7 @@
       position: relative;
       overflow: hidden;
     }
+
     .course-card::before {
       content: "";
       position: absolute;
@@ -408,11 +512,13 @@
       width: 4px;
       background: var(--course-color, var(--brand-500, #4A67C9));
     }
+
     .course-card h4 {
       margin: 0 0 .25rem;
       font: 700 1rem/1.2 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .course-card__meta {
       display: flex;
       flex-wrap: wrap;
@@ -420,7 +526,13 @@
       font: 500 .76rem/1.2 'Manrope', sans-serif;
       color: #5a5d6e;
     }
-    .course-card__meta span { display: inline-flex; align-items: center; gap: .25rem; }
+
+    .course-card__meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+    }
+
     .course-card__manage {
       align-self: center;
       padding: .5rem .8rem;
@@ -432,7 +544,10 @@
       cursor: pointer;
       transition: background .2s ease;
     }
-    .course-card__manage:hover { background: rgba(143, 163, 227, .35); }
+
+    .course-card__manage:hover {
+      background: rgba(143, 163, 227, .35);
+    }
 
     .student-row {
       display: grid;
@@ -445,31 +560,40 @@
       border-radius: 10px;
       margin-bottom: .4rem;
     }
+
     .student-row__avatar {
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
       background: linear-gradient(135deg, var(--brand-500, #4A67C9), var(--brand-300, #8FA3E3));
       color: #fff;
       font: 700 .78rem/1 'Manrope', sans-serif;
     }
+
     .student-row__name {
       margin: 0;
       font: 600 .88rem/1.2 'Manrope', sans-serif;
       color: var(--brand-900, #1A1D4A);
     }
+
     .student-row__legajo {
       margin: .15rem 0 0;
       font: 400 .72rem/1.2 'Manrope', sans-serif;
       color: #8a8d9c;
     }
+
     .student-row__stats {
       display: flex;
       gap: .8rem;
       font: 500 .76rem/1.2 'Manrope', sans-serif;
       color: #5a5d6e;
     }
-    .student-row__stats b { color: var(--brand-900, #1A1D4A); }
+
+    .student-row__stats b {
+      color: var(--brand-900, #1A1D4A);
+    }
 
     .drawer__search {
       display: flex;
@@ -481,7 +605,16 @@
       border-radius: 10px;
       margin-bottom: 1rem;
     }
-    .drawer__search svg { width: 16px; height: 16px; color: #8a8d9c; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .drawer__search svg {
+      width: 16px;
+      height: 16px;
+      color: #8a8d9c;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
     .drawer__search input {
       flex: 1;
       border: none;
@@ -499,6 +632,7 @@
       border-radius: 10px;
       margin-bottom: 1.2rem;
     }
+
     .drawer__tab {
       flex: 1;
       padding: .55rem .8rem;
@@ -510,6 +644,7 @@
       cursor: pointer;
       transition: background .2s ease, color .2s ease;
     }
+
     .drawer__tab.is-active {
       background: #fff;
       color: var(--brand-900, #1A1D4A);
@@ -529,17 +664,17 @@
       overflow: hidden;
       isolation: isolate;
     }
+
     .class-card::before {
       content: "";
       position: absolute;
       inset: 0;
-      background-image: repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, .04) 0 2px,
-        transparent 2px 12px
-      );
+      background-image: repeating-linear-gradient(45deg,
+          rgba(255, 255, 255, .04) 0 2px,
+          transparent 2px 12px);
       z-index: -1;
     }
+
     .class-card__date {
       display: inline-flex;
       flex-direction: column;
@@ -552,6 +687,7 @@
       line-height: 1;
       margin-bottom: .7rem;
     }
+
     .class-card__date small {
       font-size: .6rem;
       font-weight: 600;
@@ -559,10 +695,16 @@
       letter-spacing: .12em;
       opacity: .9;
     }
-    .class-card__date strong { font-size: 1.4rem; font-weight: 700; }
+
+    .class-card__date strong {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
     .class-card__type {
       position: absolute;
-      top: 1rem; right: 1rem;
+      top: 1rem;
+      right: 1rem;
       font: 600 .65rem/1 'Manrope', sans-serif;
       text-transform: uppercase;
       letter-spacing: .1em;
@@ -571,15 +713,18 @@
       backdrop-filter: blur(6px);
       border-radius: 5px;
     }
+
     .class-card__title {
       margin: 0 0 .25rem;
       font: 700 1rem/1.25 'Bricolage Grotesque', serif;
     }
+
     .class-card__sub {
       margin: 0 0 .8rem;
       font: 400 .8rem/1.3 'Manrope', sans-serif;
       opacity: .85;
     }
+
     .class-card__action {
       display: inline-flex;
       align-items: center;
@@ -593,15 +738,26 @@
       cursor: pointer;
       transition: transform .2s ease;
     }
-    .class-card__action:hover { transform: translateY(-1px); }
-    .class-card__action svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+    .class-card__action:hover {
+      transform: translateY(-1px);
+    }
+
+    .class-card__action svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
 
     /* ============================================================
        Toast de confirmación cuando una acción afecta el portal del alumno
        ============================================================ */
     .toast {
       position: fixed;
-      bottom: 1.5rem; right: 1.5rem;
+      bottom: 1.5rem;
+      right: 1.5rem;
       max-width: 360px;
       padding: .9rem 1.1rem .9rem 1rem;
       background: #fff;
@@ -609,28 +765,43 @@
       box-shadow: 0 18px 40px -10px rgba(26, 29, 74, .35);
       border-left: 4px solid var(--accent-green, #3DAA6A);
       transform: translateX(120%);
-      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
       z-index: 999;
       display: flex;
       gap: .7rem;
       align-items: flex-start;
     }
-    .toast.is-visible { transform: translateX(0); }
+
+    .toast.is-visible {
+      transform: translateX(0);
+    }
+
     .toast__icon {
-      width: 28px; height: 28px;
+      width: 28px;
+      height: 28px;
       flex-shrink: 0;
       border-radius: 50%;
       background: rgba(61, 170, 106, .15);
       color: var(--accent-green, #3DAA6A);
-      display: grid; place-items: center;
+      display: grid;
+      place-items: center;
     }
-    .toast__icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+    .toast__icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+    }
+
     .toast strong {
       display: block;
       font: 700 .85rem/1.2 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
       margin-bottom: .15rem;
     }
+
     .toast span {
       font: 400 .76rem/1.4 'Manrope', sans-serif;
       color: #5a5d6e;
@@ -639,13 +810,36 @@
     /* ============================================================
        Header alineado con el original pero con espacio para "+ Nueva"
        ============================================================ */
-    .header__nav { gap: .9rem; }
+    .header__nav {
+      gap: .9rem;
+    }
 
     @media (max-width: 720px) {
+
       .upload-controls,
-      .pub-form__row { grid-template-columns: 1fr; }
-      .pub-item { grid-template-columns: auto 1fr; }
-      .pub-item__meta { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
+      .pub-form__row {
+        grid-template-columns: 1fr;
+      }
+
+      .pub-item {
+        grid-template-columns: auto 1fr;
+      }
+
+      .pub-item__meta {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .calendar-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .calendar-layout__list {
+        max-height: 300px;
+      }
     }
   </style>
 </head>
@@ -686,7 +880,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-              <path d="M9 7h7M9 11h5" stroke-linecap="round"/>
+              <path d="M9 7h7M9 11h5" stroke-linecap="round" />
             </svg>
             <span class="nav-btn__tooltip">Mis Cursos</span>
           </button>
@@ -709,9 +903,9 @@
         <li>
           <button class="nav-btn" data-drawer="material" aria-label="Material Didáctico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round"/>
-              <path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M12 5v12" stroke-linecap="round"/>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" />
+              <path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12 5v12" stroke-linecap="round" />
             </svg>
             <span class="nav-btn__tooltip">Material Didáctico</span>
           </button>
@@ -734,12 +928,12 @@
         <li>
           <button class="nav-btn" data-drawer="publicar" aria-label="Publicar para alumnos">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M3 11l18-7-7 18-2-8-9-3z" stroke-linejoin="round"/>
+              <path d="M3 11l18-7-7 18-2-8-9-3z" stroke-linejoin="round" />
             </svg>
             <span class="nav-btn__tooltip">Publicar</span>
           </button>
         </li>
-        
+
         <!-- 6) Cerrar sesión -->
         <li class="nav-btn--bottom">
           <button class="nav-btn nav-btn--danger" id="logoutBtn" aria-label="Cerrar sesión">
@@ -785,7 +979,9 @@
 
         <!-- Botón de acción rápida: abre el compositor de publicaciones -->
         <button class="header__action" data-drawer-trigger="publicar" aria-label="Crear nueva publicación">
-          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" stroke-linecap="round" />
+          </svg>
           Nueva publicación
         </button>
 
@@ -821,8 +1017,8 @@
           <div class="career-item">
             <div class="career-icon career-icon--soft">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-                <rect x="3" y="4" width="18" height="16" rx="2"/>
+                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="3" y="4" width="18" height="16" rx="2" />
               </svg>
             </div>
             <div>
@@ -856,10 +1052,11 @@
 
           <div class="career-ornament" aria-hidden="true">
             <svg viewBox="0 0 200 120">
-              <path d="M10 90 Q50 40 100 60 T190 50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-              <circle cx="170" cy="40" r="3" fill="currentColor" opacity="0.6"/>
-              <circle cx="100" cy="60" r="2" fill="currentColor" opacity="0.4"/>
-              <circle cx="40" cy="75" r="2" fill="currentColor" opacity="0.5"/>
+              <path d="M10 90 Q50 40 100 60 T190 50" fill="none" stroke="currentColor" stroke-width="1.5"
+                opacity="0.4" />
+              <circle cx="170" cy="40" r="3" fill="currentColor" opacity="0.6" />
+              <circle cx="100" cy="60" r="2" fill="currentColor" opacity="0.4" />
+              <circle cx="40" cy="75" r="2" fill="currentColor" opacity="0.5" />
             </svg>
           </div>
         </div>
@@ -868,17 +1065,18 @@
       <!-- === TARJETA 2: PRÓXIMAS CLASES Y EVALUACIONES === -->
       <article class="card card--events" data-animate="fade-up" style="--delay: 0.25s">
 
-        <svg class="card-watermark" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
-          <rect x="40" y="40" width="120" height="120" rx="8" stroke-dasharray="3 6" opacity="0.5"/>
-          <path d="M40 70h120M40 100h120M40 130h120" opacity="0.4"/>
-          <circle cx="160" cy="40" r="4" opacity="0.5"/>
+        <svg class="card-watermark" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="1.2"
+          aria-hidden="true">
+          <rect x="40" y="40" width="120" height="120" rx="8" stroke-dasharray="3 6" opacity="0.5" />
+          <path d="M40 70h120M40 100h120M40 130h120" opacity="0.4" />
+          <circle cx="160" cy="40" r="4" opacity="0.5" />
         </svg>
 
         <header class="card__header">
           <span class="eyebrow">
             <svg class="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="5" width="18" height="16" rx="2"/>
-              <path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/>
+              <rect x="3" y="5" width="18" height="16" rx="2" />
+              <path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round" />
             </svg>
             Cronograma docente
           </span>
@@ -892,7 +1090,7 @@
         <div class="events-actions">
           <button class="events-toggle" id="scheduleNewBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+              <path d="M12 5v14M5 12h14" stroke-linecap="round" />
             </svg>
             Programar evaluación
           </button>
@@ -902,17 +1100,18 @@
       <!-- === TARJETA 3: TUS PUBLICACIONES === -->
       <article class="card card--news" data-animate="fade-up" style="--delay: 0.4s">
 
-        <svg class="card-watermark" viewBox="0 0 220 100" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <svg class="card-watermark" viewBox="0 0 220 100" fill="none" stroke="currentColor" stroke-width="1.5"
+          aria-hidden="true">
           <path d="M5 20 Q40 5 80 25 T160 20 T215 28" />
-          <path d="M5 50 Q40 35 80 55 T160 50 T215 58" opacity="0.7"/>
-          <path d="M5 80 Q40 65 80 85 T160 80 T215 88" opacity="0.45"/>
+          <path d="M5 50 Q40 35 80 55 T160 50 T215 58" opacity="0.7" />
+          <path d="M5 80 Q40 65 80 85 T160 80 T215 88" opacity="0.45" />
         </svg>
 
         <header class="card__header card__header--row">
           <div>
             <span class="eyebrow">
               <svg class="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/>
+                <path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round" />
               </svg>
               Feed docente
             </span>
@@ -941,7 +1140,8 @@
         <span class="eyebrow">Normativas y Documentos</span>
         <h2 class="section__title" id="reglamentacionTitle">Reglamentación institucional</h2>
         <p class="section__intro">
-          Accedé a reglamentos, resoluciones y comunicaciones oficiales del instituto. También podés ir directamente al portal de normativa oficial para una búsqueda más completa.
+          Accedé a reglamentos, resoluciones y comunicaciones oficiales del instituto. También podés ir directamente al
+          portal de normativa oficial para una búsqueda más completa.
         </p>
       </div>
 
@@ -954,7 +1154,8 @@
 
       <div class="reglamentacion-search">
         <label class="sr-only" for="reglamentacionSearch">Buscar normativas</label>
-        <input id="reglamentacionSearch" class="search-input" type="search" placeholder="Buscar normativas por palabra clave" autocomplete="off">
+        <input id="reglamentacionSearch" class="search-input" type="search"
+          placeholder="Buscar normativas por palabra clave" autocomplete="off">
 
         <div class="search-categories" role="group" aria-label="Filtrar por categoría">
           <button type="button" class="chip chip--active" data-filter-category="todas">Todas</button>
@@ -972,28 +1173,35 @@
 
         <details>
           <summary>¿Cómo busco un reglamento específico?</summary>
-          <p>Usá el campo de búsqueda para filtrar por palabras clave del título, la descripción o las categorías. También podés seleccionar una categoría para ver solo los documentos relacionados.</p>
+          <p>Usá el campo de búsqueda para filtrar por palabras clave del título, la descripción o las categorías.
+            También podés seleccionar una categoría para ver solo los documentos relacionados.</p>
         </details>
 
         <details>
           <summary>¿Qué significan las categorías disponibles?</summary>
-          <p>Las categorías ayudan a clasificar los documentos: Resoluciones, Disposiciones, Circulares y Comunicaciones. Seleccioná la categoría que mejor describa el tipo de normativa que estás buscando.</p>
+          <p>Las categorías ayudan a clasificar los documentos: Resoluciones, Disposiciones, Circulares y
+            Comunicaciones. Seleccioná la categoría que mejor describa el tipo de normativa que estás buscando.</p>
         </details>
 
         <details>
           <summary>¿Puedo descargar los reglamentos desde esta página?</summary>
-          <p>Sí. Cada documento tiene un botón "VER DOCUMENTO" que abre el archivo oficial en una nueva pestaña para que puedas revisarlo y descargarlo directamente.</p>
+          <p>Sí. Cada documento tiene un botón "VER DOCUMENTO" que abre el archivo oficial en una nueva pestaña para que
+            puedas revisarlo y descargarlo directamente.</p>
         </details>
 
         <details>
           <summary>¿Dónde encuentro la versión más reciente de un reglamento?</summary>
-          <p>Los documentos que se muestran aquí provienen del repositorio oficial. Si necesitás mayor certeza sobre la versión más actual, podés ir al portal externo de normativa educativa al final de esta sección.</p>
+          <p>Los documentos que se muestran aquí provienen del repositorio oficial. Si necesitás mayor certeza sobre la
+            versión más actual, podés ir al portal externo de normativa educativa al final de esta sección.</p>
         </details>
       </section>
 
       <div class="section__cta">
-        <p class="section__note">Si necesitás buscar más reglamentos oficiales, accedé al portal externo de normativa educativa.</p>
-        <a class="btn btn-primary" href="https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa" target="_blank" rel="noopener noreferrer">Ir al portal de normativa</a>
+        <p class="section__note">Si necesitás buscar más reglamentos oficiales, accedé al portal externo de normativa
+          educativa.</p>
+        <a class="btn btn-primary"
+          href="https://abc.gob.ar/secretarias/areas/subsecretaria-de-educacion/educacion-superior/dir-de-form-doc-inicial/normativa"
+          target="_blank" rel="noopener noreferrer">Ir al portal de normativa</a>
       </div>
     </section>
   </main>
@@ -1013,7 +1221,7 @@
       </div>
       <button class="drawer__close" id="drawerClose" aria-label="Cerrar panel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
+          <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round" />
         </svg>
       </button>
     </header>
@@ -1049,7 +1257,9 @@
   <!-- TOAST de confirmación cuando una acción afecta al alumno -->
   <div class="toast" id="toast" role="status" aria-live="polite">
     <div class="toast__icon">
-      <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
     </div>
     <div>
       <strong id="toastTitle">Publicación enviada</strong>
@@ -1064,90 +1274,90 @@
     ================================================================
   -->
   <script>
-  (function () {
-    'use strict';
+    (function () {
+      'use strict';
 
-    /* ============================================================
-       1) DATA MOCK (en Fase 2 → fetch a /api/docente/*)
-       ============================================================ */
-    const docente = {
-      nombre: 'Prof. Carlos Mendoza',
-      iniciales: 'CM',
-      legajo: 'D-2401',
-      dni: '28.456.789',
-      especialidad: 'Matemáticas y Computación',
-      antiguedad: '12 años',
-      estado: 'Activo',
-      email: 'cmendoza@isfdyt57.edu.ar'
-    };
+      /* ============================================================
+         1) DATA MOCK (en Fase 2 → fetch a /api/docente/*)
+         ============================================================ */
+      const docente = {
+        nombre: 'Prof. Carlos Mendoza',
+        iniciales: 'CM',
+        legajo: 'D-2401',
+        dni: '28.456.789',
+        especialidad: 'Matemáticas y Computación',
+        antiguedad: '12 años',
+        estado: 'Activo',
+        email: 'cmendoza@isfdyt57.edu.ar'
+      };
 
-    const state = {
-      calendarioMes: null,
-      calendario: {
-        eventos: []
-      }
-    };
+      const state = {
+        calendarioMes: null,
+        calendario: {
+          eventos: []
+        }
+      };
 
-    const cursos = [
-      { id: 1, nombre: 'Lógica Computacional', anio: '1°', alumnos: 28, asistencia: 86, color: '#4A67C9', proxima: 'Mañana 18:00' },
-      { id: 2, nombre: 'Matemática Aplicada',  anio: '2°', alumnos: 22, asistencia: 79, color: '#F5A623', proxima: 'Jueves 20:00' },
-      { id: 3, nombre: 'Algoritmos I',          anio: '1°', alumnos: 30, asistencia: 91, color: '#3DAA6A', proxima: 'Viernes 18:00' }
-    ];
+      const cursos = [
+        { id: 1, nombre: 'Lógica Computacional', anio: '1°', alumnos: 28, asistencia: 86, color: '#4A67C9', proxima: 'Mañana 18:00' },
+        { id: 2, nombre: 'Matemática Aplicada', anio: '2°', alumnos: 22, asistencia: 79, color: '#F5A623', proxima: 'Jueves 20:00' },
+        { id: 3, nombre: 'Algoritmos I', anio: '1°', alumnos: 30, asistencia: 91, color: '#3DAA6A', proxima: 'Viernes 18:00' }
+      ];
 
-    const alumnos = [
-      { nombre: 'Ana Suárez',         legajo: 'A-23104', curso: 1, asistencia: '95%', promedio: '8.5' },
-      { nombre: 'Bruno Pereyra',      legajo: 'A-23211', curso: 1, asistencia: '78%', promedio: '6.8' },
-      { nombre: 'Camila Ríos',        legajo: 'A-23308', curso: 1, asistencia: '88%', promedio: '9.0' },
-      { nombre: 'Diego Falcón',       legajo: 'A-23415', curso: 2, asistencia: '70%', promedio: '7.2' },
-      { nombre: 'Eva Montero',        legajo: 'A-23502', curso: 2, asistencia: '92%', promedio: '8.9' },
-      { nombre: 'Federico Núñez',     legajo: 'A-23617', curso: 3, asistencia: '85%', promedio: '7.5' },
-      { nombre: 'Gabriela Iturrioz',  legajo: 'A-23728', curso: 3, asistencia: '97%', promedio: '9.4' },
-      { nombre: 'Santiago Chiale',    legajo: 'A-23110', curso: 1, asistencia: '83%', promedio: '7.8' }
-    ];
+      const alumnos = [
+        { nombre: 'Ana Suárez', legajo: 'A-23104', curso: 1, asistencia: '95%', promedio: '8.5' },
+        { nombre: 'Bruno Pereyra', legajo: 'A-23211', curso: 1, asistencia: '78%', promedio: '6.8' },
+        { nombre: 'Camila Ríos', legajo: 'A-23308', curso: 1, asistencia: '88%', promedio: '9.0' },
+        { nombre: 'Diego Falcón', legajo: 'A-23415', curso: 2, asistencia: '70%', promedio: '7.2' },
+        { nombre: 'Eva Montero', legajo: 'A-23502', curso: 2, asistencia: '92%', promedio: '8.9' },
+        { nombre: 'Federico Núñez', legajo: 'A-23617', curso: 3, asistencia: '85%', promedio: '7.5' },
+        { nombre: 'Gabriela Iturrioz', legajo: 'A-23728', curso: 3, asistencia: '97%', promedio: '9.4' },
+        { nombre: 'Santiago Chiale', legajo: 'A-23110', curso: 1, asistencia: '83%', promedio: '7.8' }
+      ];
 
-    // Empieza con algunos materiales ya cargados; cuando el docente sube
-    // uno nuevo se va agregando a este array y se re-renderiza.
-    const materiales = [
-      { id: 1, nombre: 'Apunte U3 - Funciones lógicas.pdf',  tipo: 'PDF',  curso: 1, fecha: '15/04/2026', tamanio: '2.4 MB', descargas: 23 },
-      { id: 2, nombre: 'Guía de ejercicios - Tablas de verdad.pdf', tipo: 'PDF', curso: 1, fecha: '12/04/2026', tamanio: '890 KB', descargas: 18 },
-      { id: 3, nombre: 'Clase grabada - Inducción matemática.mp4', tipo: 'VIDEO', curso: 2, fecha: '08/04/2026', tamanio: '184 MB', descargas: 9 },
-      { id: 4, nombre: 'Práctica integradora.docx', tipo: 'DOC', curso: 3, fecha: '05/04/2026', tamanio: '320 KB', descargas: 27 }
-    ];
+      // Empieza con algunos materiales ya cargados; cuando el docente sube
+      // uno nuevo se va agregando a este array y se re-renderiza.
+      const materiales = [
+        { id: 1, nombre: 'Apunte U3 - Funciones lógicas.pdf', tipo: 'PDF', curso: 1, fecha: '15/04/2026', tamanio: '2.4 MB', descargas: 23 },
+        { id: 2, nombre: 'Guía de ejercicios - Tablas de verdad.pdf', tipo: 'PDF', curso: 1, fecha: '12/04/2026', tamanio: '890 KB', descargas: 18 },
+        { id: 3, nombre: 'Clase grabada - Inducción matemática.mp4', tipo: 'VIDEO', curso: 2, fecha: '08/04/2026', tamanio: '184 MB', descargas: 9 },
+        { id: 4, nombre: 'Práctica integradora.docx', tipo: 'DOC', curso: 3, fecha: '05/04/2026', tamanio: '320 KB', descargas: 27 }
+      ];
 
-    // Clases / evaluaciones próximas (lo que ve la tarjeta central)
-    const clases = [
-      { dia: 'MAÑ', num: '28', titulo: 'Lógica Computacional', sub: 'Clase teórica · Aula 204',  tipo: 'Clase',     from: '#2C3E87', to: '#4A67C9' },
-      { dia: 'MIÉ', num: '29', titulo: 'Matemática Aplicada',  sub: 'Práctica · Lab 2',           tipo: 'Clase',     from: '#3DAA6A', to: '#5BC987' },
-      { dia: 'VIE', num: '01', titulo: 'Lógica Computacional', sub: 'Parcial 1 · 28 alumnos',    tipo: 'Examen',    from: '#E67E5B', to: '#F19A7B' },
-      { dia: 'LUN', num: '04', titulo: 'Algoritmos I',          sub: 'Repaso pre-parcial',         tipo: 'Clase',     from: '#8B5CF6', to: '#A78BF7' }
-    ];
+      // Clases / evaluaciones próximas (lo que ve la tarjeta central)
+      const clases = [
+        { dia: 'MAÑ', num: '28', titulo: 'Lógica Computacional', sub: 'Clase teórica · Aula 204', tipo: 'Clase', from: '#2C3E87', to: '#4A67C9' },
+        { dia: 'MIÉ', num: '29', titulo: 'Matemática Aplicada', sub: 'Práctica · Lab 2', tipo: 'Clase', from: '#3DAA6A', to: '#5BC987' },
+        { dia: 'VIE', num: '01', titulo: 'Lógica Computacional', sub: 'Parcial 1 · 28 alumnos', tipo: 'Examen', from: '#E67E5B', to: '#F19A7B' },
+        { dia: 'LUN', num: '04', titulo: 'Algoritmos I', sub: 'Repaso pre-parcial', tipo: 'Clase', from: '#8B5CF6', to: '#A78BF7' }
+      ];
 
-    // Map existing 'clases' data to calendar events format
-    state.calendario.eventos = clases.map(c => {
-      const today = new Date();
-      const day = c.dia === 'MAÑ' ? today.getDate() + 1 : (c.dia === 'MIÉ' ? today.getDate() + 2 : (c.dia === 'VIE' ? today.getDate() + 4 : today.getDate())); // Simplified date logic for demo
-      const date = new Date(today.getFullYear(), today.getMonth(), day);
-      return { fecha: date.toISOString().slice(0, 10), titulo: `${c.titulo} - ${c.sub}`, tipo: c.tipo.toLowerCase(), color: c.from };
-    });
+      // Map existing 'clases' data to calendar events format
+      state.calendario.eventos = clases.map(c => {
+        const today = new Date();
+        const day = c.dia === 'MAÑ' ? today.getDate() + 1 : (c.dia === 'MIÉ' ? today.getDate() + 2 : (c.dia === 'VIE' ? today.getDate() + 4 : today.getDate())); // Simplified date logic for demo
+        const date = new Date(today.getFullYear(), today.getMonth(), day);
+        return { fecha: date.toISOString().slice(0, 10), titulo: `${c.titulo} - ${c.sub}`, tipo: c.tipo.toLowerCase(), color: c.from };
+      });
 
-    // Publicaciones que ya hizo el docente (estas vendrían de la BD).
-    // Cualquier publicación nueva se prepende a este array y aparecerá
-    // automáticamente en el feed del alumno en Fase 2 (vía endpoint compartido).
-    const publicaciones = [
-      { id: 5, tipo: 'aviso',        titulo: 'Cambio de aula para el parcial', extracto: 'El parcial del viernes se rinde en el aula 301 (no en la 204).', curso: 'Lógica Computacional', alcance: 28, lecturas: 21, hace: 'hace 2h', color: '#F5A623' },
-      { id: 4, tipo: 'material',     titulo: 'Subido: Apunte Unidad 3',         extracto: 'Funciones lógicas, leyes de De Morgan y simplificación.',         curso: 'Lógica Computacional', alcance: 28, lecturas: 23, hace: 'hace 1 día', color: '#4A67C9' },
-      { id: 3, tipo: 'evaluacion',   titulo: 'Programado: Parcial 1',            extracto: 'Viernes 1 de mayo, 18:00 hs. Temario: unidades 1 a 3.',           curso: 'Lógica Computacional', alcance: 28, lecturas: 28, hace: 'hace 2 días', color: '#E67E5B' },
-      { id: 2, tipo: 'calificacion', titulo: 'Notas TP integrador',              extracto: 'Subidas las correcciones del TP integrador (22 de 28 trabajos).', curso: 'Matemática Aplicada',  alcance: 22, lecturas: 19, hace: 'hace 3 días', color: '#3DAA6A' },
-      { id: 1, tipo: 'aviso',        titulo: 'Recordatorio - inscripción',       extracto: 'Cierre de inscripción al recuperatorio: 10 de mayo.',              curso: 'Algoritmos I',          alcance: 30, lecturas: 25, hace: 'hace 4 días', color: '#F5A623' }
-    ];
+      // Publicaciones que ya hizo el docente (estas vendrían de la BD).
+      // Cualquier publicación nueva se prepende a este array y aparecerá
+      // automáticamente en el feed del alumno en Fase 2 (vía endpoint compartido).
+      const publicaciones = [
+        { id: 5, tipo: 'aviso', titulo: 'Cambio de aula para el parcial', extracto: 'El parcial del viernes se rinde en el aula 301 (no en la 204).', curso: 'Lógica Computacional', alcance: 28, lecturas: 21, hace: 'hace 2h', color: '#F5A623' },
+        { id: 4, tipo: 'material', titulo: 'Subido: Apunte Unidad 3', extracto: 'Funciones lógicas, leyes de De Morgan y simplificación.', curso: 'Lógica Computacional', alcance: 28, lecturas: 23, hace: 'hace 1 día', color: '#4A67C9' },
+        { id: 3, tipo: 'evaluacion', titulo: 'Programado: Parcial 1', extracto: 'Viernes 1 de mayo, 18:00 hs. Temario: unidades 1 a 3.', curso: 'Lógica Computacional', alcance: 28, lecturas: 28, hace: 'hace 2 días', color: '#E67E5B' },
+        { id: 2, tipo: 'calificacion', titulo: 'Notas TP integrador', extracto: 'Subidas las correcciones del TP integrador (22 de 28 trabajos).', curso: 'Matemática Aplicada', alcance: 22, lecturas: 19, hace: 'hace 3 días', color: '#3DAA6A' },
+        { id: 1, tipo: 'aviso', titulo: 'Recordatorio - inscripción', extracto: 'Cierre de inscripción al recuperatorio: 10 de mayo.', curso: 'Algoritmos I', alcance: 30, lecturas: 25, hace: 'hace 4 días', color: '#F5A623' }
+      ];
 
-    /* ============================================================
-       2) RENDER INICIAL DE LAS TRES TARJETAS PRINCIPALES
-       ============================================================ */
+      /* ============================================================
+         2) RENDER INICIAL DE LAS TRES TARJETAS PRINCIPALES
+         ============================================================ */
 
-    // Tarjeta 2 → Próximas Clases / Evaluaciones
-    const classesContainer = document.getElementById('classesContainer');
-    classesContainer.innerHTML = clases.map(c => `
+      // Tarjeta 2 → Próximas Clases / Evaluaciones
+      const classesContainer = document.getElementById('classesContainer');
+      classesContainer.innerHTML = clases.map(c => `
       <article class="class-card" style="--class-from:${c.from};--class-to:${c.to}">
         <span class="class-card__type">${c.tipo}</span>
         <div class="class-card__date">
@@ -1163,15 +1373,15 @@
       </article>
     `).join('');
 
-    // Tarjeta 3 → Feed de publicaciones del docente
-    const pubList = document.getElementById('pubList');
-    function renderPubs(filter = 'todas') {
-      const filtered = filter === 'todas' ? publicaciones : publicaciones.filter(p => p.tipo === filter);
-      if (filtered.length === 0) {
-        pubList.innerHTML = `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin publicaciones para este filtro.</p>`;
-        return;
-      }
-      pubList.innerHTML = filtered.map(p => `
+      // Tarjeta 3 → Feed de publicaciones del docente
+      const pubList = document.getElementById('pubList');
+      function renderPubs(filter = 'todas') {
+        const filtered = filter === 'todas' ? publicaciones : publicaciones.filter(p => p.tipo === filter);
+        if (filtered.length === 0) {
+          pubList.innerHTML = `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin publicaciones para este filtro.</p>`;
+          return;
+        }
+        pubList.innerHTML = filtered.map(p => `
         <article class="pub-item" style="--pub-color:${p.color}">
           <div class="pub-item__icon">${iconForType(p.tipo)}</div>
           <div>
@@ -1192,97 +1402,97 @@
           </div>
         </article>
       `).join('');
-    }
-    function iconForType(t) {
-      const map = {
-        aviso:        '<svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3" stroke-linecap="round"/></svg>',
-        material:     '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6"/></svg>',
-        evaluacion:   '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        calificacion: '<svg viewBox="0 0 24 24"><path d="M12 2l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 15.5 6.8 18.2l1-5.8L3.5 8.2l5.9-.9z"/></svg>'
-      };
-      return map[t] || map.aviso;
-    }
-    renderPubs();
+      }
+      function iconForType(t) {
+        const map = {
+          aviso: '<svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3" stroke-linecap="round"/></svg>',
+          material: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6"/></svg>',
+          evaluacion: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+          calificacion: '<svg viewBox="0 0 24 24"><path d="M12 2l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 15.5 6.8 18.2l1-5.8L3.5 8.2l5.9-.9z"/></svg>'
+        };
+        return map[t] || map.aviso;
+      }
+      renderPubs();
 
-    // Filtros del feed
-    document.querySelectorAll('#pubFilters .chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('#pubFilters .chip').forEach(c => c.classList.remove('chip--active'));
-        chip.classList.add('chip--active');
-        renderPubs(chip.dataset.filter);
+      // Filtros del feed
+      document.querySelectorAll('#pubFilters .chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('#pubFilters .chip').forEach(c => c.classList.remove('chip--active'));
+          chip.classList.add('chip--active');
+          renderPubs(chip.dataset.filter);
+        });
       });
-    });
 
-    /* ============================================================
-       3) DRAWER LATERAL - Contenidos según el botón clickeado
-       ============================================================ */
-    const drawer = document.getElementById('drawer');
-    const drawerOverlay = document.getElementById('drawerOverlay');
-    const drawerBody = document.getElementById('drawerBody');
-    const drawerTitle = document.getElementById('drawerTitle');
-    const drawerIcon = document.getElementById('drawerIcon');
+      /* ============================================================
+         3) DRAWER LATERAL - Contenidos según el botón clickeado
+         ============================================================ */
+      const drawer = document.getElementById('drawer');
+      const drawerOverlay = document.getElementById('drawerOverlay');
+      const drawerBody = document.getElementById('drawerBody');
+      const drawerTitle = document.getElementById('drawerTitle');
+      const drawerIcon = document.getElementById('drawerIcon');
 
-    function openDrawer(key) {
-      const builder = drawerContent[key];
-      if (!builder) return;
-      const { title, icon, html } = builder();
-      drawerTitle.textContent = title;
-      drawerIcon.innerHTML = icon;
-      drawerBody.innerHTML = html;
-      drawer.classList.add('is-open');
-      drawerOverlay.classList.add('is-visible');
-      drawer.setAttribute('aria-hidden', 'false');
-      // Hooks específicos por sección
-      if (key === 'material')   bindMaterialDrawer();
-      if (key === 'publicar')   bindPublishDrawer();
-      if (key === 'alumnos')    bindStudentsDrawer();
-      if (key === 'calendario') bindCalendarDrawer();
-      // Marca el botón activo
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
-      const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
-      if (active) active.classList.add('is-active');
-    }
-    function closeDrawer() {
-      drawer.classList.remove('is-open');
-      drawerOverlay.classList.remove('is-visible');
-      drawer.setAttribute('aria-hidden', 'true');
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
-    }
+      function openDrawer(key) {
+        const builder = drawerContent[key];
+        if (!builder) return;
+        const { title, icon, html } = builder();
+        drawerTitle.textContent = title;
+        drawerIcon.innerHTML = icon;
+        drawerBody.innerHTML = html;
+        drawer.classList.add('is-open');
+        drawerOverlay.classList.add('is-visible');
+        drawer.setAttribute('aria-hidden', 'false');
+        // Hooks específicos por sección
+        if (key === 'material') bindMaterialDrawer();
+        if (key === 'publicar') bindPublishDrawer();
+        if (key === 'alumnos') bindStudentsDrawer();
+        if (key === 'calendario') bindCalendarDrawer();
+        // Marca el botón activo
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+        const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
+        if (active) active.classList.add('is-active');
+      }
+      function closeDrawer() {
+        drawer.classList.remove('is-open');
+        drawerOverlay.classList.remove('is-visible');
+        drawer.setAttribute('aria-hidden', 'true');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+      }
 
-    document.querySelectorAll('[data-drawer]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const key = btn.dataset.drawer;
-        if (drawer.classList.contains('is-open') && document.querySelector('.nav-btn.is-active')?.dataset.drawer === key) {
-          closeDrawer();
-        } else {
-          openDrawer(key);
-        }
+      document.querySelectorAll('[data-drawer]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.drawer;
+          if (drawer.classList.contains('is-open') && document.querySelector('.nav-btn.is-active')?.dataset.drawer === key) {
+            closeDrawer();
+          } else {
+            openDrawer(key);
+          }
+        });
       });
-    });
-    document.querySelectorAll('[data-drawer-trigger]').forEach(btn => {
-      btn.addEventListener('click', () => openDrawer(btn.dataset.drawerTrigger));
-    });
-    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
-    drawerOverlay.addEventListener('click', closeDrawer);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer(); });
+      document.querySelectorAll('[data-drawer-trigger]').forEach(btn => {
+        btn.addEventListener('click', () => openDrawer(btn.dataset.drawerTrigger));
+      });
+      document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+      drawerOverlay.addEventListener('click', closeDrawer);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer(); });
 
-    /* ============================================================
-       3.1) Builders del contenido de cada drawer
-       ============================================================ */
-    const drawerContent = {
-      // Common icon for calendar
-      iconCalendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" /><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" /></svg>',
+      /* ============================================================
+         3.1) Builders del contenido de cada drawer
+         ============================================================ */
+      const drawerContent = {
+        // Common icon for calendar
+        iconCalendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" /><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" /></svg>',
 
-      // Formats an ISO date to "dd MMM" in Spanish.
-      formatDay: (isoDate) => {
-        const d = new Date(isoDate); const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']; return { dia: d.getDate(), mes: meses[d.getMonth()] };
-      },
+        // Formats an ISO date to "dd MMM" in Spanish.
+        formatDay: (isoDate) => {
+          const d = new Date(isoDate); const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']; return { dia: d.getDate(), mes: meses[d.getMonth()] };
+        },
 
-      // --- Mi Perfil ---
-      perfil: () => ({
-        title: 'Mi Perfil',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round"/></svg>',
-        html: `
+        // --- Mi Perfil ---
+        perfil: () => ({
+          title: 'Mi Perfil',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round"/></svg>',
+          html: `
           <div style="display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-bottom:1.5rem">
             <div class="avatar avatar--xl" style="width:88px;height:88px;font-size:1.7rem">${docente.iniciales}</div>
             <h3 style="margin:0;font:700 1.3rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${docente.nombre}</h3>
@@ -1297,16 +1507,16 @@
             ${profileItem('Materias asignadas', cursos.length + ' cursos')}
           </div>
         `
-      }),
+        }),
 
-      // --- Mis Cursos ---
-      cursos: () => ({
-        title: 'Mis Cursos',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
-        html: `
+        // --- Mis Cursos ---
+        cursos: () => ({
+          title: 'Mis Cursos',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+          html: `
           <p style="font:400 .88rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1.2rem">
             Estás dictando <strong>${cursos.length} materias</strong> con un total de
-            <strong>${cursos.reduce((a,c)=>a+c.alumnos,0)} alumnos</strong> activos.
+            <strong>${cursos.reduce((a, c) => a + c.alumnos, 0)} alumnos</strong> activos.
           </p>
           ${cursos.map(c => `
             <div class="course-card" style="--course-color:${c.color}">
@@ -1323,13 +1533,13 @@
             </div>
           `).join('')}
         `
-      }),
+        }),
 
-      // --- Mis Alumnos ---
-      alumnos: () => ({
-        title: 'Mis Alumnos',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/></svg>',
-        html: `
+        // --- Mis Alumnos ---
+        alumnos: () => ({
+          title: 'Mis Alumnos',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/></svg>',
+          html: `
           <select id="alumnosCurso" style="width:100%;padding:.7rem .85rem;font:500 .88rem 'Manrope',sans-serif;border:1px solid rgba(143,163,227,.45);border-radius:10px;background:#fff;margin-bottom:.8rem;color:var(--brand-900,#1A1D4A)">
             <option value="0">Todos los cursos</option>
             ${cursos.map(c => `<option value="${c.id}">${c.nombre} (${c.alumnos} alumnos)</option>`).join('')}
@@ -1340,13 +1550,13 @@
           </div>
           <div id="alumnosList"></div>
         `
-      }),
+        }),
 
-      // --- Material Didáctico (zona de subida) ---
-      material: () => ({
-        title: 'Material Didáctico',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round"/><path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5v12" stroke-linecap="round"/></svg>',
-        html: `
+        // --- Material Didáctico (zona de subida) ---
+        material: () => ({
+          title: 'Material Didáctico',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round"/><path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5v12" stroke-linecap="round"/></svg>',
+          html: `
           <p style="font:400 .88rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
             Subí material para que tus alumnos lo puedan consultar y descargar desde su portal.
             Aceptamos PDF, DOC, DOCX, MP4, ZIP, imágenes y enlaces externos.
@@ -1382,13 +1592,13 @@
           </h3>
           <div class="materials-list" id="materialsList"></div>
         `
-      }),
+        }),
 
-      // --- Publicar (afecta el feed del alumno) ---
-      publicar: () => ({
-        title: 'Publicar para alumnos',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l18-7-7 18-2-8-9-3z" stroke-linejoin="round"/></svg>',
-        html: `
+        // --- Publicar (afecta el feed del alumno) ---
+        publicar: () => ({
+          title: 'Publicar para alumnos',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l18-7-7 18-2-8-9-3z" stroke-linejoin="round"/></svg>',
+          html: `
           <div class="drawer__tabs">
             <button class="drawer__tab is-active" data-tab="crear">Crear publicación</button>
             <button class="drawer__tab" data-tab="historial">Historial (${publicaciones.length})</button>
@@ -1463,57 +1673,56 @@
             `).join('')}
           </div>
         `
-      }),
+        }),
 
-      // --- Calendario Docente ---
-      calendario: () => ({
-        title: 'Calendario Docente',
-        icon: drawerContent.iconCalendar,
-        html: ''   // bindCalendarDrawer() inyecta el contenido real
-      })
-    };
+        // --- Calendario Docente ---
+        calendario: () => ({
+          title: 'Calendario Docente',
+          icon: drawerContent.iconCalendar,
+          html: ''   // bindCalendarDrawer() inyecta el contenido real
+        })
+      };
 
-    function profileItem(label, value, highlight = false) {
-      const styleVal = highlight
-        ? 'color:var(--accent-green,#3DAA6A);font-weight:700'
-        : 'color:var(--brand-900,#1A1D4A);font-weight:600';
-      return `
+      function profileItem(label, value, highlight = false) {
+        const styleVal = highlight
+          ? 'color:var(--accent-green,#3DAA6A);font-weight:700'
+          : 'color:var(--brand-900,#1A1D4A);font-weight:600';
+        return `
         <div style="background:#fff;border:1px solid rgba(143,163,227,.25);border-radius:10px;padding:.75rem .9rem">
           <p style="margin:0 0 .25rem;font:600 .68rem/1 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);text-transform:uppercase;letter-spacing:.08em">${label}</p>
           <p style="margin:0;font:600 .9rem/1.2 'Manrope',sans-serif;${styleVal}">${value}</p>
         </div>
       `;
-    }
+      }
 
-    /* ============================================================
-       4) HOOKS PARA FUNCIONALIDADES INTERACTIVAS DEL DRAWER
-       ============================================================ */
+      /* ============================================================
+         4) HOOKS PARA FUNCIONALIDADES INTERACTIVAS DEL DRAWER
+         ============================================================ */
 
-    // --- Calendario Docente ---
-    function bindCalendarDrawer() {
-      if (!state.calendarioMes) state.calendarioMes = new Date();
-      const body   = document.getElementById('drawerBody');
-      const year   = state.calendarioMes.getFullYear();
-      const month  = state.calendarioMes.getMonth();
-      const meses  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-      const semana = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+      // --- Calendario Docente ---
+      function bindCalendarDrawer() {
+        if (!state.calendarioMes) state.calendarioMes = new Date();
+        const body = document.getElementById('drawerBody');
+        const year = state.calendarioMes.getFullYear();
+        const month = state.calendarioMes.getMonth();
+        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const semana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-      const firstDay = new Date(year, month, 1).getDay();
-      const lastDay  = new Date(year, month + 1, 0).getDate();
-      const eventos  = state.calendario.eventos || [];
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDay = new Date(year, month + 1, 0).getDate();
+        const eventos = state.calendario.eventos || [];
 
-      // Agrupar por día en el mes actual
-      const porDia = {};
-      eventos.forEach(e => {
-        const [eY, eM, eD] = e.fecha.split('-').map(Number);
-        if (eY === year && eM - 1 === month) {
-          if (!porDia[eD]) porDia[eD] = [];
-          porDia[eD].push(e);
-        }
-      });
+        // Agrupar por día en el mes actual
+        const porDia = {};
+        eventos.forEach(e => {
+          const [eY, eM, eD] = e.fecha.split('-').map(Number);
+          if (eY === year && eM - 1 === month) {
+            if (!porDia[eD]) porDia[eD] = [];
+            porDia[eD].push(e);
+          }
+        });
 
-      // ── Cabecera de navegación
-      let html = `
+        let html = `
         <div class="calendar-header">
           <button class="cal-nav-btn" id="calPrevDoc" aria-label="Mes anterior">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1526,7 +1735,9 @@
               <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
-        </div>
+        </div>`;
+
+        html += `<div class="calendar-layout"><div class="calendar-layout__grid">
         <div class="calendar-grid">
           <div class="calendar-weekdays">
             ${semana.map(d => `<div class="calendar-weekday">${d}</div>`).join('')}
@@ -1535,51 +1746,52 @@
             ${'<div class="calendar-day calendar-day--empty"></div>'.repeat(firstDay)}
       `;
 
-      // ── Días del mes
-      const hoy = new Date();
-      const esMesActual = hoy.getFullYear() === year && hoy.getMonth() === month;
+        // ── Días del mes
+        const hoy = new Date();
+        const esMesActual = hoy.getFullYear() === year && hoy.getMonth() === month;
 
-      for (let d = 1; d <= lastDay; d++) {
-        const dayEvs = porDia[d] || [];
-        const isHoy  = esMesActual && hoy.getDate() === d;
-        const cls    = ['calendar-day', isHoy && 'calendar-day--today', dayEvs.length && 'calendar-day--has-events'].filter(Boolean).join(' ');
-        const dots   = dayEvs.slice(0, 3).map(e => `<span class="calendar-dot" style="background:${e.color}" title="${e.titulo}"></span>`).join('')
-                       + (dayEvs.length > 3 ? '<span class="calendar-dot calendar-dot--more"></span>' : '');
-        html += `<div class="${cls}"><span class="calendar-day-num">${d}</span><div class="calendar-day-events">${dots}</div></div>`;
-      }
-      html += `</div></div>`;
+        for (let d = 1; d <= lastDay; d++) {
+          const dayEvs = porDia[d] || [];
+          const isHoy = esMesActual && hoy.getDate() === d;
+          const isHoliday = dayEvs.some(ev => ev.tipo === 'feriado'); // Check for holiday type
+          const cls = ['calendar-day', isHoy && 'calendar-day--today', dayEvs.length && 'calendar-day--has-events', isHoliday && 'cal-cell--holiday'].filter(Boolean).join(' ');
+          const dots = dayEvs.slice(0, 3).map(e => `<span class="calendar-dot" style="background:${e.color}" title="${e.titulo}"></span>`).join('')
+            + (dayEvs.length > 3 ? '<span class="calendar-dot calendar-dot--more"></span>' : '');
+          html += `<div class="${cls}"><span class="calendar-day-num">${d}</span><div class="calendar-day-events">${dots}</div></div>`;
+        }
+        html += `</div></div></div>`; // Close calendar-days, calendar-grid, calendar-layout__grid
 
-      // ── Listado de eventos del mes
-      const flat = Object.keys(porDia).sort((a, b) => +a - +b).flatMap(d => porDia[d]);
-      html += `<div class="calendar-event-list"><p class="drawer-section-label" style="margin-top:24px;">Eventos de ${meses[month]}</p>`;
+        // ── Listado de eventos del mes
+        const flat = Object.keys(porDia).sort((a, b) => +a - +b).flatMap(d => porDia[d]);
+        html += `<div class="calendar-event-list"><p class="drawer-section-label" style="margin-top:24px;">Eventos de ${meses[month]}</p>`;
 
-      if (!flat.length) {
-        html += `<div class="notif-empty" style="margin-top:16px;">
+        if (!flat.length) {
+          html += `<div class="notif-empty" style="margin-top:16px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <rect x="3" y="4" width="18" height="16" rx="2"/>
             <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
           </svg>
           <p>Sin eventos este mes.</p></div>`;
-      } else {
-        flat.forEach(e => {
-          const [, eM, eD] = e.fecha.split('-');
-          html += `
+        } else {
+          flat.forEach(e => {
+            const [, eM, eD] = e.fecha.split('-');
+            html += `
             <div class="cal-list-item" style="--ev-color:${e.color}">
               <div class="cal-list-date">
                 <span class="cal-list-day">${eD}</span>
-                <span class="cal-list-month">${meses[+eM-1].substring(0,3).toUpperCase()}</span>
+                <span class="cal-list-month">${meses[+eM - 1].substring(0, 3).toUpperCase()}</span>
               </div>
               <div class="cal-list-body">
                 <h4 class="cal-list-title">${e.titulo}</h4>
                 <span class="cal-list-type" style="color:${e.color};background:${e.color}20">${e.tipo.charAt(0).toUpperCase() + e.tipo.slice(1)}</span>
               </div>
             </div>`;
-        });
-      }
-      html += `</div>`;
+          });
+        }
+        html += `</div></div>`; // Close calendar-layout__list and calendar-layout
 
-      // ── Panel de acción: Cargar Fecha de Examen (perfil docente)
-      html += `
+        // ── Panel de acción: Cargar Fecha de Examen (perfil docente)
+        html += `
         <div class="cal-acciones" style="margin-top:28px;">
           <p class="drawer-section-label" style="margin-top:0;margin-bottom:10px;">Acciones disponibles</p>
           <div class="cal-acciones__btns">
@@ -1593,29 +1805,29 @@
           </div>
         </div>`;
 
-      body.innerHTML = html;
+        body.innerHTML = html;
 
-      // ── Bindings de navegación
-      body.querySelector('#calPrevDoc').addEventListener('click', () => {
-        state.calendarioMes = new Date(year, month - 1, 1);
-        bindCalendarDrawer();
-      });
-      body.querySelector('#calNextDoc').addEventListener('click', () => {
-        state.calendarioMes = new Date(year, month + 1, 1);
-        bindCalendarDrawer();
-      });
+        // ── Bindings de navegación
+        body.querySelector('#calPrevDoc').addEventListener('click', () => {
+          state.calendarioMes = new Date(year, month - 1, 1);
+          bindCalendarDrawer();
+        });
+        body.querySelector('#calNextDoc').addEventListener('click', () => {
+          state.calendarioMes = new Date(year, month + 1, 1);
+          bindCalendarDrawer();
+        });
 
-      // ── Binding del botón de acción
-      body.querySelector('#btnCargarExamenDoc').addEventListener('click', () => abrirModalExamenDocente());
-    }
+        // ── Binding del botón de acción
+        body.querySelector('#btnCargarExamenDoc').addEventListener('click', () => abrirModalExamenDocente());
+      }
 
-    function abrirModalExamenDocente() {
-      document.getElementById('docCalModal')?.remove();
-      const modal = document.createElement('div');
-      modal.id = 'docCalModal';
-      modal.setAttribute('role', 'dialog');
-      modal.setAttribute('aria-modal', 'true');
-      modal.innerHTML = `
+      function abrirModalExamenDocente() {
+        document.getElementById('docCalModal')?.remove();
+        const modal = document.createElement('div');
+        modal.id = 'docCalModal';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.innerHTML = `
         <div class="cal-modal-overlay">
           <div class="cal-modal-card">
             <div class="cal-modal-header">
@@ -1660,98 +1872,98 @@
           </div>
         </div>`;
 
-      document.body.appendChild(modal);
-      const cerrar = () => modal.remove();
-      modal.querySelector('.cal-modal-close').addEventListener('click', cerrar);
-      modal.querySelector('#cancelarExamenDoc').addEventListener('click', cerrar);
-      modal.querySelector('.cal-modal-overlay').addEventListener('click', e => {
-        if (e.target === modal.querySelector('.cal-modal-overlay')) cerrar();
-      });
-      document.addEventListener('keydown', function onEsc(e) {
-        if (e.key === 'Escape') { cerrar(); document.removeEventListener('keydown', onEsc); }
-      });
-      modal.querySelector('#formExamenDoc').addEventListener('submit', e => {
-        e.preventDefault();
-        const data = new FormData(e.target);
-        guardarExamenDocente({ materia: data.get('materia'), fecha: data.get('fecha'), horario: data.get('horario'), tipo: data.get('tipo_examen') });
-        cerrar();
-      });
-    }
-
-    function guardarExamenDocente({ materia, fecha, horario, tipo }) {
-      state.calendario.eventos.push({ fecha, titulo: `${tipo}: ${materia} — ${horario}hs`, tipo: 'examen', color: '#3A5BA9' });
-      const [y, m] = fecha.split('-').map(Number);
-      state.calendarioMes = new Date(y, m - 1, 1);
-      bindCalendarDrawer();
-    }
-
-    // --- Material: drag & drop, browse, listado ---
-    function bindMaterialDrawer() {
-      renderMateriales();
-      const zone = document.getElementById('uploadZone');
-      const input = document.getElementById('fileInput');
-      const cursoSel = document.getElementById('uploadCurso');
-
-      ['dragenter', 'dragover'].forEach(ev => {
-        zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('is-dragover'); });
-      });
-      ['dragleave', 'drop'].forEach(ev => {
-        zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('is-dragover'); });
-      });
-      zone.addEventListener('drop', e => handleFiles(e.dataTransfer.files, +cursoSel.value));
-      input.addEventListener('change', e => handleFiles(e.target.files, +cursoSel.value));
-    }
-
-    function handleFiles(fileList, cursoId) {
-      [...fileList].forEach(file => {
-        const tipo = inferTipo(file.name);
-        materiales.unshift({
-          id: Date.now() + Math.random(),
-          nombre: file.name,
-          tipo,
-          curso: cursoId,
-          fecha: new Date().toLocaleDateString('es-AR'),
-          tamanio: humanSize(file.size),
-          descargas: 0
+        document.body.appendChild(modal);
+        const cerrar = () => modal.remove();
+        modal.querySelector('.cal-modal-close').addEventListener('click', cerrar);
+        modal.querySelector('#cancelarExamenDoc').addEventListener('click', cerrar);
+        modal.querySelector('.cal-modal-overlay').addEventListener('click', e => {
+          if (e.target === modal.querySelector('.cal-modal-overlay')) cerrar();
         });
-      });
-      renderMateriales();
-      const cursoNombre = cursos.find(c => c.id === cursoId)?.nombre || 'el curso';
-      showToast('Material subido', `Disponible para los alumnos de ${cursoNombre} en su portal.`);
-    }
-    function inferTipo(name) {
-      const ext = name.split('.').pop().toLowerCase();
-      if (['pdf'].includes(ext)) return 'PDF';
-      if (['doc','docx','odt','txt'].includes(ext)) return 'DOC';
-      if (['mp4','mov','avi','webm','mkv'].includes(ext)) return 'VIDEO';
-      if (['jpg','jpeg','png','webp','gif'].includes(ext)) return 'IMG';
-      if (['zip','rar','7z'].includes(ext)) return 'ZIP';
-      return 'FILE';
-    }
-    function humanSize(bytes) {
-      if (!bytes) return '—';
-      const u = ['B','KB','MB','GB'];
-      let i = 0; let n = bytes;
-      while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
-      return n.toFixed(n < 10 ? 1 : 0) + ' ' + u[i];
-    }
-    function renderMateriales() {
-      const list = document.getElementById('materialsList');
-      const counter = document.getElementById('matCount');
-      if (!list) return;
-      counter.textContent = materiales.length;
-      const palette = {
-        PDF:   { bg: '#FDECEC', fg: '#C0392B' },
-        DOC:   { bg: '#E3E9FA', fg: '#2C3E87' },
-        VIDEO: { bg: '#FFF1E0', fg: '#E67E5B' },
-        IMG:   { bg: '#E8F7EE', fg: '#3DAA6A' },
-        ZIP:   { bg: '#F0E8FB', fg: '#8B5CF6' },
-        FILE:  { bg: '#EEF0F8', fg: '#5a5d6e' }
-      };
-      list.innerHTML = materiales.map(m => {
-        const c = palette[m.tipo] || palette.FILE;
-        const cursoNombre = cursos.find(x => x.id === m.curso)?.nombre || '—';
-        return `
+        document.addEventListener('keydown', function onEsc(e) {
+          if (e.key === 'Escape') { cerrar(); document.removeEventListener('keydown', onEsc); }
+        });
+        modal.querySelector('#formExamenDoc').addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(e.target);
+          guardarExamenDocente({ materia: data.get('materia'), fecha: data.get('fecha'), horario: data.get('horario'), tipo: data.get('tipo_examen') });
+          cerrar();
+        });
+      }
+
+      function guardarExamenDocente({ materia, fecha, horario, tipo }) {
+        state.calendario.eventos.push({ fecha, titulo: `${tipo}: ${materia} — ${horario}hs`, tipo: 'examen', color: '#3A5BA9' });
+        const [y, m] = fecha.split('-').map(Number);
+        state.calendarioMes = new Date(y, m - 1, 1);
+        bindCalendarDrawer();
+      }
+
+      // --- Material: drag & drop, browse, listado ---
+      function bindMaterialDrawer() {
+        renderMateriales();
+        const zone = document.getElementById('uploadZone');
+        const input = document.getElementById('fileInput');
+        const cursoSel = document.getElementById('uploadCurso');
+
+        ['dragenter', 'dragover'].forEach(ev => {
+          zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('is-dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(ev => {
+          zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('is-dragover'); });
+        });
+        zone.addEventListener('drop', e => handleFiles(e.dataTransfer.files, +cursoSel.value));
+        input.addEventListener('change', e => handleFiles(e.target.files, +cursoSel.value));
+      }
+
+      function handleFiles(fileList, cursoId) {
+        [...fileList].forEach(file => {
+          const tipo = inferTipo(file.name);
+          materiales.unshift({
+            id: Date.now() + Math.random(),
+            nombre: file.name,
+            tipo,
+            curso: cursoId,
+            fecha: new Date().toLocaleDateString('es-AR'),
+            tamanio: humanSize(file.size),
+            descargas: 0
+          });
+        });
+        renderMateriales();
+        const cursoNombre = cursos.find(c => c.id === cursoId)?.nombre || 'el curso';
+        showToast('Material subido', `Disponible para los alumnos de ${cursoNombre} en su portal.`);
+      }
+      function inferTipo(name) {
+        const ext = name.split('.').pop().toLowerCase();
+        if (['pdf'].includes(ext)) return 'PDF';
+        if (['doc', 'docx', 'odt', 'txt'].includes(ext)) return 'DOC';
+        if (['mp4', 'mov', 'avi', 'webm', 'mkv'].includes(ext)) return 'VIDEO';
+        if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return 'IMG';
+        if (['zip', 'rar', '7z'].includes(ext)) return 'ZIP';
+        return 'FILE';
+      }
+      function humanSize(bytes) {
+        if (!bytes) return '—';
+        const u = ['B', 'KB', 'MB', 'GB'];
+        let i = 0; let n = bytes;
+        while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+        return n.toFixed(n < 10 ? 1 : 0) + ' ' + u[i];
+      }
+      function renderMateriales() {
+        const list = document.getElementById('materialsList');
+        const counter = document.getElementById('matCount');
+        if (!list) return;
+        counter.textContent = materiales.length;
+        const palette = {
+          PDF: { bg: '#FDECEC', fg: '#C0392B' },
+          DOC: { bg: '#E3E9FA', fg: '#2C3E87' },
+          VIDEO: { bg: '#FFF1E0', fg: '#E67E5B' },
+          IMG: { bg: '#E8F7EE', fg: '#3DAA6A' },
+          ZIP: { bg: '#F0E8FB', fg: '#8B5CF6' },
+          FILE: { bg: '#EEF0F8', fg: '#5a5d6e' }
+        };
+        list.innerHTML = materiales.map(m => {
+          const c = palette[m.tipo] || palette.FILE;
+          const cursoNombre = cursos.find(x => x.id === m.curso)?.nombre || '—';
+          return `
           <div class="material-row" style="--mat-bg:${c.bg};--mat-fg:${c.fg}">
             <div class="material-row__icon">${m.tipo}</div>
             <div class="material-row__info">
@@ -1767,87 +1979,87 @@
             </button>
           </div>
         `;
-      }).join('');
-      list.querySelectorAll('[data-del]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = +btn.dataset.del || btn.dataset.del;
-          const idx = materiales.findIndex(m => String(m.id) === String(id));
-          if (idx >= 0) {
-            materiales.splice(idx, 1);
-            renderMateriales();
-            showToast('Material eliminado', 'Ya no es visible para los alumnos.');
+        }).join('');
+        list.querySelectorAll('[data-del]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = +btn.dataset.del || btn.dataset.del;
+            const idx = materiales.findIndex(m => String(m.id) === String(id));
+            if (idx >= 0) {
+              materiales.splice(idx, 1);
+              renderMateriales();
+              showToast('Material eliminado', 'Ya no es visible para los alumnos.');
+            }
+          });
+        });
+      }
+
+      // --- Publicar: tabs + envío del formulario ---
+      function bindPublishDrawer() {
+        const tabs = document.querySelectorAll('.drawer__tab');
+        const tabCrear = document.getElementById('tabCrear');
+        const tabHistorial = document.getElementById('tabHistorial');
+        tabs.forEach(t => t.addEventListener('click', () => {
+          tabs.forEach(x => x.classList.remove('is-active'));
+          t.classList.add('is-active');
+          if (t.dataset.tab === 'crear') { tabCrear.hidden = false; tabHistorial.hidden = true; }
+          else { tabCrear.hidden = true; tabHistorial.hidden = false; }
+        }));
+
+        const form = document.getElementById('pubForm');
+        form.addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(form);
+          const cursoId = +data.get('curso');
+          const cursoObj = cursos.find(c => c.id === cursoId);
+          const tipo = data.get('tipo');
+          const colorMap = { aviso: '#F5A623', material: '#4A67C9', evaluacion: '#E67E5B', calificacion: '#3DAA6A' };
+
+          publicaciones.unshift({
+            id: Date.now(),
+            tipo,
+            titulo: data.get('titulo'),
+            extracto: data.get('contenido'),
+            curso: cursoObj.nombre,
+            alcance: cursoObj.alumnos,
+            lecturas: 0,
+            hace: 'recién',
+            color: colorMap[tipo] || '#4A67C9'
+          });
+          renderPubs(); // refresca el feed principal en la home
+
+          form.reset();
+          // Vuelve al historial para que vea su publicación recién creada
+          document.querySelector('.drawer__tab[data-tab="historial"]').click();
+          showToast(
+            'Publicación enviada',
+            `${cursoObj.alumnos} alumnos de ${cursoObj.nombre} la verán en su feed.`
+          );
+          // Reabre el drawer para refrescar el contador del historial
+          setTimeout(() => openDrawer('publicar'), 50);
+        });
+      }
+
+      // --- Alumnos: filtro por curso + buscador ---
+      function bindStudentsDrawer() {
+        const list = document.getElementById('alumnosList');
+        const cursoSel = document.getElementById('alumnosCurso');
+        const search = document.getElementById('alumnosSearch');
+
+        function render() {
+          const cursoId = +cursoSel.value;
+          const q = search.value.trim().toLowerCase();
+          const filtered = alumnos.filter(a => {
+            const matchCurso = cursoId === 0 || a.curso === cursoId;
+            const matchQ = !q || a.nombre.toLowerCase().includes(q) || a.legajo.toLowerCase().includes(q);
+            return matchCurso && matchQ;
+          });
+          if (filtered.length === 0) {
+            list.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
+            return;
           }
-        });
-      });
-    }
-
-    // --- Publicar: tabs + envío del formulario ---
-    function bindPublishDrawer() {
-      const tabs = document.querySelectorAll('.drawer__tab');
-      const tabCrear = document.getElementById('tabCrear');
-      const tabHistorial = document.getElementById('tabHistorial');
-      tabs.forEach(t => t.addEventListener('click', () => {
-        tabs.forEach(x => x.classList.remove('is-active'));
-        t.classList.add('is-active');
-        if (t.dataset.tab === 'crear')   { tabCrear.hidden = false; tabHistorial.hidden = true; }
-        else                              { tabCrear.hidden = true;  tabHistorial.hidden = false; }
-      }));
-
-      const form = document.getElementById('pubForm');
-      form.addEventListener('submit', e => {
-        e.preventDefault();
-        const data = new FormData(form);
-        const cursoId = +data.get('curso');
-        const cursoObj = cursos.find(c => c.id === cursoId);
-        const tipo = data.get('tipo');
-        const colorMap = { aviso:'#F5A623', material:'#4A67C9', evaluacion:'#E67E5B', calificacion:'#3DAA6A' };
-
-        publicaciones.unshift({
-          id: Date.now(),
-          tipo,
-          titulo: data.get('titulo'),
-          extracto: data.get('contenido'),
-          curso: cursoObj.nombre,
-          alcance: cursoObj.alumnos,
-          lecturas: 0,
-          hace: 'recién',
-          color: colorMap[tipo] || '#4A67C9'
-        });
-        renderPubs(); // refresca el feed principal en la home
-
-        form.reset();
-        // Vuelve al historial para que vea su publicación recién creada
-        document.querySelector('.drawer__tab[data-tab="historial"]').click();
-        showToast(
-          'Publicación enviada',
-          `${cursoObj.alumnos} alumnos de ${cursoObj.nombre} la verán en su feed.`
-        );
-        // Reabre el drawer para refrescar el contador del historial
-        setTimeout(() => openDrawer('publicar'), 50);
-      });
-    }
-
-    // --- Alumnos: filtro por curso + buscador ---
-    function bindStudentsDrawer() {
-      const list = document.getElementById('alumnosList');
-      const cursoSel = document.getElementById('alumnosCurso');
-      const search = document.getElementById('alumnosSearch');
-
-      function render() {
-        const cursoId = +cursoSel.value;
-        const q = search.value.trim().toLowerCase();
-        const filtered = alumnos.filter(a => {
-          const matchCurso = cursoId === 0 || a.curso === cursoId;
-          const matchQ = !q || a.nombre.toLowerCase().includes(q) || a.legajo.toLowerCase().includes(q);
-          return matchCurso && matchQ;
-        });
-        if (filtered.length === 0) {
-          list.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
-          return;
-        }
-        list.innerHTML = filtered.map(a => {
-          const ini = a.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
-          return `
+          list.innerHTML = filtered.map(a => {
+            const ini = a.nombre.split(' ').map(n => n[0]).slice(0, 2).join('');
+            return `
             <div class="student-row">
               <div class="student-row__avatar">${ini}</div>
               <div>
@@ -1860,148 +2072,148 @@
               </div>
             </div>
           `;
-        }).join('');
+          }).join('');
+        }
+        cursoSel.addEventListener('change', render);
+        search.addEventListener('input', render);
+        render();
       }
-      cursoSel.addEventListener('change', render);
-      search.addEventListener('input', render);
-      render();
-    }
 
-    /* ============================================================
-       5) Botón "Programar evaluación" de la tarjeta central
-       ============================================================ */
-    document.getElementById('scheduleNewBtn').addEventListener('click', () => {
-      openDrawer('publicar');
-      // Auto-selecciona tipo "Evaluación"
-      setTimeout(() => {
-        const sel = document.querySelector('select[name="tipo"]');
-        if (sel) sel.value = 'evaluacion';
-      }, 80);
-    });
+      /* ============================================================
+         5) Botón "Programar evaluación" de la tarjeta central
+         ============================================================ */
+      document.getElementById('scheduleNewBtn').addEventListener('click', () => {
+        openDrawer('publicar');
+        // Auto-selecciona tipo "Evaluación"
+        setTimeout(() => {
+          const sel = document.querySelector('select[name="tipo"]');
+          if (sel) sel.value = 'evaluacion';
+        }, 80);
+      });
 
-    /* ============================================================
-       6) Logout (mismo flujo que el portal del alumno)
-       ============================================================ */
-    const logoutModal = document.getElementById('logoutModal');
-    document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
-    document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
-    document.getElementById('logoutConfirm').addEventListener('click', () => {
-      logoutModal.classList.remove('is-open');
-      performLogout();
-    });
+      /* ============================================================
+         6) Logout (mismo flujo que el portal del alumno)
+         ============================================================ */
+      const logoutModal = document.getElementById('logoutModal');
+      document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
+      document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
+      document.getElementById('logoutConfirm').addEventListener('click', () => {
+        logoutModal.classList.remove('is-open');
+        performLogout();
+      });
 
-    /* ============================================================
-       7) Notificaciones (panel desplegable)
-       ============================================================ */
-    const notifPanel = document.getElementById('notifPanel');
-    const notifList = document.getElementById('notifList');
-    const notifBell = document.getElementById('bellBtn');
-    const notifs = [
-      { titulo: 'Nuevo trabajo entregado',     msg: 'Ana Suárez entregó el TP de Lógica.',                 hace: 'hace 12 min' },
-      { titulo: 'Consulta de alumno',           msg: 'Bruno Pereyra te escribió por la unidad 3.',          hace: 'hace 1 h' },
-      { titulo: 'Confirmación de inscripción',  msg: '28 alumnos inscriptos al parcial del viernes.',       hace: 'hace 3 h' },
-      { titulo: 'Material descargado',          msg: '21 descargas del apunte Unidad 3.',                   hace: 'hace 5 h' },
-      { titulo: 'Recordatorio',                 msg: 'Cierre de carga de notas: 10 de mayo.',               hace: 'ayer' }
-    ];
-    notifList.innerHTML = notifs.map(n => `
+      /* ============================================================
+         7) Notificaciones (panel desplegable)
+         ============================================================ */
+      const notifPanel = document.getElementById('notifPanel');
+      const notifList = document.getElementById('notifList');
+      const notifBell = document.getElementById('bellBtn');
+      const notifs = [
+        { titulo: 'Nuevo trabajo entregado', msg: 'Ana Suárez entregó el TP de Lógica.', hace: 'hace 12 min' },
+        { titulo: 'Consulta de alumno', msg: 'Bruno Pereyra te escribió por la unidad 3.', hace: 'hace 1 h' },
+        { titulo: 'Confirmación de inscripción', msg: '28 alumnos inscriptos al parcial del viernes.', hace: 'hace 3 h' },
+        { titulo: 'Material descargado', msg: '21 descargas del apunte Unidad 3.', hace: 'hace 5 h' },
+        { titulo: 'Recordatorio', msg: 'Cierre de carga de notas: 10 de mayo.', hace: 'ayer' }
+      ];
+      notifList.innerHTML = notifs.map(n => `
       <div style="padding:.85rem 1rem;border-bottom:1px solid rgba(143,163,227,.2)">
         <p style="margin:0 0 .15rem;font:700 .85rem 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${n.titulo}</p>
         <p style="margin:0 0 .25rem;font:400 .8rem/1.4 'Manrope',sans-serif;color:#5a5d6e">${n.msg}</p>
         <p style="margin:0;font:500 .7rem 'Manrope',sans-serif;color:#8a8d9c">${n.hace}</p>
       </div>
     `).join('');
-    notifBell.addEventListener('click', e => {
-      e.stopPropagation();
-      notifPanel.classList.toggle('is-visible');
-    });
-    document.addEventListener('click', e => {
-      if (!notifPanel.contains(e.target) && !notifBell.contains(e.target)) {
+      notifBell.addEventListener('click', e => {
+        e.stopPropagation();
+        notifPanel.classList.toggle('is-visible');
+      });
+      document.addEventListener('click', e => {
+        if (!notifPanel.contains(e.target) && !notifBell.contains(e.target)) {
+          notifPanel.classList.remove('is-visible');
+        }
+      });
+      document.getElementById('notifMarkAll').addEventListener('click', () => {
+        document.getElementById('bellBadge').style.display = 'none';
         notifPanel.classList.remove('is-visible');
+      });
+
+      /* ============================================================
+         8) Toast de confirmación
+         ============================================================ */
+      const toast = document.getElementById('toast');
+      let toastTimer;
+      function showToast(title, msg) {
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastMsg').textContent = msg;
+        toast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
       }
-    });
-    document.getElementById('notifMarkAll').addEventListener('click', () => {
-      document.getElementById('bellBadge').style.display = 'none';
-      notifPanel.classList.remove('is-visible');
-    });
 
-    /* ============================================================
-       8) Toast de confirmación
-       ============================================================ */
-    const toast = document.getElementById('toast');
-    let toastTimer;
-    function showToast(title, msg) {
-      document.getElementById('toastTitle').textContent = title;
-      document.getElementById('toastMsg').textContent = msg;
-      toast.classList.add('is-visible');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
-    }
+      /* ============================================================
+         9) REGLAMENTACIÓN - Lógica para la sección de normativas
+         ============================================================ */
+      // Estado para reglamentación
+      let reglamentacionState = {
+        reglamentacion: null,
+        reglamentacionQuery: '',
+        reglamentacionCategory: 'todas'
+      };
 
-    /* ============================================================
-       9) REGLAMENTACIÓN - Lógica para la sección de normativas
-       ============================================================ */
-    // Estado para reglamentación
-    let reglamentacionState = {
-      reglamentacion: null,
-      reglamentacionQuery: '',
-      reglamentacionCategory: 'todas'
-    };
-
-    // Fetch JSON de reglamentación
-    async function fetchReglamentacion() {
-      try {
-        const res = await fetch('json/reglamentacion.json');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        reglamentacionState.reglamentacion = await res.json();
-        renderReglamentacion();
-      } catch (err) {
-        console.warn('[Reglamentación] No se pudo cargar:', err);
+      // Fetch JSON de reglamentación
+      async function fetchReglamentacion() {
+        try {
+          const res = await fetch('json/reglamentacion.json');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          reglamentacionState.reglamentacion = await res.json();
+          renderReglamentacion();
+        } catch (err) {
+          console.warn('[Reglamentación] No se pudo cargar:', err);
+        }
       }
-    }
 
-    // Render de la lista de documentos
-    function renderReglamentacion() {
-      const cont = document.getElementById('reglamentacionList');
-      if (!cont) return;
+      // Render de la lista de documentos
+      function renderReglamentacion() {
+        const cont = document.getElementById('reglamentacionList');
+        if (!cont) return;
 
-      const lista = getReglamentacionFiltered();
-      if (!lista.length) {
-        cont.innerHTML = `
+        const lista = getReglamentacionFiltered();
+        if (!lista.length) {
+          cont.innerHTML = `
           <div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">
             No se encontraron normativas con esos filtros.
           </div>
         `;
-        return;
+          return;
+        }
+
+        cont.innerHTML = lista.map(buildNormativaItem).join('');
       }
 
-      cont.innerHTML = lista.map(buildNormativaItem).join('');
-    }
+      // Filtrar documentos
+      function getReglamentacionFiltered() {
+        const query = reglamentacionState.reglamentacionQuery.trim().toLowerCase();
+        const category = reglamentacionState.reglamentacionCategory;
+        const docs = reglamentacionState.reglamentacion?.documentos || [];
 
-    // Filtrar documentos
-    function getReglamentacionFiltered() {
-      const query = reglamentacionState.reglamentacionQuery.trim().toLowerCase();
-      const category = reglamentacionState.reglamentacionCategory;
-      const docs = reglamentacionState.reglamentacion?.documentos || [];
+        return docs.filter(doc => {
+          const categoryMatch = category === 'todas' || String(doc.categoria).toLowerCase() === category;
+          if (!categoryMatch) return false;
 
-      return docs.filter(doc => {
-        const categoryMatch = category === 'todas' || String(doc.categoria).toLowerCase() === category;
-        if (!categoryMatch) return false;
+          if (!query) return true;
 
-        if (!query) return true;
+          const searchable = [
+            doc.titulo,
+            doc.descripcion,
+            ...(doc.palabras_clave || []),
+            doc.categoria || '',
+          ].join(' ').toLowerCase();
+          return searchable.includes(query);
+        });
+      }
 
-        const searchable = [
-          doc.titulo,
-          doc.descripcion,
-          ...(doc.palabras_clave || []),
-          doc.categoria || '',
-        ].join(' ').toLowerCase();
-        return searchable.includes(query);
-      });
-    }
-
-    // Construir HTML de un item de normativa
-    function buildNormativaItem(doc) {
-      return `
+      // Construir HTML de un item de normativa
+      function buildNormativaItem(doc) {
+        return `
         <article class="doc-item">
           <div>
             <h3>${doc.titulo}</h3>
@@ -2010,35 +2222,35 @@
           <a class="btn btn-secondary" href="${doc.link || '#'}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento ${doc.titulo}">VER DOCUMENTO</a>
         </article>
       `;
-    }
+      }
 
-    // Bind de búsqueda y filtros
-    function bindReglamentacionSearch() {
-      const searchInput = document.getElementById('reglamentacionSearch');
-      const categoryButtons = document.querySelectorAll('.search-categories .chip');
+      // Bind de búsqueda y filtros
+      function bindReglamentacionSearch() {
+        const searchInput = document.getElementById('reglamentacionSearch');
+        const categoryButtons = document.querySelectorAll('.search-categories .chip');
 
-      if (!searchInput || !categoryButtons.length) return;
+        if (!searchInput || !categoryButtons.length) return;
 
-      searchInput.addEventListener('input', (event) => {
-        reglamentacionState.reglamentacionQuery = event.target.value;
-        renderReglamentacion();
-      });
-
-      categoryButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          categoryButtons.forEach(x => x.classList.remove('chip--active'));
-          btn.classList.add('chip--active');
-          reglamentacionState.reglamentacionCategory = btn.dataset.filterCategory;
+        searchInput.addEventListener('input', (event) => {
+          reglamentacionState.reglamentacionQuery = event.target.value;
           renderReglamentacion();
         });
-      });
-    }
 
-    // Inicializar reglamentación
-    fetchReglamentacion();
-    bindReglamentacionSearch();
+        categoryButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            categoryButtons.forEach(x => x.classList.remove('chip--active'));
+            btn.classList.add('chip--active');
+            reglamentacionState.reglamentacionCategory = btn.dataset.filterCategory;
+            renderReglamentacion();
+          });
+        });
+      }
 
-  })();
+      // Inicializar reglamentación
+      fetchReglamentacion();
+      bindReglamentacionSearch();
+
+    })();
   </script>
 
   <!-- Autenticación, logout centralizado y validación de rol -->
@@ -2046,4 +2258,5 @@
   <script src="js/teacher-auth.js"></script>
 
 </body>
+
 </html>

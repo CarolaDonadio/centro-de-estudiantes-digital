@@ -1009,8 +1009,27 @@ function renderCalendar(body) {
   let startingDay = firstDay.getDay(); 
 
   // Obtener todos los eventos y tipos
-  const eventos = state.calendario?.eventos_calendario || [];
+  let eventos = [...(state.calendario?.eventos_calendario || [])];
   const tipos = state.calendario?.tipos || [];
+
+  if (state.mostrarEventosCE && state.eventos?.eventos) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    const eventosExtra = state.eventos.eventos
+      .filter(ev => new Date(ev.fecha_inicio) >= hoy)
+      .map(ev => ({
+        fecha: ev.fecha_inicio.split('T')[0],
+        titulo: ev.titulo,
+        tipo: 'evento_ce', // tipo unificado para los del JSON
+        color: ev.color || '#8B5CF6'
+      }));
+    eventos = [...eventos, ...eventosExtra];
+    // Agregar el tipo si no existe para que funcione el filtro opcional
+    if (!tipos.find(t => t.id === 'evento_ce')) {
+      tipos.push({ id: 'evento_ce', nombre: 'Eventos Externos', color: '#8B5CF6' });
+    }
+  }
 
   // Filtrar eventos si hay un filtro activo
   let eventosFiltrados = eventos;
@@ -1043,13 +1062,26 @@ function renderCalendar(body) {
   `;
 
   // Filtros de categorías
-  calHTML += `<div class="news-filters" style="margin-bottom: 24px; flex-wrap: wrap;">`;
+  calHTML += `<div class="news-filters" style="margin-bottom: 24px; flex-wrap: wrap; align-items: center;">`;
   calHTML += `<button class="chip ${state.calendarioFiltro === 'todos' ? 'chip--active' : ''}" data-cal-filter="todos">Todos</button>`;
   tipos.forEach(t => {
     const isAct = state.calendarioFiltro === t.id ? 'chip--active' : '';
     const extraStyle = isAct ? `background-color: ${softColor(t.color, 0.15)}; color: ${t.color}; border-color: ${t.color};` : '';
     calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="${extraStyle}">${t.nombre}</button>`;
   });
+  
+  // Botón para sincronizar/mostrar Eventos CE (eventos.json)
+  const isSyncCE = state.mostrarEventosCE ? 'chip--active' : '';
+  const syncStyle = isSyncCE ? `background-color: ${softColor('#8B5CF6', 0.15)}; color: #8B5CF6; border-color: #8B5CF6;` : '';
+  calHTML += `<button class="chip ${isSyncCE}" id="btnSyncCE" style="margin-left: auto; ${syncStyle}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: text-bottom;">
+      <path d="M9 18V5l12-2v13"></path>
+      <circle cx="6" cy="18" r="3"></circle>
+      <circle cx="18" cy="16" r="3"></circle>
+    </svg>
+    ${state.mostrarEventosCE ? 'Ocultar Eventos CE' : 'Ver Eventos CE'}
+  </button>`;
+  
   calHTML += `</div>`;
 
   // Días de la semana
@@ -1163,6 +1195,15 @@ function renderCalendar(body) {
       renderCalendar(body);
     });
   });
+
+  // Binding para botón Sincronizar Eventos CE
+  const btnSyncCE = body.querySelector('#btnSyncCE');
+  if (btnSyncCE) {
+    btnSyncCE.addEventListener('click', () => {
+      state.mostrarEventosCE = !state.mostrarEventosCE;
+      renderCalendar(body);
+    });
+  }
 }
 function renderEventsList() {}
 function renderFullNews() {}
