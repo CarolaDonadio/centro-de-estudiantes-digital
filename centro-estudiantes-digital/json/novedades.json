@@ -13,14 +13,14 @@
       "destacada": true,
       "fecha": "2026-04-20T10:30:00",
       "adjunto": "cronograma_mesas_julio.pdf",
-      "icono": "academico"
+      "icono": "academic"
     },
     {
       "id": 2,
       "titulo": "Nuevo Workshop de Python para Data Science",
       "contenido": "El Centro de Estudiantes organiza un taller intensivo de 3 jornadas sobre librerías esenciales: Pandas, NumPy y Scikit-learn. Cupos limitados.",
       "categoria_id": 2,
-      "categoria": "Social",
+      "categoria": "Eventos",
       "autor_id": 5,
       "autor": "Centro de Estudiantes",
       "materia_id": null,
@@ -28,14 +28,14 @@
       "destacada": true,
       "fecha": "2026-04-19T14:00:00",
       "adjunto": null,
-      "icono": "social"
+      "icono": "event"
     },
     {
       "id": 3,
       "titulo": "Beca de movilidad estudiantil 2026",
       "contenido": "Convocatoria abierta para la beca de intercambio con universidades de España. Documentación requerida en el portal.",
       "categoria_id": 3,
-      "categoria": "Institucional",
+      "categoria": "Becas",
       "autor_id": 2,
       "autor": "Departamento de Bienestar",
       "materia_id": null,
@@ -43,29 +43,29 @@
       "destacada": false,
       "fecha": "2026-04-18T09:15:00",
       "adjunto": "formulario_beca.pdf",
-      "icono": "institucional"
+      "icono": "scholarship"
     },
     {
       "id": 4,
-      "titulo": "¡URGENTE! Cambio de aula - Examen Final",
-      "contenido": "El examen de Lógica Computacional de hoy se traslada al Aula 301 por problemas técnicos en el pabellón A.",
+      "titulo": "Actualización del reglamento de correlatividades",
+      "contenido": "Se publicó la versión 2026 del reglamento académico con las nuevas correlatividades para todas las carreras.",
       "categoria_id": 4,
-      "categoria": "Urgente",
+      "categoria": "Reglamentación",
       "autor_id": 1,
       "autor": "Rectorado",
       "materia_id": null,
       "carrera_id": null,
-      "destacada": true,
+      "destacada": false,
       "fecha": "2026-04-15T16:45:00",
-      "adjunto": null,
-      "icono": "urgente"
+      "adjunto": "reglamento_2026.pdf",
+      "icono": "document"
     },
     {
       "id": 5,
       "titulo": "Charla: Ética y Sesgos en Modelos de IA",
       "contenido": "Invitada especial: Dra. Laura Fernández del CONICET. Jueves 25/04 a las 18hs en el Aula Magna.",
-      "categoria_id": 1,
-      "categoria": "Académico",
+      "categoria_id": 2,
+      "categoria": "Eventos",
       "autor_id": 5,
       "autor": "Centro de Estudiantes",
       "materia_id": null,
@@ -73,13 +73,13 @@
       "destacada": false,
       "fecha": "2026-04-12T11:20:00",
       "adjunto": null,
-      "icono": "academico"
+      "icono": "event"
     }
   ],
   "categorias": [
-    { "id": 1, "nombre": "Académico", "color": "#2C3E87" },
-    { "id": 2, "nombre": "Social", "color": "#3DAA6A" },
-    { "id": 3, "nombre": "Institucional", "color": "#F5A623" },
-    { "id": 4, "nombre": "Urgente", "color": "#E67E5B" }
+    { "id": 1, "nombre": "Académico", "color": "#3A5BA9" },
+    { "id": 2, "nombre": "Eventos", "color": "#E67E5B" },
+    { "id": 3, "nombre": "Becas", "color": "#3DAA6A" },
+    { "id": 4, "nombre": "Reglamentación", "color": "#8B5CF6" }
   ]
 }
