@@ -1120,10 +1120,10 @@
 
           <div class="news-filters" id="pubFilters">
             <button class="chip chip--active" data-filter="todas">Todas</button>
-            <button class="chip" data-filter="aviso">Avisos</button>
-            <button class="chip" data-filter="material">Materiales</button>
-            <button class="chip" data-filter="evaluacion">Evaluaciones</button>
-            <button class="chip" data-filter="calificacion">Calificaciones</button>
+            <button class="chip" data-filter="academico">Académico</button>
+            <button class="chip" data-filter="social">Social</button>
+            <button class="chip" data-filter="institucional">Institucional</button>
+            <button class="chip" data-filter="urgente">Urgente</button>
           </div>
         </header>
 
@@ -1340,6 +1340,7 @@
         return { fecha: date.toISOString().slice(0, 10), titulo: `${c.titulo} - ${c.sub}`, tipo: c.tipo.toLowerCase(), color: c.from };
       });
 
+<<<<<<< HEAD
       // Publicaciones que ya hizo el docente (estas vendrían de la BD).
       // Cualquier publicación nueva se prepende a este array y aparecerá
       // automáticamente en el feed del alumno en Fase 2 (vía endpoint compartido).
@@ -1350,6 +1351,18 @@
         { id: 2, tipo: 'calificacion', titulo: 'Notas TP integrador', extracto: 'Subidas las correcciones del TP integrador (22 de 28 trabajos).', curso: 'Matemática Aplicada', alcance: 22, lecturas: 19, hace: 'hace 3 días', color: '#3DAA6A' },
         { id: 1, tipo: 'aviso', titulo: 'Recordatorio - inscripción', extracto: 'Cierre de inscripción al recuperatorio: 10 de mayo.', curso: 'Algoritmos I', alcance: 30, lecturas: 25, hace: 'hace 4 días', color: '#F5A623' }
       ];
+=======
+    // Publicaciones que ya hizo el docente (estas vendrían de la BD).
+    // Cualquier publicación nueva se prepende a este array y aparecerá
+    // automáticamente en el feed del alumno en Fase 2 (vía endpoint compartido).
+    const publicaciones = [
+      { id: 5, tipo: 'urgente',      titulo: 'Cambio de aula para el parcial', extracto: 'El parcial del viernes se rinde en el aula 301 (no en la 204).', curso: 'Lógica Computacional', alcance: 28, lecturas: 21, hace: 'hace 2h', color: '#E67E5B' },
+      { id: 4, tipo: 'academico',    titulo: 'Subido: Apunte Unidad 3',         extracto: 'Funciones lógicas, leyes de De Morgan y simplificación.',         curso: 'Lógica Computacional', alcance: 28, lecturas: 23, hace: 'hace 1 día', color: '#2C3E87' },
+      { id: 3, tipo: 'institucional',titulo: 'Programado: Parcial 1',            extracto: 'Viernes 1 de mayo, 18:00 hs. Temario: unidades 1 a 3.',           curso: 'Lógica Computacional', alcance: 28, lecturas: 28, hace: 'hace 2 días', color: '#F5A623' },
+      { id: 2, tipo: 'academico',    titulo: 'Notas TP integrador',              extracto: 'Subidas las correcciones del TP integrador (22 de 28 trabajos).', curso: 'Matemática Aplicada',  alcance: 22, lecturas: 19, hace: 'hace 3 días', color: '#2C3E87' },
+      { id: 1, tipo: 'social',       titulo: 'Recordatorio - Evento CE',         extracto: 'No te olvides de la jornada de integración el próximo sábado.',    curso: 'Algoritmos I',          alcance: 30, lecturas: 25, hace: 'hace 4 días', color: '#3DAA6A' }
+    ];
+>>>>>>> b00cb106dc0f6ff176d521c9bfcc24a69989cbe0
 
       /* ============================================================
          2) RENDER INICIAL DE LAS TRES TARJETAS PRINCIPALES
@@ -1402,6 +1415,7 @@
           </div>
         </article>
       `).join('');
+<<<<<<< HEAD
       }
       function iconForType(t) {
         const map = {
@@ -1413,6 +1427,19 @@
         return map[t] || map.aviso;
       }
       renderPubs();
+=======
+    }
+    function iconForType(t) {
+      const map = {
+        academico:     '<svg viewBox="0 0 24 24"><path d="M12 2l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 15.5 6.8 18.2l1-5.8L3.5 8.2l5.9-.9z"/></svg>',
+        social:        '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        institucional: '<svg viewBox="0 0 24 24"><path d="M3 21h18M3 10h18M5 21V10M19 21V10M9 21V10M15 21V10M12 3l9 7H3l9-7z" stroke-linejoin="round"/></svg>',
+        urgente:       '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      };
+      return map[t] || map.academico;
+    }
+    renderPubs();
+>>>>>>> b00cb106dc0f6ff176d521c9bfcc24a69989cbe0
 
       // Filtros del feed
       document.querySelectorAll('#pubFilters .chip').forEach(chip => {
@@ -1432,6 +1459,7 @@
       const drawerTitle = document.getElementById('drawerTitle');
       const drawerIcon = document.getElementById('drawerIcon');
 
+<<<<<<< HEAD
       function openDrawer(key) {
         const builder = drawerContent[key];
         if (!builder) return;
@@ -1458,6 +1486,33 @@
         drawer.setAttribute('aria-hidden', 'true');
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
       }
+=======
+    function openDrawer(key) {
+      const builder = drawerContent[key];
+      if (!builder) return;
+      const { title, icon, html } = builder();
+      drawerTitle.textContent = title;
+      drawerIcon.innerHTML = icon;
+      drawerBody.innerHTML = html;
+      drawer.classList.add('is-open');
+      drawerOverlay.classList.add('is-visible');
+      drawer.setAttribute('aria-hidden', 'false');
+      // Hooks específicos por sección
+      if (key === 'material')  bindMaterialDrawer();
+      if (key === 'publicar')  bindPublishDrawer();
+      if (key === 'alumnos')   bindStudentsDrawer();
+      // Marca el botón activo
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+      const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
+      if (active) active.classList.add('is-active');
+    }
+    function closeDrawer() {
+      drawer.classList.remove('is-open');
+      drawerOverlay.classList.remove('is-visible');
+      drawer.setAttribute('aria-hidden', 'true');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+    }
+>>>>>>> b00cb106dc0f6ff176d521c9bfcc24a69989cbe0
 
       document.querySelectorAll('[data-drawer]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1609,10 +1664,10 @@
               <div class="pub-form__row">
                 <label>Tipo
                   <select name="tipo" required>
-                    <option value="aviso">📢 Aviso</option>
-                    <option value="material">📎 Material</option>
-                    <option value="evaluacion">📅 Evaluación / Examen</option>
-                    <option value="calificacion">⭐ Calificación</option>
+                    <option value="academico">📚 Académico</option>
+                    <option value="social">🎉 Social</option>
+                    <option value="institucional">🏛️ Institucional</option>
+                    <option value="urgente">⚠ Urgente</option>
                   </select>
                 </label>
                 <label>Materia destinataria
@@ -1643,7 +1698,7 @@
                 <div>
                   Esta publicación aparecerá <strong>automáticamente en el feed de novedades</strong>
                   y en el calendario de los alumnos del curso seleccionado.
-                  Si elegís tipo <strong>Evaluación</strong>, también se agenda en su calendario académico.
+                  Si elegís tipo <strong>Urgente</strong>, se notificará con prioridad alta.
                 </div>
               </div>
               <button type="submit" class="pub-form__submit">
@@ -1673,6 +1728,7 @@
             `).join('')}
           </div>
         `
+<<<<<<< HEAD
         }),
 
         // --- Calendario Docente ---
@@ -1682,6 +1738,10 @@
           html: ''   // bindCalendarDrawer() inyecta el contenido real
         })
       };
+=======
+      })
+    };
+>>>>>>> b00cb106dc0f6ff176d521c9bfcc24a69989cbe0
 
       function profileItem(label, value, highlight = false) {
         const styleVal = highlight
@@ -1699,6 +1759,7 @@
          4) HOOKS PARA FUNCIONALIDADES INTERACTIVAS DEL DRAWER
          ============================================================ */
 
+<<<<<<< HEAD
       // --- Calendario Docente ---
       function bindCalendarDrawer() {
         if (!state.calendarioMes) state.calendarioMes = new Date();
@@ -1878,6 +1939,63 @@
         modal.querySelector('#cancelarExamenDoc').addEventListener('click', cerrar);
         modal.querySelector('.cal-modal-overlay').addEventListener('click', e => {
           if (e.target === modal.querySelector('.cal-modal-overlay')) cerrar();
+=======
+    // --- Calendario ---
+    function bindCalendarDrawer() {
+      const date = state.calendarioMes || new Date();
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      const firstDay = new Date(year, month, 1).getDay(); // 0 is Sunday
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const eventos = state.calendario.eventos;
+
+      document.getElementById('calMonthYear').textContent = `${monthNames[month]} ${year}`;
+      document.getElementById('calendarGrid').innerHTML = generateCalendarGrid(year, month, firstDay, daysInMonth, eventos);
+
+      document.getElementById('calPrev').onclick = () => {
+        state.calendarioMes.setMonth(state.calendarioMes.getMonth() - 1);
+        bindCalendarDrawer();
+      };
+      document.getElementById('calNext').onclick = () => {
+        state.calendarioMes.setMonth(state.calendarioMes.getMonth() + 1);
+        bindCalendarDrawer();
+      };
+
+      document.querySelectorAll('.cal-cell').forEach(cell => {
+        cell.onclick = () => { document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('is-today')); cell.classList.add('is-today'); showDayDetails(cell.dataset.date, eventos); };
+      });
+    }
+
+    // --- Material: drag & drop, browse, listado ---
+    function bindMaterialDrawer() {
+      renderMateriales();
+      const zone = document.getElementById('uploadZone');
+      const input = document.getElementById('fileInput');
+      const cursoSel = document.getElementById('uploadCurso');
+
+      ['dragenter', 'dragover'].forEach(ev => {
+        zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('is-dragover'); });
+      });
+      ['dragleave', 'drop'].forEach(ev => {
+        zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('is-dragover'); });
+      });
+      zone.addEventListener('drop', e => handleFiles(e.dataTransfer.files, +cursoSel.value));
+      input.addEventListener('change', e => handleFiles(e.target.files, +cursoSel.value));
+    }
+
+    function handleFiles(fileList, cursoId) {
+      [...fileList].forEach(file => {
+        const tipo = inferTipo(file.name);
+        materiales.unshift({
+          id: Date.now() + Math.random(),
+          nombre: file.name,
+          tipo,
+          curso: cursoId,
+          fecha: new Date().toLocaleDateString('es-AR'),
+          tamanio: humanSize(file.size),
+          descargas: 0
+>>>>>>> b00cb106dc0f6ff176d521c9bfcc24a69989cbe0
         });
         document.addEventListener('keydown', function onEsc(e) {
           if (e.key === 'Escape') { cerrar(); document.removeEventListener('keydown', onEsc); }
@@ -2057,9 +2175,83 @@
             list.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
             return;
           }
+<<<<<<< HEAD
           list.innerHTML = filtered.map(a => {
             const ini = a.nombre.split(' ').map(n => n[0]).slice(0, 2).join('');
             return `
+=======
+        });
+      });
+    }
+
+    // --- Publicar: tabs + envío del formulario ---
+    function bindPublishDrawer() {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const tabCrear = document.getElementById('tabCrear');
+      const tabHistorial = document.getElementById('tabHistorial');
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('is-active'));
+        t.classList.add('is-active');
+        if (t.dataset.tab === 'crear')   { tabCrear.hidden = false; tabHistorial.hidden = true; }
+        else                              { tabCrear.hidden = true;  tabHistorial.hidden = false; }
+      }));
+
+      const form = document.getElementById('pubForm');
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(form);
+        const cursoId = +data.get('curso');
+        const cursoObj = cursos.find(c => c.id === cursoId);
+        const tipo = data.get('tipo');
+        const colorMap = { academico:'#2C3E87', social:'#3DAA6A', institucional:'#F5A623', urgente:'#E67E5B' };
+
+        publicaciones.unshift({
+          id: Date.now(),
+          tipo,
+          titulo: data.get('titulo'),
+          extracto: data.get('contenido'),
+          curso: cursoObj.nombre,
+          alcance: cursoObj.alumnos,
+          lecturas: 0,
+          hace: 'recién',
+          color: colorMap[tipo] || '#4A67C9'
+        });
+        renderPubs(); // refresca el feed principal en la home
+
+        form.reset();
+        // Vuelve al historial para que vea su publicación recién creada
+        document.querySelector('.drawer__tab[data-tab="historial"]').click();
+        showToast(
+          'Publicación enviada',
+          `${cursoObj.alumnos} alumnos de ${cursoObj.nombre} la verán en su feed.`
+        );
+        // Reabre el drawer para refrescar el contador del historial
+        setTimeout(() => openDrawer('publicar'), 50);
+      });
+    }
+
+    // --- Alumnos: filtro por curso + buscador ---
+    function bindStudentsDrawer() {
+      const list = document.getElementById('alumnosList');
+      const cursoSel = document.getElementById('alumnosCurso');
+      const search = document.getElementById('alumnosSearch');
+
+      function render() {
+        const cursoId = +cursoSel.value;
+        const q = search.value.trim().toLowerCase();
+        const filtered = alumnos.filter(a => {
+          const matchCurso = cursoId === 0 || a.curso === cursoId;
+          const matchQ = !q || a.nombre.toLowerCase().includes(q) || a.legajo.toLowerCase().includes(q);
+          return matchCurso && matchQ;
+        });
+        if (filtered.length === 0) {
+          list.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
+          return;
+        }
+        list.innerHTML = filtered.map(a => {
+          const ini = a.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
+          return `
+>>>>>>> b00cb106dc0f6ff176d521c9bfcc24a69989cbe0
             <div class="student-row">
               <div class="student-row__avatar">${ini}</div>
               <div>
