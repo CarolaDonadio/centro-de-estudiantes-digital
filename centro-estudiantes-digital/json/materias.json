@@ -1,0 +1,34 @@
+{
+  "materias": [
+    {
+      "id": 1,
+      "nombre": "Análisis Matemático I",
+      "docente": "Ing. García",
+      "dias": ["Lun", "Mié"],
+      "hora": "18–21hs",
+      "color": "#2563eb",
+      "nota_parcial": 8,
+      "asistencia": 85
+    },
+    {
+      "id": 2,
+      "nombre": "Programación I",
+      "docente": "Lic. Chaves",
+      "dias": ["Mar", "Jue"],
+      "hora": "19–22hs",
+      "color": "#06b6d4",
+      "nota_parcial": 3,
+      "asistencia": 72
+    },
+    {
+      "id": 3,
+      "nombre": "Lógica Computacional",
+      "docente": "Dr. López",
+      "dias": ["Lun"],
+      "hora": "19–22hs",
+      "color": "#0ea5e9",
+      "nota_parcial": 5,
+      "asistencia": 55
+    }
+  ]
+}

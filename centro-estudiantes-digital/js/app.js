@@ -20,6 +20,7 @@ const API = {
   reglamentacion:  'json/reglamentacion.json',
   notificaciones:  'json/notificaciones.json',
   carreras:        'json/carreras.json',
+  materias:        'json/materias.json',
 };
 
 /* ----------------------------------------------------------------
@@ -100,6 +101,8 @@ const state = {
   filtroMateria: 'todas',
   filtroFechaDesde: '',
   filtroFechaHasta: '',
+  filtroMateriasEstado: 'todas',
+  materias: null,
   calendarioMes: null,        // Date actual mostrada en el drawer
   calendarioFiltro: 'todos',  // Filtro de eventos del calendario
 
@@ -125,7 +128,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   // Cargamos todo en paralelo desde la "API Mock"
-  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras] = await Promise.all([
+  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias] = await Promise.all([
     fetchJSON(API.usuario),
     fetchJSON(API.novedades),
     fetchJSON(API.eventos),
@@ -133,9 +136,10 @@ async function init() {
     fetchJSON(API.reglamentacion),
     fetchJSON(API.notificaciones),
     fetchJSON(API.carreras),
+    fetchJSON(API.materias),
   ]);
 
-  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras });
+  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias });
 
   // Renderizamos las secciones del dashboard
   renderUserHeader();
@@ -160,14 +164,44 @@ function renderUserHeader() {
   if (!u) return;
 
   const session = JSON.parse(localStorage.getItem('cedSession'));
-  $('#userName').textContent = session?.nombre || u.nombre;
-  $('#userAvatar').textContent = u.avatar;
+  const name = session?.nombre || u.nombre;
+  $('#userName').textContent = name;
+
+  // Actualizar iniciales del avatar dinámicamente
+  if (name && $('#userAvatar')) {
+    const parts = name.split(' ');
+    const initials = parts.length > 1 
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0][0].toUpperCase();
+    $('#userAvatar').textContent = initials;
+  }
+
+  // Lógica de Píldora de Rol
+  const rawRole = (session?.rol || u.perfil || '').toLowerCase();
+  const roleLabels = {
+    'admin': 'ADMINISTRADOR',
+    'administrador': 'ADMINISTRADOR',
+    'docente': 'DOCENTE',
+    'delegado': 'DELEGADO'
+  };
+
+  if (roleLabels[rawRole]) {
+    // Limpiamos si ya existe (para evitar duplicados en re-renders)
+    const oldPill = $('.role-pill');
+    if (oldPill) oldPill.remove();
+
+    const pill = document.createElement('span');
+    pill.className = 'role-pill';
+    pill.innerHTML = `
+      <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"></path></svg>
+      ${roleLabels[rawRole]}
+    `;
+    $('.header__text').prepend(pill);
+  }
 
   const resumen =
     `Tenés ${u.clases_hoy} clases hoy, ${u.notificaciones_sin_leer} notificaciones sin leer y ${u.eventos_semana} eventos del CE esta semana.`;
   $('#userSummary').textContent = resumen;
-
-  $('#bellBadge').textContent = u.notificaciones_sin_leer;
 }
 
 /* ----------------------------------------------------------------
@@ -755,28 +789,51 @@ function renderProfile(body) {
   `;
 }
 
-/* ----------------------------------------------------------------
-   12. DRAWER: MIS MATERIAS
----------------------------------------------------------------- */
+/**
+ * Calcula el estado de regularidad dinámicamente
+ * Regular: Asistencia >= 75% y Nota >= 4
+ * Riesgo: Asistencia entre 60% y 74% O Nota < 4
+ * Libre: Asistencia < 60%
+ */
+function getMateriaStatus(asistencia, nota) {
+  if (asistencia < 60) return { texto: 'Libre', color: 'var(--accent-coral)' };
+  if (asistencia < 75 || (nota !== null && nota < 4)) return { texto: 'Riesgo', color: 'var(--accent-amber)' };
+  return { texto: 'Regular', color: 'var(--accent-green)' };
+}
+
 function renderMaterias(body) {
-  const materias = [
-    { nombre: 'Análisis Matemático I',  docente: 'Ing. García',  dias: ['Lun', 'Mié'], hora: '18–21hs', color: '#2563eb', nota: null,  estado: 'Cursando' },
-    { nombre: 'Programación I',         docente: 'Lic. Chaves',  dias: ['Mar', 'Jue'], hora: '19–22hs', color: '#06b6d4', nota: 7,     estado: 'Cursando' },
-    { nombre: 'Álgebra Lineal',         docente: 'Prof. Rossi',  dias: ['Vie'],        hora: '18–22hs', color: '#3DAA6A', nota: 8,     estado: 'Cursando' },
-    { nombre: 'Sistemas Operativos',    docente: 'Ing. Torres',  dias: ['Mié'],        hora: '19–22hs', color: '#3b82f6', nota: null,  estado: 'Cursando' },
-    { nombre: 'Lógica Computacional',   docente: 'Dr. López',    dias: ['Lun'],        hora: '19–22hs', color: '#0ea5e9', nota: 6,     estado: 'Cursando' },
-  ];
+  let list = state.materias?.materias || [];
+
+  // Aplicar cálculo de estado a cada materia para poder filtrar
+  list = list.map(m => ({
+    ...m,
+    statusInfo: getMateriaStatus(m.asistencia, m.nota_parcial)
+  }));
+
+  // Filtrar si es necesario
+  if (state.filtroMateriasEstado !== 'todas') {
+    list = list.filter(m => m.statusInfo.texto.toLowerCase() === state.filtroMateriasEstado);
+  }
 
   body.innerHTML = `
-    <p class="drawer-section-label">1er Cuatrimestre 2026 · ${materias.length} materias</p>
+    <div class="drawer__filters" style="margin-bottom: 20px;">
+      <button class="chip ${state.filtroMateriasEstado === 'todas' ? 'chip--active' : ''}" data-status-filter="todas">Todas</button>
+      <button class="chip ${state.filtroMateriasEstado === 'regular' ? 'chip--active' : ''}" data-status-filter="regular">Regulares</button>
+      <button class="chip ${state.filtroMateriasEstado === 'riesgo' ? 'chip--active' : ''}" data-status-filter="riesgo">En Riesgo</button>
+      <button class="chip ${state.filtroMateriasEstado === 'libre' ? 'chip--active' : ''}" data-status-filter="libre">Libres</button>
+    </div>
+
+    <p class="drawer-section-label">1er Cuatrimestre 2026 · ${list.length} materias mostradas</p>
     <div class="materia-list">
-      ${materias.map(m => `
+      ${list.map(m => `
         <div class="materia-card" style="--mat-color: ${m.color}">
           <div class="materia-card__accent"></div>
           <div class="materia-card__body">
             <div class="materia-card__head">
               <h3 class="materia-card__title">${m.nombre}</h3>
-              <span class="materia-card__status">${m.estado}</span>
+              <span class="materia-card__status" style="background:${m.statusInfo.color}15; color:${m.statusInfo.color}">
+                ${m.statusInfo.texto}
+              </span>
             </div>
             <p class="materia-card__docente">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -788,16 +845,35 @@ function renderMaterias(body) {
               ${m.dias.map(d => `<span class="materia-card__horario">${d}</span>`).join('')}
               <span class="materia-card__hora">${m.hora}</span>
             </div>
-            ${m.nota !== null ? `
+
+            <div class="materia-card__attendance" style="margin-top:12px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:4px; color:var(--text-muted);">
+                <span>ASISTENCIA</span>
+                <span style="color:${m.statusInfo.color}">${m.asistencia}%</span>
+              </div>
+              <div class="progress" style="width:100%; height:4px;">
+                <div class="progress__fill" style="width:${m.asistencia}%; background:${m.statusInfo.color}; transition: width 0.8s ease;"></div>
+              </div>
+            </div>
+
+            ${m.nota_parcial !== null ? `
               <div class="materia-card__nota">
-                <span class="nota-label">Último parcial</span>
-                <span class="nota-value" style="color:${m.color}">${m.nota}</span>
+                <span class="nota-label">Nota Parcial</span>
+                <span class="nota-value" style="color:${m.nota_parcial < 4 ? 'var(--accent-coral)' : 'var(--accent-green)'}">${m.nota_parcial}</span>
               </div>` : ''}
           </div>
         </div>
       `).join('')}
     </div>
   `;
+
+  // Bindeo de filtros
+  body.querySelectorAll('[data-status-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filtroMateriasEstado = btn.dataset.statusFilter;
+      renderMaterias(body);
+    });
+  });
 }
 
 /* ----------------------------------------------------------------
@@ -1347,9 +1423,10 @@ function renderNotifPanel() {
   const list  = $('#notifList');
   if (!list) return;
 
-  const notifs = state.notificaciones?.notificaciones || [];
+  // Filtramos para mostrar solo las notificaciones no leídas
+  const unreadNotifs = (state.notificaciones?.notificaciones || []).filter(n => !n.leida);
 
-  if (!notifs.length) {
+  if (!unreadNotifs.length) {
     list.innerHTML = `
       <div class="notif-empty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1362,19 +1439,17 @@ function renderNotifPanel() {
     return;
   }
 
-  list.innerHTML = notifs.map(n => {
-    const unreadCls = !n.leida ? ' notif-item--unread' : '';
-    const unreadDot = !n.leida ? '<span class="notif-item__unread-dot"></span>' : '';
+  list.innerHTML = unreadNotifs.map(n => {
     return `
-      <div class="notif-item${unreadCls}" data-notif-id="${n.id}" role="button" tabindex="0"
-           aria-label="${n.titulo}${n.leida ? '' : ' (sin leer)'}">
+      <div class="notif-item notif-item--unread" data-notif-id="${n.id}" role="button" tabindex="0"
+           aria-label="${n.titulo} (sin leer)">
         <span class="notif-item__dot notif-item__dot--${n.tipo}"></span>
         <div class="notif-item__body">
           <p class="notif-item__title">${n.titulo}</p>
           <p class="notif-item__desc">${n.descripcion}</p>
           <span class="notif-item__time">${timeAgo(n.fecha)}</span>
         </div>
-        ${unreadDot}
+        <span class="notif-item__unread-dot"></span>
       </div>
     `;
   }).join('');
@@ -1412,7 +1487,13 @@ function updateBellBadge() {
   const notifs  = state.notificaciones?.notificaciones || [];
   const unread  = notifs.filter(n => !n.leida).length;
   badge.textContent = unread;
-  badge.style.display = unread > 0 ? '' : 'none';
+  badge.style.display = unread > 0 ? 'flex' : 'none'; // Usar 'flex' para que el badge se muestre correctamente
+
+  // Actualizar el estado del usuario para que el resumen también refleje el conteo actual
+  if (state.usuario) {
+    state.usuario.notificaciones_sin_leer = unread;
+  }
+  renderUserHeader(); // Re-renderizar el encabezado para actualizar el resumen
 }
 
 /* ----------------------------------------------------------------
@@ -1464,6 +1545,32 @@ window.__FALLBACK_DATA__ = {
       { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.", tipo: "success", fecha: "2026-04-27T09:00:00", leida: false },
       { id: 2, titulo: "Cierre de inscripciones", descripcion: "Las inscripciones a mesas de Julio cierran el 10/07.", tipo: "warning", fecha: "2026-04-26T14:30:00", leida: false },
       { id: 3, titulo: "Workshop de Python", descripcion: "El CE abrió cupos para el taller de Pandas, NumPy y Scikit-learn.", tipo: "info", fecha: "2026-04-25T11:00:00", leida: false }
+    ]
+  },
+  materias: {
+    materias: [
+      {
+        "id": 1,
+        "nombre": "Análisis Matemático I",
+        "docente": "Ing. García",
+        "dias": ["Lun", "Mié"],
+        "hora": "18–21hs",
+        "color": "#2563eb",
+        "nota_parcial": null,
+        "asistencia": 85,
+        "estado": "Regular"
+      },
+      {
+        "id": 2,
+        "nombre": "Programación I",
+        "docente": "Lic. Chaves",
+        "dias": ["Mar", "Jue"],
+        "hora": "19–22hs",
+        "color": "#06b6d4",
+        "nota_parcial": 7,
+        "asistencia": 72,
+        "estado": "Riesgo"
+      }
     ]
   }
 };
