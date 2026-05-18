@@ -10,24 +10,24 @@
 ---------------------------------------------------------------- */
 :root {
   /* Colores de marca */
-  --brand-900: #0F1419;
-  /* negro profundo */
-  --brand-700: #1a3a52;
-  /* azul oscuro primario */
-  --brand-500: #2563eb;
-  /* azul brillante */
-  --brand-300: #60a5fa;
-  /* azul claro */
-  --brand-100: #dbeafe;
-  /* azul muy claro de fondo */
+  --brand-900: #1A1D4A;
+  /* Tinta más oscuro */
+  --brand-700: #2C3E87;
+  /* Azul primario */
+  --brand-500: #4A67C9;
+  /* Azul acentos */
+  --brand-300: #8FA3E3;
+  /* Periwinkle decorativo */
+  --brand-100: #E3E9FA;
+  /* Fondos suaves */
 
   /* Acentos */
-  --accent-amber: #0ea5e9;
-  /* cyan/sky blue */
-  --accent-coral: #06b6d4;
-  /* cyan saturado */
-  --accent-violet: #3b82f6;
-  /* azul violáceo */
+  --accent-amber: #F5A623;
+  /* Ámbar destacados académicos */
+  --accent-coral: #E67E5B;
+  /* Coral eventos sociales/urgente */
+  --accent-violet: #8B5CF6;
+  /* Violeta eventos del CE */
   --accent-green: #3DAA6A;
   /* verde salvia para éxito/becas */
 
@@ -1067,7 +1067,6 @@ ul {
 
 .chip {
   padding: 6px 12px;
-  padding: 8px 16px;
   border-radius: var(--r-full);
   font-size: 12px;
   font-weight: 600;
@@ -1140,8 +1139,8 @@ ul {
 }
 
 .news-item--featured {
-  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-  border-color: rgba(14, 165, 233, 0.3);
+  background: #FFF7EA;
+  border-color: rgba(245, 166, 35, 0.3);
 }
 
 .news-item__stripe {

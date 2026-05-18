@@ -13,20 +13,20 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario:         'json/usuario.json',
-  novedades:       'json/novedades.json',
-  eventos:         'json/eventos.json',
-  calendario:      'json/calendario.json',
-  reglamentacion:  'json/reglamentacion.json',
-  notificaciones:  'json/notificaciones.json',
-  carreras:        'json/carreras.json',
-  materias:        'json/materias.json',
+  usuario: 'json/usuario.json',
+  novedades: 'json/novedades.json',
+  eventos: 'json/eventos.json',
+  calendario: 'json/calendario.json',
+  reglamentacion: 'json/reglamentacion.json',
+  notificaciones: 'json/notificaciones.json',
+  carreras: 'json/carreras.json',
+  materias: 'json/materias.json',
 };
 
 /* ----------------------------------------------------------------
    1. HELPERS (utilidades genéricas)
 ---------------------------------------------------------------- */
-const $  = (sel, ctx = document) => ctx.querySelector(sel);
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
 /**
@@ -49,7 +49,7 @@ async function fetchJSON(url) {
 /** Formatea una fecha ISO a "dd MMM" en español. */
 function formatDay(isoDate) {
   const d = new Date(isoDate);
-  const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
   return { dia: d.getDate(), mes: meses[d.getMonth()] };
 }
 
@@ -57,8 +57,8 @@ function formatDay(isoDate) {
 function timeAgo(isoDate) {
   const d = new Date(isoDate);
   const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 3600)   return `hace ${Math.floor(diff / 60)}min`;
-  if (diff < 86400)  return `hace ${Math.floor(diff / 3600)}h`;
+  if (diff < 3600) return `hace ${Math.floor(diff / 60)}min`;
+  if (diff < 86400) return `hace ${Math.floor(diff / 3600)}h`;
   if (diff < 604800) return `hace ${Math.floor(diff / 86400)}d`;
   return d.toLocaleDateString('es-AR');
 }
@@ -76,10 +76,10 @@ function getUniqueNewsSubjects() {
 
 /** Devuelve un color "soft" a partir de un hex (para fondo de chips) */
 function softColor(hex, alpha = 0.14) {
-  const h = hex.replace('#','');
-  const r = parseInt(h.substr(0,2), 16);
-  const g = parseInt(h.substr(2,2), 16);
-  const b = parseInt(h.substr(4,2), 16);
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substr(0, 2), 16);
+  const g = parseInt(h.substr(2, 2), 16);
+  const b = parseInt(h.substr(4, 2), 16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
@@ -170,7 +170,7 @@ function renderUserHeader() {
   // Actualizar iniciales del avatar dinámicamente
   if (name && $('#userAvatar')) {
     const parts = name.split(' ');
-    const initials = parts.length > 1 
+    const initials = parts.length > 1
       ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
       : parts[0][0].toUpperCase();
     $('#userAvatar').textContent = initials;
@@ -212,7 +212,7 @@ function renderCareerCard() {
   if (!u) return;
 
   $('#userCareer').textContent = u.carrera;
-  $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2,'0');
+  $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2, '0');
   $('#materiasTotales').textContent = u.materias_totales;
 
   // Próxima fecha académica
@@ -236,9 +236,9 @@ function renderCareerCard() {
       - Cada tarjeta tiene su botón "Inscribirme" funcional, con estado.
 ---------------------------------------------------------------- */
 function renderEvents() {
-  const cont    = $('#eventsContainer');
+  const cont = $('#eventsContainer');
   const actions = $('#eventsActions');
-  const lista   = state.eventos?.eventos || [];
+  const lista = state.eventos?.eventos || [];
 
   // Ordenamos por fecha (más próximos primero)
   const ordenados = [...lista].sort(
@@ -294,7 +294,7 @@ function renderEvents() {
 function buildEventCardHTML(ev) {
   const { dia, mes } = formatDay(ev.fecha_inicio);
   const inscripto = state.inscripciones.has(ev.id);
-  const lleno     = ev.inscriptos >= ev.cupo;
+  const lleno = ev.inscriptos >= ev.cupo;
 
   // Construimos el botón según el estado:
   let cta;
@@ -374,8 +374,6 @@ function renderNewsFilters() {
   if (!cont) return;
 
   const cats = state.novedades?.categorias || [];
-  const careers = state.carreras || [];
-  const subjects = getUniqueNewsSubjects();
 
   cont.innerHTML = `
     <button class="chip chip--active" data-filter="todas">Todas</button>
@@ -401,62 +399,6 @@ function renderNewsFilters() {
       state.filtroNovedad = 'todas';
       cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
       e.currentTarget.classList.add('chip--active');
-      renderNewsList();
-    });
-  }
-
-  const extraWrapper = document.createElement('div');
-  extraWrapper.className = 'news-filters__extra';
-  extraWrapper.innerHTML = `
-    <label class="news-filters__field">Carrera
-      <select id="newsCareerFilter">
-        <option value="todas">Todas las carreras</option>
-        ${careers.map(c => `<option value="${c.id}">${c.codigo} – ${c.nombre}</option>`).join('')}
-      </select>
-    </label>
-    <label class="news-filters__field">Materia
-      <select id="newsSubjectFilter">
-        <option value="todas">Todas las materias</option>
-        ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
-      </select>
-    </label>
-    <label class="news-filters__field">Desde
-      <input id="newsDateFrom" type="date" value="${state.filtroFechaDesde}">
-    </label>
-    <label class="news-filters__field">Hasta
-      <input id="newsDateTo" type="date" value="${state.filtroFechaHasta}">
-    </label>
-  `;
-  cont.appendChild(extraWrapper);
-
-  const careerSelect = extraWrapper.querySelector('#newsCareerFilter');
-  const subjectSelect = extraWrapper.querySelector('#newsSubjectFilter');
-  const dateFrom = extraWrapper.querySelector('#newsDateFrom');
-  const dateTo = extraWrapper.querySelector('#newsDateTo');
-
-  if (careerSelect) {
-    careerSelect.value = state.filtroCarrera;
-    careerSelect.addEventListener('change', () => {
-      state.filtroCarrera = careerSelect.value;
-      renderNewsList();
-    });
-  }
-  if (subjectSelect) {
-    subjectSelect.value = state.filtroMateria;
-    subjectSelect.addEventListener('change', () => {
-      state.filtroMateria = subjectSelect.value;
-      renderNewsList();
-    });
-  }
-  if (dateFrom) {
-    dateFrom.addEventListener('change', () => {
-      state.filtroFechaDesde = dateFrom.value;
-      renderNewsList();
-    });
-  }
-  if (dateTo) {
-    dateTo.addEventListener('change', () => {
-      state.filtroFechaHasta = dateTo.value;
       renderNewsList();
     });
   }
@@ -486,7 +428,7 @@ function renderNewsList() {
   }
 
   // Ordenar por destacada + fecha
-  lista.sort((a,b) => {
+  lista.sort((a, b) => {
     if (a.destacada !== b.destacada) return b.destacada - a.destacada;
     return new Date(b.fecha) - new Date(a.fecha);
   });
@@ -501,7 +443,7 @@ function renderNewsList() {
   }
 
   cont.innerHTML = lista.map(n => {
-    const cat = categorias.find(c => c.id === n.categoria_id) || { color:'#2563eb' };
+    const cat = categorias.find(c => c.id === n.categoria_id) || { color: '#2563eb' };
     const destacadaCls = n.destacada ? ' news-item--featured' : '';
     const star = n.destacada ? '<span class="news-item__star">★ DESTACADA</span>' : '';
     const adjunto = n.adjunto ? `
@@ -628,20 +570,20 @@ function bindDrawerControls() {
    9. DRAWER LATERAL - abrir/cerrar + contenido dinámico por sección
 ---------------------------------------------------------------- */
 function openDrawer(type) {
-  const drawer  = $('#drawer');
+  const drawer = $('#drawer');
   const overlay = $('#drawerOverlay');
-  const title   = $('#drawerTitle');
-  const icon    = $('#drawerIcon');
-  const body    = $('#drawerBody');
+  const title = $('#drawerTitle');
+  const icon = $('#drawerIcon');
+  const body = $('#drawerBody');
 
   const config = {
-    perfil:         { title: 'Mi Perfil',           icon: iconUser,      render: renderProfile       },
-    materias:       { title: 'Mis Materias',        icon: iconBook,      render: renderMaterias      },
-    inscripciones:  { title: 'Mis Inscripciones',   icon: iconInscript,  render: renderInscripciones },
-    carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
-    centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
-    novedades:      { title: 'Novedades',           icon: iconNews,      render: renderNovedades     },
-    calendario:     { title: 'Calendario Académico',icon: iconCalendar,  render: renderCalendar      },
+    perfil: { title: 'Mi Perfil', icon: iconUser, render: renderProfile },
+    materias: { title: 'Mis Materias', icon: iconBook, render: renderMaterias },
+    inscripciones: { title: 'Mis Inscripciones', icon: iconInscript, render: renderInscripciones },
+    carrera: { title: 'Mi Carrera', icon: iconCareer, render: renderCarrera },
+    centro: { title: 'Centro Estudiantil', icon: iconStar, render: renderCentro },
+    novedades: { title: 'Novedades', icon: iconNews, render: renderNovedades },
+    calendario: { title: 'Calendario Académico', icon: iconCalendar, render: renderCalendar },
   };
 
   const cfg = config[type];
@@ -889,13 +831,13 @@ function renderInscripciones(body) {
   ];
 
   const mesas = [
-    { materia: 'Lógica Computacional',  tipo: 'Examen Final',     fecha: '20/07/2026', inscripto: true  },
-    { materia: 'Estadística Aplicada',  tipo: 'Primer Parcial',   fecha: '28/07/2026', inscripto: false },
+    { materia: 'Lógica Computacional', tipo: 'Examen Final', fecha: '20/07/2026', inscripto: true },
+    { materia: 'Estadística Aplicada', tipo: 'Primer Parcial', fecha: '28/07/2026', inscripto: false },
   ];
 
   const checkIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const calIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
-  const bookIcon  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
+  const calIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
+  const bookIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
 
   body.innerHTML = `
     <div class="inscr-section">
@@ -937,8 +879,8 @@ function renderInscripciones(body) {
               <p class="inscr-mesa__sub">${m.tipo} · ${m.fecha}</p>
             </div>
             ${m.inscripto
-              ? `<span class="inscr-chip inscr-chip--done">${checkIcon} Inscripto</span>`
-              : `<button class="btn-primary inscr-btn-sm">Inscribirme</button>`}
+      ? `<span class="inscr-chip inscr-chip--done">${checkIcon} Inscripto</span>`
+      : `<button class="btn-primary inscr-btn-sm">Inscribirme</button>`}
           </div>
         `).join('')}
       </div>
@@ -950,34 +892,40 @@ function renderInscripciones(body) {
    14. DRAWER: MI CARRERA
 ---------------------------------------------------------------- */
 function renderCarrera(body) {
-  const u   = state.usuario;
+  const u = state.usuario;
   const pct = Math.round((u.materias_cursadas / u.materias_totales) * 100);
 
   const plan = [
-    { anio: 'Primer Año', materias: [
-      { nombre: 'Análisis Matemático I',  aprobada: true,  nota: 8  },
-      { nombre: 'Álgebra Lineal',         aprobada: true,  nota: 7  },
-      { nombre: 'Programación I',         aprobada: true,  nota: 9  },
-      { nombre: 'Introducción a la IA',   aprobada: true,  nota: 8  },
-      { nombre: 'Inglés Técnico I',       aprobada: true,  nota: 7  },
-    ]},
-    { anio: 'Segundo Año', materias: [
-      { nombre: 'Análisis Matemático II', aprobada: false, cursando: true  },
-      { nombre: 'Estadística Aplicada',   aprobada: false, cursando: true  },
-      { nombre: 'Lógica Computacional',   aprobada: false, cursando: true  },
-      { nombre: 'Sistemas Operativos',    aprobada: false, cursando: true  },
-      { nombre: 'Base de Datos I',        aprobada: false, cursando: false },
-    ]},
-    { anio: 'Tercer Año', materias: [
-      { nombre: 'Machine Learning',       aprobada: false, cursando: false },
-      { nombre: 'Redes Neuronales',       aprobada: false, cursando: false },
-      { nombre: 'Proyecto Final I',       aprobada: false, cursando: false },
-    ]},
+    {
+      anio: 'Primer Año', materias: [
+        { nombre: 'Análisis Matemático I', aprobada: true, nota: 8 },
+        { nombre: 'Álgebra Lineal', aprobada: true, nota: 7 },
+        { nombre: 'Programación I', aprobada: true, nota: 9 },
+        { nombre: 'Introducción a la IA', aprobada: true, nota: 8 },
+        { nombre: 'Inglés Técnico I', aprobada: true, nota: 7 },
+      ]
+    },
+    {
+      anio: 'Segundo Año', materias: [
+        { nombre: 'Análisis Matemático II', aprobada: false, cursando: true },
+        { nombre: 'Estadística Aplicada', aprobada: false, cursando: true },
+        { nombre: 'Lógica Computacional', aprobada: false, cursando: true },
+        { nombre: 'Sistemas Operativos', aprobada: false, cursando: true },
+        { nombre: 'Base de Datos I', aprobada: false, cursando: false },
+      ]
+    },
+    {
+      anio: 'Tercer Año', materias: [
+        { nombre: 'Machine Learning', aprobada: false, cursando: false },
+        { nombre: 'Redes Neuronales', aprobada: false, cursando: false },
+        { nombre: 'Proyecto Final I', aprobada: false, cursando: false },
+      ]
+    },
   ];
 
   const globeIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" stroke-linecap="round"/></svg>`;
-  const gradIcon  = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5" stroke-linecap="round"/></svg>`;
-  const calIcon   = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
+  const gradIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5" stroke-linecap="round"/></svg>`;
+  const calIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
 
   body.innerHTML = `
     <div class="career-stats-row">
@@ -1017,8 +965,8 @@ function renderCarrera(body) {
 
     <p class="drawer-section-label">Plan de estudios · ${u.carrera}</p>
     ${plan.map(yr => {
-      const aprobadas = yr.materias.filter(m => m.aprobada).length;
-      return `
+    const aprobadas = yr.materias.filter(m => m.aprobada).length;
+    return `
         <div class="plan-year">
           <div class="plan-year__header">
             <span class="plan-year__title">${yr.anio}</span>
@@ -1029,14 +977,14 @@ function renderCarrera(body) {
               <div class="plan-materia ${m.aprobada ? 'plan-materia--done' : m.cursando ? 'plan-materia--active' : ''}">
                 <span class="plan-materia__dot"></span>
                 <span class="plan-materia__name">${m.nombre}</span>
-                ${m.aprobada  ? `<span class="plan-materia__nota">${m.nota}</span>` : ''}
-                ${m.cursando  ? `<span class="plan-materia__badge">Cursando</span>` : ''}
+                ${m.aprobada ? `<span class="plan-materia__nota">${m.nota}</span>` : ''}
+                ${m.cursando ? `<span class="plan-materia__badge">Cursando</span>` : ''}
               </div>
             `).join('')}
           </div>
         </div>
       `;
-    }).join('')}
+  }).join('')}
   `;
 
   requestAnimationFrame(() => {
@@ -1050,9 +998,9 @@ function renderCarrera(body) {
 ---------------------------------------------------------------- */
 function renderCentro(body) {
   const delegados = [
-    { nombre: 'Valentina Ríos',   cargo: 'Presidenta',  carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
-    { nombre: 'Mateo Fernández',  cargo: 'Secretario',  carrera: 'Tecnicatura en Redes',    avatar: 'MF', color: '#2563eb' },
-    { nombre: 'Lucía Aramburu',   cargo: 'Tesorera',    carrera: 'Prog. Universitaria',     avatar: 'LA', color: '#3DAA6A' },
+    { nombre: 'Valentina Ríos', cargo: 'Presidenta', carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
+    { nombre: 'Mateo Fernández', cargo: 'Secretario', carrera: 'Tecnicatura en Redes', avatar: 'MF', color: '#2563eb' },
+    { nombre: 'Lucía Aramburu', cargo: 'Tesorera', carrera: 'Prog. Universitaria', avatar: 'LA', color: '#3DAA6A' },
   ];
 
   const proxEventos = (state.eventos?.eventos || [])
@@ -1088,8 +1036,8 @@ function renderCentro(body) {
     <p class="drawer-section-label">Próximos eventos</p>
     <div class="ce-events-mini">
       ${proxEventos.map(ev => {
-        const { dia, mes } = formatDay(ev.fecha_inicio);
-        return `
+    const { dia, mes } = formatDay(ev.fecha_inicio);
+    return `
           <div class="ce-event-mini" style="--ev-color:${ev.color}">
             <div class="ce-event-mini__date">
               <span class="ce-event-mini__day">${dia}</span>
@@ -1102,7 +1050,7 @@ function renderCentro(body) {
             <span class="ce-event-mini__cat" style="background:${ev.color}20;color:${ev.color}">${ev.categoria}</span>
           </div>
         `;
-      }).join('')}
+  }).join('')}
     </div>
 
     <p class="drawer-section-label">Contacto</p>
@@ -1216,15 +1164,15 @@ function renderCalendar(body) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   // Obtener primer y último día del mes
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  
+
   // Calcular celdas vacías al principio
-  let startingDay = firstDay.getDay(); 
+  let startingDay = firstDay.getDay();
 
   // Obtener todos los eventos y tipos
   const eventos = state.calendario?.eventos_calendario || [];
@@ -1289,7 +1237,7 @@ function renderCalendar(body) {
   for (let d = 1; d <= lastDay.getDate(); d++) {
     const isToday = esMesActual && hoy.getDate() === d;
     const dayEvents = eventosDelMes[d] || [];
-    
+
     let dotsHTML = '<div class="calendar-day-events">';
     dayEvents.slice(0, 3).forEach(e => {
       dotsHTML += `<span class="calendar-dot" style="background-color: ${e.color}" title="${e.titulo}"></span>`;
@@ -1312,13 +1260,13 @@ function renderCalendar(body) {
 
   // Listado inferior de eventos del mes
   let eventosDelMesFlat = [];
-  Object.keys(eventosDelMes).sort((a,b) => parseInt(a) - parseInt(b)).forEach(dia => {
+  Object.keys(eventosDelMes).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dia => {
     eventosDelMes[dia].forEach(e => eventosDelMesFlat.push(e));
   });
 
   calHTML += `<div class="calendar-event-list">`;
   calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
-  
+
   if (eventosDelMesFlat.length === 0) {
     calHTML += `<div class="notif-empty" style="margin-top:16px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1334,11 +1282,11 @@ function renderCalendar(body) {
         <div class="cal-list-item" style="--ev-color: ${e.color}">
           <div class="cal-list-date">
             <span class="cal-list-day">${d}</span>
-            <span class="cal-list-month">${meses[parseInt(m)-1].substring(0,3).toUpperCase()}</span>
+            <span class="cal-list-month">${meses[parseInt(m) - 1].substring(0, 3).toUpperCase()}</span>
           </div>
           <div class="cal-list-body">
             <h4 class="cal-list-title">${e.titulo}</h4>
-            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t=>t.id===e.tipo)?.nombre || 'Evento'}</span>
+            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t => t.id === e.tipo)?.nombre || 'Evento'}</span>
           </div>
         </div>
       `;
@@ -1366,17 +1314,17 @@ function renderCalendar(body) {
     });
   });
 }
-function renderEventsList() {}
-function renderFullNews() {}
-function renderRegulations() {}
-function renderSession() {}
+function renderEventsList() { }
+function renderFullNews() { }
+function renderRegulations() { }
+function renderSession() { }
 
 /* ----------------------------------------------------------------
    NOTIFICACIONES - Panel desplegable de la campana
 ---------------------------------------------------------------- */
 function bindNotifications() {
   const bellBtn = $('#bellBtn');
-  const panel   = $('#notifPanel');
+  const panel = $('#notifPanel');
 
   if (!bellBtn || !panel) return;
 
@@ -1388,7 +1336,7 @@ function bindNotifications() {
     const willOpen = !panel.classList.contains('is-open');
     if (willOpen) {
       const rect = bellBtn.getBoundingClientRect();
-      panel.style.top  = (rect.bottom + 10) + 'px';
+      panel.style.top = (rect.bottom + 10) + 'px';
       panel.style.right = (window.innerWidth - rect.right) + 'px';
     }
     panel.classList.toggle('is-open');
@@ -1420,7 +1368,7 @@ function closeNotifPanel() {
 }
 
 function renderNotifPanel() {
-  const list  = $('#notifList');
+  const list = $('#notifList');
   if (!list) return;
 
   // Filtramos para mostrar solo las notificaciones no leídas
@@ -1482,10 +1430,10 @@ function markAllNotifRead() {
 }
 
 function updateBellBadge() {
-  const badge  = $('#bellBadge');
+  const badge = $('#bellBadge');
   if (!badge) return;
-  const notifs  = state.notificaciones?.notificaciones || [];
-  const unread  = notifs.filter(n => !n.leida).length;
+  const notifs = state.notificaciones?.notificaciones || [];
+  const unread = notifs.filter(n => !n.leida).length;
   badge.textContent = unread;
   badge.style.display = unread > 0 ? 'flex' : 'none'; // Usar 'flex' para que el badge se muestre correctamente
 
