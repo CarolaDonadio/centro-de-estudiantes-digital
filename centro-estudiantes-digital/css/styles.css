@@ -719,9 +719,10 @@ ul {
 /* -------- TARJETA: EVENTOS CE -------- */
 .events-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  flex: 1;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  align-items: start;
+  grid-auto-rows: auto;
 }
 
 /* Cuando se expande con "Mostrar todo", entran 2 columnas con más filas */
@@ -776,14 +777,18 @@ ul {
 .event-card {
   position: relative;
   border-radius: var(--r-lg);
-  padding: 18px 18px 16px;
-  min-height: 220px;
+  padding: 12px 14px;
+  aspect-ratio: 3 / 2;
+  width: 100%;
   background: var(--event-color, var(--brand-500));
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
   color: #fff;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   transition: transform var(--t-med), box-shadow var(--t-med);
   cursor: pointer;
   /* Borde superior con brillo: simula un destello en el extremo */
@@ -792,19 +797,21 @@ ul {
     var(--sh-sm);
 }
 
-/* Capa 1: gradiente de luz + patrón de líneas sutil */
+/* Capa 1: overlay oscuro para mejorar contraste + patrón de líneas sutil */
 .event-card::before {
   content: "";
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 85% 0%, rgba(255, 255, 255, 0.28), transparent 55%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.25) 100%),
+    radial-gradient(circle at 85% 0%, rgba(255, 255, 255, 0.15), transparent 55%),
     repeating-linear-gradient(
       45deg,
       transparent 0 14px,
-      rgba(255, 255, 255, 0.04) 14px 15px
+      rgba(255, 255, 255, 0.02) 14px 15px
     );
   pointer-events: none;
+  z-index: 0;
 }
 
 /* Capa 2: círculo decorativo translúcido en la esquina inferior izquierda */
@@ -875,17 +882,18 @@ ul {
   position: relative;
   z-index: 1;
   display: flex;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
   align-items: flex-start;
   flex: 1;
 }
 
 .event-card__date-box {
   flex-shrink: 0;
-  width: 54px;
+  width: 44px;
   text-align: center;
-  padding: 6px 0;
-  border-radius: 12px;
+  padding: 5px 0;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(6px);
   line-height: 1;
@@ -893,9 +901,9 @@ ul {
 
 .event-card__month {
   display: block;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 1.6px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
   opacity: 0.85;
   margin-bottom: 2px;
@@ -904,26 +912,30 @@ ul {
 .event-card__date {
   display: block;
   font-family: var(--font-display);
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -1.2px;
+  letter-spacing: -0.8px;
 }
 
 .event-card__title {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: -0.3px;
   flex: 1;
   min-width: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .event-card__meta {
   position: relative;
   z-index: 1;
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.92;
   display: flex;
   align-items: center;
@@ -931,8 +943,8 @@ ul {
 }
 
 .event-card__meta svg {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
 }
 
@@ -941,8 +953,10 @@ ul {
   position: relative;
   z-index: 2;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-top: auto;
+  gap: 8px;
 }
 
 /* Botón "Inscribirme" dentro de cada tarjeta */
@@ -950,11 +964,11 @@ ul {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 7px 12px;
   border-radius: var(--r-full);
   background: rgba(255, 255, 255, 0.95);
   color: var(--text);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.3px;
   transition: all var(--t-fast);
