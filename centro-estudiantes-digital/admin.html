@@ -1215,6 +1215,7 @@
        ============================================================ */
     const modulosData = window.MODULOS_DATA || {};
     const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
+    let eventosAdmin = [];
 
     async function loadReglamentacionFromJSON() {
       if (!modulosData['mod-reglamentacion']) return;
@@ -1236,6 +1237,149 @@
       } catch (err) {
         console.warn('No se pudo cargar reglamentación desde JSON:', err);
       }
+    }
+
+    async function loadEventosFromJSON() {
+      if (!modulosData['mod-eventos']) return;
+      try {
+        const res = await fetch('json/eventos.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!Array.isArray(data.eventos)) throw new Error('Formato inesperado');
+        eventosAdmin = data.eventos.map(ev => ({
+          ...ev,
+          detalle: `${ev.categoria} · ${ev.lugar} · Cupo ${ev.inscriptos}/${ev.cupo}`
+        }));
+      } catch (err) {
+        console.warn('No se pudo cargar eventos desde JSON:', err);
+        eventosAdmin = modulosData['mod-eventos'].items.map((item, index) => ({
+          id: Date.now() + index,
+          titulo: item.titulo,
+          descripcion: item.detalle,
+          fecha_inicio: new Date().toISOString(),
+          fecha_fin: new Date().toISOString(),
+          cupo: 0,
+          inscriptos: 0,
+          autor: 'Sistema',
+          estado: 'activo',
+          categoria: 'General',
+          lugar: 'Sin definir',
+          color: '#8B5CF6',
+          detalle: item.detalle
+        }));
+      }
+    }
+
+    function formatDateTime(isoDate) {
+      const date = new Date(isoDate);
+      return date.toLocaleString('es-AR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function roleEventCategories() {
+      const role = admin.rol.toLowerCase();
+      if (role === 'admin') return ['Académico', 'Social', 'Cultural', 'Centro de Estudiantes', 'Deportivo'];
+      if (role === 'docente') return ['Académico', 'Social', 'Cultural'];
+      if (role === 'delegado') return ['Centro de Estudiantes', 'Social', 'Cultural'];
+      return ['Social', 'Cultural'];
+    }
+
+    function canManageEvent(ev) {
+      const role = admin.rol.toLowerCase();
+      return role === 'admin' || ev.autor === admin.nombre || ev.autor === 'Centro de Estudiantes';
+    }
+
+    function renderEventosAdmin() {
+      const categorias = roleEventCategories();
+      const canPublish = ['admin', 'docente', 'delegado'].includes(admin.rol.toLowerCase());
+      const headerLabel = admin.rol.toLowerCase() === 'admin'
+        ? 'Control total de la sección Eventos'
+        : admin.rol.toLowerCase() === 'docente'
+          ? 'Publicá eventos académicos relacionados a tu materia'
+          : 'Publicá eventos del Centro de Estudiantes y actividades sociales';
+
+      const eventCards = eventosAdmin.length ? eventosAdmin.map(ev => `
+          <div class="modulo-item" style="padding:1rem;display:flex;flex-direction:column;gap:.7rem;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;">
+              <div>
+                <p class="modulo-item__titulo">${ev.titulo}</p>
+                <p class="modulo-item__detalle">${ev.detalle}</p>
+                <p style="margin:.4rem 0 0;font:500 .82rem 'Manrope',sans-serif;color:#5a5d6e">${ev.descripcion || ''}</p>
+              </div>
+              <span class="modulo-item__estado modulo-item__estado--${ev.estado === 'activo' ? 'activo' : ev.estado === 'finalizado' ? 'cerrado' : 'cerrado'}" style="white-space:nowrap;">${ev.estado}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
+              <div style="font:500 .82rem 'Manrope',sans-serif;color:#6c6f80;">${formatDateTime(ev.fecha_inicio)} · ${formatDateTime(ev.fecha_fin)}</div>
+              <div style="display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;">
+                <span style="font:600 .78rem 'Manrope',sans-serif;color:#1A1D4A;">${ev.categoria}</span>
+                <span style="font:500 .78rem 'Manrope',sans-serif;color:#4A47A7;">${ev.autor}</span>
+                ${canManageEvent(ev) ? `<button class="btn btn-secondary btn-sm" data-event-action="edit" data-event-id="${ev.id}">Editar</button>
+                <button class="btn btn-secondary btn-sm" data-event-action="delete" data-event-id="${ev.id}" style="background:#E67E5B;border-color:#E67E5B;color:#fff;">Eliminar</button>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('') : '<p style="padding:1.2rem;color:#8a8d9c;font-family:Manrope,sans-serif">No hay eventos registrados todavía.</p>';
+
+      return `
+        <p class="modulo-descripcion">${modulosData['mod-eventos'].descripcion}</p>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+          <div style="flex:1;min-width:220px;">
+            <strong style="display:block;margin-bottom:.35rem;color:#1A1D4A;">${headerLabel}</strong>
+            <span style="color:#5a5d6e;font:500 .9rem 'Manrope',sans-serif">Podés publicar, editar y administrar eventos según tu rol.</span>
+          </div>
+          ${canPublish ? `<button class="btn btn-primary" id="toggleEventForm">${admin.rol.toLowerCase() === 'admin' ? 'Nuevo evento' : 'Publicar evento'}</button>` : ''}
+        </div>
+
+        <div id="eventAdminFormWrapper" style="display:none;margin-bottom:1.5rem;border:1px solid rgba(143,163,227,.25);border-radius:16px;padding:1rem;background:#fff;">
+          <form id="newEventForm" class="admin-form">
+            <div class="admin-form__row">
+              <label>Título del evento
+                <input type="text" name="titulo" required placeholder="Ej: Charla de Robótica">
+              </label>
+              <label>Categoria
+                <select name="categoria" required>${categorias.map(cat => `<option value="${cat}">${cat}</option>`).join('')}</select>
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Fecha y hora inicio
+                <input type="datetime-local" name="fecha_inicio" required>
+              </label>
+              <label>Fecha y hora fin
+                <input type="datetime-local" name="fecha_fin" required>
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Lugar
+                <input type="text" name="lugar" required placeholder="Ej: Aula Magna">
+              </label>
+              <label>Cupo total
+                <input type="number" name="cupo" required min="1" value="20">
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Descripción
+                <textarea name="descripcion" rows="3" required placeholder="Breve descripción del evento"></textarea>
+              </label>
+            </div>
+            <div class="admin-form__row" style="align-items:center;">
+              <label>Estado
+                <select name="estado">
+                  <option value="activo">Activo</option>
+                  <option value="finalizado">Finalizado</option>
+                </select>
+              </label>
+              <button type="submit" class="admin-form__submit">Guardar evento</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="modulo-list">${eventCards}</div>
+      `;
     }
 
     function renderModuloListado(key) {
@@ -1300,6 +1444,7 @@
       // Hooks por sección
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
       if (key === 'mod-novedades') bindNovedadesDrawer();
+      if (key === 'mod-eventos') bindEventosDrawer();
       if (key === 'perfil') bindPerfilSection();
       // Active state en el menú
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
@@ -1449,7 +1594,9 @@
     };
 
     if (isAdminUser) {
-      await loadReglamentacionFromJSON();
+      await Promise.all([loadReglamentacionFromJSON(), loadEventosFromJSON()]);
+    } else {
+      await loadEventosFromJSON();
     }
 
     // Registrar secciones de los módulos del proyecto
@@ -1458,7 +1605,7 @@
       sectionContent[key] = () => ({
         title: modulosData[key].titulo,
         icon: modulosData[key].icono,
-        html: renderModuloListado(key)
+        html: key === 'mod-eventos' ? renderEventosAdmin() : renderModuloListado(key)
       });
     });
 
@@ -1622,6 +1769,105 @@
         showTab('lista');
         renderUsers();
       });
+    }
+
+    function bindEventosDrawer() {
+      const toggleBtn = document.getElementById('toggleEventForm');
+      const formWrapper = document.getElementById('eventAdminFormWrapper');
+      const form = document.getElementById('newEventForm');
+      const eventList = document.querySelector('.modulo-list');
+
+      if (toggleBtn && formWrapper) {
+        toggleBtn.addEventListener('click', () => {
+          const visible = formWrapper.style.display === 'block';
+          formWrapper.style.display = visible ? 'none' : 'block';
+          toggleBtn.textContent = visible ? 'Publicar evento' : 'Ocultar formulario';
+        });
+      }
+
+      if (form) {
+        form.addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(form);
+          const editingId = form.dataset.editing ? Number(form.dataset.editing) : null;
+
+          if (editingId) {
+            const evento = eventosAdmin.find(ev => ev.id === editingId);
+            if (!evento) return;
+            evento.titulo = data.get('titulo').trim();
+            evento.descripcion = data.get('descripcion').trim();
+            evento.fecha_inicio = data.get('fecha_inicio');
+            evento.fecha_fin = data.get('fecha_fin');
+            evento.cupo = Number(data.get('cupo'));
+            evento.lugar = data.get('lugar').trim();
+            evento.categoria = data.get('categoria');
+            evento.estado = data.get('estado');
+            evento.detalle = `${evento.categoria} · ${evento.lugar} · Cupo ${evento.inscriptos}/${evento.cupo}`;
+            auditar('editar', 'evento', `Evento editado: ${evento.titulo}`);
+            showToast('Evento actualizado', `El evento "${evento.titulo}" fue guardado.`);
+            delete form.dataset.editing;
+          } else {
+            const nuevoEvento = {
+              id: Date.now(),
+              titulo: data.get('titulo').trim(),
+              descripcion: data.get('descripcion').trim(),
+              fecha_inicio: data.get('fecha_inicio'),
+              fecha_fin: data.get('fecha_fin'),
+              cupo: Number(data.get('cupo')),
+              inscriptos: 0,
+              autor: admin.nombre,
+              estado: data.get('estado'),
+              categoria: data.get('categoria'),
+              lugar: data.get('lugar').trim(),
+              color: '#4A67C9',
+              detalle: `${data.get('categoria')} · ${data.get('lugar')} · Cupo 0/${data.get('cupo')}`
+            };
+            eventosAdmin.unshift(nuevoEvento);
+            auditar('crear', 'evento', `Evento creado: ${nuevoEvento.titulo}`);
+            showToast('Evento creado', `El evento "${nuevoEvento.titulo}" fue publicado.`);
+          }
+
+          form.reset();
+          if (formWrapper) formWrapper.style.display = 'none';
+          if (toggleBtn) toggleBtn.textContent = 'Publicar evento';
+          navigateTo('mod-eventos');
+        });
+      }
+
+      if (eventList) {
+        eventList.addEventListener('click', e => {
+          const action = e.target.closest('[data-event-action]');
+          if (!action) return;
+          const eventId = Number(action.dataset.eventId);
+          const evento = eventosAdmin.find(ev => ev.id === eventId);
+          if (!evento) return;
+          const type = action.dataset.eventAction;
+
+          if (type === 'delete') {
+            if (!confirm(`¿Eliminar el evento "${evento.titulo}"?`)) return;
+            eventosAdmin = eventosAdmin.filter(ev => ev.id !== eventId);
+            auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
+            showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
+            navigateTo('mod-eventos');
+          }
+
+          if (type === 'edit') {
+            const formWrapperEdit = document.getElementById('eventAdminFormWrapper');
+            if (!formWrapperEdit) return;
+            formWrapperEdit.style.display = 'block';
+            if (toggleBtn) toggleBtn.textContent = 'Ocultar formulario';
+            form.querySelector('[name="titulo"]').value = evento.titulo;
+            form.querySelector('[name="descripcion"]').value = evento.descripcion;
+            form.querySelector('[name="fecha_inicio"]').value = evento.fecha_inicio.slice(0, 16);
+            form.querySelector('[name="fecha_fin"]').value = evento.fecha_fin.slice(0, 16);
+            form.querySelector('[name="lugar"]').value = evento.lugar;
+            form.querySelector('[name="cupo"]').value = evento.cupo;
+            form.querySelector('[name="categoria"]').value = evento.categoria;
+            form.querySelector('[name="estado"]').value = evento.estado;
+            form.dataset.editing = String(evento.id);
+          }
+        });
+      }
     }
 
     function bindUserActions() {
