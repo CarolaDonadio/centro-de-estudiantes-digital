@@ -374,34 +374,71 @@ function renderNewsFilters() {
   if (!cont) return;
 
   const cats = state.novedades?.categorias || [];
+  const careers = state.carreras || [];
+  const subjects = getUniqueNewsSubjects();
 
   cont.innerHTML = `
-    <button class="chip chip--active" data-filter="todas">Todas</button>
+    <div class="news-filters__categories">
+      <button class="chip chip--active" data-filter="todas">Todas</button>
+      ${cats.map(c => `<button class="chip" data-filter="${c.id}">${c.nombre}</button>`).join('')}
+    </div>
+    <div class="news-filters__advanced">
+      <select id="newsCareerFilter" class="filter-select" aria-label="Carrera">
+        <option value="todas">Carrera: Todas</option>
+        ${careers.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('')}
+      </select>
+      <select id="newsSubjectFilter" class="filter-select" aria-label="Materia">
+        <option value="todas">Materia: Todas</option>
+        ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
+      </select>
+      <div class="news-filters__dates">
+        <input id="newsDateFrom" type="date" class="filter-input" title="Fecha desde" value="${state.filtroFechaDesde}">
+        <input id="newsDateTo" type="date" class="filter-input" title="Fecha hasta" value="${state.filtroFechaHasta}">
+      </div>
+    </div>
   `;
 
-  cats.forEach(c => {
-    const chip = document.createElement('button');
-    chip.className = 'chip';
-    chip.dataset.filter = c.id;
-    chip.textContent = c.nombre;
-    chip.addEventListener('click', () => {
-      state.filtroNovedad = String(c.id);
+  // Bind de chips de categorías
+  cont.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filtroNovedad = btn.dataset.filter;
       cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
-      chip.classList.add('chip--active');
+      btn.classList.add('chip--active');
       renderNewsList();
     });
-    cont.appendChild(chip);
   });
 
-  const allButton = cont.querySelector('button[data-filter="todas"]');
-  if (allButton) {
-    allButton.addEventListener('click', (e) => {
-      state.filtroNovedad = 'todas';
-      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
-      e.currentTarget.classList.add('chip--active');
+  // Bind de selectores de Carrera y Materia
+  const careerSelect = cont.querySelector('#newsCareerFilter');
+  if (careerSelect) {
+    careerSelect.value = state.filtroCarrera;
+    careerSelect.addEventListener('change', () => {
+      state.filtroCarrera = careerSelect.value;
       renderNewsList();
     });
   }
+
+  const subjectSelect = cont.querySelector('#newsSubjectFilter');
+  if (subjectSelect) {
+    subjectSelect.value = state.filtroMateria;
+    subjectSelect.addEventListener('change', () => {
+      state.filtroMateria = subjectSelect.value;
+      renderNewsList();
+    });
+  }
+
+  // Bind de inputs de fechas
+  const dateFrom = cont.querySelector('#newsDateFrom');
+  dateFrom?.addEventListener('change', () => {
+    state.filtroFechaDesde = dateFrom.value;
+    renderNewsList();
+  });
+
+  const dateTo = cont.querySelector('#newsDateTo');
+  dateTo?.addEventListener('change', () => {
+    state.filtroFechaHasta = dateTo.value;
+    renderNewsList();
+  });
 }
 
 function renderNewsList() {

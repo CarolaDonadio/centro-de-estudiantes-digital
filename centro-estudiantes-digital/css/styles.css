@@ -1061,8 +1061,50 @@ ul {
 /* -------- TARJETA: NOVEDADES -------- */
 .news-filters {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.news-filters__categories {
+  display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  justify-content: flex-end;
+}
+
+.news-filters__advanced {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.news-filters__dates {
+  display: flex;
+  gap: 4px;
+}
+
+.filter-select,
+.filter-input {
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-soft);
+  color: var(--text-soft);
+  outline: none;
+  transition: all var(--t-fast);
+}
+
+.filter-select:hover,
+.filter-input:hover {
+  border-color: var(--brand-500);
+  background: #fff;
+  box-shadow: var(--sh-xs);
 }
 
 .chip {
