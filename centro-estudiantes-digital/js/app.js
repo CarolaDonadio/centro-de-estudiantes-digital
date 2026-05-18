@@ -19,6 +19,8 @@ const API = {
   calendario:      'json/calendario.json',
   reglamentacion:  'json/reglamentacion.json',
   notificaciones:  'json/notificaciones.json',
+  carreras:        'json/carreras.json',
+  materias:        'json/materias.json',
 };
 
 /* ----------------------------------------------------------------
@@ -44,17 +46,6 @@ async function fetchJSON(url) {
   }
 }
 
-/**
- * Lee el perfil activo desde localStorage.
- * Prioridad: 'perfil_activo' (override manual) → sesión cedSession → fallback 'alumno'.
- */
-function getPerfilActivo() {
-  const override = localStorage.getItem('perfil_activo');
-  if (override) return override.toLowerCase();
-  const session = JSON.parse(localStorage.getItem('cedSession') || 'null');
-  return (session?.rol || state.usuario?.perfil || 'alumno').toLowerCase();
-}
-
 /** Formatea una fecha ISO a "dd MMM" en español. */
 function formatDay(isoDate) {
   const d = new Date(isoDate);
@@ -70,6 +61,17 @@ function timeAgo(isoDate) {
   if (diff < 86400)  return `hace ${Math.floor(diff / 3600)}h`;
   if (diff < 604800) return `hace ${Math.floor(diff / 86400)}d`;
   return d.toLocaleDateString('es-AR');
+}
+
+function getUniqueNewsSubjects() {
+  const items = state.novedades?.novedades || [];
+  const map = new Map();
+  items.forEach(n => {
+    if (!n.materia_id) return;
+    const nombre = n.materia ? String(n.materia).trim() : `Materia ${n.materia_id}`;
+    if (!map.has(n.materia_id)) map.set(n.materia_id, nombre);
+  });
+  return [...map.entries()].map(([id, nombre]) => ({ id, nombre }));
 }
 
 /** Devuelve un color "soft" a partir de un hex (para fondo de chips) */
@@ -94,6 +96,13 @@ const state = {
   reglamentacionQuery: '',
   reglamentacionType: 'todas',
   reglamentacionCategory: 'todas',
+  carreras: null,
+  filtroCarrera: 'todas',
+  filtroMateria: 'todas',
+  filtroFechaDesde: '',
+  filtroFechaHasta: '',
+  filtroMateriasEstado: 'todas',
+  materias: null,
   calendarioMes: null,        // Date actual mostrada en el drawer
   calendarioFiltro: 'todos',  // Filtro de eventos del calendario
 
@@ -119,16 +128,18 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   // Cargamos todo en paralelo desde la "API Mock"
-  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones] = await Promise.all([
+  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias] = await Promise.all([
     fetchJSON(API.usuario),
     fetchJSON(API.novedades),
     fetchJSON(API.eventos),
     fetchJSON(API.calendario),
     fetchJSON(API.reglamentacion),
     fetchJSON(API.notificaciones),
+    fetchJSON(API.carreras),
+    fetchJSON(API.materias),
   ]);
 
-  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones });
+  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias });
 
   // Renderizamos las secciones del dashboard
   renderUserHeader();
@@ -153,14 +164,44 @@ function renderUserHeader() {
   if (!u) return;
 
   const session = JSON.parse(localStorage.getItem('cedSession'));
-  $('#userName').textContent = session?.nombre || u.nombre;
-  $('#userAvatar').textContent = u.avatar;
+  const name = session?.nombre || u.nombre;
+  $('#userName').textContent = name;
+
+  // Actualizar iniciales del avatar dinámicamente
+  if (name && $('#userAvatar')) {
+    const parts = name.split(' ');
+    const initials = parts.length > 1 
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0][0].toUpperCase();
+    $('#userAvatar').textContent = initials;
+  }
+
+  // Lógica de Píldora de Rol
+  const rawRole = (session?.rol || u.perfil || '').toLowerCase();
+  const roleLabels = {
+    'admin': 'ADMINISTRADOR',
+    'administrador': 'ADMINISTRADOR',
+    'docente': 'DOCENTE',
+    'delegado': 'DELEGADO'
+  };
+
+  if (roleLabels[rawRole]) {
+    // Limpiamos si ya existe (para evitar duplicados en re-renders)
+    const oldPill = $('.role-pill');
+    if (oldPill) oldPill.remove();
+
+    const pill = document.createElement('span');
+    pill.className = 'role-pill';
+    pill.innerHTML = `
+      <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"></path></svg>
+      ${roleLabels[rawRole]}
+    `;
+    $('.header__text').prepend(pill);
+  }
 
   const resumen =
     `Tenés ${u.clases_hoy} clases hoy, ${u.notificaciones_sin_leer} notificaciones sin leer y ${u.eventos_semana} eventos del CE esta semana.`;
   $('#userSummary').textContent = resumen;
-
-  $('#bellBadge').textContent = u.notificaciones_sin_leer;
 }
 
 /* ----------------------------------------------------------------
@@ -330,9 +371,16 @@ function inscribirseEvento(id) {
 ---------------------------------------------------------------- */
 function renderNewsFilters() {
   const cont = $('#newsFilters');
-  const cats = state.novedades?.categorias || [];
+  if (!cont) return;
 
-  // El "Todas" ya está hardcodeado, agregamos el resto dinámicamente
+  const cats = state.novedades?.categorias || [];
+  const careers = state.carreras || [];
+  const subjects = getUniqueNewsSubjects();
+
+  cont.innerHTML = `
+    <button class="chip chip--active" data-filter="todas">Todas</button>
+  `;
+
   cats.forEach(c => {
     const chip = document.createElement('button');
     chip.className = 'chip';
@@ -340,20 +388,78 @@ function renderNewsFilters() {
     chip.textContent = c.nombre;
     chip.addEventListener('click', () => {
       state.filtroNovedad = String(c.id);
-      $$('.chip', cont).forEach(x => x.classList.remove('chip--active'));
+      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
       chip.classList.add('chip--active');
       renderNewsList();
     });
     cont.appendChild(chip);
   });
 
-  // Bindeamos el chip "Todas"
-  $('[data-filter="todas"]').addEventListener('click', (e) => {
-    state.filtroNovedad = 'todas';
-    $$('.chip', cont).forEach(x => x.classList.remove('chip--active'));
-    e.currentTarget.classList.add('chip--active');
-    renderNewsList();
-  });
+  const allButton = cont.querySelector('button[data-filter="todas"]');
+  if (allButton) {
+    allButton.addEventListener('click', (e) => {
+      state.filtroNovedad = 'todas';
+      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
+      e.currentTarget.classList.add('chip--active');
+      renderNewsList();
+    });
+  }
+
+  const extraWrapper = document.createElement('div');
+  extraWrapper.className = 'news-filters__extra';
+  extraWrapper.innerHTML = `
+    <label class="news-filters__field">Carrera
+      <select id="newsCareerFilter">
+        <option value="todas">Todas las carreras</option>
+        ${careers.map(c => `<option value="${c.id}">${c.codigo} – ${c.nombre}</option>`).join('')}
+      </select>
+    </label>
+    <label class="news-filters__field">Materia
+      <select id="newsSubjectFilter">
+        <option value="todas">Todas las materias</option>
+        ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
+      </select>
+    </label>
+    <label class="news-filters__field">Desde
+      <input id="newsDateFrom" type="date" value="${state.filtroFechaDesde}">
+    </label>
+    <label class="news-filters__field">Hasta
+      <input id="newsDateTo" type="date" value="${state.filtroFechaHasta}">
+    </label>
+  `;
+  cont.appendChild(extraWrapper);
+
+  const careerSelect = extraWrapper.querySelector('#newsCareerFilter');
+  const subjectSelect = extraWrapper.querySelector('#newsSubjectFilter');
+  const dateFrom = extraWrapper.querySelector('#newsDateFrom');
+  const dateTo = extraWrapper.querySelector('#newsDateTo');
+
+  if (careerSelect) {
+    careerSelect.value = state.filtroCarrera;
+    careerSelect.addEventListener('change', () => {
+      state.filtroCarrera = careerSelect.value;
+      renderNewsList();
+    });
+  }
+  if (subjectSelect) {
+    subjectSelect.value = state.filtroMateria;
+    subjectSelect.addEventListener('change', () => {
+      state.filtroMateria = subjectSelect.value;
+      renderNewsList();
+    });
+  }
+  if (dateFrom) {
+    dateFrom.addEventListener('change', () => {
+      state.filtroFechaDesde = dateFrom.value;
+      renderNewsList();
+    });
+  }
+  if (dateTo) {
+    dateTo.addEventListener('change', () => {
+      state.filtroFechaHasta = dateTo.value;
+      renderNewsList();
+    });
+  }
 }
 
 function renderNewsList() {
@@ -365,6 +471,18 @@ function renderNewsList() {
   let lista = [...novedades];
   if (state.filtroNovedad !== 'todas') {
     lista = lista.filter(n => String(n.categoria_id) === state.filtroNovedad);
+  }
+  if (state.filtroCarrera !== 'todas') {
+    lista = lista.filter(n => String(n.carrera_id) === state.filtroCarrera);
+  }
+  if (state.filtroMateria !== 'todas') {
+    lista = lista.filter(n => String(n.materia_id) === state.filtroMateria);
+  }
+  if (state.filtroFechaDesde) {
+    lista = lista.filter(n => new Date(n.fecha) >= new Date(state.filtroFechaDesde));
+  }
+  if (state.filtroFechaHasta) {
+    lista = lista.filter(n => new Date(n.fecha) <= new Date(state.filtroFechaHasta));
   }
 
   // Ordenar por destacada + fecha
@@ -522,8 +640,8 @@ function openDrawer(type) {
     inscripciones:  { title: 'Mis Inscripciones',   icon: iconInscript,  render: renderInscripciones },
     carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
     centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
+    novedades:      { title: 'Novedades',           icon: iconNews,      render: renderNovedades     },
     calendario:     { title: 'Calendario Académico',icon: iconCalendar,  render: renderCalendar      },
-    eventos:        { title: 'Eventos',             icon: iconEvents,  render: renderEventos       },
   };
 
   const cfg = config[type];
@@ -602,18 +720,17 @@ const iconLogout = `
     <path d="M10 17l5-5-5-5M15 12H3" stroke-linecap="round"/>
   </svg>`;
 
+const iconNews = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <path d="M4 6h16M4 10h16M4 14h8M4 18h8"/>
+    <circle cx="18" cy="18" r="2"/>
+  </svg>`;
+
 const iconCalendar = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
     <rect x="3" y="4" width="18" height="16" rx="2" />
     <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
     <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" />
-  </svg>`;
-
-const iconEvents = `
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-    <path d="M9 18V5l12-2v13"/>
-    <circle cx="6" cy="18" r="3"/>
-    <circle cx="18" cy="16" r="3"/>
   </svg>`;
 
 /* ----------------------------------------------------------------
@@ -672,28 +789,51 @@ function renderProfile(body) {
   `;
 }
 
-/* ----------------------------------------------------------------
-   12. DRAWER: MIS MATERIAS
----------------------------------------------------------------- */
+/**
+ * Calcula el estado de regularidad dinámicamente
+ * Regular: Asistencia >= 75% y Nota >= 4
+ * Riesgo: Asistencia entre 60% y 74% O Nota < 4
+ * Libre: Asistencia < 60%
+ */
+function getMateriaStatus(asistencia, nota) {
+  if (asistencia < 60) return { texto: 'Libre', color: 'var(--accent-coral)' };
+  if (asistencia < 75 || (nota !== null && nota < 4)) return { texto: 'Riesgo', color: 'var(--accent-amber)' };
+  return { texto: 'Regular', color: 'var(--accent-green)' };
+}
+
 function renderMaterias(body) {
-  const materias = [
-    { nombre: 'Análisis Matemático I',  docente: 'Ing. García',  dias: ['Lun', 'Mié'], hora: '18–21hs', color: '#2563eb', nota: null,  estado: 'Cursando' },
-    { nombre: 'Programación I',         docente: 'Lic. Chaves',  dias: ['Mar', 'Jue'], hora: '19–22hs', color: '#06b6d4', nota: 7,     estado: 'Cursando' },
-    { nombre: 'Álgebra Lineal',         docente: 'Prof. Rossi',  dias: ['Vie'],        hora: '18–22hs', color: '#3DAA6A', nota: 8,     estado: 'Cursando' },
-    { nombre: 'Sistemas Operativos',    docente: 'Ing. Torres',  dias: ['Mié'],        hora: '19–22hs', color: '#3b82f6', nota: null,  estado: 'Cursando' },
-    { nombre: 'Lógica Computacional',   docente: 'Dr. López',    dias: ['Lun'],        hora: '19–22hs', color: '#0ea5e9', nota: 6,     estado: 'Cursando' },
-  ];
+  let list = state.materias?.materias || [];
+
+  // Aplicar cálculo de estado a cada materia para poder filtrar
+  list = list.map(m => ({
+    ...m,
+    statusInfo: getMateriaStatus(m.asistencia, m.nota_parcial)
+  }));
+
+  // Filtrar si es necesario
+  if (state.filtroMateriasEstado !== 'todas') {
+    list = list.filter(m => m.statusInfo.texto.toLowerCase() === state.filtroMateriasEstado);
+  }
 
   body.innerHTML = `
-    <p class="drawer-section-label">1er Cuatrimestre 2026 · ${materias.length} materias</p>
+    <div class="drawer__filters" style="margin-bottom: 20px;">
+      <button class="chip ${state.filtroMateriasEstado === 'todas' ? 'chip--active' : ''}" data-status-filter="todas">Todas</button>
+      <button class="chip ${state.filtroMateriasEstado === 'regular' ? 'chip--active' : ''}" data-status-filter="regular">Regulares</button>
+      <button class="chip ${state.filtroMateriasEstado === 'riesgo' ? 'chip--active' : ''}" data-status-filter="riesgo">En Riesgo</button>
+      <button class="chip ${state.filtroMateriasEstado === 'libre' ? 'chip--active' : ''}" data-status-filter="libre">Libres</button>
+    </div>
+
+    <p class="drawer-section-label">1er Cuatrimestre 2026 · ${list.length} materias mostradas</p>
     <div class="materia-list">
-      ${materias.map(m => `
+      ${list.map(m => `
         <div class="materia-card" style="--mat-color: ${m.color}">
           <div class="materia-card__accent"></div>
           <div class="materia-card__body">
             <div class="materia-card__head">
               <h3 class="materia-card__title">${m.nombre}</h3>
-              <span class="materia-card__status">${m.estado}</span>
+              <span class="materia-card__status" style="background:${m.statusInfo.color}15; color:${m.statusInfo.color}">
+                ${m.statusInfo.texto}
+              </span>
             </div>
             <p class="materia-card__docente">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -705,16 +845,35 @@ function renderMaterias(body) {
               ${m.dias.map(d => `<span class="materia-card__horario">${d}</span>`).join('')}
               <span class="materia-card__hora">${m.hora}</span>
             </div>
-            ${m.nota !== null ? `
+
+            <div class="materia-card__attendance" style="margin-top:12px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:4px; color:var(--text-muted);">
+                <span>ASISTENCIA</span>
+                <span style="color:${m.statusInfo.color}">${m.asistencia}%</span>
+              </div>
+              <div class="progress" style="width:100%; height:4px;">
+                <div class="progress__fill" style="width:${m.asistencia}%; background:${m.statusInfo.color}; transition: width 0.8s ease;"></div>
+              </div>
+            </div>
+
+            ${m.nota_parcial !== null ? `
               <div class="materia-card__nota">
-                <span class="nota-label">Último parcial</span>
-                <span class="nota-value" style="color:${m.color}">${m.nota}</span>
+                <span class="nota-label">Nota Parcial</span>
+                <span class="nota-value" style="color:${m.nota_parcial < 4 ? 'var(--accent-coral)' : 'var(--accent-green)'}">${m.nota_parcial}</span>
               </div>` : ''}
           </div>
         </div>
       `).join('')}
     </div>
   `;
+
+  // Bindeo de filtros
+  body.querySelectorAll('[data-status-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filtroMateriasEstado = btn.dataset.statusFilter;
+      renderMaterias(body);
+    });
+  });
 }
 
 /* ----------------------------------------------------------------
@@ -967,35 +1126,83 @@ function renderCentro(body) {
   `;
 }
 
-/* ----------------------------------------------------------------
-   15. DRAWER: EVENTOS
----------------------------------------------------------------- */
-function renderEventos(body) {
-  const eventos = state.eventos?.eventos || [];
+function renderNovedades(body) {
+  const novedades = state.novedades?.novedades || [];
+  const categorias = state.novedades?.categorias || [];
 
-  // Ordenamos por fecha (más próximos primero)
-  const ordenados = [...eventos].sort(
-    (a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)
-  );
-
-  body.innerHTML = `
-    <div class="events-list-drawer">
-      ${ordenados.map(ev => buildEventCardHTML(ev)).join('')}
+  // Filtros por categoría
+  const filtrosHTML = `
+    <div class="drawer__filters">
+      <button class="chip chip--active" data-filter="todas">Todas</button>
+      ${categorias.map(c => `<button class="chip" data-filter="${c.id}">${c.nombre}</button>`).join('')}
     </div>
   `;
 
-  // Bindeo: click en el botón "Inscribirme" de cada tarjeta
-  $$('.event-card__cta', body).forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const id = Number(btn.dataset.eventId);
-      inscribirseEvento(id);
-      // Mostrar permiso generado
-      const ev = state.eventos.eventos.find(x => x.id === id);
-      alert(`Permiso de inscripción generado para: ${ev.titulo}`);
+  // Lista de novedades filtrada
+  let listaFiltrada = [...novedades];
+  const filtroActual = state.filtroNovedad || 'todas';
+  if (filtroActual !== 'todas') {
+    listaFiltrada = listaFiltrada.filter(n => String(n.categoria_id) === filtroActual);
+  }
+
+  // Ordenar: destacadas primero, luego por fecha
+  listaFiltrada.sort((a, b) => {
+    if (a.destacada !== b.destacada) return b.destacada - a.destacada;
+    return new Date(b.fecha) - new Date(a.fecha);
+  });
+
+  const listaHTML = listaFiltrada.length ? listaFiltrada.map(n => {
+    const cat = categorias.find(c => c.id === n.categoria_id) || { color: '#2563eb' };
+    const destacadaCls = n.destacada ? ' news-drawer-item--featured' : '';
+    const star = n.destacada ? '<span class="news-drawer-item__star">★</span>' : '';
+    const adjunto = n.adjunto ? `
+      <div class="news-drawer-item__attach">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 11l-9 9a5 5 0 0 1-7-7l10-10a3 3 0 0 1 4 4L9 17a1 1 0 0 1-2-2l8-8"/>
+        </svg>
+        ${n.adjunto}
+      </div>` : '';
+
+    return `
+      <article class="news-drawer-item${destacadaCls}" style="--news-color:${cat.color}">
+        <div class="news-drawer-item__header">
+          <span class="news-drawer-item__category" style="color:${cat.color}">${n.categoria}</span>
+          <span class="news-drawer-item__date">${timeAgo(n.fecha)}</span>
+          ${star}
+        </div>
+        <h3 class="news-drawer-item__title">${n.titulo}</h3>
+        <p class="news-drawer-item__content">${n.contenido}</p>
+        ${adjunto}
+      </article>
+    `;
+  }).join('') : `
+    <div class="news-drawer-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+        <path d="M10 21a2 2 0 0 0 4 0"/>
+      </svg>
+      <p>No hay novedades en esta categoría</p>
+    </div>
+  `;
+
+  body.innerHTML = `
+    ${filtrosHTML}
+    <div class="news-drawer-list">
+      ${listaHTML}
+    </div>
+  `;
+
+  // Bind de filtros
+  body.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      state.filtroNovedad = chip.dataset.filter;
+      body.querySelectorAll('.chip').forEach(c => c.classList.remove('chip--active'));
+      chip.classList.add('chip--active');
+      renderNovedades(body); // Re-render
     });
   });
 }
+
 
 /* ----------------------------------------------------------------
    16. DRAWER: CALENDARIO ACADÉMICO
@@ -1004,10 +1211,6 @@ function renderCalendar(body) {
   if (!state.calendarioMes) {
     state.calendarioMes = new Date(2026, 2, 1); // Marzo 2026 por defecto (inicio ciclo lectivo)
   }
-
-  // Determinar perfil una sola vez para todo el render
-  const perfil   = getPerfilActivo();
-  const esAdmin  = perfil === 'administrador' || perfil === 'admin';
 
   const currentDate = state.calendarioMes;
   const year = currentDate.getFullYear();
@@ -1024,27 +1227,8 @@ function renderCalendar(body) {
   let startingDay = firstDay.getDay(); 
 
   // Obtener todos los eventos y tipos
-  let eventos = [...(state.calendario?.eventos_calendario || [])];
+  const eventos = state.calendario?.eventos_calendario || [];
   const tipos = state.calendario?.tipos || [];
-
-  if (state.mostrarEventosCE && state.eventos?.eventos) {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    
-    const eventosExtra = state.eventos.eventos
-      .filter(ev => new Date(ev.fecha_inicio) >= hoy)
-      .map(ev => ({
-        fecha: ev.fecha_inicio.split('T')[0],
-        titulo: ev.titulo,
-        tipo: 'evento_ce', // tipo unificado para los del JSON
-        color: ev.color || '#8B5CF6'
-      }));
-    eventos = [...eventos, ...eventosExtra];
-    // Agregar el tipo si no existe para que funcione el filtro opcional
-    if (!tipos.find(t => t.id === 'evento_ce')) {
-      tipos.push({ id: 'evento_ce', nombre: 'Eventos Externos', color: '#8B5CF6' });
-    }
-  }
 
   // Filtrar eventos si hay un filtro activo
   let eventosFiltrados = eventos;
@@ -1077,26 +1261,13 @@ function renderCalendar(body) {
   `;
 
   // Filtros de categorías
-  calHTML += `<div class="news-filters" style="margin-bottom: 24px; flex-wrap: wrap; align-items: center;">`;
+  calHTML += `<div class="news-filters" style="margin-bottom: 24px; flex-wrap: wrap;">`;
   calHTML += `<button class="chip ${state.calendarioFiltro === 'todos' ? 'chip--active' : ''}" data-cal-filter="todos">Todos</button>`;
   tipos.forEach(t => {
     const isAct = state.calendarioFiltro === t.id ? 'chip--active' : '';
     const extraStyle = isAct ? `background-color: ${softColor(t.color, 0.15)}; color: ${t.color}; border-color: ${t.color};` : '';
     calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="${extraStyle}">${t.nombre}</button>`;
   });
-  
-  // Botón para sincronizar/mostrar Eventos CE (eventos.json)
-  const isSyncCE = state.mostrarEventosCE ? 'chip--active' : '';
-  const syncStyle = isSyncCE ? `background-color: ${softColor('#8B5CF6', 0.15)}; color: #8B5CF6; border-color: #8B5CF6;` : '';
-  calHTML += `<button class="chip ${isSyncCE}" id="btnSyncCE" style="margin-left: auto; ${syncStyle}">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: text-bottom;">
-      <path d="M9 18V5l12-2v13"></path>
-      <circle cx="6" cy="18" r="3"></circle>
-      <circle cx="18" cy="16" r="3"></circle>
-    </svg>
-    ${state.mostrarEventosCE ? 'Ocultar Eventos CE' : 'Ver Eventos CE'}
-  </button>`;
-  
   calHTML += `</div>`;
 
   // Días de la semana
@@ -1159,14 +1330,6 @@ function renderCalendar(body) {
   } else {
     eventosDelMesFlat.forEach(e => {
       const [y, m, d] = e.fecha.split('-');
-      // Clave única para identificar el evento en operaciones de borrado (admin)
-      const eventoKey = `${e.fecha}__${e.titulo}`;
-      const btnEliminar = esAdmin ? `
-        <button class="cal-list-del" data-evento-key="${eventoKey}" aria-label="Eliminar ${e.titulo}">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>` : '';
       calHTML += `
         <div class="cal-list-item" style="--ev-color: ${e.color}">
           <div class="cal-list-date">
@@ -1177,21 +1340,13 @@ function renderCalendar(body) {
             <h4 class="cal-list-title">${e.titulo}</h4>
             <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t=>t.id===e.tipo)?.nombre || 'Evento'}</span>
           </div>
-          ${btnEliminar}
         </div>
       `;
     });
   }
   calHTML += `</div>`;
 
-  // Contenedor de acciones por perfil (docente / delegado / admin)
-  calHTML += `<div id="panel-acciones-calendario" style="margin-top: 28px;"></div>`;
-
   body.innerHTML = calHTML;
-
-  // Inyectar botones de acción según perfil y activar delete del admin
-  renderPanelAcciones(body);
-  bindCalendarAcciones(body);
 
   // Bindings para navegar mes
   body.querySelector('#prevMonth').addEventListener('click', () => {
@@ -1210,338 +1365,11 @@ function renderCalendar(body) {
       renderCalendar(body);
     });
   });
-
-  // Binding para botón Sincronizar Eventos CE
-  const btnSyncCE = body.querySelector('#btnSyncCE');
-  if (btnSyncCE) {
-    btnSyncCE.addEventListener('click', () => {
-      state.mostrarEventosCE = !state.mostrarEventosCE;
-      renderCalendar(body);
-    });
-  }
 }
 function renderEventsList() {}
 function renderFullNews() {}
 function renderRegulations() {}
 function renderSession() {}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Panel de acciones por perfil
----------------------------------------------------------------- */
-
-/**
- * Inyecta los botones de gestión en #panel-acciones-calendario
- * según el perfil leído desde localStorage.
- *   alumno      → sin botones (solo lectura)
- *   docente     → "Cargar Fecha de Examen"
- *   delegado    → "Crear Evento Institucional"
- *   admin       → ambos botones
- */
-function renderPanelAcciones(calBody) {
-  const panel = calBody.querySelector('#panel-acciones-calendario');
-  if (!panel) return;
-
-  const perfil      = getPerfilActivo();
-  const esDocente   = perfil === 'docente';
-  const esDelegado  = perfil === 'delegado';
-  const esAdmin     = perfil === 'administrador' || perfil === 'admin';
-
-  if (!esDocente && !esDelegado && !esAdmin) {
-    panel.innerHTML = '';
-    return;
-  }
-
-  let html = `
-    <div class="cal-acciones">
-      <p class="drawer-section-label" style="margin-top:0; margin-bottom:10px;">Acciones disponibles</p>
-      <div class="cal-acciones__btns">
-  `;
-
-  if (esDocente || esAdmin) {
-    html += `
-      <button class="btn-primary cal-accion-btn" id="btnCargarExamen">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
-          <rect x="3" y="4" width="18" height="16" rx="2"/>
-          <path d="M3 9h18M8 3v4M16 3v4M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Cargar Fecha de Examen
-      </button>
-    `;
-  }
-
-  if (esDelegado || esAdmin) {
-    html += `
-      <button class="btn-primary cal-accion-btn cal-accion-btn--delegado" id="btnCrearEvento">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
-          <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
-        </svg>
-        Crear Evento Institucional
-      </button>
-    `;
-  }
-
-  html += `</div></div>`;
-  panel.innerHTML = html;
-
-  panel.querySelector('#btnCargarExamen')?.addEventListener('click', () => abrirModalExamen(calBody));
-  panel.querySelector('#btnCrearEvento')?.addEventListener('click',  () => abrirModalEvento(calBody));
-}
-
-/**
- * Activa los botones de eliminar evento para el perfil administrador.
- * Cada botón lleva data-evento-key="YYYY-MM-DD__titulo" como identificador.
- */
-function bindCalendarAcciones(calBody) {
-  calBody.querySelectorAll('.cal-list-del').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      eliminarEvento(btn.dataset.eventoKey, calBody);
-    });
-  });
-}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Modal: Cargar Fecha de Examen (perfil docente / admin)
----------------------------------------------------------------- */
-
-function abrirModalExamen(calBody) {
-  const materias = [
-    'Análisis Matemático I', 'Programación I', 'Álgebra Lineal',
-    'Sistemas Operativos', 'Lógica Computacional', 'Estadística Aplicada',
-    'Base de Datos I', 'Inglés Técnico I',
-  ];
-
-  const modal = crearModalCalendario({
-    titulo: 'Cargar Fecha de Examen',
-    html: `
-      <form id="formExamen" class="cal-modal-form">
-        <label class="cal-modal-label">
-          Materia
-          <select name="materia" required>
-            <option value="">Seleccioná una materia…</option>
-            ${materias.map(m => `<option value="${m}">${m}</option>`).join('')}
-          </select>
-        </label>
-        <div class="cal-modal-row">
-          <label class="cal-modal-label">
-            Fecha
-            <input type="date" name="fecha" required>
-          </label>
-          <label class="cal-modal-label">
-            Horario
-            <input type="time" name="horario" required>
-          </label>
-        </div>
-        <label class="cal-modal-label">
-          Tipo de examen
-          <select name="tipo_examen" required>
-            <option value="Parcial">Parcial</option>
-            <option value="Final">Final</option>
-            <option value="Recuperatorio">Recuperatorio</option>
-          </select>
-        </label>
-        <div class="cal-modal-actions">
-          <button type="button" class="btn-secondary" id="cancelarModalExamen">Cancelar</button>
-          <button type="submit" class="btn-primary">Guardar examen</button>
-        </div>
-      </form>
-    `,
-  });
-
-  modal.querySelector('#cancelarModalExamen').addEventListener('click', () => cerrarModalCalendario(modal));
-  modal.querySelector('#formExamen').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = new FormData(e.target);
-    guardarExamen({
-      materia:      data.get('materia'),
-      fecha:        data.get('fecha'),
-      horario:      data.get('horario'),
-      tipo_examen:  data.get('tipo_examen'),
-    }, calBody, modal);
-  });
-}
-
-/**
- * Agrega el examen al array de eventos del estado y re-renderiza el calendario.
- * En Fase 2, este mock se reemplaza por un POST a /api/calendario.
- */
-function guardarExamen({ materia, fecha, horario, tipo_examen }, calBody, modal) {
-  const nuevoEvento = {
-    fecha,
-    titulo:   `${tipo_examen}: ${materia} — ${horario}hs`,
-    tipo:     'examen',
-    color:    '#3A5BA9',
-  };
-
-  state.calendario.eventos_calendario.push(nuevoEvento);
-
-  // Navegar al mes del evento recién cargado
-  const [y, m] = fecha.split('-').map(Number);
-  state.calendarioMes = new Date(y, m - 1, 1);
-
-  cerrarModalCalendario(modal);
-  renderCalendar(calBody);
-}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Modal: Crear Evento Institucional (perfil delegado / admin)
----------------------------------------------------------------- */
-
-function abrirModalEvento(calBody) {
-  const modal = crearModalCalendario({
-    titulo: 'Crear Evento Institucional',
-    html: `
-      <form id="formEvento" class="cal-modal-form">
-        <label class="cal-modal-label">
-          Título del evento
-          <input type="text" name="titulo" required placeholder="Ej: Festival del Estudiante">
-        </label>
-        <div class="cal-modal-row">
-          <label class="cal-modal-label">
-            Fecha inicio
-            <input type="date" name="fecha_inicio" required>
-          </label>
-          <label class="cal-modal-label">
-            Fecha fin <span style="font-weight:400;text-transform:none;">(opcional)</span>
-            <input type="date" name="fecha_fin">
-          </label>
-        </div>
-        <label class="cal-modal-label">
-          Descripción
-          <textarea name="descripcion" rows="3" placeholder="Detalle, programa, requisitos…"></textarea>
-        </label>
-        <label class="cal-modal-label">
-          Ubicación
-          <input type="text" name="ubicacion" placeholder="Ej: SUM, Aula Magna, Campus…">
-        </label>
-        <div class="cal-modal-actions">
-          <button type="button" class="btn-secondary" id="cancelarModalEvento">Cancelar</button>
-          <button type="submit" class="btn-primary cal-btn--delegado">Crear evento</button>
-        </div>
-      </form>
-    `,
-  });
-
-  modal.querySelector('#cancelarModalEvento').addEventListener('click', () => cerrarModalCalendario(modal));
-  modal.querySelector('#formEvento').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = new FormData(e.target);
-    guardarEvento({
-      titulo:       data.get('titulo'),
-      fecha_inicio: data.get('fecha_inicio'),
-      fecha_fin:    data.get('fecha_fin') || null,
-      descripcion:  data.get('descripcion'),
-      ubicacion:    data.get('ubicacion'),
-    }, calBody, modal);
-  });
-}
-
-/**
- * Agrega el evento al estado con tipo 'evento_centro' y re-renderiza.
- * Si el tipo no existe aún en la paleta, lo registra para que el filtro funcione.
- * En Fase 2, reemplazar por POST a /api/eventos.
- */
-function guardarEvento({ titulo, fecha_inicio, fecha_fin, descripcion, ubicacion }, calBody, modal) {
-  const TIPO_ID = 'evento_centro';
-
-  // Registrar el tipo en la paleta si es la primera vez
-  if (!state.calendario.tipos.find(t => t.id === TIPO_ID)) {
-    state.calendario.tipos.push({ id: TIPO_ID, nombre: 'Evento CE', color: '#8B5CF6' });
-  }
-
-  const nuevoEvento = {
-    fecha:       fecha_inicio,
-    titulo,
-    tipo:        TIPO_ID,   // tipo requerido por la consigna
-    color:       '#8B5CF6',
-    descripcion,
-    ubicacion,
-    fecha_fin,
-  };
-
-  state.calendario.eventos_calendario.push(nuevoEvento);
-
-  const [y, m] = fecha_inicio.split('-').map(Number);
-  state.calendarioMes = new Date(y, m - 1, 1);
-
-  cerrarModalCalendario(modal);
-  renderCalendar(calBody);
-}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Eliminar evento (solo perfil administrador)
----------------------------------------------------------------- */
-
-/**
- * Filtra el evento del estado usando la clave compuesta "fecha__titulo"
- * y re-renderiza el calendario.
- * En Fase 2, reemplazar por DELETE /api/calendario/:id.
- */
-function eliminarEvento(eventoKey, calBody) {
-  const separador = eventoKey.indexOf('__');
-  const fecha   = eventoKey.slice(0, separador);
-  const titulo  = eventoKey.slice(separador + 2);
-
-  state.calendario.eventos_calendario = state.calendario.eventos_calendario.filter(
-    e => !(e.fecha === fecha && e.titulo === titulo)
-  );
-
-  renderCalendar(calBody);
-}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Helpers para modales
----------------------------------------------------------------- */
-
-/**
- * Crea un modal flotante sobre el drawer con el contenido dado.
- * Retorna el elemento montado en document.body para que el caller
- * pueda bindear eventos de formulario sobre él.
- */
-function crearModalCalendario({ titulo, html }) {
-  document.getElementById('calendarModal')?.remove();
-
-  // Los estilos .cal-modal-* están en styles.css (disponible en todos los portales)
-  const el = document.createElement('div');
-  el.id = 'calendarModal';
-  el.setAttribute('role', 'dialog');
-  el.setAttribute('aria-modal', 'true');
-  el.setAttribute('aria-label', titulo);
-  el.innerHTML = `
-    <div class="cal-modal-overlay">
-      <div class="cal-modal-card">
-        <div class="cal-modal-header">
-          <h3 class="cal-modal-title">${titulo}</h3>
-          <button class="cal-modal-close" aria-label="Cerrar modal">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
-        ${html}
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(el);
-
-  el.querySelector('.cal-modal-close').addEventListener('click', () => cerrarModalCalendario(el));
-  el.querySelector('.cal-modal-overlay').addEventListener('click', (e) => {
-    if (e.target === el.querySelector('.cal-modal-overlay')) cerrarModalCalendario(el);
-  });
-
-  // Cerrar con Escape
-  function onEsc(e) {
-    if (e.key === 'Escape') { cerrarModalCalendario(el); document.removeEventListener('keydown', onEsc); }
-  }
-  document.addEventListener('keydown', onEsc);
-
-  return el;
-}
-
-function cerrarModalCalendario(modal) {
-  modal?.parentNode?.removeChild(modal);
-}
 
 /* ----------------------------------------------------------------
    NOTIFICACIONES - Panel desplegable de la campana
@@ -1595,9 +1423,10 @@ function renderNotifPanel() {
   const list  = $('#notifList');
   if (!list) return;
 
-  const notifs = state.notificaciones?.notificaciones || [];
+  // Filtramos para mostrar solo las notificaciones no leídas
+  const unreadNotifs = (state.notificaciones?.notificaciones || []).filter(n => !n.leida);
 
-  if (!notifs.length) {
+  if (!unreadNotifs.length) {
     list.innerHTML = `
       <div class="notif-empty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1610,19 +1439,17 @@ function renderNotifPanel() {
     return;
   }
 
-  list.innerHTML = notifs.map(n => {
-    const unreadCls = !n.leida ? ' notif-item--unread' : '';
-    const unreadDot = !n.leida ? '<span class="notif-item__unread-dot"></span>' : '';
+  list.innerHTML = unreadNotifs.map(n => {
     return `
-      <div class="notif-item${unreadCls}" data-notif-id="${n.id}" role="button" tabindex="0"
-           aria-label="${n.titulo}${n.leida ? '' : ' (sin leer)'}">
+      <div class="notif-item notif-item--unread" data-notif-id="${n.id}" role="button" tabindex="0"
+           aria-label="${n.titulo} (sin leer)">
         <span class="notif-item__dot notif-item__dot--${n.tipo}"></span>
         <div class="notif-item__body">
           <p class="notif-item__title">${n.titulo}</p>
           <p class="notif-item__desc">${n.descripcion}</p>
           <span class="notif-item__time">${timeAgo(n.fecha)}</span>
         </div>
-        ${unreadDot}
+        <span class="notif-item__unread-dot"></span>
       </div>
     `;
   }).join('');
@@ -1660,7 +1487,13 @@ function updateBellBadge() {
   const notifs  = state.notificaciones?.notificaciones || [];
   const unread  = notifs.filter(n => !n.leida).length;
   badge.textContent = unread;
-  badge.style.display = unread > 0 ? '' : 'none';
+  badge.style.display = unread > 0 ? 'flex' : 'none'; // Usar 'flex' para que el badge se muestre correctamente
+
+  // Actualizar el estado del usuario para que el resumen también refleje el conteo actual
+  if (state.usuario) {
+    state.usuario.notificaciones_sin_leer = unread;
+  }
+  renderUserHeader(); // Re-renderizar el encabezado para actualizar el resumen
 }
 
 /* ----------------------------------------------------------------
@@ -1712,6 +1545,32 @@ window.__FALLBACK_DATA__ = {
       { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.", tipo: "success", fecha: "2026-04-27T09:00:00", leida: false },
       { id: 2, titulo: "Cierre de inscripciones", descripcion: "Las inscripciones a mesas de Julio cierran el 10/07.", tipo: "warning", fecha: "2026-04-26T14:30:00", leida: false },
       { id: 3, titulo: "Workshop de Python", descripcion: "El CE abrió cupos para el taller de Pandas, NumPy y Scikit-learn.", tipo: "info", fecha: "2026-04-25T11:00:00", leida: false }
+    ]
+  },
+  materias: {
+    materias: [
+      {
+        "id": 1,
+        "nombre": "Análisis Matemático I",
+        "docente": "Ing. García",
+        "dias": ["Lun", "Mié"],
+        "hora": "18–21hs",
+        "color": "#2563eb",
+        "nota_parcial": null,
+        "asistencia": 85,
+        "estado": "Regular"
+      },
+      {
+        "id": 2,
+        "nombre": "Programación I",
+        "docente": "Lic. Chaves",
+        "dias": ["Mar", "Jue"],
+        "hora": "19–22hs",
+        "color": "#06b6d4",
+        "nota_parcial": 7,
+        "asistencia": 72,
+        "estado": "Riesgo"
+      }
     ]
   }
 };
