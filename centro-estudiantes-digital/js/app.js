@@ -141,6 +141,14 @@ async function init() {
 
   Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias });
 
+  // Aseguramos que el contador de notificaciones sin leer en el usuario sea coherente con el JSON de notificaciones
+  if (state.notificaciones && state.notificaciones.notificaciones) {
+    const initialUnreadCount = state.notificaciones.notificaciones.filter(n => !n.leida).length;
+    if (state.usuario) {
+      state.usuario.notificaciones_sin_leer = initialUnreadCount;
+    }
+  }
+
   // Renderizamos las secciones del dashboard
   renderUserHeader();
   renderCareerCard();
@@ -1408,10 +1416,11 @@ function renderNotifPanel() {
   const list = $('#notifList');
   if (!list) return;
 
-  // Filtramos para mostrar solo las notificaciones no leídas
-  const unreadNotifs = (state.notificaciones?.notificaciones || []).filter(n => !n.leida);
+  // Obtenemos todas y ordenamos por fecha (más reciente primero)
+  const allNotifs = [...(state.notificaciones?.notificaciones || [])]
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-  if (!unreadNotifs.length) {
+  if (!allNotifs.length) {
     list.innerHTML = `
       <div class="notif-empty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1424,17 +1433,21 @@ function renderNotifPanel() {
     return;
   }
 
-  list.innerHTML = unreadNotifs.map(n => {
+  list.innerHTML = allNotifs.map(n => {
+    const unreadCls = !n.leida ? ' notif-item--unread' : '';
+    const unreadDot = !n.leida ? '<span class="notif-item__unread-dot"></span>' : '';
+    const ariaLabel = `${n.titulo}${!n.leida ? ' (sin leer)' : ''}`;
+
     return `
-      <div class="notif-item notif-item--unread" data-notif-id="${n.id}" role="button" tabindex="0"
-           aria-label="${n.titulo} (sin leer)">
+      <div class="notif-item${unreadCls}" data-notif-id="${n.id}" role="button" tabindex="0"
+           aria-label="${ariaLabel}">
         <span class="notif-item__dot notif-item__dot--${n.tipo}"></span>
         <div class="notif-item__body">
           <p class="notif-item__title">${n.titulo}</p>
           <p class="notif-item__desc">${n.descripcion}</p>
           <span class="notif-item__time">${timeAgo(n.fecha)}</span>
         </div>
-        <span class="notif-item__unread-dot"></span>
+        ${unreadDot}
       </div>
     `;
   }).join('');
