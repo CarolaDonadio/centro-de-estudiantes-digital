@@ -13,19 +13,20 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario:         'json/usuario.json',
-  novedades:       'json/novedades.json',
-  eventos:         'json/eventos.json',
-  calendario:      'json/calendario.json',
-  reglamentacion:  'json/reglamentacion.json',
-  notificaciones:  'json/notificaciones.json',
-  carreras:        'json/carreras.json',
+  usuario: 'json/usuario.json',
+  novedades: 'json/novedades.json',
+  eventos: 'json/eventos.json',
+  calendario: 'json/calendario.json',
+  reglamentacion: 'json/reglamentacion.json',
+  notificaciones: 'json/notificaciones.json',
+  carreras: 'json/carreras.json',
+  materias: 'json/materias.json',
 };
 
 /* ----------------------------------------------------------------
    1. HELPERS (utilidades genéricas)
 ---------------------------------------------------------------- */
-const $  = (sel, ctx = document) => ctx.querySelector(sel);
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
 /**
@@ -48,7 +49,7 @@ async function fetchJSON(url) {
 /** Formatea una fecha ISO a "dd MMM" en español. */
 function formatDay(isoDate) {
   const d = new Date(isoDate);
-  const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
   return { dia: d.getDate(), mes: meses[d.getMonth()] };
 }
 
@@ -56,8 +57,8 @@ function formatDay(isoDate) {
 function timeAgo(isoDate) {
   const d = new Date(isoDate);
   const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 3600)   return `hace ${Math.floor(diff / 60)}min`;
-  if (diff < 86400)  return `hace ${Math.floor(diff / 3600)}h`;
+  if (diff < 3600) return `hace ${Math.floor(diff / 60)}min`;
+  if (diff < 86400) return `hace ${Math.floor(diff / 3600)}h`;
   if (diff < 604800) return `hace ${Math.floor(diff / 86400)}d`;
   return d.toLocaleDateString('es-AR');
 }
@@ -75,27 +76,26 @@ function getUniqueNewsSubjects() {
 
 /** Devuelve un color "soft" a partir de un hex (para fondo de chips) */
 function softColor(hex, alpha = 0.14) {
-  const h = hex.replace('#','');
-  const r = parseInt(h.substr(0,2), 16);
-  const g = parseInt(h.substr(2,2), 16);
-  const b = parseInt(h.substr(4,2), 16);
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substr(0, 2), 16);
+  const g = parseInt(h.substr(2, 2), 16);
+  const b = parseInt(h.substr(4, 2), 16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-/** Mapea el tipo de evento a una imagen de fondo (Unsplash) */
-function getEventBackgroundImage(imagenTipo) {
-  const imagenes = {
-    'workshop': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    'party': 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=500&h=300&fit=crop',
-    'conference': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    'charla': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    'chess': 'https://images.unsplash.com/photo-1611003228941-98852ba62227?w=500&h=300&fit=crop',
-    'hackathon': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=300&fit=crop',
-    'cinema': 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=500&h=300&fit=crop',
-    'default': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop'
-  };
-  return imagenes[imagenTipo?.toLowerCase()] || imagenes['default'];
+/** Darkens a hex color by a given percentage. */
+function darkenHex(hex, percent) {
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+
+  r = Math.max(0, r - Math.round(r * (percent / 100)));
+  g = Math.max(0, g - Math.round(g * (percent / 100)));
+  b = Math.max(0, b - Math.round(b * (percent / 100)));
+
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
+
 
 /* ----------------------------------------------------------------
    2. ESTADO GLOBAL DE LA APP
@@ -115,6 +115,8 @@ const state = {
   filtroMateria: 'todas',
   filtroFechaDesde: '',
   filtroFechaHasta: '',
+  filtroMateriasEstado: 'todas',
+  materias: null,
   calendarioMes: null,        // Date actual mostrada en el drawer
   calendarioFiltro: 'todos',  // Filtro de eventos del calendario
 
@@ -140,7 +142,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   // Cargamos todo en paralelo desde la "API Mock"
-  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras] = await Promise.all([
+  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias] = await Promise.all([
     fetchJSON(API.usuario),
     fetchJSON(API.novedades),
     fetchJSON(API.eventos),
@@ -148,9 +150,18 @@ async function init() {
     fetchJSON(API.reglamentacion),
     fetchJSON(API.notificaciones),
     fetchJSON(API.carreras),
+    fetchJSON(API.materias),
   ]);
 
-  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras });
+  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias });
+
+  // Aseguramos que el contador de notificaciones sin leer en el usuario sea coherente con el JSON de notificaciones
+  if (state.notificaciones && state.notificaciones.notificaciones) {
+    const initialUnreadCount = state.notificaciones.notificaciones.filter(n => !n.leida).length;
+    if (state.usuario) {
+      state.usuario.notificaciones_sin_leer = initialUnreadCount;
+    }
+  }
 
   // Renderizamos las secciones del dashboard
   renderUserHeader();
@@ -175,14 +186,44 @@ function renderUserHeader() {
   if (!u) return;
 
   const session = JSON.parse(localStorage.getItem('cedSession'));
-  $('#userName').textContent = session?.nombre || u.nombre;
-  $('#userAvatar').textContent = u.avatar;
+  const name = session?.nombre || u.nombre;
+  $('#userName').textContent = name;
+
+  // Actualizar iniciales del avatar dinámicamente
+  if (name && $('#userAvatar')) {
+    const parts = name.split(' ');
+    const initials = parts.length > 1
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0][0].toUpperCase();
+    $('#userAvatar').textContent = initials;
+  }
+
+  // Lógica de Píldora de Rol
+  const rawRole = (session?.rol || u.perfil || '').toLowerCase();
+  const roleLabels = {
+    'admin': 'ADMINISTRADOR',
+    'administrador': 'ADMINISTRADOR',
+    'docente': 'DOCENTE',
+    'delegado': 'DELEGADO'
+  };
+
+  if (roleLabels[rawRole]) {
+    // Limpiamos si ya existe (para evitar duplicados en re-renders)
+    const oldPill = $('.role-pill');
+    if (oldPill) oldPill.remove();
+
+    const pill = document.createElement('span');
+    pill.className = 'role-pill';
+    pill.innerHTML = `
+      <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"></path></svg>
+      ${roleLabels[rawRole]}
+    `;
+    $('.header__text').prepend(pill);
+  }
 
   const resumen =
     `Tenés ${u.clases_hoy} clases hoy, ${u.notificaciones_sin_leer} notificaciones sin leer y ${u.eventos_semana} eventos del CE esta semana.`;
   $('#userSummary').textContent = resumen;
-
-  $('#bellBadge').textContent = u.notificaciones_sin_leer;
 }
 
 /* ----------------------------------------------------------------
@@ -193,7 +234,7 @@ function renderCareerCard() {
   if (!u) return;
 
   $('#userCareer').textContent = u.carrera;
-  $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2,'0');
+  $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2, '0');
   $('#materiasTotales').textContent = u.materias_totales;
 
   // Próxima fecha académica
@@ -217,17 +258,17 @@ function renderCareerCard() {
       - Cada tarjeta tiene su botón "Inscribirme" funcional, con estado.
 ---------------------------------------------------------------- */
 function renderEvents() {
-  const cont    = $('#eventsContainer');
+  const cont = $('#eventsContainer');
   const actions = $('#eventsActions');
-  const lista   = state.eventos?.eventos || [];
+  const lista = state.eventos?.eventos || [];
 
   // Ordenamos por fecha (más próximos primero)
   const ordenados = [...lista].sort(
     (a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)
   );
 
-  // Cuántos mostrar según el estado de expansión (por defecto mostrar 4 -> 2x2)
-  const visibles = state.eventosExpanded ? ordenados : ordenados.slice(0, 4);
+  // Cuántos mostrar según el estado de expansión
+  const visibles = state.eventosExpanded ? ordenados : ordenados.slice(0, 2);
 
   // Render de las tarjetas
   cont.classList.toggle('events-grid--expanded', state.eventosExpanded);
@@ -235,7 +276,7 @@ function renderEvents() {
 
   // Footer con el toggle "Mostrar todo / Mostrar menos"
   // Solo aparece si hay más de 2 eventos en total.
-  if (ordenados.length > 4) {
+  if (ordenados.length > 2) {
     actions.innerHTML = `
       <button class="events-toggle ${state.eventosExpanded ? 'is-expanded' : ''}" id="eventsToggle">
         <span>${state.eventosExpanded ? 'Mostrar menos' : `Mostrar todo (${ordenados.length})`}</span>
@@ -275,7 +316,7 @@ function renderEvents() {
 function buildEventCardHTML(ev) {
   const { dia, mes } = formatDay(ev.fecha_inicio);
   const inscripto = state.inscripciones.has(ev.id);
-  const lleno     = ev.inscriptos >= ev.cupo;
+  const lleno = ev.inscriptos >= ev.cupo;
 
   // Construimos el botón según el estado:
   let cta;
@@ -303,7 +344,7 @@ function buildEventCardHTML(ev) {
   }
 
   return `
-    <article class="event-card" style="--event-color: ${ev.color}; background-image: url('${getEventBackgroundImage(ev.imagen)}');" data-event-id="${ev.id}">
+    <article class="event-card" style="--event-color: ${ev.color}" data-event-id="${ev.id}">
       <span class="event-card__cupo">${ev.inscriptos}/${ev.cupo}</span>
       <span class="event-card__category">${ev.categoria}</span>
 
@@ -359,62 +400,38 @@ function renderNewsFilters() {
   const subjects = getUniqueNewsSubjects();
 
   cont.innerHTML = `
-    <button class="chip chip--active" data-filter="todas">Todas</button>
-  `;
-
-  cats.forEach(c => {
-    const chip = document.createElement('button');
-    chip.className = 'chip';
-    chip.dataset.filter = c.id;
-    chip.textContent = c.nombre;
-    chip.addEventListener('click', () => {
-      state.filtroNovedad = String(c.id);
-      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
-      chip.classList.add('chip--active');
-      renderNewsList();
-    });
-    cont.appendChild(chip);
-  });
-
-  const allButton = cont.querySelector('button[data-filter="todas"]');
-  if (allButton) {
-    allButton.addEventListener('click', (e) => {
-      state.filtroNovedad = 'todas';
-      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
-      e.currentTarget.classList.add('chip--active');
-      renderNewsList();
-    });
-  }
-
-  const extraWrapper = document.createElement('div');
-  extraWrapper.className = 'news-filters__extra';
-  extraWrapper.innerHTML = `
-    <label class="news-filters__field">Carrera
-      <select id="newsCareerFilter">
-        <option value="todas">Todas las carreras</option>
-        ${careers.map(c => `<option value="${c.id}">${c.codigo} – ${c.nombre}</option>`).join('')}
+    <div class="news-filters__categories">
+      <button class="chip chip--active" data-filter="todas">Todas</button>
+      ${cats.map(c => `<button class="chip" data-filter="${c.id}">${c.nombre}</button>`).join('')}
+    </div>
+    <div class="news-filters__advanced">
+      <select id="newsCareerFilter" class="filter-select" aria-label="Carrera">
+        <option value="todas">Carrera: Todas</option>
+        ${careers.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('')}
       </select>
-    </label>
-    <label class="news-filters__field">Materia
-      <select id="newsSubjectFilter">
-        <option value="todas">Todas las materias</option>
+      <select id="newsSubjectFilter" class="filter-select" aria-label="Materia">
+        <option value="todas">Materia: Todas</option>
         ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
       </select>
-    </label>
-    <label class="news-filters__field">Desde
-      <input id="newsDateFrom" type="date" value="${state.filtroFechaDesde}">
-    </label>
-    <label class="news-filters__field">Hasta
-      <input id="newsDateTo" type="date" value="${state.filtroFechaHasta}">
-    </label>
+      <div class="news-filters__dates">
+        <input id="newsDateFrom" type="date" class="filter-input" title="Fecha desde" value="${state.filtroFechaDesde}">
+        <input id="newsDateTo" type="date" class="filter-input" title="Fecha hasta" value="${state.filtroFechaHasta}">
+      </div>
+    </div>
   `;
-  cont.appendChild(extraWrapper);
 
-  const careerSelect = extraWrapper.querySelector('#newsCareerFilter');
-  const subjectSelect = extraWrapper.querySelector('#newsSubjectFilter');
-  const dateFrom = extraWrapper.querySelector('#newsDateFrom');
-  const dateTo = extraWrapper.querySelector('#newsDateTo');
+  // Bind de chips de categorías
+  cont.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filtroNovedad = btn.dataset.filter;
+      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
+      btn.classList.add('chip--active');
+      renderNewsList();
+    });
+  });
 
+  // Bind de selectores de Carrera y Materia
+  const careerSelect = cont.querySelector('#newsCareerFilter');
   if (careerSelect) {
     careerSelect.value = state.filtroCarrera;
     careerSelect.addEventListener('change', () => {
@@ -422,6 +439,8 @@ function renderNewsFilters() {
       renderNewsList();
     });
   }
+
+  const subjectSelect = cont.querySelector('#newsSubjectFilter');
   if (subjectSelect) {
     subjectSelect.value = state.filtroMateria;
     subjectSelect.addEventListener('change', () => {
@@ -429,18 +448,19 @@ function renderNewsFilters() {
       renderNewsList();
     });
   }
-  if (dateFrom) {
-    dateFrom.addEventListener('change', () => {
-      state.filtroFechaDesde = dateFrom.value;
-      renderNewsList();
-    });
-  }
-  if (dateTo) {
-    dateTo.addEventListener('change', () => {
-      state.filtroFechaHasta = dateTo.value;
-      renderNewsList();
-    });
-  }
+
+  // Bind de inputs de fechas
+  const dateFrom = cont.querySelector('#newsDateFrom');
+  dateFrom?.addEventListener('change', () => {
+    state.filtroFechaDesde = dateFrom.value;
+    renderNewsList();
+  });
+
+  const dateTo = cont.querySelector('#newsDateTo');
+  dateTo?.addEventListener('change', () => {
+    state.filtroFechaHasta = dateTo.value;
+    renderNewsList();
+  });
 }
 
 function renderNewsList() {
@@ -467,7 +487,7 @@ function renderNewsList() {
   }
 
   // Ordenar por destacada + fecha
-  lista.sort((a,b) => {
+  lista.sort((a, b) => {
     if (a.destacada !== b.destacada) return b.destacada - a.destacada;
     return new Date(b.fecha) - new Date(a.fecha);
   });
@@ -482,7 +502,7 @@ function renderNewsList() {
   }
 
   cont.innerHTML = lista.map(n => {
-    const cat = categorias.find(c => c.id === n.categoria_id) || { color:'#2563eb' };
+    const cat = categorias.find(c => c.id === n.categoria_id) || { color: '#2563eb' };
     const destacadaCls = n.destacada ? ' news-item--featured' : '';
     const star = n.destacada ? '<span class="news-item__star">★ DESTACADA</span>' : '';
     const adjunto = n.adjunto ? `
@@ -609,20 +629,20 @@ function bindDrawerControls() {
    9. DRAWER LATERAL - abrir/cerrar + contenido dinámico por sección
 ---------------------------------------------------------------- */
 function openDrawer(type) {
-  const drawer  = $('#drawer');
+  const drawer = $('#drawer');
   const overlay = $('#drawerOverlay');
-  const title   = $('#drawerTitle');
-  const icon    = $('#drawerIcon');
-  const body    = $('#drawerBody');
+  const title = $('#drawerTitle');
+  const icon = $('#drawerIcon');
+  const body = $('#drawerBody');
 
   const config = {
-    perfil:         { title: 'Mi Perfil',           icon: iconUser,      render: renderProfile       },
-    materias:       { title: 'Mis Materias',        icon: iconBook,      render: renderMaterias      },
-    inscripciones:  { title: 'Mis Inscripciones',   icon: iconInscript,  render: renderInscripciones },
-    carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
-    centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
-    novedades:      { title: 'Novedades',           icon: iconNews,      render: renderNovedades     },
-    calendario:     { title: 'Calendario Académico',icon: iconCalendar,  render: renderCalendar      },
+    perfil: { title: 'Mi Perfil', icon: iconUser, render: renderProfile },
+    materias: { title: 'Mis Materias', icon: iconBook, render: renderMaterias },
+    inscripciones: { title: 'Mis Inscripciones', icon: iconInscript, render: renderInscripciones },
+    carrera: { title: 'Mi Carrera', icon: iconCareer, render: renderCarrera },
+    centro: { title: 'Centro Estudiantil', icon: iconStar, render: renderCentro },
+    novedades: { title: 'Novedades', icon: iconNews, render: renderNovedades },
+    calendario: { title: 'Calendario Académico', icon: iconCalendar, render: renderCalendar },
   };
 
   const cfg = config[type];
@@ -770,28 +790,51 @@ function renderProfile(body) {
   `;
 }
 
-/* ----------------------------------------------------------------
-   12. DRAWER: MIS MATERIAS
----------------------------------------------------------------- */
+/**
+ * Calcula el estado de regularidad dinámicamente
+ * Regular: Asistencia >= 75% y Nota >= 4
+ * Riesgo: Asistencia entre 60% y 74% O Nota < 4
+ * Libre: Asistencia < 60%
+ */
+function getMateriaStatus(asistencia, nota) {
+  if (asistencia < 60) return { texto: 'Libre', color: 'var(--accent-coral)' };
+  if (asistencia < 75 || (nota !== null && nota < 4)) return { texto: 'Riesgo', color: 'var(--accent-amber)' };
+  return { texto: 'Regular', color: 'var(--accent-green)' };
+}
+
 function renderMaterias(body) {
-  const materias = [
-    { nombre: 'Análisis Matemático I',  docente: 'Ing. García',  dias: ['Lun', 'Mié'], hora: '18–21hs', color: '#2563eb', nota: null,  estado: 'Cursando' },
-    { nombre: 'Programación I',         docente: 'Lic. Chaves',  dias: ['Mar', 'Jue'], hora: '19–22hs', color: '#06b6d4', nota: 7,     estado: 'Cursando' },
-    { nombre: 'Álgebra Lineal',         docente: 'Prof. Rossi',  dias: ['Vie'],        hora: '18–22hs', color: '#3DAA6A', nota: 8,     estado: 'Cursando' },
-    { nombre: 'Sistemas Operativos',    docente: 'Ing. Torres',  dias: ['Mié'],        hora: '19–22hs', color: '#3b82f6', nota: null,  estado: 'Cursando' },
-    { nombre: 'Lógica Computacional',   docente: 'Dr. López',    dias: ['Lun'],        hora: '19–22hs', color: '#0ea5e9', nota: 6,     estado: 'Cursando' },
-  ];
+  let list = state.materias?.materias || [];
+
+  // Aplicar cálculo de estado a cada materia para poder filtrar
+  list = list.map(m => ({
+    ...m,
+    statusInfo: getMateriaStatus(m.asistencia, m.nota_parcial)
+  }));
+
+  // Filtrar si es necesario
+  if (state.filtroMateriasEstado !== 'todas') {
+    list = list.filter(m => m.statusInfo.texto.toLowerCase() === state.filtroMateriasEstado);
+  }
 
   body.innerHTML = `
-    <p class="drawer-section-label">1er Cuatrimestre 2026 · ${materias.length} materias</p>
+    <div class="drawer__filters" style="margin-bottom: 20px;">
+      <button class="chip ${state.filtroMateriasEstado === 'todas' ? 'chip--active' : ''}" data-status-filter="todas">Todas</button>
+      <button class="chip ${state.filtroMateriasEstado === 'regular' ? 'chip--active' : ''}" data-status-filter="regular">Regulares</button>
+      <button class="chip ${state.filtroMateriasEstado === 'riesgo' ? 'chip--active' : ''}" data-status-filter="riesgo">En Riesgo</button>
+      <button class="chip ${state.filtroMateriasEstado === 'libre' ? 'chip--active' : ''}" data-status-filter="libre">Libres</button>
+    </div>
+
+    <p class="drawer-section-label">1er Cuatrimestre 2026 · ${list.length} materias mostradas</p>
     <div class="materia-list">
-      ${materias.map(m => `
+      ${list.map(m => `
         <div class="materia-card" style="--mat-color: ${m.color}">
           <div class="materia-card__accent"></div>
           <div class="materia-card__body">
             <div class="materia-card__head">
               <h3 class="materia-card__title">${m.nombre}</h3>
-              <span class="materia-card__status">${m.estado}</span>
+              <span class="materia-card__status" style="background:${m.statusInfo.color}15; color:${m.statusInfo.color}">
+                ${m.statusInfo.texto}
+              </span>
             </div>
             <p class="materia-card__docente">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -803,16 +846,35 @@ function renderMaterias(body) {
               ${m.dias.map(d => `<span class="materia-card__horario">${d}</span>`).join('')}
               <span class="materia-card__hora">${m.hora}</span>
             </div>
-            ${m.nota !== null ? `
+
+            <div class="materia-card__attendance" style="margin-top:12px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:4px; color:var(--text-muted);">
+                <span>ASISTENCIA</span>
+                <span style="color:${m.statusInfo.color}">${m.asistencia}%</span>
+              </div>
+              <div class="progress" style="width:100%; height:4px;">
+                <div class="progress__fill" style="width:${m.asistencia}%; background:${m.statusInfo.color}; transition: width 0.8s ease;"></div>
+              </div>
+            </div>
+
+            ${m.nota_parcial !== null ? `
               <div class="materia-card__nota">
-                <span class="nota-label">Último parcial</span>
-                <span class="nota-value" style="color:${m.color}">${m.nota}</span>
+                <span class="nota-label">Nota Parcial</span>
+                <span class="nota-value" style="color:${m.nota_parcial < 4 ? 'var(--accent-coral)' : 'var(--accent-green)'}">${m.nota_parcial}</span>
               </div>` : ''}
           </div>
         </div>
       `).join('')}
     </div>
   `;
+
+  // Bindeo de filtros
+  body.querySelectorAll('[data-status-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filtroMateriasEstado = btn.dataset.statusFilter;
+      renderMaterias(body);
+    });
+  });
 }
 
 /* ----------------------------------------------------------------
@@ -828,13 +890,13 @@ function renderInscripciones(body) {
   ];
 
   const mesas = [
-    { materia: 'Lógica Computacional',  tipo: 'Examen Final',     fecha: '20/07/2026', inscripto: true  },
-    { materia: 'Estadística Aplicada',  tipo: 'Primer Parcial',   fecha: '28/07/2026', inscripto: false },
+    { materia: 'Lógica Computacional', tipo: 'Examen Final', fecha: '20/07/2026', inscripto: true },
+    { materia: 'Estadística Aplicada', tipo: 'Primer Parcial', fecha: '28/07/2026', inscripto: false },
   ];
 
   const checkIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const calIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
-  const bookIcon  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
+  const calIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
+  const bookIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
 
   body.innerHTML = `
     <div class="inscr-section">
@@ -876,8 +938,8 @@ function renderInscripciones(body) {
               <p class="inscr-mesa__sub">${m.tipo} · ${m.fecha}</p>
             </div>
             ${m.inscripto
-              ? `<span class="inscr-chip inscr-chip--done">${checkIcon} Inscripto</span>`
-              : `<button class="btn-primary inscr-btn-sm">Inscribirme</button>`}
+      ? `<span class="inscr-chip inscr-chip--done">${checkIcon} Inscripto</span>`
+      : `<button class="btn-primary inscr-btn-sm">Inscribirme</button>`}
           </div>
         `).join('')}
       </div>
@@ -889,34 +951,40 @@ function renderInscripciones(body) {
    14. DRAWER: MI CARRERA
 ---------------------------------------------------------------- */
 function renderCarrera(body) {
-  const u   = state.usuario;
+  const u = state.usuario;
   const pct = Math.round((u.materias_cursadas / u.materias_totales) * 100);
 
   const plan = [
-    { anio: 'Primer Año', materias: [
-      { nombre: 'Análisis Matemático I',  aprobada: true,  nota: 8  },
-      { nombre: 'Álgebra Lineal',         aprobada: true,  nota: 7  },
-      { nombre: 'Programación I',         aprobada: true,  nota: 9  },
-      { nombre: 'Introducción a la IA',   aprobada: true,  nota: 8  },
-      { nombre: 'Inglés Técnico I',       aprobada: true,  nota: 7  },
-    ]},
-    { anio: 'Segundo Año', materias: [
-      { nombre: 'Análisis Matemático II', aprobada: false, cursando: true  },
-      { nombre: 'Estadística Aplicada',   aprobada: false, cursando: true  },
-      { nombre: 'Lógica Computacional',   aprobada: false, cursando: true  },
-      { nombre: 'Sistemas Operativos',    aprobada: false, cursando: true  },
-      { nombre: 'Base de Datos I',        aprobada: false, cursando: false },
-    ]},
-    { anio: 'Tercer Año', materias: [
-      { nombre: 'Machine Learning',       aprobada: false, cursando: false },
-      { nombre: 'Redes Neuronales',       aprobada: false, cursando: false },
-      { nombre: 'Proyecto Final I',       aprobada: false, cursando: false },
-    ]},
+    {
+      anio: 'Primer Año', materias: [
+        { nombre: 'Análisis Matemático I', aprobada: true, nota: 8 },
+        { nombre: 'Álgebra Lineal', aprobada: true, nota: 7 },
+        { nombre: 'Programación I', aprobada: true, nota: 9 },
+        { nombre: 'Introducción a la IA', aprobada: true, nota: 8 },
+        { nombre: 'Inglés Técnico I', aprobada: true, nota: 7 },
+      ]
+    },
+    {
+      anio: 'Segundo Año', materias: [
+        { nombre: 'Análisis Matemático II', aprobada: false, cursando: true },
+        { nombre: 'Estadística Aplicada', aprobada: false, cursando: true },
+        { nombre: 'Lógica Computacional', aprobada: false, cursando: true },
+        { nombre: 'Sistemas Operativos', aprobada: false, cursando: true },
+        { nombre: 'Base de Datos I', aprobada: false, cursando: false },
+      ]
+    },
+    {
+      anio: 'Tercer Año', materias: [
+        { nombre: 'Machine Learning', aprobada: false, cursando: false },
+        { nombre: 'Redes Neuronales', aprobada: false, cursando: false },
+        { nombre: 'Proyecto Final I', aprobada: false, cursando: false },
+      ]
+    },
   ];
 
   const globeIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" stroke-linecap="round"/></svg>`;
-  const gradIcon  = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5" stroke-linecap="round"/></svg>`;
-  const calIcon   = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
+  const gradIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5" stroke-linecap="round"/></svg>`;
+  const calIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
 
   body.innerHTML = `
     <div class="career-stats-row">
@@ -956,8 +1024,8 @@ function renderCarrera(body) {
 
     <p class="drawer-section-label">Plan de estudios · ${u.carrera}</p>
     ${plan.map(yr => {
-      const aprobadas = yr.materias.filter(m => m.aprobada).length;
-      return `
+    const aprobadas = yr.materias.filter(m => m.aprobada).length;
+    return `
         <div class="plan-year">
           <div class="plan-year__header">
             <span class="plan-year__title">${yr.anio}</span>
@@ -968,14 +1036,14 @@ function renderCarrera(body) {
               <div class="plan-materia ${m.aprobada ? 'plan-materia--done' : m.cursando ? 'plan-materia--active' : ''}">
                 <span class="plan-materia__dot"></span>
                 <span class="plan-materia__name">${m.nombre}</span>
-                ${m.aprobada  ? `<span class="plan-materia__nota">${m.nota}</span>` : ''}
-                ${m.cursando  ? `<span class="plan-materia__badge">Cursando</span>` : ''}
+                ${m.aprobada ? `<span class="plan-materia__nota">${m.nota}</span>` : ''}
+                ${m.cursando ? `<span class="plan-materia__badge">Cursando</span>` : ''}
               </div>
             `).join('')}
           </div>
         </div>
       `;
-    }).join('')}
+  }).join('')}
   `;
 
   requestAnimationFrame(() => {
@@ -989,9 +1057,9 @@ function renderCarrera(body) {
 ---------------------------------------------------------------- */
 function renderCentro(body) {
   const delegados = [
-    { nombre: 'Valentina Ríos',   cargo: 'Presidenta',  carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
-    { nombre: 'Mateo Fernández',  cargo: 'Secretario',  carrera: 'Tecnicatura en Redes',    avatar: 'MF', color: '#2563eb' },
-    { nombre: 'Lucía Aramburu',   cargo: 'Tesorera',    carrera: 'Prog. Universitaria',     avatar: 'LA', color: '#3DAA6A' },
+    { nombre: 'Valentina Ríos', cargo: 'Presidenta', carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
+    { nombre: 'Mateo Fernández', cargo: 'Secretario', carrera: 'Tecnicatura en Redes', avatar: 'MF', color: '#2563eb' },
+    { nombre: 'Lucía Aramburu', cargo: 'Tesorera', carrera: 'Prog. Universitaria', avatar: 'LA', color: '#3DAA6A' },
   ];
 
   const proxEventos = (state.eventos?.eventos || [])
@@ -1027,8 +1095,8 @@ function renderCentro(body) {
     <p class="drawer-section-label">Próximos eventos</p>
     <div class="ce-events-mini">
       ${proxEventos.map(ev => {
-        const { dia, mes } = formatDay(ev.fecha_inicio);
-        return `
+    const { dia, mes } = formatDay(ev.fecha_inicio);
+    return `
           <div class="ce-event-mini" style="--ev-color:${ev.color}">
             <div class="ce-event-mini__date">
               <span class="ce-event-mini__day">${dia}</span>
@@ -1041,7 +1109,7 @@ function renderCentro(body) {
             <span class="ce-event-mini__cat" style="background:${ev.color}20;color:${ev.color}">${ev.categoria}</span>
           </div>
         `;
-      }).join('')}
+  }).join('')}
     </div>
 
     <p class="drawer-section-label">Contacto</p>
@@ -1155,15 +1223,15 @@ function renderCalendar(body) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   // Obtener primer y último día del mes
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  
+
   // Calcular celdas vacías al principio
-  let startingDay = firstDay.getDay(); 
+  let startingDay = firstDay.getDay();
 
   // Obtener todos los eventos y tipos
   const eventos = state.calendario?.eventos_calendario || [];
@@ -1200,12 +1268,11 @@ function renderCalendar(body) {
   `;
 
   // Filtros de categorías
-  calHTML += `<div class="news-filters" style="margin-bottom: 24px; flex-wrap: wrap;">`;
+  calHTML += `<div class="calendar-filters" style="margin-bottom: 24px;">`;
   calHTML += `<button class="chip ${state.calendarioFiltro === 'todos' ? 'chip--active' : ''}" data-cal-filter="todos">Todos</button>`;
   tipos.forEach(t => {
     const isAct = state.calendarioFiltro === t.id ? 'chip--active' : '';
-    const extraStyle = isAct ? `background-color: ${softColor(t.color, 0.15)}; color: ${t.color}; border-color: ${t.color};` : '';
-    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="${extraStyle}">${t.nombre}</button>`;
+    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="--chip-base-color: ${t.color}; --chip-dark-color: ${darkenHex(t.color, 20)};">${t.nombre}</button>`;
   });
   calHTML += `</div>`;
 
@@ -1228,7 +1295,7 @@ function renderCalendar(body) {
   for (let d = 1; d <= lastDay.getDate(); d++) {
     const isToday = esMesActual && hoy.getDate() === d;
     const dayEvents = eventosDelMes[d] || [];
-    
+
     let dotsHTML = '<div class="calendar-day-events">';
     dayEvents.slice(0, 3).forEach(e => {
       dotsHTML += `<span class="calendar-dot" style="background-color: ${e.color}" title="${e.titulo}"></span>`;
@@ -1251,13 +1318,13 @@ function renderCalendar(body) {
 
   // Listado inferior de eventos del mes
   let eventosDelMesFlat = [];
-  Object.keys(eventosDelMes).sort((a,b) => parseInt(a) - parseInt(b)).forEach(dia => {
+  Object.keys(eventosDelMes).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dia => {
     eventosDelMes[dia].forEach(e => eventosDelMesFlat.push(e));
   });
 
   calHTML += `<div class="calendar-event-list">`;
   calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
-  
+
   if (eventosDelMesFlat.length === 0) {
     calHTML += `<div class="notif-empty" style="margin-top:16px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1273,11 +1340,11 @@ function renderCalendar(body) {
         <div class="cal-list-item" style="--ev-color: ${e.color}">
           <div class="cal-list-date">
             <span class="cal-list-day">${d}</span>
-            <span class="cal-list-month">${meses[parseInt(m)-1].substring(0,3).toUpperCase()}</span>
+            <span class="cal-list-month">${meses[parseInt(m) - 1].substring(0, 3).toUpperCase()}</span>
           </div>
           <div class="cal-list-body">
             <h4 class="cal-list-title">${e.titulo}</h4>
-            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t=>t.id===e.tipo)?.nombre || 'Evento'}</span>
+            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t => t.id === e.tipo)?.nombre || 'Evento'}</span>
           </div>
         </div>
       `;
@@ -1305,17 +1372,17 @@ function renderCalendar(body) {
     });
   });
 }
-function renderEventsList() {}
-function renderFullNews() {}
-function renderRegulations() {}
-function renderSession() {}
+function renderEventsList() { }
+function renderFullNews() { }
+function renderRegulations() { }
+function renderSession() { }
 
 /* ----------------------------------------------------------------
    NOTIFICACIONES - Panel desplegable de la campana
 ---------------------------------------------------------------- */
 function bindNotifications() {
   const bellBtn = $('#bellBtn');
-  const panel   = $('#notifPanel');
+  const panel = $('#notifPanel');
 
   if (!bellBtn || !panel) return;
 
@@ -1327,7 +1394,7 @@ function bindNotifications() {
     const willOpen = !panel.classList.contains('is-open');
     if (willOpen) {
       const rect = bellBtn.getBoundingClientRect();
-      panel.style.top  = (rect.bottom + 10) + 'px';
+      panel.style.top = (rect.bottom + 10) + 'px';
       panel.style.right = (window.innerWidth - rect.right) + 'px';
     }
     panel.classList.toggle('is-open');
@@ -1359,12 +1426,14 @@ function closeNotifPanel() {
 }
 
 function renderNotifPanel() {
-  const list  = $('#notifList');
+  const list = $('#notifList');
   if (!list) return;
 
-  const notifs = state.notificaciones?.notificaciones || [];
+  // Obtenemos todas y ordenamos por fecha (más reciente primero)
+  const allNotifs = [...(state.notificaciones?.notificaciones || [])]
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-  if (!notifs.length) {
+  if (!allNotifs.length) {
     list.innerHTML = `
       <div class="notif-empty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1377,12 +1446,14 @@ function renderNotifPanel() {
     return;
   }
 
-  list.innerHTML = notifs.map(n => {
+  list.innerHTML = allNotifs.map(n => {
     const unreadCls = !n.leida ? ' notif-item--unread' : '';
     const unreadDot = !n.leida ? '<span class="notif-item__unread-dot"></span>' : '';
+    const ariaLabel = `${n.titulo}${!n.leida ? ' (sin leer)' : ''}`;
+
     return `
       <div class="notif-item${unreadCls}" data-notif-id="${n.id}" role="button" tabindex="0"
-           aria-label="${n.titulo}${n.leida ? '' : ' (sin leer)'}">
+           aria-label="${ariaLabel}">
         <span class="notif-item__dot notif-item__dot--${n.tipo}"></span>
         <div class="notif-item__body">
           <p class="notif-item__title">${n.titulo}</p>
@@ -1422,12 +1493,18 @@ function markAllNotifRead() {
 }
 
 function updateBellBadge() {
-  const badge  = $('#bellBadge');
+  const badge = $('#bellBadge');
   if (!badge) return;
-  const notifs  = state.notificaciones?.notificaciones || [];
-  const unread  = notifs.filter(n => !n.leida).length;
+  const notifs = state.notificaciones?.notificaciones || [];
+  const unread = notifs.filter(n => !n.leida).length;
   badge.textContent = unread;
-  badge.style.display = unread > 0 ? '' : 'none';
+  badge.style.display = unread > 0 ? 'flex' : 'none'; // Usar 'flex' para que el badge se muestre correctamente
+
+  // Actualizar el estado del usuario para que el resumen también refleje el conteo actual
+  if (state.usuario) {
+    state.usuario.notificaciones_sin_leer = unread;
+  }
+  renderUserHeader(); // Re-renderizar el encabezado para actualizar el resumen
 }
 
 /* ----------------------------------------------------------------
@@ -1479,6 +1556,32 @@ window.__FALLBACK_DATA__ = {
       { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.", tipo: "success", fecha: "2026-04-27T09:00:00", leida: false },
       { id: 2, titulo: "Cierre de inscripciones", descripcion: "Las inscripciones a mesas de Julio cierran el 10/07.", tipo: "warning", fecha: "2026-04-26T14:30:00", leida: false },
       { id: 3, titulo: "Workshop de Python", descripcion: "El CE abrió cupos para el taller de Pandas, NumPy y Scikit-learn.", tipo: "info", fecha: "2026-04-25T11:00:00", leida: false }
+    ]
+  },
+  materias: {
+    materias: [
+      {
+        "id": 1,
+        "nombre": "Análisis Matemático I",
+        "docente": "Ing. García",
+        "dias": ["Lun", "Mié"],
+        "hora": "18–21hs",
+        "color": "#2563eb",
+        "nota_parcial": null,
+        "asistencia": 85,
+        "estado": "Regular"
+      },
+      {
+        "id": 2,
+        "nombre": "Programación I",
+        "docente": "Lic. Chaves",
+        "dias": ["Mar", "Jue"],
+        "hora": "19–22hs",
+        "color": "#06b6d4",
+        "nota_parcial": 7,
+        "asistencia": 72,
+        "estado": "Riesgo"
+      }
     ]
   }
 };
