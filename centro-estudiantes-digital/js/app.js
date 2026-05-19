@@ -96,6 +96,20 @@ function darkenHex(hex, percent) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
+/** Mapea el tipo de evento a una imagen de fondo (Unsplash) */
+function getEventBackgroundImage(imagenTipo) {
+  const imagenes = {
+    'workshop': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
+    'party': 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=500&h=300&fit=crop',
+    'conference': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
+    'charla': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
+    'chess': 'https://images.unsplash.com/photo-1611003228941-98852ba62227?w=500&h=300&fit=crop',
+    'hackathon': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=300&fit=crop',
+    'cinema': 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=500&h=300&fit=crop',
+    'default': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop'
+  };
+  return imagenes[imagenTipo?.toLowerCase()] || imagenes['default'];
+}
 
 /* ----------------------------------------------------------------
    2. ESTADO GLOBAL DE LA APP
@@ -253,7 +267,7 @@ function renderCareerCard() {
 
 /* ----------------------------------------------------------------
    6. RENDER: Eventos CE
-      - Por defecto muestra los 2 más próximos.
+      - Por defecto muestra los 4 más próximos (2x2).
       - Botón "Mostrar todo" expande para ver todos.
       - Cada tarjeta tiene su botón "Inscribirme" funcional, con estado.
 ---------------------------------------------------------------- */
@@ -267,16 +281,16 @@ function renderEvents() {
     (a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)
   );
 
-  // Cuántos mostrar según el estado de expansión
-  const visibles = state.eventosExpanded ? ordenados : ordenados.slice(0, 2);
+  // Cuántos mostrar según el estado de expansión (por defecto mostrar 4 -> 2x2)
+  const visibles = state.eventosExpanded ? ordenados : ordenados.slice(0, 4);
 
   // Render de las tarjetas
   cont.classList.toggle('events-grid--expanded', state.eventosExpanded);
   cont.innerHTML = visibles.map(ev => buildEventCardHTML(ev)).join('');
 
   // Footer con el toggle "Mostrar todo / Mostrar menos"
-  // Solo aparece si hay más de 2 eventos en total.
-  if (ordenados.length > 2) {
+  // Solo aparece si hay más de 4 eventos en total.
+  if (ordenados.length > 4) {
     actions.innerHTML = `
       <button class="events-toggle ${state.eventosExpanded ? 'is-expanded' : ''}" id="eventsToggle">
         <span>${state.eventosExpanded ? 'Mostrar menos' : `Mostrar todo (${ordenados.length})`}</span>
@@ -344,7 +358,7 @@ function buildEventCardHTML(ev) {
   }
 
   return `
-    <article class="event-card" style="--event-color: ${ev.color}" data-event-id="${ev.id}">
+    <article class="event-card" style="--event-color: ${ev.color}; background-image: url('${getEventBackgroundImage(ev.imagen)}');" data-event-id="${ev.id}">
       <span class="event-card__cupo">${ev.inscriptos}/${ev.cupo}</span>
       <span class="event-card__category">${ev.categoria}</span>
 
