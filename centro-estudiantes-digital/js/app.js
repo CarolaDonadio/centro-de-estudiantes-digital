@@ -419,17 +419,29 @@ function renderNewsFilters() {
       ${cats.map(c => `<button class="chip" data-filter="${c.id}">${c.nombre}</button>`).join('')}
     </div>
     <div class="news-filters__advanced">
-      <select id="newsCareerFilter" class="filter-select" aria-label="Carrera">
-        <option value="todas">Carrera: Todas</option>
-        ${careers.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('')}
-      </select>
-      <select id="newsSubjectFilter" class="filter-select" aria-label="Materia">
-        <option value="todas">Materia: Todas</option>
-        ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
-      </select>
+      <div class="filter-group">
+        <label for="newsCareerFilter">Filtrar por Carrera</label>
+        <select id="newsCareerFilter" class="filter-select">
+          <option value="todas">Todas las carreras</option>
+          ${careers.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('')}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="newsSubjectFilter">Filtrar por Materia</label>
+        <select id="newsSubjectFilter" class="filter-select">
+          <option value="todas">Todas las materias</option>
+          ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
+        </select>
+      </div>
       <div class="news-filters__dates">
-        <input id="newsDateFrom" type="date" class="filter-input" title="Fecha desde" value="${state.filtroFechaDesde}">
-        <input id="newsDateTo" type="date" class="filter-input" title="Fecha hasta" value="${state.filtroFechaHasta}">
+        <div class="filter-group" style="flex:1">
+          <label for="newsDateFrom">Desde</label>
+          <input id="newsDateFrom" type="date" class="filter-input" value="${state.filtroFechaDesde}">
+        </div>
+        <div class="filter-group" style="flex:1">
+          <label for="newsDateTo">Hasta</label>
+          <input id="newsDateTo" type="date" class="filter-input" value="${state.filtroFechaHasta}">
+        </div>
       </div>
     </div>
   `;
@@ -1567,35 +1579,14 @@ window.__FALLBACK_DATA__ = {
   },
   notificaciones: {
     notificaciones: [
-      { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.", tipo: "success", fecha: "2026-04-27T09:00:00", leida: false },
-      { id: 2, titulo: "Cierre de inscripciones", descripcion: "Las inscripciones a mesas de Julio cierran el 10/07.", tipo: "warning", fecha: "2026-04-26T14:30:00", leida: false },
-      { id: 3, titulo: "Workshop de Python", descripcion: "El CE abrió cupos para el taller de Pandas, NumPy y Scikit-learn.", tipo: "info", fecha: "2026-04-25T11:00:00", leida: false }
+      { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) ha sido exitosa.", fecha: "2026-05-15T09:00:00", tipo: "success", leida: false }
     ]
   },
   materias: {
     materias: [
-      {
-        "id": 1,
-        "nombre": "Análisis Matemático I",
-        "docente": "Ing. García",
-        "dias": ["Lun", "Mié"],
-        "hora": "18–21hs",
-        "color": "#2563eb",
-        "nota_parcial": null,
-        "asistencia": 85,
-        "estado": "Regular"
-      },
-      {
-        "id": 2,
-        "nombre": "Programación I",
-        "docente": "Lic. Chaves",
-        "dias": ["Mar", "Jue"],
-        "hora": "19–22hs",
-        "color": "#06b6d4",
-        "nota_parcial": 7,
-        "asistencia": 72,
-        "estado": "Riesgo"
-      }
+      { id: 1, codigo: "TP1", nombre: "Técnicas de Programación", carrera_id: 1, docente: "García, María", asistencia: 85, nota_parcial: 8, dias: ["Lun", "Mié"], hora: "18:30 - 21:30", color: "#4A67C9" },
+      { id: 2, codigo: "BD1", nombre: "Bases de Datos I", carrera_id: 1, docente: "López, Carlos", asistencia: 72, nota_parcial: 3, dias: ["Mar", "Jue"], hora: "19:00 - 22:00", color: "#F5A623" },
+      { id: 3, codigo: "LC", nombre: "Lógica Computacional", carrera_id: 1, docente: "Ríos, Valentina", asistencia: 98, nota_parcial: 10, dias: ["Vie"], hora: "18:00 - 21:00", color: "#8B5CF6" }
     ]
   }
 };

@@ -1,0 +1,40 @@
+{
+  "materias": [
+    {
+      "id": 1,
+      "codigo": "TP1",
+      "nombre": "Técnicas de Programación",
+      "carrera_id": 1,
+      "docente": "García, María",
+      "asistencia": 85,
+      "nota_parcial": 8,
+      "dias": ["Lun", "Mié"],
+      "hora": "18:30 - 21:30",
+      "color": "#4A67C9"
+    },
+    {
+      "id": 2,
+      "codigo": "BD1",
+      "nombre": "Bases de Datos I",
+      "carrera_id": 1,
+      "docente": "López, Carlos",
+      "asistencia": 72,
+      "nota_parcial": 3,
+      "dias": ["Mar", "Jue"],
+      "hora": "19:00 - 22:00",
+      "color": "#F5A623"
+    },
+    {
+      "id": 3,
+      "codigo": "LC",
+      "nombre": "Lógica Computacional",
+      "carrera_id": 1,
+      "docente": "Ríos, Valentina",
+      "asistencia": 98,
+      "nota_parcial": 10,
+      "dias": ["Vie"],
+      "hora": "18:00 - 21:00",
+      "color": "#8B5CF6"
+    }
+  ]
+}
