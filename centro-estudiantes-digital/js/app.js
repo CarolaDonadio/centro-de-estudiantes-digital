@@ -83,6 +83,20 @@ function softColor(hex, alpha = 0.14) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+/** Darkens a hex color by a given percentage. */
+function darkenHex(hex, percent) {
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+
+  r = Math.max(0, r - Math.round(r * (percent / 100)));
+  g = Math.max(0, g - Math.round(g * (percent / 100)));
+  b = Math.max(0, b - Math.round(b * (percent / 100)));
+
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+
 /* ----------------------------------------------------------------
    2. ESTADO GLOBAL DE LA APP
 ---------------------------------------------------------------- */
@@ -1254,12 +1268,11 @@ function renderCalendar(body) {
   `;
 
   // Filtros de categorías
-  calHTML += `<div class="news-filters" style="margin-bottom: 24px; flex-wrap: wrap;">`;
+  calHTML += `<div class="calendar-filters" style="margin-bottom: 24px;">`;
   calHTML += `<button class="chip ${state.calendarioFiltro === 'todos' ? 'chip--active' : ''}" data-cal-filter="todos">Todos</button>`;
   tipos.forEach(t => {
     const isAct = state.calendarioFiltro === t.id ? 'chip--active' : '';
-    const extraStyle = isAct ? `background-color: ${softColor(t.color, 0.15)}; color: ${t.color}; border-color: ${t.color};` : '';
-    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="${extraStyle}">${t.nombre}</button>`;
+    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="--chip-base-color: ${t.color}; --chip-dark-color: ${darkenHex(t.color, 20)};">${t.nombre}</button>`;
   });
   calHTML += `</div>`;
 
