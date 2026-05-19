@@ -64,14 +64,8 @@ function timeAgo(isoDate) {
 }
 
 function getUniqueNewsSubjects() {
-  const items = state.novedades?.novedades || [];
-  const map = new Map();
-  items.forEach(n => {
-    if (!n.materia_id) return;
-    const nombre = n.materia ? String(n.materia).trim() : `Materia ${n.materia_id}`;
-    if (!map.has(n.materia_id)) map.set(n.materia_id, nombre);
-  });
-  return [...map.entries()].map(([id, nombre]) => ({ id, nombre }));
+  const allMaterias = state.materias?.materias || [];
+  return allMaterias.map(m => ({ id: m.id, nombre: m.nombre }));
 }
 
 /** Devuelve un color "soft" a partir de un hex (para fondo de chips) */
