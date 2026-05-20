@@ -452,6 +452,69 @@
     .admin-form__submit:hover { transform: translateY(-1px); }
     .admin-form__submit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
 
+    .checkbox-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .9rem 1rem;
+      border: 1px solid rgba(143,163,227,.25);
+      border-radius: 12px;
+      background: #f7fbff;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease, transform .2s ease;
+      text-transform: none;
+      color: var(--brand-900, #1A1D4A);
+      font: 600 .9rem/1.2 'Manrope', sans-serif;
+      min-height: 56px;
+    }
+    .checkbox-toggle:hover {
+      background: rgba(61,170,106,.08);
+      border-color: rgba(61,170,106,.35);
+    }
+    .checkbox-toggle input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    .checkbox-toggle__control {
+      position: relative;
+      width: 2.4rem;
+      height: 1.3rem;
+      flex-shrink: 0;
+      border-radius: 999px;
+      background: rgba(143,163,227,.35);
+      transition: background .2s ease;
+    }
+    .checkbox-toggle__control::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: .15rem;
+      transform: translateY(-50%);
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 6px 16px -10px rgba(28,31,55,.35);
+      transition: transform .2s ease, background .2s ease;
+    }
+    .checkbox-toggle input:checked + .checkbox-toggle__control {
+      background: linear-gradient(135deg, #3DAA6A, #2B8B59);
+    }
+    .checkbox-toggle input:checked + .checkbox-toggle__control::after {
+      transform: translateY(-50%) translateX(1.1rem);
+    }
+    .checkbox-toggle__text {
+      display: inline-block;
+      color: var(--brand-900, #1A1D4A);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
     /* ============================================================
        TABS COMPARTIDOS (heredados del docente)
        ============================================================ */
@@ -801,21 +864,47 @@
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 1rem;
+      padding: 1rem 1.2rem;
       border: 1px solid rgba(143,163,227,.25);
-      border-radius: 10px;
-      margin-bottom: .5rem;
-      background: #fff;
+      border-radius: 16px;
+      margin-bottom: .75rem;
+      background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+      box-shadow: 0 10px 28px -18px rgba(26,29,74,.16);
     }
     .categoria-row__color {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid rgba(143,163,227,.35);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+    }
+    .categoria-row__info {
+      flex: 1;
+      min-width: 0;
     }
     .categoria-row__name {
-      margin: 0;
-      font: 600 .9rem/1.2 'Bricolage Grotesque', serif;
+      margin: 0 0 .2rem;
+      font: 700 .96rem/1.2 'Bricolage Grotesque', serif;
       color: var(--brand-900, #1A1D4A);
+    }
+    .categoria-row__meta {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      flex-wrap: wrap;
+      color: #6c6f80;
+      font: 500 .78rem/1.5 'Manrope', sans-serif;
+    }
+    .categoria-row__tag {
+      display: inline-flex;
+      align-items: center;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      background: rgba(61,170,106,.08);
+      color: #386a4b;
+      font-size: .78rem;
+      white-space: nowrap;
     }
 
     /* File input styling */
@@ -864,6 +953,21 @@
       background: rgba(61,170,106,.05);
       color: #2a8a52;
       font-weight: 600;
+    }
+    .file-remove-btn {
+      margin-top: .45rem;
+      padding: .5rem .85rem;
+      font: 600 .82rem 'Manrope', sans-serif;
+      color: #3DAA6A;
+      background: transparent;
+      border: 1px solid rgba(61,170,106,.35);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .file-remove-btn:hover {
+      background: rgba(61,170,106,.08);
+      border-color: #3DAA6A;
     }
 
     .admin-form__row {
@@ -2035,16 +2139,16 @@
     function renderNovedadesAdmin() {
       const materiaField = admin.rol !== 'delegado' ? `
             <label>Materia
-              <input list="materiasList" name="materia" placeholder="Ej: Lógica Computacional">
-              <datalist id="materiasList">
+              <select name="materia">
+                <option value="">Seleccionar materia</option>
                 ${[
                   'Lógica Computacional',
                   'Estadística Aplicada',
                   'Química Inorgánica',
                   'Programación Avanzada',
                   'Gestión Educativa'
-                ].map(m => `<option value="${m}">`).join('')}
-              </datalist>
+                ].map(m => `<option value="${m}">${m}</option>`).join('')}
+              </select>
             </label>
           ` : '';
 
@@ -2092,18 +2196,20 @@
               <textarea name="contenido" required placeholder="Describe la novedad..." rows="4"></textarea>
             </label>
             <div class="admin-form__row">
-              <label>
-                <input type="checkbox" name="destacada"> Destacar esta novedad
+              <label class="checkbox-toggle">
+                <input type="checkbox" name="destacada">
+                <span class="checkbox-toggle__control"></span>
+                <span class="checkbox-toggle__text">Destacar esta novedad</span>
               </label>
               ${materiaField}
             </div>
             <div class="admin-form__row">
               <div class="file-input-wrapper">
                 <label for="adjunto-file" class="file-input-label">Adjunto (opcional)</label>
-                <div class="file-input-group">
+                <label class="file-input-group">
                   <input type="file" id="adjunto-file" name="adjunto" class="file-input-field">
                   <span class="file-input-text">Seleccionar archivo</span>
-                </div>
+                </label>
               </div>
             </div>
             <button type="submit" class="admin-form__submit">
@@ -2153,6 +2259,7 @@
                 <span>${n.categoria || 'Sin categoría'}</span>
                 <span>${fecha}</span>
                 ${n.materia ? `<span>${n.materia}</span>` : ''}
+                ${n.adjunto ? `<span>Archivo: ${n.adjunto}</span>` : `<span style="color:#6c6f80">Sin adjunto</span>`}
                 ${n.destacada ? `<span class="badge" style="background:#F8E71C;color:#1A1D4A;padding:.2rem .45rem;border-radius:999px;font-size:.75rem;font-weight:700">Destacada</span>` : ''}
               </div>
               <p style="margin:.55rem 0 0;color:rgba(33,37,41,.8)">${n.contenido}</p>
@@ -2426,9 +2533,12 @@
       cont.innerHTML = categorias.length > 0 ? categorias.map(c => `
         <div class="categoria-row" data-categoria-id="${c.id}">
           <span class="categoria-row__color" style="background:${c.color}"></span>
-          <div style="flex:1; min-width:0">
+          <div class="categoria-row__info">
             <p class="categoria-row__name">${c.nombre}</p>
-            <small style="color:rgba(33,37,41,.72);font-size:.82rem">ID ${c.id}</small>
+            <div class="categoria-row__meta">
+              <span class="categoria-row__tag">ID ${c.id}</span>
+              <span class="categoria-row__tag" style="border:1px solid ${c.color};background:rgba(255,255,255,.92);color:${c.color}">${c.color}</span>
+            </div>
           </div>
           <div class="novedad-row__menu" data-menu>
             <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de categoría">⋯</button>
@@ -2499,21 +2609,28 @@
             <textarea name="contenido" required rows="4">${n.contenido}</textarea>
           </label>
           <div class="admin-form__row">
-            <label>
-              <input type="checkbox" name="destacada" ${n.destacada ? 'checked' : ''}> Destacar esta novedad
+            <label class="checkbox-toggle">
+              <input type="checkbox" name="destacada" ${n.destacada ? 'checked' : ''}>
+              <span class="checkbox-toggle__control"></span>
+              <span class="checkbox-toggle__text">Destacar esta novedad</span>
             </label>
             <label>Materia
-              <input list="materiasList" name="materia" value="${n.materia || ''}" placeholder="Ej: Lógica Computacional">
-              <datalist id="materiasList">
+              <select name="materia">
+                <option value="">Seleccionar materia</option>
                 ${['Lógica Computacional','Estadística Aplicada','Química Inorgánica','Programación Avanzada','Gestión Educativa']
-                  .map(m => `<option value="${m}">`).join('')}
-              </datalist>
+                  .map(m => `<option value="${m}" ${n.materia === m ? 'selected' : ''}>${m}</option>`).join('')}
+              </select>
             </label>
           </div>
           <div class="admin-form__row">
-            <label>Adjunto (opcional)
-              <input type="text" name="adjunto" value="${n.adjunto || ''}" placeholder="Nombre del archivo adjunto">
-            </label>
+            <div class="file-input-wrapper">
+              <label for="edit-adjunto-file" class="file-input-label">Adjunto (opcional)</label>
+              <label class="file-input-group">
+                <input type="file" id="edit-adjunto-file" name="adjunto" class="file-input-field">
+                <span class="file-input-text">${n.adjunto ? `📎 ${n.adjunto}` : 'Seleccionar archivo'}</span>
+              </label>
+              <button type="button" id="remove-edit-adjunto" class="file-remove-btn" ${n.adjunto ? '' : 'hidden'}>${n.adjunto ? 'Quitar adjunto' : 'Sin adjunto'}</button>
+            </div>
           </div>
           <button type="submit" class="admin-form__submit">
             <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2524,16 +2641,48 @@
       document.getElementById('novedadBackBtn').addEventListener('click', () => {
         document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
       });
+
+      let removeEditAdjunto = false;
+      const editFileInput = document.getElementById('edit-adjunto-file');
+      const editFileText = editFileInput?.parentElement.querySelector('.file-input-text');
+      const removeEditButton = document.getElementById('remove-edit-adjunto');
+
+      if (editFileInput) {
+        editFileInput.addEventListener('change', e => {
+          removeEditAdjunto = false;
+          if (!editFileText) return;
+          if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const fileSize = (e.target.files[0].size / 1024).toFixed(1);
+            editFileText.textContent = `📎 ${fileName} (${fileSize} KB)`;
+            if (removeEditButton) removeEditButton.hidden = false;
+          } else {
+            editFileText.textContent = n.adjunto ? `📎 ${n.adjunto}` : 'Seleccionar archivo';
+            if (removeEditButton) removeEditButton.hidden = !n.adjunto;
+          }
+        });
+      }
+
+      if (removeEditButton) {
+        removeEditButton.addEventListener('click', () => {
+          removeEditAdjunto = true;
+          if (editFileInput) editFileInput.value = '';
+          if (editFileText) editFileText.textContent = 'Sin adjunto';
+          removeEditButton.hidden = true;
+        });
+      }
+
       document.getElementById('editNovedadForm').addEventListener('submit', e => {
         e.preventDefault();
         const data = new FormData(e.target);
+        const editAdjuntoFile = document.getElementById('edit-adjunto-file').files[0];
         n.titulo = data.get('titulo');
         n.contenido = data.get('contenido');
         n.categoria_id = +data.get('categoria_id');
         n.categoria = categorias.find(c => c.id == n.categoria_id).nombre;
         n.destacada = data.has('destacada');
         n.materia = data.get('materia')?.trim() || null;
-        n.adjunto = data.get('adjunto') || null;
+        n.adjunto = editAdjuntoFile ? editAdjuntoFile.name : removeEditAdjunto ? null : n.adjunto;
         auditar('editar', 'novedad', `Editada: ${n.titulo}`);
         showToast('Novedad actualizada', `Los datos de ${n.titulo} fueron guardados.`);
         document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
