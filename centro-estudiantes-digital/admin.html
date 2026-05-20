@@ -2026,8 +2026,8 @@
       return `
         <div class="drawer__tabs">
           <button class="drawer__tab is-active" data-tab="lista">Lista (${novedades.length})</button>
-          <button class="drawer__tab" data-tab="nueva">+ Nueva novedad</button>
           <button class="drawer__tab" data-tab="categorias">Categorías (${categorias.length})</button>
+          <button class="drawer__tab" data-tab="nueva">+ Nueva novedad</button>
         </div>
 
         <div id="novedadesListPane">
@@ -2045,9 +2045,13 @@
         </div>
 
         <div id="novedadesNewPane" hidden>
-          <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0 0 1rem">
-            Crea una nueva novedad para publicar en el sistema.
-          </p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0">
+              Crea una nueva novedad para publicar en el sistema.
+            </p>
+            <button id="newCategoriaBtn" style="padding:.5rem .8rem;font:600 .8rem 'Manrope',sans-serif;color:#fff;background:#3DAA6A;border:none;border-radius:8px;cursor:pointer">+ Nueva categoría</button>
+          </div>
+          <div id="newCategoriaFormContainer" hidden style="margin-bottom:1.5rem; padding:1.2rem; border:1px dashed rgba(61, 170, 106, .4); border-radius:12px; background:rgba(61, 170, 106, .02)"></div>
           <form class="admin-form" id="newNovedadForm">
             <div class="admin-form__row">
               <label>Título
@@ -2085,9 +2089,6 @@
         </div>
 
         <div id="categoriasPane" hidden>
-          <div style="display:flex;gap:.5rem;margin-bottom:.8rem">
-            <button id="newCategoriaBtn" style="padding:.65rem 1rem;font:600 .85rem 'Manrope',sans-serif;color:#fff;background:#3DAA6A;border:none;border-radius:9px;cursor:pointer">+ Nueva categoría</button>
-          </div>
           <div id="categoriasList"></div>
         </div>
       `;
@@ -2317,29 +2318,40 @@
       }, { once: true });
     }
 
-    function showNewCategoriaForm() {
-      const cont = document.getElementById('categoriasList');
-      cont.innerHTML = `
+    function showNewCategoriaForm(cont) {
+      if (!cont) cont = document.getElementById('categoriasList');
+      
+      const isInline = cont.id === 'newCategoriaFormContainer';
+      const backBtnHtml = !isInline ? `
         <div style="margin-bottom:.8rem">
           <button id="categoriaBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
-        </div>
-        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Nueva categoría</h3>
+        </div>` : '';
+
+      cont.innerHTML = `
+        ${backBtnHtml}
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">
+          ${isInline ? 'Crear nueva categoría' : 'Nueva categoría'}
+        </h3>
         <form class="admin-form" id="newCategoriaForm">
           <div class="admin-form__row">
             <label>Nombre
               <input type="text" name="nombre" required placeholder="Nombre de la categoría">
             </label>
             <label>Color
-              <input type="color" name="color" value="#3A5BA9">
+              <input type="color" name="color" value="#4A67C9" style="height:38px; padding:2px">
             </label>
           </div>
-          <button type="submit" class="admin-form__submit">
+          <button type="submit" class="admin-form__submit" style="background:#3DAA6A">
             <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
-            Crear categoría
+            Guardar categoría
           </button>
         </form>
       `;
-      document.getElementById('categoriaBackBtn').addEventListener('click', () => renderCategorias());
+
+      if (!isInline) {
+        document.getElementById('categoriaBackBtn').addEventListener('click', () => renderCategorias());
+      }
+
       document.getElementById('newCategoriaForm').addEventListener('submit', e => {
         e.preventDefault();
         const data = new FormData(e.target);
@@ -2351,6 +2363,25 @@
         categorias.push(nueva);
         auditar('crear', 'categoria', `Nueva: ${nueva.nombre}`);
         showToast('Categoría creada', `${nueva.nombre} fue agregada al sistema.`);
+
+        if (isInline) {
+          const btn = document.getElementById('newCategoriaBtn');
+          cont.hidden = true;
+          cont.innerHTML = '';
+          btn.textContent = '+ Nueva categoría';
+          btn.style.background = '#3DAA6A';
+          
+          const catSelect = document.querySelector('#newNovedadForm select[name="categoria_id"]');
+          if (catSelect) {
+            catSelect.innerHTML = categorias.map(c => `<option value="${c.id}" ${c.id === nueva.id ? 'selected' : ''}>${c.nombre}</option>`).join('');
+          }
+          const filterCat = document.getElementById('filterCategoria');
+          if (filterCat) {
+            filterCat.innerHTML = `<option value="todos">Todas las categorías</option>` + 
+              categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+          }
+        }
+
         renderCategorias();
       });
     }
