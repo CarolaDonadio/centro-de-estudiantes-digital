@@ -452,6 +452,69 @@
     .admin-form__submit:hover { transform: translateY(-1px); }
     .admin-form__submit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
 
+    .checkbox-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .9rem 1rem;
+      border: 1px solid rgba(143,163,227,.25);
+      border-radius: 12px;
+      background: #f7fbff;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease, transform .2s ease;
+      text-transform: none;
+      color: var(--brand-900, #1A1D4A);
+      font: 600 .9rem/1.2 'Manrope', sans-serif;
+      min-height: 56px;
+    }
+    .checkbox-toggle:hover {
+      background: rgba(61,170,106,.08);
+      border-color: rgba(61,170,106,.35);
+    }
+    .checkbox-toggle input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    .checkbox-toggle__control {
+      position: relative;
+      width: 2.4rem;
+      height: 1.3rem;
+      flex-shrink: 0;
+      border-radius: 999px;
+      background: rgba(143,163,227,.35);
+      transition: background .2s ease;
+    }
+    .checkbox-toggle__control::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: .15rem;
+      transform: translateY(-50%);
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 6px 16px -10px rgba(28,31,55,.35);
+      transition: transform .2s ease, background .2s ease;
+    }
+    .checkbox-toggle input:checked + .checkbox-toggle__control {
+      background: linear-gradient(135deg, #3DAA6A, #2B8B59);
+    }
+    .checkbox-toggle input:checked + .checkbox-toggle__control::after {
+      transform: translateY(-50%) translateX(1.1rem);
+    }
+    .checkbox-toggle__text {
+      display: inline-block;
+      color: var(--brand-900, #1A1D4A);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
     /* ============================================================
        TABS COMPARTIDOS (heredados del docente)
        ============================================================ */
@@ -727,105 +790,226 @@
 
     .header__nav { gap: .9rem; }
 
-    /* ============================================================
-       CALENDARIO (Administrador)
-       ============================================================ */
-    #adminCalContainer { max-width: 440px; }
-    
-    .cal-nav-btn {
-      display: grid; place-items: center;
-      width: 28px; height: 28px;
-      background: transparent; border: 1px solid rgba(143, 163, 227, .35);
-      border-radius: 6px; color: var(--brand-700, #2C3E87); cursor: pointer;
-      transition: background .2s ease, color .2s ease;
-    }
-    .cal-nav-btn:hover { background: var(--brand-100, #E3E9FA); color: var(--brand-900, #1A1D4A); }
-    .cal-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
-    }
-    .cal-head {
-      text-align: center; font: 600 .65rem/1 'Manrope', sans-serif;
-      text-transform: uppercase; letter-spacing: .05em; color: #8a8d9c; padding-bottom: .3rem;
-    }
-    .cal-cell {
-      aspect-ratio: 1; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-      padding-top: .2rem; font: 600 .75rem/1 'Manrope', sans-serif; color: var(--brand-900, #1A1D4A);
-      background: #fff; border: 1px solid rgba(143, 163, 227, .25); position: relative;
-    }
-    .cal-cell--empty { background: transparent; border-color: transparent; }
-    .cal-cell.is-today { background: var(--brand-100, #E3E9FA); color: var(--brand-900, #1A1D4A); border-color: var(--brand-300, #8FA3E3); font-weight: 700; }
-    .cal-dots { display: flex; gap: 2px; margin-top: .15rem; flex-wrap: wrap; justify-content: center; padding: 0 3px; }
-    .cal-dot { width: 5px; height: 5px; border-radius: 50%; }
-    
-    .cal-list { display: flex; flex-direction: column; gap: .35rem; }
-    .cal-list-item {
-      display: flex; align-items: center; gap: .5rem; padding: .5rem .7rem;
-      background: #fff; border: 1px solid rgba(143, 163, 227, .25); border-radius: 8px;
-      position: relative; overflow: hidden;
-    }
-    .cal-list-item::before {
-      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-      background: var(--ev-color, #C0392B);
-    }
-    .cal-list-dot { display: none; }
-    .cal-list-day {
-      font: 700 .95rem/1 'Bricolage Grotesque', serif; color: var(--brand-900, #1A1D4A);
-      min-width: 20px; text-align: center;
-    }
-    .cal-list-title { flex: 1; font: 500 .8rem/1.2 'Manrope', sans-serif; color: var(--brand-900, #1A1D4A); }
-    .cal-list-del {
-      background: transparent; border: none; color: #8a8d9c; width: 24px; height: 24px;
-      border-radius: 5px; display: grid; place-items: center; cursor: pointer; transition: background .2s ease, color .2s ease;
-    }
-    .cal-list-del svg { width: 14px; height: 14px; }
-    .cal-list-del:hover { background: rgba(230, 126, 91, .15); color: var(--accent-coral, #E67E5B); }
-    
-    .cal-acciones { padding-top: .8rem; border-top: 1px solid rgba(143, 163, 227, .25); }
-    .cal-acciones__btns { display: flex; gap: .4rem; flex-wrap: wrap; }
-    .cal-accion-btn {
-      flex: 1; min-width: 130px; display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
-      padding: .5rem .7rem; font: 600 .72rem/1 'Manrope', sans-serif; color: #fff; background: var(--brand-500, #4A67C9);
-      border: none; border-radius: 7px; cursor: pointer; transition: transform .2s ease;
-    }
-    .cal-accion-btn:hover { transform: translateY(-1px); }
-    .cal-accion-btn svg { width: 13px; height: 13px; }
-    .cal-accion-btn--delegado, .cal-btn--delegado { background: #8B5CF6 !important; }
-    
-    /* Modales del calendario */
-    .cal-modal-overlay {
-      position: fixed; inset: 0; background: rgba(26, 29, 74, .55); backdrop-filter: blur(4px);
-      display: grid; place-items: center; z-index: 400;
-    }
-    .cal-modal-card {
-      width: min(380px, calc(100vw - 2rem)); background: #fff; border-radius: 14px;
-      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, .3); overflow: hidden;
-    }
-    .cal-modal-header {
-      display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.2rem;
-      border-bottom: 1px solid rgba(143, 163, 227, .25); background: var(--brand-100, #E3E9FA);
-    }
-    .cal-modal-title { margin: 0; font: 700 1rem/1.2 'Bricolage Grotesque', serif; color: var(--brand-900, #1A1D4A); }
-    .cal-modal-close {
-      background: transparent; border: none; font-size: 1.4rem; line-height: 1; color: #8a8d9c; cursor: pointer; padding: 0 .2rem;
-    }
-    .cal-modal-close:hover { color: var(--accent-coral, #E67E5B); }
-    .cal-modal-form { padding: 1.2rem; display: flex; flex-direction: column; gap: .8rem; }
-    .cal-modal-label {
-      display: flex; flex-direction: column; gap: .3rem; font: 600 .7rem/1 'Manrope', sans-serif;
-      color: var(--brand-700, #2C3E87); letter-spacing: .02em; text-transform: uppercase;
-    }
-    .cal-modal-label input, .cal-modal-label select, .cal-modal-label textarea {
-      font: 400 .85rem/1.3 'Manrope', sans-serif; color: var(--brand-900, #1A1D4A); padding: .55rem .7rem;
-      border: 1px solid rgba(143, 163, 227, .45); border-radius: 7px; background: #fff; outline: none;
-    }
-    .cal-modal-label input:focus, .cal-modal-label select:focus, .cal-modal-label textarea:focus { border-color: var(--brand-500, #4A67C9); box-shadow: 0 0 0 3px rgba(74, 103, 201, .15); }
-    .cal-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
-    .cal-modal-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .4rem; }
-
     @media (max-width: 720px) {
       .admin-form__row { grid-template-columns: 1fr; }
       .audit-item { grid-template-columns: auto 1fr; }
       .audit-item__user { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
+    }
+
+    /* ============================================================
+       ESTILOS PARA NOVEDADES
+       ============================================================ */
+    .novedad-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid rgba(143,163,227,.25);
+      border-radius: 10px;
+      margin-bottom: .5rem;
+      background: #fff;
+    }
+    .novedad-row__info { flex: 1; }
+    .novedad-row__titulo {
+      margin: 0 0 .25rem;
+      font: 600 .9rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .novedad-row__meta {
+      margin: 0;
+      font: 500 .75rem/1.3 'Manrope', sans-serif;
+      color: #6c6f80;
+    }
+    .novedad-row__menu {
+      position: relative;
+    }
+    .novedad-row__menu-btn {
+      padding: .5rem;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #6c6f80;
+      transition: background .2s;
+    }
+    .novedad-row__menu-btn:hover { background: rgba(143,163,227,.1); }
+    .novedad-row__menu-dropdown {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: #fff;
+      border: 1px solid rgba(143,163,227,.25);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px -4px rgba(0,0,0,.1);
+      z-index: 10;
+      min-width: 120px;
+      display: none;
+    }
+    .novedad-row__menu.is-open .novedad-row__menu-dropdown { display: block; }
+    .novedad-row__menu-dropdown button {
+      display: block;
+      width: 100%;
+      padding: .75rem 1rem;
+      background: none;
+      border: none;
+      text-align: left;
+      font: 500 .85rem 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+      cursor: pointer;
+      border-radius: 0;
+    }
+    .novedad-row__menu-dropdown button:hover { background: rgba(143,163,227,.1); }
+
+    .categoria-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.2rem;
+      border: 1px solid rgba(143,163,227,.25);
+      border-radius: 16px;
+      margin-bottom: .75rem;
+      background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+      box-shadow: 0 10px 28px -18px rgba(26,29,74,.16);
+    }
+    .categoria-row__color {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid rgba(143,163,227,.35);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+    }
+    .categoria-row__info {
+      flex: 1;
+      min-width: 0;
+    }
+    .categoria-row__name {
+      margin: 0 0 .2rem;
+      font: 700 .96rem/1.2 'Bricolage Grotesque', serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .categoria-row__meta {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      flex-wrap: wrap;
+      color: #6c6f80;
+      font: 500 .78rem/1.5 'Manrope', sans-serif;
+    }
+    .categoria-row__tag {
+      display: inline-flex;
+      align-items: center;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      background: rgba(61,170,106,.08);
+      color: #386a4b;
+      font-size: .78rem;
+      white-space: nowrap;
+    }
+
+    /* File input styling */
+    .file-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+    .file-input-label {
+      font: 600 .85rem 'Manrope', sans-serif;
+      color: var(--brand-900, #1A1D4A);
+    }
+    .file-input-group {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .file-input-field {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+    .file-input-text {
+      display: inline-block;
+      padding: .65rem 1rem;
+      font: 500 .85rem 'Manrope', sans-serif;
+      color: #1A1D4A;
+      background: #f5f5f5;
+      border: 2px dashed rgba(143,163,227,.45);
+      border-radius: 9px;
+      transition: all .2s ease;
+      cursor: pointer;
+    }
+    .file-input-field:hover + .file-input-text {
+      background: rgba(143,163,227,.08);
+      border-color: rgba(143,163,227,.65);
+    }
+    .file-input-field:focus + .file-input-text {
+      outline: 2px solid rgba(143,163,227,.65);
+      outline-offset: 2px;
+    }
+    .file-input-field:has-file ~ .file-input-text {
+      border-color: #3DAA6A;
+      background: rgba(61,170,106,.05);
+      color: #2a8a52;
+      font-weight: 600;
+    }
+    .file-remove-btn {
+      margin-top: .45rem;
+      padding: .5rem .85rem;
+      font: 600 .82rem 'Manrope', sans-serif;
+      color: #3DAA6A;
+      background: transparent;
+      border: 1px solid rgba(61,170,106,.35);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .file-remove-btn:hover {
+      background: rgba(61,170,106,.08);
+      border-color: #3DAA6A;
+    }
+
+    .admin-form__row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .admin-form__row label {
+      flex: 1;
+    }
+    .admin-form__row label input,
+    .admin-form__row label select {
+      width: 100%;
+    }
+    .admin-form textarea {
+      width: 100%;
+      padding: .65rem .8rem;
+      font: 500 .85rem 'Manrope', sans-serif;
+      border: 1px solid rgba(143,163,227,.45);
+      border-radius: 9px;
+      background: #fff;
+      resize: vertical;
+    }
+    .admin-form__submit {
+      padding: .75rem 1.5rem;
+      font: 600 .9rem 'Manrope', sans-serif;
+      color: #fff;
+      background: #3DAA6A;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      transition: transform .2s;
+    }
+    .admin-form__submit:hover { transform: translateY(-1px); }
+    .admin-form__submit svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
     }
   </style>
 </head>
@@ -959,7 +1143,7 @@
 
         <div class="header__text">
           <span class="role-pill">
-            <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"></path></svg>
             Administrador
           </span>
           <h1 class="header__title">
@@ -1047,6 +1231,7 @@
     const adminIniciales = adminNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
 
     const admin = {
+      id: 4,
       nombre: adminNombre,
       iniciales: adminIniciales,
       usuario: session.usuario || '',
@@ -1072,17 +1257,6 @@
       carreras = await res.json();
     } catch (err) {
       console.warn('[Admin] No se pudo cargar carreras.json:', err);
-    }
-
-    // Cargar calendario desde calendario.json
-    let calendarioDatos = { eventos_calendario: [], tipos: [] };
-    let adminCalMes = null;  // mes visible en el calendario del admin
-    try {
-      const res = await fetch('json/calendario.json');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      calendarioDatos = await res.json();
-    } catch (err) {
-      console.warn('[Admin] No se pudo cargar calendario.json:', err);
     }
 
     // Mapeo de perfil_id a rol
@@ -1122,17 +1296,43 @@
       return c ? `${c.codigo} – ${c.nombre}` : '—';
     }
 
+    // Cargar novedades y categorías
+    let novedades = [];
+    let categorias = [];
+    try {
+      const resp = await fetch('json/novedades.json');
+      const data = await resp.json();
+      novedades = data.novedades || [];
+      categorias = data.categorias || [];
+    } catch (e) {
+      console.error('Error loading novedades data', e);
+    }
+
     // Actualizar header con datos del usuario logueado
     const userAvatarEl = document.getElementById('userAvatar');
     const userNameEl = document.getElementById('userName');
     if (userAvatarEl) userAvatarEl.textContent = admin.iniciales;
     if (userNameEl) userNameEl.textContent = admin.nombre;
 
+    // Actualizar el texto del rol en el header
+    const rolePillEl = document.querySelector('.role-pill');
+    if (rolePillEl) {
+      const roleTextMap = {
+        'admin': 'Administrador',
+        'administrador': 'Administrador',
+        'docente': 'Docente',
+        'delegado': 'Delegado',
+        'alumno': 'Alumno' // Aunque admin.html no es para alumno, se incluye por completitud
+      };
+      rolePillEl.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"></path></svg> ${roleTextMap[admin.rol.toLowerCase()] || admin.rol.charAt(0).toUpperCase() + admin.rol.slice(1)}`;
+    }
+
     /* ============================================================
        MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js)
        ============================================================ */
     const modulosData = window.MODULOS_DATA || {};
     const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
+    let eventosAdmin = [];
 
     async function loadReglamentacionFromJSON() {
       if (!modulosData['mod-reglamentacion']) return;
@@ -1154,6 +1354,149 @@
       } catch (err) {
         console.warn('No se pudo cargar reglamentación desde JSON:', err);
       }
+    }
+
+    async function loadEventosFromJSON() {
+      if (!modulosData['mod-eventos']) return;
+      try {
+        const res = await fetch('json/eventos.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!Array.isArray(data.eventos)) throw new Error('Formato inesperado');
+        eventosAdmin = data.eventos.map(ev => ({
+          ...ev,
+          detalle: `${ev.categoria} · ${ev.lugar} · Cupo ${ev.inscriptos}/${ev.cupo}`
+        }));
+      } catch (err) {
+        console.warn('No se pudo cargar eventos desde JSON:', err);
+        eventosAdmin = modulosData['mod-eventos'].items.map((item, index) => ({
+          id: Date.now() + index,
+          titulo: item.titulo,
+          descripcion: item.detalle,
+          fecha_inicio: new Date().toISOString(),
+          fecha_fin: new Date().toISOString(),
+          cupo: 0,
+          inscriptos: 0,
+          autor: 'Sistema',
+          estado: 'activo',
+          categoria: 'General',
+          lugar: 'Sin definir',
+          color: '#8B5CF6',
+          detalle: item.detalle
+        }));
+      }
+    }
+
+    function formatDateTime(isoDate) {
+      const date = new Date(isoDate);
+      return date.toLocaleString('es-AR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function roleEventCategories() {
+      const role = admin.rol.toLowerCase();
+      if (role === 'admin') return ['Académico', 'Social', 'Cultural', 'Centro de Estudiantes', 'Deportivo'];
+      if (role === 'docente') return ['Académico', 'Social', 'Cultural'];
+      if (role === 'delegado') return ['Centro de Estudiantes', 'Social', 'Cultural'];
+      return ['Social', 'Cultural'];
+    }
+
+    function canManageEvent(ev) {
+      const role = admin.rol.toLowerCase();
+      return role === 'admin' || ev.autor === admin.nombre || ev.autor === 'Centro de Estudiantes';
+    }
+
+    function renderEventosAdmin() {
+      const categorias = roleEventCategories();
+      const canPublish = ['admin', 'docente', 'delegado'].includes(admin.rol.toLowerCase());
+      const headerLabel = admin.rol.toLowerCase() === 'admin'
+        ? 'Control total de la sección Eventos'
+        : admin.rol.toLowerCase() === 'docente'
+          ? 'Publicá eventos académicos relacionados a tu materia'
+          : 'Publicá eventos del Centro de Estudiantes y actividades sociales';
+
+      const eventCards = eventosAdmin.length ? eventosAdmin.map(ev => `
+          <div class="modulo-item" style="padding:1rem;display:flex;flex-direction:column;gap:.7rem;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;">
+              <div>
+                <p class="modulo-item__titulo">${ev.titulo}</p>
+                <p class="modulo-item__detalle">${ev.detalle}</p>
+                <p style="margin:.4rem 0 0;font:500 .82rem 'Manrope',sans-serif;color:#5a5d6e">${ev.descripcion || ''}</p>
+              </div>
+              <span class="modulo-item__estado modulo-item__estado--${ev.estado === 'activo' ? 'activo' : ev.estado === 'finalizado' ? 'cerrado' : 'cerrado'}" style="white-space:nowrap;">${ev.estado}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
+              <div style="font:500 .82rem 'Manrope',sans-serif;color:#6c6f80;">${formatDateTime(ev.fecha_inicio)} · ${formatDateTime(ev.fecha_fin)}</div>
+              <div style="display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;">
+                <span style="font:600 .78rem 'Manrope',sans-serif;color:#1A1D4A;">${ev.categoria}</span>
+                <span style="font:500 .78rem 'Manrope',sans-serif;color:#4A47A7;">${ev.autor}</span>
+                ${canManageEvent(ev) ? `<button class="btn btn-secondary btn-sm" data-event-action="edit" data-event-id="${ev.id}">Editar</button>
+                <button class="btn btn-secondary btn-sm" data-event-action="delete" data-event-id="${ev.id}" style="background:#E67E5B;border-color:#E67E5B;color:#fff;">Eliminar</button>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('') : '<p style="padding:1.2rem;color:#8a8d9c;font-family:Manrope,sans-serif">No hay eventos registrados todavía.</p>';
+
+      return `
+        <p class="modulo-descripcion">${modulosData['mod-eventos'].descripcion}</p>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+          <div style="flex:1;min-width:220px;">
+            <strong style="display:block;margin-bottom:.35rem;color:#1A1D4A;">${headerLabel}</strong>
+            <span style="color:#5a5d6e;font:500 .9rem 'Manrope',sans-serif">Podés publicar, editar y administrar eventos según tu rol.</span>
+          </div>
+          ${canPublish ? `<button class="btn btn-primary" id="toggleEventForm">${admin.rol.toLowerCase() === 'admin' ? 'Nuevo evento' : 'Publicar evento'}</button>` : ''}
+        </div>
+
+        <div id="eventAdminFormWrapper" style="display:none;margin-bottom:1.5rem;border:1px solid rgba(143,163,227,.25);border-radius:16px;padding:1rem;background:#fff;">
+          <form id="newEventForm" class="admin-form">
+            <div class="admin-form__row">
+              <label>Título del evento
+                <input type="text" name="titulo" required placeholder="Ej: Charla de Robótica">
+              </label>
+              <label>Categoria
+                <select name="categoria" required>${categorias.map(cat => `<option value="${cat}">${cat}</option>`).join('')}</select>
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Fecha y hora inicio
+                <input type="datetime-local" name="fecha_inicio" required>
+              </label>
+              <label>Fecha y hora fin
+                <input type="datetime-local" name="fecha_fin" required>
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Lugar
+                <input type="text" name="lugar" required placeholder="Ej: Aula Magna">
+              </label>
+              <label>Cupo total
+                <input type="number" name="cupo" required min="1" value="20">
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Descripción
+                <textarea name="descripcion" rows="3" required placeholder="Breve descripción del evento"></textarea>
+              </label>
+            </div>
+            <div class="admin-form__row" style="align-items:center;">
+              <label>Estado
+                <select name="estado">
+                  <option value="activo">Activo</option>
+                  <option value="finalizado">Finalizado</option>
+                </select>
+              </label>
+              <button type="submit" class="admin-form__submit">Guardar evento</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="modulo-list">${eventCards}</div>
+      `;
     }
 
     function renderModuloListado(key) {
@@ -1217,8 +1560,9 @@
       `;
       // Hooks por sección
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
+      if (key === 'mod-novedades') bindNovedadesDrawer();
+      if (key === 'mod-eventos') bindEventosDrawer();
       if (key === 'perfil') bindPerfilSection();
-      if (key === 'mod-calendario') bindAdminCalendar();
       // Active state en el menú
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
       const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
@@ -1367,7 +1711,9 @@
     };
 
     if (isAdminUser) {
-      await loadReglamentacionFromJSON();
+      await Promise.all([loadReglamentacionFromJSON(), loadEventosFromJSON()]);
+    } else {
+      await loadEventosFromJSON();
     }
 
     // Registrar secciones de los módulos del proyecto
@@ -1376,14 +1722,14 @@
       sectionContent[key] = () => ({
         title: modulosData[key].titulo,
         icon: modulosData[key].icono,
-        html: renderModuloListado(key)
+        html: key === 'mod-eventos' ? renderEventosAdmin() : renderModuloListado(key)
       });
     });
 
-    // Sobreescribir la sección del calendario con la versión interactiva del admin
-    sectionContent['mod-calendario'] = () => ({
-      title: 'Calendario Académico',
-      html: `<div id="adminCalContainer"></div>`
+    sectionContent['mod-novedades'] = () => ({
+      title: 'Novedades',
+      icon: modulosData['mod-novedades'].icono,
+      html: renderNovedadesAdmin()
     });
 
     function profileItem(label, value, highlight = false) {
@@ -1542,6 +1888,130 @@
       });
     }
 
+    function buildUserRow(u) {
+      const ini = u.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
+      return `
+        <div class="user-row" data-user="${u.id}">
+          <div class="user-row__avatar" data-rol="${u.rol}">${ini}</div>
+          <div>
+            <p class="user-row__name">${u.nombre}</p>
+            <p class="user-row__meta">@${u.usuario} · ${u.rol} · ${u.email || ''}</p>
+          </div>
+          <span class="user-row__rol" data-rol="${u.rol}">${u.rol}</span>
+          <div class="user-row__menu" data-menu>
+            <button class="user-row__menu-btn" data-menu-btn aria-label="Acciones">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
+            </button>
+            <div class="user-row__menu-dropdown">
+              <button data-action="edit"        data-id="${u.id}">✏️  Editar datos</button>
+              <button data-action="reset"       data-id="${u.id}">🔑  Resetear password</button>
+              <hr>
+              <button class="is-danger" data-action="delete" data-id="${u.id}">🚫  Eliminar</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function bindEventosDrawer() {
+      const toggleBtn = document.getElementById('toggleEventForm');
+      const formWrapper = document.getElementById('eventAdminFormWrapper');
+      const form = document.getElementById('newEventForm');
+      const eventList = document.querySelector('.modulo-list');
+
+      if (toggleBtn && formWrapper) {
+        toggleBtn.addEventListener('click', () => {
+          const visible = formWrapper.style.display === 'block';
+          formWrapper.style.display = visible ? 'none' : 'block';
+          toggleBtn.textContent = visible ? 'Publicar evento' : 'Ocultar formulario';
+        });
+      }
+
+      if (form) {
+        form.addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(form);
+          const editingId = form.dataset.editing ? Number(form.dataset.editing) : null;
+
+          if (editingId) {
+            const evento = eventosAdmin.find(ev => ev.id === editingId);
+            if (!evento) return;
+            evento.titulo = data.get('titulo').trim();
+            evento.descripcion = data.get('descripcion').trim();
+            evento.fecha_inicio = data.get('fecha_inicio');
+            evento.fecha_fin = data.get('fecha_fin');
+            evento.cupo = Number(data.get('cupo'));
+            evento.lugar = data.get('lugar').trim();
+            evento.categoria = data.get('categoria');
+            evento.estado = data.get('estado');
+            evento.detalle = `${evento.categoria} · ${evento.lugar} · Cupo ${evento.inscriptos}/${evento.cupo}`;
+            auditar('editar', 'evento', `Evento editado: ${evento.titulo}`);
+            showToast('Evento actualizado', `El evento "${evento.titulo}" fue guardado.`);
+            delete form.dataset.editing;
+          } else {
+            const nuevoEvento = {
+              id: Date.now(),
+              titulo: data.get('titulo').trim(),
+              descripcion: data.get('descripcion').trim(),
+              fecha_inicio: data.get('fecha_inicio'),
+              fecha_fin: data.get('fecha_fin'),
+              cupo: Number(data.get('cupo')),
+              inscriptos: 0,
+              autor: admin.nombre,
+              estado: data.get('estado'),
+              categoria: data.get('categoria'),
+              lugar: data.get('lugar').trim(),
+              color: '#4A67C9',
+              detalle: `${data.get('categoria')} · ${data.get('lugar')} · Cupo 0/${data.get('cupo')}`
+            };
+            eventosAdmin.unshift(nuevoEvento);
+            auditar('crear', 'evento', `Evento creado: ${nuevoEvento.titulo}`);
+            showToast('Evento creado', `El evento "${nuevoEvento.titulo}" fue publicado.`);
+          }
+
+          form.reset();
+          if (formWrapper) formWrapper.style.display = 'none';
+          if (toggleBtn) toggleBtn.textContent = 'Publicar evento';
+          navigateTo('mod-eventos');
+        });
+      }
+
+      if (eventList) {
+        eventList.addEventListener('click', e => {
+          const action = e.target.closest('[data-event-action]');
+          if (!action) return;
+          const eventId = Number(action.dataset.eventId);
+          const evento = eventosAdmin.find(ev => ev.id === eventId);
+          if (!evento) return;
+          const type = action.dataset.eventAction;
+
+          if (type === 'delete') {
+            if (!confirm(`¿Eliminar el evento "${evento.titulo}"?`)) return;
+            eventosAdmin = eventosAdmin.filter(ev => ev.id !== eventId);
+            auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
+            showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
+            navigateTo('mod-eventos');
+          }
+
+          if (type === 'edit') {
+            const formWrapperEdit = document.getElementById('eventAdminFormWrapper');
+            if (!formWrapperEdit) return;
+            formWrapperEdit.style.display = 'block';
+            if (toggleBtn) toggleBtn.textContent = 'Ocultar formulario';
+            form.querySelector('[name="titulo"]').value = evento.titulo;
+            form.querySelector('[name="descripcion"]').value = evento.descripcion;
+            form.querySelector('[name="fecha_inicio"]').value = evento.fecha_inicio.slice(0, 16);
+            form.querySelector('[name="fecha_fin"]').value = evento.fecha_fin.slice(0, 16);
+            form.querySelector('[name="lugar"]').value = evento.lugar;
+            form.querySelector('[name="cupo"]').value = evento.cupo;
+            form.querySelector('[name="categoria"]').value = evento.categoria;
+            form.querySelector('[name="estado"]').value = evento.estado;
+            form.dataset.editing = String(evento.id);
+          }
+        });
+      }
+    }
+
     function bindUserActions() {
       // Toggle dropdown
       document.querySelectorAll('[data-menu-btn]').forEach(btn => {
@@ -1663,10 +2133,561 @@
     }
 
     /* ============================================================
-       7) CONFIRMACIÓN DESTRUCTIVA (con tipeo)
+       FUNCIONES PARA NOVEDADES
        ============================================================ */
-    const dangerModal = document.getElementById('dangerModal');
-    const dangerTitle = document.getElementById('dangerTitle');
+
+    function renderNovedadesAdmin() {
+      const materiaField = admin.rol !== 'delegado' ? `
+            <label>Materia
+              <select name="materia">
+                <option value="">Seleccionar materia</option>
+                ${[
+                  'Lógica Computacional',
+                  'Estadística Aplicada',
+                  'Química Inorgánica',
+                  'Programación Avanzada',
+                  'Gestión Educativa'
+                ].map(m => `<option value="${m}">${m}</option>`).join('')}
+              </select>
+            </label>
+          ` : '';
+
+      return `
+        <div class="drawer__tabs">
+          <button class="drawer__tab is-active" data-tab="lista">Lista (${novedades.length})</button>
+          <button class="drawer__tab" data-tab="categorias">Categorías (${categorias.length})</button>
+          <button class="drawer__tab" data-tab="nueva">+ Nueva novedad</button>
+        </div>
+
+        <div id="novedadesListPane">
+          <div style="display:flex;gap:.5rem;margin-bottom:.8rem">
+            <select id="filterCategoria" style="flex:1;padding:.65rem .8rem;font:500 .85rem 'Manrope',sans-serif;border:1px solid rgba(143,163,227,.45);border-radius:9px;background:#fff">
+              <option value="todos">Todas las categorías</option>
+              ${categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+            </select>
+          </div>
+          <div class="drawer__search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+            <input id="novedadesSearch" type="text" placeholder="Buscar por título o contenido…">
+          </div>
+          <div id="novedadesList"></div>
+        </div>
+
+        <div id="novedadesNewPane" hidden>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <p style="font:400 .85rem/1.4 'Manrope',sans-serif;color:#5a5d6e;margin:0">
+              Crea una nueva novedad para publicar en el sistema.
+            </p>
+            <button id="newCategoriaBtn" style="padding:.5rem .8rem;font:600 .8rem 'Manrope',sans-serif;color:#fff;background:#3DAA6A;border:none;border-radius:8px;cursor:pointer">+ Nueva categoría</button>
+          </div>
+          <div id="newCategoriaFormContainer" hidden style="margin-bottom:1.5rem; padding:1.2rem; border:1px dashed rgba(61, 170, 106, .4); border-radius:12px; background:rgba(61, 170, 106, .02)"></div>
+          <form class="admin-form" id="newNovedadForm">
+            <div class="admin-form__row">
+              <label>Título
+                <input type="text" name="titulo" required placeholder="Título de la novedad">
+              </label>
+              <label>Categoría
+                <select name="categoria_id" required>
+                  ${categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+                </select>
+              </label>
+            </div>
+            <label>Contenido
+              <textarea name="contenido" required placeholder="Describe la novedad..." rows="4"></textarea>
+            </label>
+            <div class="admin-form__row">
+              <label class="checkbox-toggle">
+                <input type="checkbox" name="destacada">
+                <span class="checkbox-toggle__control"></span>
+                <span class="checkbox-toggle__text">Destacar esta novedad</span>
+              </label>
+              ${materiaField}
+            </div>
+            <div class="admin-form__row">
+              <div class="file-input-wrapper">
+                <label for="adjunto-file" class="file-input-label">Adjunto (opcional)</label>
+                <label class="file-input-group">
+                  <input type="file" id="adjunto-file" name="adjunto" class="file-input-field">
+                  <span class="file-input-text">Seleccionar archivo</span>
+                </label>
+              </div>
+            </div>
+            <button type="submit" class="admin-form__submit">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+              Publicar novedad
+            </button>
+          </form>
+        </div>
+
+        <div id="categoriasPane" hidden>
+          <div id="categoriasList"></div>
+        </div>
+      `;
+    }
+
+    function renderNovedades() {
+      const listContainer = document.getElementById('novedadesList');
+      if (!listContainer) return;
+
+      const filterCategoria = document.getElementById('filterCategoria');
+      const searchInput = document.getElementById('novedadesSearch');
+      const query = searchInput?.value.trim().toLowerCase() || '';
+      const selectedCategoria = filterCategoria?.value || 'todos';
+
+      const filtered = novedades.filter(n => {
+        const matchesCategoria = selectedCategoria === 'todos' || n.categoria_id === +selectedCategoria;
+        const matchesSearch = !query || [
+          n.titulo,
+          n.contenido,
+          n.categoria,
+          n.materia
+        ].some(value => String(value || '').toLowerCase().includes(query));
+        return matchesCategoria && matchesSearch;
+      });
+
+      listContainer.innerHTML = filtered.length > 0 ? filtered.map(n => {
+        const fecha = n.fecha ? new Date(n.fecha).toLocaleDateString('es-AR', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        }) : '';
+        return `
+          <div class="novedad-row" data-novedad-id="${n.id}">
+            <div class="novedad-row__info">
+              <strong class="novedad-row__titulo">${n.titulo}</strong>
+              <div class="novedad-row__meta">
+                <span>${n.categoria || 'Sin categoría'}</span>
+                <span>${fecha}</span>
+                ${n.materia ? `<span>${n.materia}</span>` : ''}
+                ${n.adjunto ? `<span>Archivo: ${n.adjunto}</span>` : `<span style="color:#6c6f80">Sin adjunto</span>`}
+                ${n.destacada ? `<span class="badge" style="background:#F8E71C;color:#1A1D4A;padding:.2rem .45rem;border-radius:999px;font-size:.75rem;font-weight:700">Destacada</span>` : ''}
+              </div>
+              <p style="margin:.55rem 0 0;color:rgba(33,37,41,.8)">${n.contenido}</p>
+            </div>
+            <div class="novedad-row__menu" data-menu>
+              <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de novedad">⋯</button>
+              <div class="novedad-row__menu-dropdown">
+                <button type="button" data-action="edit" data-id="${n.id}">Editar</button>
+                <button type="button" data-action="delete" data-id="${n.id}">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('') : `<p class="drawer__empty" style="margin:1rem 0;color:rgba(33,37,41,.75)">No se encontraron novedades.</p>`;
+
+      bindNovedadActions();
+    }
+
+    function bindNovedadesDrawer() {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const panes = {
+        lista: document.getElementById('novedadesListPane'),
+        nueva: document.getElementById('novedadesNewPane'),
+        categorias: document.getElementById('categoriasPane')
+      };
+      function showTab(t) {
+        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
+        Object.entries(panes).forEach(([k, p]) => p.hidden = k !== t);
+      }
+      tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+
+      // Lista
+      const filterCategoria = document.getElementById('filterCategoria');
+      const search = document.getElementById('novedadesSearch');
+
+      if (filterCategoria) filterCategoria.addEventListener('change', renderNovedades);
+      if (search) search.addEventListener('input', renderNovedades);
+      renderNovedades();
+
+      // Form nueva novedad (Submit corregido)
+      document.getElementById('newNovedadForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const adjuntoFile = document.getElementById('adjunto-file').files[0];
+        const nueva = {
+          id: Date.now(),
+          titulo: data.get('titulo'),
+          contenido: data.get('contenido'),
+          categoria_id: +data.get('categoria_id'),
+          categoria: categorias.find(c => c.id == data.get('categoria_id')).nombre,
+          autor_id: admin.id,
+          autor: admin.nombre,
+          destacada: data.has('destacada'),
+          fecha: new Date().toISOString(),
+          materia: data.get('materia')?.trim() || null,
+          adjunto: adjuntoFile ? adjuntoFile.name : null
+        };
+        novedades.unshift(nueva);
+        auditar('crear', 'novedad', `Nueva: ${nueva.titulo}` + (adjuntoFile ? ` (archivo: ${adjuntoFile.name})` : ''));
+        showToast('Novedad publicada', `${nueva.titulo} fue agregada al sistema.`);
+        e.target.reset();
+        document.querySelector('.file-input-text').textContent = 'Seleccionar archivo';
+        showTab('lista');
+        renderNovedades();
+      });
+
+      // Handle file input change
+      const fileInput = document.getElementById('adjunto-file');
+      if (fileInput) {
+        fileInput.addEventListener('change', e => {
+          const fileText = document.querySelector('.file-input-text');
+          if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const fileSize = (e.target.files[0].size / 1024).toFixed(1);
+            fileText.textContent = `📎 ${fileName} (${fileSize} KB)`;
+          } else {
+            fileText.textContent = 'Seleccionar archivo';
+          }
+        });
+      }
+
+      // Listener para el botón "+ Nueva categoría" en el formulario de novedades
+      const newCatBtn = document.getElementById('newCategoriaBtn');
+      const newCatCont = document.getElementById('newCategoriaFormContainer');
+      
+      newCatBtn.addEventListener('click', () => {
+        const isHidden = newCatCont.hidden;
+        newCatCont.hidden = !isHidden;
+        
+        if (!newCatCont.hidden) {
+          showNewCategoriaForm(newCatCont);
+          newCatBtn.textContent = 'Cancelar';
+          newCatBtn.style.background = '#E67E5B';
+          setTimeout(() => newCatCont.querySelector('input[name="nombre"]')?.focus(), 50);
+        } else {
+          newCatCont.innerHTML = '';
+          newCatBtn.textContent = '+ Nueva categoría';
+          newCatBtn.style.background = '#3DAA6A';
+        }
+      });
+
+      renderCategorias();
+    }
+
+    function bindNovedadActions() {
+      // Toggle dropdown
+      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const menu = btn.closest('[data-menu]');
+          document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
+          menu.classList.toggle('is-open');
+        });
+      });
+
+      // Acciones
+      document.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const id = +btn.dataset.id;
+          const action = btn.dataset.action;
+          const n = novedades.find(x => x.id === id);
+          if (!n) return;
+          // Cerrar dropdown
+          btn.closest('[data-menu]').classList.remove('is-open');
+
+          if (action === 'edit') {
+            showEditNovedadForm(n);
+          }
+          if (action === 'delete') {
+            requestDangerConfirm({
+              title: '¿Eliminar esta novedad?',
+              msg: `Vas a eliminar "<strong>${n.titulo}</strong>". Esta acción no se puede deshacer.`,
+              btnLabel: 'Eliminar novedad',
+              onConfirm: () => {
+                const idx = novedades.findIndex(x => x.id === n.id);
+                novedades.splice(idx, 1);
+                auditar('eliminar', 'novedad', `Eliminada: ${n.titulo}`);
+                showToast('Novedad eliminada', `${n.titulo} fue removida del sistema.`, '#E67E5B');
+                document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+              }
+            });
+          }
+        });
+      });
+
+      // Cerrar dropdown al hacer click fuera
+      document.addEventListener('click', () => {
+        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
+      }, { once: true });
+    }
+
+    function bindCategoriaActions() {
+      // Similar a bindNovedadActions, pero para categorías
+      document.querySelectorAll('.categoria-row [data-menu-btn]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const menu = btn.closest('[data-menu]');
+          document.querySelectorAll('[data-menu].is-open').forEach(m => { if (m !== menu) m.classList.remove('is-open'); });
+          menu.classList.toggle('is-open');
+        });
+      });
+
+      document.querySelectorAll('.categoria-row [data-action]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const id = +btn.dataset.id;
+          const action = btn.dataset.action;
+          const c = categorias.find(x => x.id === id);
+          if (!c) return;
+          btn.closest('[data-menu]').classList.remove('is-open');
+
+          if (action === 'edit-cat') {
+            showEditCategoriaForm(c);
+          }
+          if (action === 'delete-cat') {
+            requestDangerConfirm({
+              title: '¿Eliminar esta categoría?',
+              msg: `Vas a eliminar "<strong>${c.nombre}</strong>". Las novedades de esta categoría no se eliminarán, pero quedarán sin categoría.`,
+              btnLabel: 'Eliminar categoría',
+              onConfirm: () => {
+                const idx = categorias.findIndex(x => x.id === c.id);
+                categorias.splice(idx, 1);
+                auditar('eliminar', 'categoria', `Eliminada: ${c.nombre}`);
+                showToast('Categoría eliminada', `${c.nombre} fue removida del sistema.`, '#E67E5B');
+                renderCategorias();
+              }
+            });
+          }
+        });
+      });
+
+      document.addEventListener('click', () => {
+        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
+      }, { once: true });
+    }
+
+    function showNewCategoriaForm(cont) {
+      if (!cont) cont = document.getElementById('categoriasList');
+      
+      const isInline = cont.id === 'newCategoriaFormContainer';
+      const backBtnHtml = !isInline ? `
+        <div style="margin-bottom:.8rem">
+          <button id="categoriaBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
+        </div>` : '';
+
+      cont.innerHTML = `
+        ${backBtnHtml}
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">
+          ${isInline ? 'Crear nueva categoría' : 'Nueva categoría'}
+        </h3>
+        <form class="admin-form" id="newCategoriaForm">
+          <div class="admin-form__row">
+            <label>Nombre
+              <input type="text" name="nombre" required placeholder="Nombre de la categoría">
+            </label>
+            <label>Color
+              <input type="color" name="color" value="#4A67C9" style="height:38px; padding:2px">
+            </label>
+          </div>
+          <button type="submit" class="admin-form__submit" style="background:#3DAA6A">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            Guardar categoría
+          </button>
+        </form>
+      `;
+
+      if (!isInline) {
+        document.getElementById('categoriaBackBtn').addEventListener('click', () => renderCategorias());
+      }
+
+      document.getElementById('newCategoriaForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const nextId = categorias.length ? Math.max(...categorias.map(c => c.id)) + 1 : 1;
+        const nueva = {
+          id: nextId,
+          nombre: data.get('nombre'),
+          color: data.get('color')
+        };
+        categorias.push(nueva);
+        auditar('crear', 'categoria', `Nueva: ${nueva.nombre}`);
+        showToast('Categoría creada', `${nueva.nombre} fue agregada al sistema.`);
+
+        if (isInline) {
+          const btn = document.getElementById('newCategoriaBtn');
+          cont.hidden = true;
+          cont.innerHTML = '';
+          btn.textContent = '+ Nueva categoría';
+          btn.style.background = '#3DAA6A';
+          
+          const catSelect = document.querySelector('#newNovedadForm select[name="categoria_id"]');
+          if (catSelect) {
+            catSelect.innerHTML = categorias.map(c => `<option value="${c.id}" ${c.id === nueva.id ? 'selected' : ''}>${c.nombre}</option>`).join('');
+          }
+          const filterCat = document.getElementById('filterCategoria');
+          if (filterCat) {
+            filterCat.innerHTML = `<option value="todos">Todas las categorías</option>` + 
+              categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+          }
+        }
+
+        renderCategorias();
+      });
+    }
+
+    function renderCategorias() {
+      const cont = document.getElementById('categoriasList');
+      if (!cont) return;
+
+      cont.innerHTML = categorias.length > 0 ? categorias.map(c => `
+        <div class="categoria-row" data-categoria-id="${c.id}">
+          <span class="categoria-row__color" style="background:${c.color}"></span>
+          <div class="categoria-row__info">
+            <p class="categoria-row__name">${c.nombre}</p>
+            <div class="categoria-row__meta">
+              <span class="categoria-row__tag">ID ${c.id}</span>
+              <span class="categoria-row__tag" style="border:1px solid ${c.color};background:rgba(255,255,255,.92);color:${c.color}">${c.color}</span>
+            </div>
+          </div>
+          <div class="novedad-row__menu" data-menu>
+            <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de categoría">⋯</button>
+            <div class="novedad-row__menu-dropdown">
+              <button type="button" data-action="edit-cat" data-id="${c.id}">Editar</button>
+              <button type="button" data-action="delete-cat" data-id="${c.id}">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      `).join('') : `<p style="margin:1rem 0;color:rgba(33,37,41,.75)">Aún no hay categorías creadas.</p>`;
+
+      bindCategoriaActions();
+    }
+
+    function showEditCategoriaForm(c) {
+      const cont = document.getElementById('categoriasList');
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="categoriaBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar: ${c.nombre}</h3>
+        <form class="admin-form" id="editCategoriaForm">
+          <div class="admin-form__row">
+            <label>Nombre
+              <input type="text" name="nombre" required value="${c.nombre}">
+            </label>
+            <label>Color
+              <input type="color" name="color" value="${c.color}">
+            </label>
+          </div>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+      document.getElementById('categoriaBackBtn').addEventListener('click', () => renderCategorias());
+      document.getElementById('editCategoriaForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        c.nombre = data.get('nombre');
+        c.color = data.get('color');
+        auditar('editar', 'categoria', `Editada: ${c.nombre}`);
+        showToast('Categoría actualizada', `Los datos de ${c.nombre} fueron guardados.`);
+        renderCategorias();
+      });
+    }
+
+    function showEditNovedadForm(n) {
+      const cont = document.getElementById('novedadesList');
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="novedadBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar: ${n.titulo}</h3>
+        <form class="admin-form" id="editNovedadForm">
+          <div class="admin-form__row">
+            <label>Título
+              <input type="text" name="titulo" required value="${n.titulo}">
+            </label>
+            <label>Categoría
+              <select name="categoria_id" required>
+                ${categorias.map(c => `<option value="${c.id}" ${c.id == n.categoria_id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+              </select>
+            </label>
+          </div>
+          <label>Contenido
+            <textarea name="contenido" required rows="4">${n.contenido}</textarea>
+          </label>
+          <div class="admin-form__row">
+            <label class="checkbox-toggle">
+              <input type="checkbox" name="destacada" ${n.destacada ? 'checked' : ''}>
+              <span class="checkbox-toggle__control"></span>
+              <span class="checkbox-toggle__text">Destacar esta novedad</span>
+            </label>
+            <label>Materia
+              <select name="materia">
+                <option value="">Seleccionar materia</option>
+                ${['Lógica Computacional','Estadística Aplicada','Química Inorgánica','Programación Avanzada','Gestión Educativa']
+                  .map(m => `<option value="${m}" ${n.materia === m ? 'selected' : ''}>${m}</option>`).join('')}
+              </select>
+            </label>
+          </div>
+          <div class="admin-form__row">
+            <div class="file-input-wrapper">
+              <label for="edit-adjunto-file" class="file-input-label">Adjunto (opcional)</label>
+              <label class="file-input-group">
+                <input type="file" id="edit-adjunto-file" name="adjunto" class="file-input-field">
+                <span class="file-input-text">${n.adjunto ? `📎 ${n.adjunto}` : 'Seleccionar archivo'}</span>
+              </label>
+              <button type="button" id="remove-edit-adjunto" class="file-remove-btn" ${n.adjunto ? '' : 'hidden'}>${n.adjunto ? 'Quitar adjunto' : 'Sin adjunto'}</button>
+            </div>
+          </div>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+      document.getElementById('novedadBackBtn').addEventListener('click', () => {
+        document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+      });
+
+      let removeEditAdjunto = false;
+      const editFileInput = document.getElementById('edit-adjunto-file');
+      const editFileText = editFileInput?.parentElement.querySelector('.file-input-text');
+      const removeEditButton = document.getElementById('remove-edit-adjunto');
+
+      if (editFileInput) {
+        editFileInput.addEventListener('change', e => {
+          removeEditAdjunto = false;
+          if (!editFileText) return;
+          if (e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const fileSize = (e.target.files[0].size / 1024).toFixed(1);
+            editFileText.textContent = `📎 ${fileName} (${fileSize} KB)`;
+            if (removeEditButton) removeEditButton.hidden = false;
+          } else {
+            editFileText.textContent = n.adjunto ? `📎 ${n.adjunto}` : 'Seleccionar archivo';
+            if (removeEditButton) removeEditButton.hidden = !n.adjunto;
+          }
+        });
+      }
+
+      if (removeEditButton) {
+        removeEditButton.addEventListener('click', () => {
+          removeEditAdjunto = true;
+          if (editFileInput) editFileInput.value = '';
+          if (editFileText) editFileText.textContent = 'Sin adjunto';
+          removeEditButton.hidden = true;
+        });
+      }
+
+      document.getElementById('editNovedadForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const editAdjuntoFile = document.getElementById('edit-adjunto-file').files[0];
+        n.titulo = data.get('titulo');
+        n.contenido = data.get('contenido');
+        n.categoria_id = +data.get('categoria_id');
+        n.categoria = categorias.find(c => c.id == n.categoria_id).nombre;
+        n.destacada = data.has('destacada');
+        n.materia = data.get('materia')?.trim() || null;
+        n.adjunto = editAdjuntoFile ? editAdjuntoFile.name : removeEditAdjunto ? null : n.adjunto;
+        auditar('editar', 'novedad', `Editada: ${n.titulo}`);
+        showToast('Novedad actualizada', `Los datos de ${n.titulo} fueron guardados.`);
+        document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+      });
+    }
     const dangerMsg = document.getElementById('dangerMsg');
     const dangerInput = document.getElementById('dangerInput');
     const dangerConfirm = document.getElementById('dangerConfirm');
@@ -1732,277 +2753,6 @@
       toast.classList.add('is-visible');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
-    }
-
-    /* ============================================================
-       11) CALENDARIO INTERACTIVO DEL ADMIN
-       ============================================================ */
-
-    function bindAdminCalendar() {
-      const container = document.getElementById('adminCalContainer');
-      if (!container) return;
-      if (!adminCalMes) adminCalMes = new Date();
-      renderCalendarioAdmin(container);
-    }
-
-    function renderCalendarioAdmin(container) {
-      const year  = adminCalMes.getFullYear();
-      const month = adminCalMes.getMonth();
-      const MESES  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-      const DIAS   = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-      const firstDay    = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const eventos     = calendarioDatos.eventos_calendario || [];
-      const today       = new Date();
-
-      // Indexar eventos del mes
-      const eventosPorDia = {};
-      eventos.forEach(ev => {
-        const d = new Date(ev.fecha + 'T00:00:00');
-        if (d.getFullYear() === year && d.getMonth() === month) {
-          const k = d.getDate();
-          if (!eventosPorDia[k]) eventosPorDia[k] = [];
-          eventosPorDia[k].push(ev);
-        }
-      });
-
-      // Construir celdas
-      let cells = '';
-      for (let i = 0; i < firstDay; i++) cells += `<div class="cal-cell cal-cell--empty"></div>`;
-      for (let d = 1; d <= daysInMonth; d++) {
-        const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-        const evs = eventosPorDia[d] || [];
-        const dots = evs.map(e => `<span class="cal-dot" style="background:${e.color}"></span>`).join('');
-        cells += `<div class="cal-cell${isToday ? ' is-today' : ''}" data-day="${d}">${d}${dots ? `<div class="cal-dots">${dots}</div>` : ''}</div>`;
-      }
-
-      // Lista de eventos del mes
-      const eventosDelMes = eventos
-        .filter(ev => { const d = new Date(ev.fecha + 'T00:00:00'); return d.getFullYear() === year && d.getMonth() === month; })
-        .sort((a, b) => a.fecha.localeCompare(b.fecha));
-
-      const listaEventos = eventosDelMes.length === 0
-        ? `<p style="text-align:center;padding:1.2rem;color:#8a8d9c;font-family:'Manrope',sans-serif;font-size:.85rem">Sin eventos este mes.</p>`
-        : eventosDelMes.map(ev => {
-            const dia = new Date(ev.fecha + 'T00:00:00').getDate();
-            const eventoKey = `${ev.fecha}__${ev.titulo}`;
-            return `
-              <div class="cal-list-item" style="--ev-color:${ev.color}">
-                <span class="cal-list-dot" style="background:${ev.color}"></span>
-                <span class="cal-list-day">${dia}</span>
-                <span class="cal-list-title">${ev.titulo}</span>
-                <button class="cal-list-del" data-evento-key="${eventoKey}" aria-label="Eliminar evento" title="Eliminar evento">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>
-                </button>
-              </div>`;
-          }).join('');
-
-      container.innerHTML = `
-        <div class="cal-nav" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem">
-          <button id="adminCalPrev" class="cal-nav-btn" aria-label="Mes anterior">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <h3 id="adminCalTitle" style="margin:0;font:700 1.1rem/1 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${MESES[month]} ${year}</h3>
-          <button id="adminCalNext" class="cal-nav-btn" aria-label="Mes siguiente">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-        <div class="cal-grid">
-          ${DIAS.map(d => `<div class="cal-head">${d}</div>`).join('')}
-          ${cells}
-        </div>
-        <div class="cal-list" style="margin-top:1.2rem">${listaEventos}</div>
-        <div class="cal-acciones" style="margin-top:1.4rem">
-          <p class="cal-acciones__label" style="font:600 .72rem/1 'Manrope',sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--brand-700,#2C3E87);margin:0 0 .6rem">Acciones del administrador</p>
-          <div class="cal-acciones__btns">
-            <button id="adminBtnExamen" class="cal-accion-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Cargar Fecha de Examen
-            </button>
-            <button id="adminBtnEvento" class="cal-accion-btn cal-accion-btn--delegado">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke-linejoin="round"/><path d="M4 22v-7" stroke-linecap="round"/></svg>
-              Crear Evento Institucional
-            </button>
-          </div>
-        </div>
-      `;
-
-      // Navegación de meses
-      document.getElementById('adminCalPrev').addEventListener('click', () => {
-        adminCalMes.setMonth(adminCalMes.getMonth() - 1);
-        renderCalendarioAdmin(container);
-      });
-      document.getElementById('adminCalNext').addEventListener('click', () => {
-        adminCalMes.setMonth(adminCalMes.getMonth() + 1);
-        renderCalendarioAdmin(container);
-      });
-
-      // Botones de acción
-      document.getElementById('adminBtnExamen').addEventListener('click', () => abrirModalExamenAdmin(container));
-      document.getElementById('adminBtnEvento').addEventListener('click', () => abrirModalEventoAdmin(container));
-
-      // Botones eliminar por evento
-      container.querySelectorAll('.cal-list-del').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const eventoKey = btn.dataset.eventoKey;
-          const [fechaKey, ...tituloPartes] = eventoKey.split('__');
-          const tituloKey = tituloPartes.join('__');
-          requestDangerConfirm({
-            title: '¿Eliminar este evento?',
-            msg: `Vas a eliminar <strong>${tituloKey}</strong> del <strong>${fechaKey}</strong>. Esta acción no se puede deshacer.`,
-            btnLabel: 'Eliminar evento',
-            onConfirm: () => eliminarEventoAdmin(eventoKey, container)
-          });
-        });
-      });
-    }
-
-    function abrirModalExamenAdmin(container) {
-      const materiasOpts = ['Lógica Computacional','Matemática Aplicada','Algoritmos I','Introducción a Python','Estadística','Base de Datos']
-        .map(m => `<option value="${m}">${m}</option>`).join('');
-
-      const modal = document.createElement('div');
-      modal.className = 'cal-modal-overlay';
-      modal.innerHTML = `
-        <div class="cal-modal-card" role="dialog" aria-modal="true" aria-label="Cargar fecha de examen">
-          <div class="cal-modal-header">
-            <h3 class="cal-modal-title">Cargar Fecha de Examen</h3>
-            <button class="cal-modal-close" aria-label="Cerrar">&times;</button>
-          </div>
-          <form class="cal-modal-form" id="adminFormExamen">
-            <label class="cal-modal-label">Materia
-              <select name="materia" required>${materiasOpts}</select>
-            </label>
-            <div class="cal-modal-row">
-              <label class="cal-modal-label">Fecha
-                <input type="date" name="fecha" required>
-              </label>
-              <label class="cal-modal-label">Horario
-                <input type="time" name="horario" required>
-              </label>
-            </div>
-            <label class="cal-modal-label">Tipo de evaluación
-              <select name="tipo" required>
-                <option value="Parcial">Parcial</option>
-                <option value="Final">Final</option>
-                <option value="Recuperatorio">Recuperatorio</option>
-              </select>
-            </label>
-            <div class="cal-modal-actions">
-              <button type="button" class="btn-secondary" id="adminExamenCancel">Cancelar</button>
-              <button type="submit" class="admin-form__submit" style="margin:0">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Guardar examen
-              </button>
-            </div>
-          </form>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      modal.querySelector('#adminExamenCancel').addEventListener('click', () => modal.remove());
-      modal.querySelector('.cal-modal-close').addEventListener('click', () => modal.remove());
-      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-      document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
-      modal.querySelector('#adminFormExamen').addEventListener('submit', e => {
-        e.preventDefault();
-        const d = new FormData(e.target);
-        guardarExamenAdmin({ materia: d.get('materia'), fecha: d.get('fecha'), horario: d.get('horario'), tipo: d.get('tipo') }, container);
-        modal.remove();
-      });
-    }
-
-    function guardarExamenAdmin({ materia, fecha, horario, tipo }, container) {
-      calendarioDatos.eventos_calendario.push({
-        fecha,
-        titulo: `${tipo}: ${materia} — ${horario}hs`,
-        tipo: 'examen',
-        color: '#3A5BA9'
-      });
-      auditar('crear', 'calendario', `Examen cargado: ${tipo} de ${materia} el ${fecha}`);
-      adminCalMes = new Date(fecha + 'T00:00:00');
-      renderCalendarioAdmin(container);
-      showToast('Examen cargado', `${tipo} de ${materia} el ${fecha} fue agregado al calendario.`);
-    }
-
-    function abrirModalEventoAdmin(container) {
-      const modal = document.createElement('div');
-      modal.className = 'cal-modal-overlay';
-      modal.innerHTML = `
-        <div class="cal-modal-card" role="dialog" aria-modal="true" aria-label="Crear evento institucional">
-          <div class="cal-modal-header">
-            <h3 class="cal-modal-title">Crear Evento Institucional</h3>
-            <button class="cal-modal-close" aria-label="Cerrar">&times;</button>
-          </div>
-          <form class="cal-modal-form" id="adminFormEvento">
-            <label class="cal-modal-label">Título del evento
-              <input type="text" name="titulo" required placeholder="Ej: Festival del CE">
-            </label>
-            <div class="cal-modal-row">
-              <label class="cal-modal-label">Fecha de inicio
-                <input type="date" name="fecha_inicio" required>
-              </label>
-              <label class="cal-modal-label">Fecha de cierre (opcional)
-                <input type="date" name="fecha_fin">
-              </label>
-            </div>
-            <label class="cal-modal-label">Descripción
-              <textarea name="descripcion" placeholder="Detalles del evento…" style="min-height:80px;resize:vertical;font:400 .88rem/1.4 'Manrope',sans-serif;padding:.6rem .8rem;border:1px solid rgba(143,163,227,.45);border-radius:9px;outline:none;width:100%;box-sizing:border-box"></textarea>
-            </label>
-            <label class="cal-modal-label">Ubicación
-              <input type="text" name="ubicacion" placeholder="Ej: Aula Magna, SUM, etc.">
-            </label>
-            <div class="cal-modal-actions">
-              <button type="button" class="btn-secondary" id="adminEventoCancel">Cancelar</button>
-              <button type="submit" class="admin-form__submit cal-btn--delegado" style="margin:0">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
-                Publicar evento
-              </button>
-            </div>
-          </form>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      modal.querySelector('#adminEventoCancel').addEventListener('click', () => modal.remove());
-      modal.querySelector('.cal-modal-close').addEventListener('click', () => modal.remove());
-      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-      document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
-      modal.querySelector('#adminFormEvento').addEventListener('submit', e => {
-        e.preventDefault();
-        const d = new FormData(e.target);
-        guardarEventoAdmin({
-          titulo:      d.get('titulo'),
-          fecha_inicio: d.get('fecha_inicio'),
-          fecha_fin:   d.get('fecha_fin') || null,
-          descripcion: d.get('descripcion'),
-          ubicacion:   d.get('ubicacion')
-        }, container);
-        modal.remove();
-      });
-    }
-
-    function guardarEventoAdmin({ titulo, fecha_inicio, descripcion, ubicacion }, container) {
-      const tipoId = 'evento_centro';
-      const color  = '#8B5CF6';
-      if (!calendarioDatos.tipos.find(t => t.id === tipoId)) {
-        calendarioDatos.tipos.push({ id: tipoId, nombre: 'Evento CE / Institucional', color });
-      }
-      calendarioDatos.eventos_calendario.push({ fecha: fecha_inicio, titulo, tipo: tipoId, color });
-      auditar('crear', 'calendario', `Evento institucional creado: "${titulo}" el ${fecha_inicio}${ubicacion ? ' en ' + ubicacion : ''}`);
-      adminCalMes = new Date(fecha_inicio + 'T00:00:00');
-      renderCalendarioAdmin(container);
-      showToast('Evento creado', `"${titulo}" fue publicado en el calendario.`);
-    }
-
-    function eliminarEventoAdmin(eventoKey, container) {
-      const [fecha, ...tituloPartes] = eventoKey.split('__');
-      const titulo = tituloPartes.join('__');
-      const idx = calendarioDatos.eventos_calendario.findIndex(e => e.fecha === fecha && e.titulo === titulo);
-      if (idx >= 0) {
-        const eliminado = calendarioDatos.eventos_calendario.splice(idx, 1)[0];
-        auditar('eliminar', 'calendario', `Evento eliminado: "${eliminado.titulo}" del ${eliminado.fecha}`);
-        showToast('Evento eliminado', `"${eliminado.titulo}" fue removido del calendario.`, '#E67E5B');
-      }
-      renderCalendarioAdmin(container);
     }
 
     // Vista inicial al cargar la página

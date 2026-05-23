@@ -13,18 +13,20 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario:         'json/usuario.json',
-  novedades:       'json/novedades.json',
-  eventos:         'json/eventos.json',
-  calendario:      'json/calendario.json',
-  reglamentacion:  'json/reglamentacion.json',
-  notificaciones:  'json/notificaciones.json',
+  usuario: 'json/usuario.json',
+  novedades: 'json/novedades.json',
+  eventos: 'json/eventos.json',
+  calendario: 'json/calendario.json',
+  reglamentacion: 'json/reglamentacion.json',
+  notificaciones: 'json/notificaciones.json',
+  carreras: 'json/carreras.json',
+  materias: 'json/materias.json',
 };
 
 /* ----------------------------------------------------------------
    1. HELPERS (utilidades genéricas)
 ---------------------------------------------------------------- */
-const $  = (sel, ctx = document) => ctx.querySelector(sel);
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
 /**
@@ -44,21 +46,10 @@ async function fetchJSON(url) {
   }
 }
 
-/**
- * Lee el perfil activo desde localStorage.
- * Prioridad: 'perfil_activo' (override manual) → sesión cedSession → fallback 'alumno'.
- */
-function getPerfilActivo() {
-  const override = localStorage.getItem('perfil_activo');
-  if (override) return override.toLowerCase();
-  const session = JSON.parse(localStorage.getItem('cedSession') || 'null');
-  return (session?.rol || state.usuario?.perfil || 'alumno').toLowerCase();
-}
-
 /** Formatea una fecha ISO a "dd MMM" en español. */
 function formatDay(isoDate) {
   const d = new Date(isoDate);
-  const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
   return { dia: d.getDate(), mes: meses[d.getMonth()] };
 }
 
@@ -66,19 +57,52 @@ function formatDay(isoDate) {
 function timeAgo(isoDate) {
   const d = new Date(isoDate);
   const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 3600)   return `hace ${Math.floor(diff / 60)}min`;
-  if (diff < 86400)  return `hace ${Math.floor(diff / 3600)}h`;
+  if (diff < 3600) return `hace ${Math.floor(diff / 60)}min`;
+  if (diff < 86400) return `hace ${Math.floor(diff / 3600)}h`;
   if (diff < 604800) return `hace ${Math.floor(diff / 86400)}d`;
   return d.toLocaleDateString('es-AR');
 }
 
+function getUniqueNewsSubjects() {
+  const allMaterias = state.materias?.materias || [];
+  return allMaterias.map(m => ({ id: m.id, nombre: m.nombre }));
+}
+
 /** Devuelve un color "soft" a partir de un hex (para fondo de chips) */
 function softColor(hex, alpha = 0.14) {
-  const h = hex.replace('#','');
-  const r = parseInt(h.substr(0,2), 16);
-  const g = parseInt(h.substr(2,2), 16);
-  const b = parseInt(h.substr(4,2), 16);
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substr(0, 2), 16);
+  const g = parseInt(h.substr(2, 2), 16);
+  const b = parseInt(h.substr(4, 2), 16);
   return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/** Darkens a hex color by a given percentage. */
+function darkenHex(hex, percent) {
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+
+  r = Math.max(0, r - Math.round(r * (percent / 100)));
+  g = Math.max(0, g - Math.round(g * (percent / 100)));
+  b = Math.max(0, b - Math.round(b * (percent / 100)));
+
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+/** Mapea el tipo de evento a una imagen de fondo (Unsplash) */
+function getEventBackgroundImage(imagenTipo) {
+  const imagenes = {
+    'workshop': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
+    'party': 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=500&h=300&fit=crop',
+    'conference': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
+    'charla': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
+    'chess': 'https://images.unsplash.com/photo-1611003228941-98852ba62227?w=500&h=300&fit=crop',
+    'hackathon': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=300&fit=crop',
+    'cinema': 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=500&h=300&fit=crop',
+    'default': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop'
+  };
+  return imagenes[imagenTipo?.toLowerCase()] || imagenes['default'];
 }
 
 /* ----------------------------------------------------------------
@@ -92,7 +116,15 @@ const state = {
   reglamentacion: null,
   filtroNovedad: 'todas',
   reglamentacionQuery: '',
+  reglamentacionType: 'todas',
   reglamentacionCategory: 'todas',
+  carreras: null,
+  filtroCarrera: 'todas',
+  filtroMateria: 'todas',
+  filtroFechaDesde: '',
+  filtroFechaHasta: '',
+  filtroMateriasEstado: 'todas',
+  materias: null,
   calendarioMes: null,        // Date actual mostrada en el drawer
   calendarioFiltro: 'todos',  // Filtro de eventos del calendario
 
@@ -118,16 +150,26 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   // Cargamos todo en paralelo desde la "API Mock"
-  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones] = await Promise.all([
+  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias] = await Promise.all([
     fetchJSON(API.usuario),
     fetchJSON(API.novedades),
     fetchJSON(API.eventos),
     fetchJSON(API.calendario),
     fetchJSON(API.reglamentacion),
     fetchJSON(API.notificaciones),
+    fetchJSON(API.carreras),
+    fetchJSON(API.materias),
   ]);
 
-  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones });
+  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias });
+
+  // Aseguramos que el contador de notificaciones sin leer en el usuario sea coherente con el JSON de notificaciones
+  if (state.notificaciones && state.notificaciones.notificaciones) {
+    const initialUnreadCount = state.notificaciones.notificaciones.filter(n => !n.leida).length;
+    if (state.usuario) {
+      state.usuario.notificaciones_sin_leer = initialUnreadCount;
+    }
+  }
 
   // Renderizamos las secciones del dashboard
   renderUserHeader();
@@ -152,14 +194,44 @@ function renderUserHeader() {
   if (!u) return;
 
   const session = JSON.parse(localStorage.getItem('cedSession'));
-  $('#userName').textContent = session?.nombre || u.nombre;
-  $('#userAvatar').textContent = u.avatar;
+  const name = session?.nombre || u.nombre;
+  $('#userName').textContent = name;
+
+  // Actualizar iniciales del avatar dinámicamente
+  if (name && $('#userAvatar')) {
+    const parts = name.split(' ');
+    const initials = parts.length > 1
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0][0].toUpperCase();
+    $('#userAvatar').textContent = initials;
+  }
+
+  // Lógica de Píldora de Rol
+  const rawRole = (session?.rol || u.perfil || '').toLowerCase();
+  const roleLabels = {
+    'admin': 'ADMINISTRADOR',
+    'administrador': 'ADMINISTRADOR',
+    'docente': 'DOCENTE',
+    'delegado': 'DELEGADO'
+  };
+
+  if (roleLabels[rawRole]) {
+    // Limpiamos si ya existe (para evitar duplicados en re-renders)
+    const oldPill = $('.role-pill');
+    if (oldPill) oldPill.remove();
+
+    const pill = document.createElement('span');
+    pill.className = 'role-pill';
+    pill.innerHTML = `
+      <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" stroke-linejoin="round"></path></svg>
+      ${roleLabels[rawRole]}
+    `;
+    $('.header__text').prepend(pill);
+  }
 
   const resumen =
     `Tenés ${u.clases_hoy} clases hoy, ${u.notificaciones_sin_leer} notificaciones sin leer y ${u.eventos_semana} eventos del CE esta semana.`;
   $('#userSummary').textContent = resumen;
-
-  $('#bellBadge').textContent = u.notificaciones_sin_leer;
 }
 
 /* ----------------------------------------------------------------
@@ -170,7 +242,7 @@ function renderCareerCard() {
   if (!u) return;
 
   $('#userCareer').textContent = u.carrera;
-  $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2,'0');
+  $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2, '0');
   $('#materiasTotales').textContent = u.materias_totales;
 
   // Próxima fecha académica
@@ -189,30 +261,30 @@ function renderCareerCard() {
 
 /* ----------------------------------------------------------------
    6. RENDER: Eventos CE
-      - Por defecto muestra los 2 más próximos.
+      - Por defecto muestra los 4 más próximos (2x2).
       - Botón "Mostrar todo" expande para ver todos.
       - Cada tarjeta tiene su botón "Inscribirme" funcional, con estado.
 ---------------------------------------------------------------- */
 function renderEvents() {
-  const cont    = $('#eventsContainer');
+  const cont = $('#eventsContainer');
   const actions = $('#eventsActions');
-  const lista   = state.eventos?.eventos || [];
+  const lista = state.eventos?.eventos || [];
 
   // Ordenamos por fecha (más próximos primero)
   const ordenados = [...lista].sort(
     (a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)
   );
 
-  // Cuántos mostrar según el estado de expansión
-  const visibles = state.eventosExpanded ? ordenados : ordenados.slice(0, 2);
+  // Cuántos mostrar según el estado de expansión (por defecto mostrar 4 -> 2x2)
+  const visibles = state.eventosExpanded ? ordenados : ordenados.slice(0, 4);
 
   // Render de las tarjetas
   cont.classList.toggle('events-grid--expanded', state.eventosExpanded);
   cont.innerHTML = visibles.map(ev => buildEventCardHTML(ev)).join('');
 
   // Footer con el toggle "Mostrar todo / Mostrar menos"
-  // Solo aparece si hay más de 2 eventos en total.
-  if (ordenados.length > 2) {
+  // Solo aparece si hay más de 4 eventos en total.
+  if (ordenados.length > 4) {
     actions.innerHTML = `
       <button class="events-toggle ${state.eventosExpanded ? 'is-expanded' : ''}" id="eventsToggle">
         <span>${state.eventosExpanded ? 'Mostrar menos' : `Mostrar todo (${ordenados.length})`}</span>
@@ -252,7 +324,7 @@ function renderEvents() {
 function buildEventCardHTML(ev) {
   const { dia, mes } = formatDay(ev.fecha_inicio);
   const inscripto = state.inscripciones.has(ev.id);
-  const lleno     = ev.inscriptos >= ev.cupo;
+  const lleno = ev.inscriptos >= ev.cupo;
 
   // Construimos el botón según el estado:
   let cta;
@@ -280,7 +352,7 @@ function buildEventCardHTML(ev) {
   }
 
   return `
-    <article class="event-card" style="--event-color: ${ev.color}" data-event-id="${ev.id}">
+    <article class="event-card" style="--event-color: ${ev.color}; background-image: url('${getEventBackgroundImage(ev.imagen)}');" data-event-id="${ev.id}">
       <span class="event-card__cupo">${ev.inscriptos}/${ev.cupo}</span>
       <span class="event-card__category">${ev.categoria}</span>
 
@@ -329,28 +401,84 @@ function inscribirseEvento(id) {
 ---------------------------------------------------------------- */
 function renderNewsFilters() {
   const cont = $('#newsFilters');
-  const cats = state.novedades?.categorias || [];
+  if (!cont) return;
 
-  // El "Todas" ya está hardcodeado, agregamos el resto dinámicamente
-  cats.forEach(c => {
-    const chip = document.createElement('button');
-    chip.className = 'chip';
-    chip.dataset.filter = c.id;
-    chip.textContent = c.nombre;
-    chip.addEventListener('click', () => {
-      state.filtroNovedad = String(c.id);
-      $$('.chip', cont).forEach(x => x.classList.remove('chip--active'));
-      chip.classList.add('chip--active');
+  const cats = state.novedades?.categorias || [];
+  const careers = state.carreras || [];
+  const subjects = getUniqueNewsSubjects();
+
+  cont.innerHTML = `
+    <div class="news-filters__categories">
+      <button class="chip chip--active" data-filter="todas">Todas</button>
+      ${cats.map(c => `<button class="chip" data-filter="${c.id}">${c.nombre}</button>`).join('')}
+    </div>
+    <div class="news-filters__advanced">
+      <div class="filter-group">
+        <label for="newsCareerFilter">Filtrar por Carrera</label>
+        <select id="newsCareerFilter" class="filter-select">
+          <option value="todas">Todas las carreras</option>
+          ${careers.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('')}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="newsSubjectFilter">Filtrar por Materia</label>
+        <select id="newsSubjectFilter" class="filter-select">
+          <option value="todas">Todas las materias</option>
+          ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
+        </select>
+      </div>
+      <div class="news-filters__dates">
+        <div class="filter-group" style="flex:1">
+          <label for="newsDateFrom">Desde</label>
+          <input id="newsDateFrom" type="date" class="filter-input" value="${state.filtroFechaDesde}">
+        </div>
+        <div class="filter-group" style="flex:1">
+          <label for="newsDateTo">Hasta</label>
+          <input id="newsDateTo" type="date" class="filter-input" value="${state.filtroFechaHasta}">
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Bind de chips de categorías
+  cont.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filtroNovedad = btn.dataset.filter;
+      cont.querySelectorAll('.chip').forEach(x => x.classList.remove('chip--active'));
+      btn.classList.add('chip--active');
       renderNewsList();
     });
-    cont.appendChild(chip);
   });
 
-  // Bindeamos el chip "Todas"
-  $('[data-filter="todas"]').addEventListener('click', (e) => {
-    state.filtroNovedad = 'todas';
-    $$('.chip', cont).forEach(x => x.classList.remove('chip--active'));
-    e.currentTarget.classList.add('chip--active');
+  // Bind de selectores de Carrera y Materia
+  const careerSelect = cont.querySelector('#newsCareerFilter');
+  if (careerSelect) {
+    careerSelect.value = state.filtroCarrera;
+    careerSelect.addEventListener('change', () => {
+      state.filtroCarrera = careerSelect.value;
+      renderNewsList();
+    });
+  }
+
+  const subjectSelect = cont.querySelector('#newsSubjectFilter');
+  if (subjectSelect) {
+    subjectSelect.value = state.filtroMateria;
+    subjectSelect.addEventListener('change', () => {
+      state.filtroMateria = subjectSelect.value;
+      renderNewsList();
+    });
+  }
+
+  // Bind de inputs de fechas
+  const dateFrom = cont.querySelector('#newsDateFrom');
+  dateFrom?.addEventListener('change', () => {
+    state.filtroFechaDesde = dateFrom.value;
+    renderNewsList();
+  });
+
+  const dateTo = cont.querySelector('#newsDateTo');
+  dateTo?.addEventListener('change', () => {
+    state.filtroFechaHasta = dateTo.value;
     renderNewsList();
   });
 }
@@ -365,9 +493,21 @@ function renderNewsList() {
   if (state.filtroNovedad !== 'todas') {
     lista = lista.filter(n => String(n.categoria_id) === state.filtroNovedad);
   }
+  if (state.filtroCarrera !== 'todas') {
+    lista = lista.filter(n => String(n.carrera_id) === state.filtroCarrera);
+  }
+  if (state.filtroMateria !== 'todas') {
+    lista = lista.filter(n => String(n.materia_id) === state.filtroMateria);
+  }
+  if (state.filtroFechaDesde) {
+    lista = lista.filter(n => new Date(n.fecha) >= new Date(state.filtroFechaDesde));
+  }
+  if (state.filtroFechaHasta) {
+    lista = lista.filter(n => new Date(n.fecha) <= new Date(state.filtroFechaHasta));
+  }
 
   // Ordenar por destacada + fecha
-  lista.sort((a,b) => {
+  lista.sort((a, b) => {
     if (a.destacada !== b.destacada) return b.destacada - a.destacada;
     return new Date(b.fecha) - new Date(a.fecha);
   });
@@ -382,7 +522,7 @@ function renderNewsList() {
   }
 
   cont.innerHTML = lista.map(n => {
-    const cat = categorias.find(c => c.id === n.categoria_id) || { color:'#2563eb' };
+    const cat = categorias.find(c => c.id === n.categoria_id) || { color: '#2563eb' };
     const destacadaCls = n.destacada ? ' news-item--featured' : '';
     const star = n.destacada ? '<span class="news-item__star">★ DESTACADA</span>' : '';
     const adjunto = n.adjunto ? `
@@ -427,6 +567,7 @@ function buildNormativaItem(doc) {
 function bindReglamentacionSearch() {
   const searchInput = $('#reglamentacionSearch');
   const categoryButtons = $$('.search-categories .chip');
+  const typeButtons = $$('.tabs .chip');
 
   if (!searchInput || !categoryButtons.length) return;
 
@@ -443,14 +584,27 @@ function bindReglamentacionSearch() {
       renderReglamentacion();
     });
   });
+
+  typeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.reglamentacionType = btn.dataset.filterType;
+      typeButtons.forEach(x => x.classList.remove('chip--active'));
+      btn.classList.add('chip--active');
+      renderReglamentacion();
+    });
+  });
 }
 
 function getReglamentacionFiltered() {
   const query = state.reglamentacionQuery.trim().toLowerCase();
   const category = state.reglamentacionCategory;
+  const type = state.reglamentacionType;
   const docs = state.reglamentacion?.documentos || [];
 
   return docs.filter(doc => {
+    const typeMatch = type === 'todas' || String(doc.tipo).toLowerCase() === type;
+    if (!typeMatch) return false;
+
     const categoryMatch = category === 'todas' || String(doc.categoria).toLowerCase() === category;
     if (!categoryMatch) return false;
 
@@ -495,20 +649,20 @@ function bindDrawerControls() {
    9. DRAWER LATERAL - abrir/cerrar + contenido dinámico por sección
 ---------------------------------------------------------------- */
 function openDrawer(type) {
-  const drawer  = $('#drawer');
+  const drawer = $('#drawer');
   const overlay = $('#drawerOverlay');
-  const title   = $('#drawerTitle');
-  const icon    = $('#drawerIcon');
-  const body    = $('#drawerBody');
+  const title = $('#drawerTitle');
+  const icon = $('#drawerIcon');
+  const body = $('#drawerBody');
 
   const config = {
-    perfil:         { title: 'Mi Perfil',           icon: iconUser,      render: renderProfile       },
-    materias:       { title: 'Mis Materias',        icon: iconBook,      render: renderMaterias      },
-    inscripciones:  { title: 'Mis Inscripciones',   icon: iconInscript,  render: renderInscripciones },
-    carrera:        { title: 'Mi Carrera',          icon: iconCareer,    render: renderCarrera       },
-    centro:         { title: 'Centro Estudiantil',  icon: iconStar,      render: renderCentro        },
-    calendario:     { title: 'Calendario Académico',icon: iconCalendar,  render: renderCalendar      },
-    eventos:        { title: 'Eventos',             icon: iconEvents,  render: renderEventos       },
+    perfil: { title: 'Mi Perfil', icon: iconUser, render: renderProfile },
+    materias: { title: 'Mis Materias', icon: iconBook, render: renderMaterias },
+    inscripciones: { title: 'Mis Inscripciones', icon: iconInscript, render: renderInscripciones },
+    carrera: { title: 'Mi Carrera', icon: iconCareer, render: renderCarrera },
+    centro: { title: 'Centro Estudiantil', icon: iconStar, render: renderCentro },
+    novedades: { title: 'Novedades', icon: iconNews, render: renderNovedades },
+    calendario: { title: 'Calendario Académico', icon: iconCalendar, render: renderCalendar },
   };
 
   const cfg = config[type];
@@ -587,18 +741,17 @@ const iconLogout = `
     <path d="M10 17l5-5-5-5M15 12H3" stroke-linecap="round"/>
   </svg>`;
 
+const iconNews = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <path d="M4 6h16M4 10h16M4 14h8M4 18h8"/>
+    <circle cx="18" cy="18" r="2"/>
+  </svg>`;
+
 const iconCalendar = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
     <rect x="3" y="4" width="18" height="16" rx="2" />
     <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
     <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke-linecap="round" />
-  </svg>`;
-
-const iconEvents = `
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-    <path d="M9 18V5l12-2v13"/>
-    <circle cx="6" cy="18" r="3"/>
-    <circle cx="18" cy="16" r="3"/>
   </svg>`;
 
 /* ----------------------------------------------------------------
@@ -657,28 +810,51 @@ function renderProfile(body) {
   `;
 }
 
-/* ----------------------------------------------------------------
-   12. DRAWER: MIS MATERIAS
----------------------------------------------------------------- */
+/**
+ * Calcula el estado de regularidad dinámicamente
+ * Regular: Asistencia >= 75% y Nota >= 4
+ * Riesgo: Asistencia entre 60% y 74% O Nota < 4
+ * Libre: Asistencia < 60%
+ */
+function getMateriaStatus(asistencia, nota) {
+  if (asistencia < 60) return { texto: 'Libre', color: 'var(--accent-coral)' };
+  if (asistencia < 75 || (nota !== null && nota < 4)) return { texto: 'Riesgo', color: 'var(--accent-amber)' };
+  return { texto: 'Regular', color: 'var(--accent-green)' };
+}
+
 function renderMaterias(body) {
-  const materias = [
-    { nombre: 'Análisis Matemático I',  docente: 'Ing. García',  dias: ['Lun', 'Mié'], hora: '18–21hs', color: '#2563eb', nota: null,  estado: 'Cursando' },
-    { nombre: 'Programación I',         docente: 'Lic. Chaves',  dias: ['Mar', 'Jue'], hora: '19–22hs', color: '#06b6d4', nota: 7,     estado: 'Cursando' },
-    { nombre: 'Álgebra Lineal',         docente: 'Prof. Rossi',  dias: ['Vie'],        hora: '18–22hs', color: '#3DAA6A', nota: 8,     estado: 'Cursando' },
-    { nombre: 'Sistemas Operativos',    docente: 'Ing. Torres',  dias: ['Mié'],        hora: '19–22hs', color: '#3b82f6', nota: null,  estado: 'Cursando' },
-    { nombre: 'Lógica Computacional',   docente: 'Dr. López',    dias: ['Lun'],        hora: '19–22hs', color: '#0ea5e9', nota: 6,     estado: 'Cursando' },
-  ];
+  let list = state.materias?.materias || [];
+
+  // Aplicar cálculo de estado a cada materia para poder filtrar
+  list = list.map(m => ({
+    ...m,
+    statusInfo: getMateriaStatus(m.asistencia, m.nota_parcial)
+  }));
+
+  // Filtrar si es necesario
+  if (state.filtroMateriasEstado !== 'todas') {
+    list = list.filter(m => m.statusInfo.texto.toLowerCase() === state.filtroMateriasEstado);
+  }
 
   body.innerHTML = `
-    <p class="drawer-section-label">1er Cuatrimestre 2026 · ${materias.length} materias</p>
+    <div class="drawer__filters" style="margin-bottom: 20px;">
+      <button class="chip ${state.filtroMateriasEstado === 'todas' ? 'chip--active' : ''}" data-status-filter="todas">Todas</button>
+      <button class="chip ${state.filtroMateriasEstado === 'regular' ? 'chip--active' : ''}" data-status-filter="regular">Regulares</button>
+      <button class="chip ${state.filtroMateriasEstado === 'riesgo' ? 'chip--active' : ''}" data-status-filter="riesgo">En Riesgo</button>
+      <button class="chip ${state.filtroMateriasEstado === 'libre' ? 'chip--active' : ''}" data-status-filter="libre">Libres</button>
+    </div>
+
+    <p class="drawer-section-label">1er Cuatrimestre 2026 · ${list.length} materias mostradas</p>
     <div class="materia-list">
-      ${materias.map(m => `
+      ${list.map(m => `
         <div class="materia-card" style="--mat-color: ${m.color}">
           <div class="materia-card__accent"></div>
           <div class="materia-card__body">
             <div class="materia-card__head">
               <h3 class="materia-card__title">${m.nombre}</h3>
-              <span class="materia-card__status">${m.estado}</span>
+              <span class="materia-card__status" style="background:${m.statusInfo.color}15; color:${m.statusInfo.color}">
+                ${m.statusInfo.texto}
+              </span>
             </div>
             <p class="materia-card__docente">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -690,16 +866,35 @@ function renderMaterias(body) {
               ${m.dias.map(d => `<span class="materia-card__horario">${d}</span>`).join('')}
               <span class="materia-card__hora">${m.hora}</span>
             </div>
-            ${m.nota !== null ? `
+
+            <div class="materia-card__attendance" style="margin-top:12px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:4px; color:var(--text-muted);">
+                <span>ASISTENCIA</span>
+                <span style="color:${m.statusInfo.color}">${m.asistencia}%</span>
+              </div>
+              <div class="progress" style="width:100%; height:4px;">
+                <div class="progress__fill" style="width:${m.asistencia}%; background:${m.statusInfo.color}; transition: width 0.8s ease;"></div>
+              </div>
+            </div>
+
+            ${m.nota_parcial !== null ? `
               <div class="materia-card__nota">
-                <span class="nota-label">Último parcial</span>
-                <span class="nota-value" style="color:${m.color}">${m.nota}</span>
+                <span class="nota-label">Nota Parcial</span>
+                <span class="nota-value" style="color:${m.nota_parcial < 4 ? 'var(--accent-coral)' : 'var(--accent-green)'}">${m.nota_parcial}</span>
               </div>` : ''}
           </div>
         </div>
       `).join('')}
     </div>
   `;
+
+  // Bindeo de filtros
+  body.querySelectorAll('[data-status-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filtroMateriasEstado = btn.dataset.statusFilter;
+      renderMaterias(body);
+    });
+  });
 }
 
 /* ----------------------------------------------------------------
@@ -715,13 +910,13 @@ function renderInscripciones(body) {
   ];
 
   const mesas = [
-    { materia: 'Lógica Computacional',  tipo: 'Examen Final',     fecha: '20/07/2026', inscripto: true  },
-    { materia: 'Estadística Aplicada',  tipo: 'Primer Parcial',   fecha: '28/07/2026', inscripto: false },
+    { materia: 'Lógica Computacional', tipo: 'Examen Final', fecha: '20/07/2026', inscripto: true },
+    { materia: 'Estadística Aplicada', tipo: 'Primer Parcial', fecha: '28/07/2026', inscripto: false },
   ];
 
   const checkIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const calIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
-  const bookIcon  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
+  const calIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
+  const bookIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
 
   body.innerHTML = `
     <div class="inscr-section">
@@ -763,8 +958,8 @@ function renderInscripciones(body) {
               <p class="inscr-mesa__sub">${m.tipo} · ${m.fecha}</p>
             </div>
             ${m.inscripto
-              ? `<span class="inscr-chip inscr-chip--done">${checkIcon} Inscripto</span>`
-              : `<button class="btn-primary inscr-btn-sm">Inscribirme</button>`}
+      ? `<span class="inscr-chip inscr-chip--done">${checkIcon} Inscripto</span>`
+      : `<button class="btn-primary inscr-btn-sm">Inscribirme</button>`}
           </div>
         `).join('')}
       </div>
@@ -776,34 +971,40 @@ function renderInscripciones(body) {
    14. DRAWER: MI CARRERA
 ---------------------------------------------------------------- */
 function renderCarrera(body) {
-  const u   = state.usuario;
+  const u = state.usuario;
   const pct = Math.round((u.materias_cursadas / u.materias_totales) * 100);
 
   const plan = [
-    { anio: 'Primer Año', materias: [
-      { nombre: 'Análisis Matemático I',  aprobada: true,  nota: 8  },
-      { nombre: 'Álgebra Lineal',         aprobada: true,  nota: 7  },
-      { nombre: 'Programación I',         aprobada: true,  nota: 9  },
-      { nombre: 'Introducción a la IA',   aprobada: true,  nota: 8  },
-      { nombre: 'Inglés Técnico I',       aprobada: true,  nota: 7  },
-    ]},
-    { anio: 'Segundo Año', materias: [
-      { nombre: 'Análisis Matemático II', aprobada: false, cursando: true  },
-      { nombre: 'Estadística Aplicada',   aprobada: false, cursando: true  },
-      { nombre: 'Lógica Computacional',   aprobada: false, cursando: true  },
-      { nombre: 'Sistemas Operativos',    aprobada: false, cursando: true  },
-      { nombre: 'Base de Datos I',        aprobada: false, cursando: false },
-    ]},
-    { anio: 'Tercer Año', materias: [
-      { nombre: 'Machine Learning',       aprobada: false, cursando: false },
-      { nombre: 'Redes Neuronales',       aprobada: false, cursando: false },
-      { nombre: 'Proyecto Final I',       aprobada: false, cursando: false },
-    ]},
+    {
+      anio: 'Primer Año', materias: [
+        { nombre: 'Análisis Matemático I', aprobada: true, nota: 8 },
+        { nombre: 'Álgebra Lineal', aprobada: true, nota: 7 },
+        { nombre: 'Programación I', aprobada: true, nota: 9 },
+        { nombre: 'Introducción a la IA', aprobada: true, nota: 8 },
+        { nombre: 'Inglés Técnico I', aprobada: true, nota: 7 },
+      ]
+    },
+    {
+      anio: 'Segundo Año', materias: [
+        { nombre: 'Análisis Matemático II', aprobada: false, cursando: true },
+        { nombre: 'Estadística Aplicada', aprobada: false, cursando: true },
+        { nombre: 'Lógica Computacional', aprobada: false, cursando: true },
+        { nombre: 'Sistemas Operativos', aprobada: false, cursando: true },
+        { nombre: 'Base de Datos I', aprobada: false, cursando: false },
+      ]
+    },
+    {
+      anio: 'Tercer Año', materias: [
+        { nombre: 'Machine Learning', aprobada: false, cursando: false },
+        { nombre: 'Redes Neuronales', aprobada: false, cursando: false },
+        { nombre: 'Proyecto Final I', aprobada: false, cursando: false },
+      ]
+    },
   ];
 
   const globeIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" stroke-linecap="round"/></svg>`;
-  const gradIcon  = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5" stroke-linecap="round"/></svg>`;
-  const calIcon   = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
+  const gradIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5" stroke-linecap="round"/></svg>`;
+  const calIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>`;
 
   body.innerHTML = `
     <div class="career-stats-row">
@@ -843,8 +1044,8 @@ function renderCarrera(body) {
 
     <p class="drawer-section-label">Plan de estudios · ${u.carrera}</p>
     ${plan.map(yr => {
-      const aprobadas = yr.materias.filter(m => m.aprobada).length;
-      return `
+    const aprobadas = yr.materias.filter(m => m.aprobada).length;
+    return `
         <div class="plan-year">
           <div class="plan-year__header">
             <span class="plan-year__title">${yr.anio}</span>
@@ -855,14 +1056,14 @@ function renderCarrera(body) {
               <div class="plan-materia ${m.aprobada ? 'plan-materia--done' : m.cursando ? 'plan-materia--active' : ''}">
                 <span class="plan-materia__dot"></span>
                 <span class="plan-materia__name">${m.nombre}</span>
-                ${m.aprobada  ? `<span class="plan-materia__nota">${m.nota}</span>` : ''}
-                ${m.cursando  ? `<span class="plan-materia__badge">Cursando</span>` : ''}
+                ${m.aprobada ? `<span class="plan-materia__nota">${m.nota}</span>` : ''}
+                ${m.cursando ? `<span class="plan-materia__badge">Cursando</span>` : ''}
               </div>
             `).join('')}
           </div>
         </div>
       `;
-    }).join('')}
+  }).join('')}
   `;
 
   requestAnimationFrame(() => {
@@ -876,9 +1077,9 @@ function renderCarrera(body) {
 ---------------------------------------------------------------- */
 function renderCentro(body) {
   const delegados = [
-    { nombre: 'Valentina Ríos',   cargo: 'Presidenta',  carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
-    { nombre: 'Mateo Fernández',  cargo: 'Secretario',  carrera: 'Tecnicatura en Redes',    avatar: 'MF', color: '#2563eb' },
-    { nombre: 'Lucía Aramburu',   cargo: 'Tesorera',    carrera: 'Prog. Universitaria',     avatar: 'LA', color: '#3DAA6A' },
+    { nombre: 'Valentina Ríos', cargo: 'Presidenta', carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
+    { nombre: 'Mateo Fernández', cargo: 'Secretario', carrera: 'Tecnicatura en Redes', avatar: 'MF', color: '#2563eb' },
+    { nombre: 'Lucía Aramburu', cargo: 'Tesorera', carrera: 'Prog. Universitaria', avatar: 'LA', color: '#3DAA6A' },
   ];
 
   const proxEventos = (state.eventos?.eventos || [])
@@ -914,8 +1115,8 @@ function renderCentro(body) {
     <p class="drawer-section-label">Próximos eventos</p>
     <div class="ce-events-mini">
       ${proxEventos.map(ev => {
-        const { dia, mes } = formatDay(ev.fecha_inicio);
-        return `
+    const { dia, mes } = formatDay(ev.fecha_inicio);
+    return `
           <div class="ce-event-mini" style="--ev-color:${ev.color}">
             <div class="ce-event-mini__date">
               <span class="ce-event-mini__day">${dia}</span>
@@ -928,7 +1129,7 @@ function renderCentro(body) {
             <span class="ce-event-mini__cat" style="background:${ev.color}20;color:${ev.color}">${ev.categoria}</span>
           </div>
         `;
-      }).join('')}
+  }).join('')}
     </div>
 
     <p class="drawer-section-label">Contacto</p>
@@ -952,35 +1153,83 @@ function renderCentro(body) {
   `;
 }
 
-/* ----------------------------------------------------------------
-   15. DRAWER: EVENTOS
----------------------------------------------------------------- */
-function renderEventos(body) {
-  const eventos = state.eventos?.eventos || [];
+function renderNovedades(body) {
+  const novedades = state.novedades?.novedades || [];
+  const categorias = state.novedades?.categorias || [];
 
-  // Ordenamos por fecha (más próximos primero)
-  const ordenados = [...eventos].sort(
-    (a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)
-  );
-
-  body.innerHTML = `
-    <div class="events-list-drawer">
-      ${ordenados.map(ev => buildEventCardHTML(ev)).join('')}
+  // Filtros por categoría
+  const filtrosHTML = `
+    <div class="drawer__filters">
+      <button class="chip chip--active" data-filter="todas">Todas</button>
+      ${categorias.map(c => `<button class="chip" data-filter="${c.id}">${c.nombre}</button>`).join('')}
     </div>
   `;
 
-  // Bindeo: click en el botón "Inscribirme" de cada tarjeta
-  $$('.event-card__cta', body).forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const id = Number(btn.dataset.eventId);
-      inscribirseEvento(id);
-      // Mostrar permiso generado
-      const ev = state.eventos.eventos.find(x => x.id === id);
-      alert(`Permiso de inscripción generado para: ${ev.titulo}`);
+  // Lista de novedades filtrada
+  let listaFiltrada = [...novedades];
+  const filtroActual = state.filtroNovedad || 'todas';
+  if (filtroActual !== 'todas') {
+    listaFiltrada = listaFiltrada.filter(n => String(n.categoria_id) === filtroActual);
+  }
+
+  // Ordenar: destacadas primero, luego por fecha
+  listaFiltrada.sort((a, b) => {
+    if (a.destacada !== b.destacada) return b.destacada - a.destacada;
+    return new Date(b.fecha) - new Date(a.fecha);
+  });
+
+  const listaHTML = listaFiltrada.length ? listaFiltrada.map(n => {
+    const cat = categorias.find(c => c.id === n.categoria_id) || { color: '#2563eb' };
+    const destacadaCls = n.destacada ? ' news-drawer-item--featured' : '';
+    const star = n.destacada ? '<span class="news-drawer-item__star">★</span>' : '';
+    const adjunto = n.adjunto ? `
+      <div class="news-drawer-item__attach">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 11l-9 9a5 5 0 0 1-7-7l10-10a3 3 0 0 1 4 4L9 17a1 1 0 0 1-2-2l8-8"/>
+        </svg>
+        ${n.adjunto}
+      </div>` : '';
+
+    return `
+      <article class="news-drawer-item${destacadaCls}" style="--news-color:${cat.color}">
+        <div class="news-drawer-item__header">
+          <span class="news-drawer-item__category" style="color:${cat.color}">${n.categoria}</span>
+          <span class="news-drawer-item__date">${timeAgo(n.fecha)}</span>
+          ${star}
+        </div>
+        <h3 class="news-drawer-item__title">${n.titulo}</h3>
+        <p class="news-drawer-item__content">${n.contenido}</p>
+        ${adjunto}
+      </article>
+    `;
+  }).join('') : `
+    <div class="news-drawer-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+        <path d="M10 21a2 2 0 0 0 4 0"/>
+      </svg>
+      <p>No hay novedades en esta categoría</p>
+    </div>
+  `;
+
+  body.innerHTML = `
+    ${filtrosHTML}
+    <div class="news-drawer-list">
+      ${listaHTML}
+    </div>
+  `;
+
+  // Bind de filtros
+  body.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      state.filtroNovedad = chip.dataset.filter;
+      body.querySelectorAll('.chip').forEach(c => c.classList.remove('chip--active'));
+      chip.classList.add('chip--active');
+      renderNovedades(body); // Re-render
     });
   });
 }
+
 
 /* ----------------------------------------------------------------
    16. DRAWER: CALENDARIO ACADÉMICO
@@ -990,23 +1239,19 @@ function renderCalendar(body) {
     state.calendarioMes = new Date(2026, 2, 1); // Marzo 2026 por defecto (inicio ciclo lectivo)
   }
 
-  // Determinar perfil una sola vez para todo el render
-  const perfil   = getPerfilActivo();
-  const esAdmin  = perfil === 'administrador' || perfil === 'admin';
-
   const currentDate = state.calendarioMes;
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   // Obtener primer y último día del mes
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  
+
   // Calcular celdas vacías al principio
-  let startingDay = firstDay.getDay(); 
+  let startingDay = firstDay.getDay();
 
   // Obtener todos los eventos y tipos
   const eventos = state.calendario?.eventos_calendario || [];
@@ -1043,12 +1288,11 @@ function renderCalendar(body) {
   `;
 
   // Filtros de categorías
-  calHTML += `<div class="news-filters" style="margin-bottom: 24px; flex-wrap: wrap;">`;
+  calHTML += `<div class="calendar-filters" style="margin-bottom: 24px;">`;
   calHTML += `<button class="chip ${state.calendarioFiltro === 'todos' ? 'chip--active' : ''}" data-cal-filter="todos">Todos</button>`;
   tipos.forEach(t => {
     const isAct = state.calendarioFiltro === t.id ? 'chip--active' : '';
-    const extraStyle = isAct ? `background-color: ${softColor(t.color, 0.15)}; color: ${t.color}; border-color: ${t.color};` : '';
-    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="${extraStyle}">${t.nombre}</button>`;
+    calHTML += `<button class="chip ${isAct}" data-cal-filter="${t.id}" style="--chip-base-color: ${t.color}; --chip-dark-color: ${darkenHex(t.color, 20)};">${t.nombre}</button>`;
   });
   calHTML += `</div>`;
 
@@ -1071,7 +1315,7 @@ function renderCalendar(body) {
   for (let d = 1; d <= lastDay.getDate(); d++) {
     const isToday = esMesActual && hoy.getDate() === d;
     const dayEvents = eventosDelMes[d] || [];
-    
+
     let dotsHTML = '<div class="calendar-day-events">';
     dayEvents.slice(0, 3).forEach(e => {
       dotsHTML += `<span class="calendar-dot" style="background-color: ${e.color}" title="${e.titulo}"></span>`;
@@ -1094,13 +1338,13 @@ function renderCalendar(body) {
 
   // Listado inferior de eventos del mes
   let eventosDelMesFlat = [];
-  Object.keys(eventosDelMes).sort((a,b) => parseInt(a) - parseInt(b)).forEach(dia => {
+  Object.keys(eventosDelMes).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dia => {
     eventosDelMes[dia].forEach(e => eventosDelMesFlat.push(e));
   });
 
   calHTML += `<div class="calendar-event-list">`;
   calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
-  
+
   if (eventosDelMesFlat.length === 0) {
     calHTML += `<div class="notif-empty" style="margin-top:16px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1112,39 +1356,23 @@ function renderCalendar(body) {
   } else {
     eventosDelMesFlat.forEach(e => {
       const [y, m, d] = e.fecha.split('-');
-      // Clave única para identificar el evento en operaciones de borrado (admin)
-      const eventoKey = `${e.fecha}__${e.titulo}`;
-      const btnEliminar = esAdmin ? `
-        <button class="cal-list-del" data-evento-key="${eventoKey}" aria-label="Eliminar ${e.titulo}">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>` : '';
       calHTML += `
         <div class="cal-list-item" style="--ev-color: ${e.color}">
           <div class="cal-list-date">
             <span class="cal-list-day">${d}</span>
-            <span class="cal-list-month">${meses[parseInt(m)-1].substring(0,3).toUpperCase()}</span>
+            <span class="cal-list-month">${meses[parseInt(m) - 1].substring(0, 3).toUpperCase()}</span>
           </div>
           <div class="cal-list-body">
             <h4 class="cal-list-title">${e.titulo}</h4>
-            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t=>t.id===e.tipo)?.nombre || 'Evento'}</span>
+            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t => t.id === e.tipo)?.nombre || 'Evento'}</span>
           </div>
-          ${btnEliminar}
         </div>
       `;
     });
   }
   calHTML += `</div>`;
 
-  // Contenedor de acciones por perfil (docente / delegado / admin)
-  calHTML += `<div id="panel-acciones-calendario" style="margin-top: 28px;"></div>`;
-
   body.innerHTML = calHTML;
-
-  // Inyectar botones de acción según perfil y activar delete del admin
-  renderPanelAcciones(body);
-  bindCalendarAcciones(body);
 
   // Bindings para navegar mes
   body.querySelector('#prevMonth').addEventListener('click', () => {
@@ -1164,335 +1392,17 @@ function renderCalendar(body) {
     });
   });
 }
-function renderEventsList() {}
-function renderFullNews() {}
-function renderRegulations() {}
-function renderSession() {}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Panel de acciones por perfil
----------------------------------------------------------------- */
-
-/**
- * Inyecta los botones de gestión en #panel-acciones-calendario
- * según el perfil leído desde localStorage.
- *   alumno      → sin botones (solo lectura)
- *   docente     → "Cargar Fecha de Examen"
- *   delegado    → "Crear Evento Institucional"
- *   admin       → ambos botones
- */
-function renderPanelAcciones(calBody) {
-  const panel = calBody.querySelector('#panel-acciones-calendario');
-  if (!panel) return;
-
-  const perfil      = getPerfilActivo();
-  const esDocente   = perfil === 'docente';
-  const esDelegado  = perfil === 'delegado';
-  const esAdmin     = perfil === 'administrador' || perfil === 'admin';
-
-  if (!esDocente && !esDelegado && !esAdmin) {
-    panel.innerHTML = '';
-    return;
-  }
-
-  let html = `
-    <div class="cal-acciones">
-      <p class="drawer-section-label" style="margin-top:0; margin-bottom:10px;">Acciones disponibles</p>
-      <div class="cal-acciones__btns">
-  `;
-
-  if (esDocente || esAdmin) {
-    html += `
-      <button class="btn-primary cal-accion-btn" id="btnCargarExamen">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
-          <rect x="3" y="4" width="18" height="16" rx="2"/>
-          <path d="M3 9h18M8 3v4M16 3v4M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Cargar Fecha de Examen
-      </button>
-    `;
-  }
-
-  if (esDelegado || esAdmin) {
-    html += `
-      <button class="btn-primary cal-accion-btn cal-accion-btn--delegado" id="btnCrearEvento">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
-          <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
-        </svg>
-        Crear Evento Institucional
-      </button>
-    `;
-  }
-
-  html += `</div></div>`;
-  panel.innerHTML = html;
-
-  panel.querySelector('#btnCargarExamen')?.addEventListener('click', () => abrirModalExamen(calBody));
-  panel.querySelector('#btnCrearEvento')?.addEventListener('click',  () => abrirModalEvento(calBody));
-}
-
-/**
- * Activa los botones de eliminar evento para el perfil administrador.
- * Cada botón lleva data-evento-key="YYYY-MM-DD__titulo" como identificador.
- */
-function bindCalendarAcciones(calBody) {
-  calBody.querySelectorAll('.cal-list-del').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      eliminarEvento(btn.dataset.eventoKey, calBody);
-    });
-  });
-}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Modal: Cargar Fecha de Examen (perfil docente / admin)
----------------------------------------------------------------- */
-
-function abrirModalExamen(calBody) {
-  const materias = [
-    'Análisis Matemático I', 'Programación I', 'Álgebra Lineal',
-    'Sistemas Operativos', 'Lógica Computacional', 'Estadística Aplicada',
-    'Base de Datos I', 'Inglés Técnico I',
-  ];
-
-  const modal = crearModalCalendario({
-    titulo: 'Cargar Fecha de Examen',
-    html: `
-      <form id="formExamen" class="cal-modal-form">
-        <label class="cal-modal-label">
-          Materia
-          <select name="materia" required>
-            <option value="">Seleccioná una materia…</option>
-            ${materias.map(m => `<option value="${m}">${m}</option>`).join('')}
-          </select>
-        </label>
-        <div class="cal-modal-row">
-          <label class="cal-modal-label">
-            Fecha
-            <input type="date" name="fecha" required>
-          </label>
-          <label class="cal-modal-label">
-            Horario
-            <input type="time" name="horario" required>
-          </label>
-        </div>
-        <label class="cal-modal-label">
-          Tipo de examen
-          <select name="tipo_examen" required>
-            <option value="Parcial">Parcial</option>
-            <option value="Final">Final</option>
-            <option value="Recuperatorio">Recuperatorio</option>
-          </select>
-        </label>
-        <div class="cal-modal-actions">
-          <button type="button" class="btn-secondary" id="cancelarModalExamen">Cancelar</button>
-          <button type="submit" class="btn-primary">Guardar examen</button>
-        </div>
-      </form>
-    `,
-  });
-
-  modal.querySelector('#cancelarModalExamen').addEventListener('click', () => cerrarModalCalendario(modal));
-  modal.querySelector('#formExamen').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = new FormData(e.target);
-    guardarExamen({
-      materia:      data.get('materia'),
-      fecha:        data.get('fecha'),
-      horario:      data.get('horario'),
-      tipo_examen:  data.get('tipo_examen'),
-    }, calBody, modal);
-  });
-}
-
-/**
- * Agrega el examen al array de eventos del estado y re-renderiza el calendario.
- * En Fase 2, este mock se reemplaza por un POST a /api/calendario.
- */
-function guardarExamen({ materia, fecha, horario, tipo_examen }, calBody, modal) {
-  const nuevoEvento = {
-    fecha,
-    titulo:   `${tipo_examen}: ${materia} — ${horario}hs`,
-    tipo:     'examen',
-    color:    '#3A5BA9',
-  };
-
-  state.calendario.eventos_calendario.push(nuevoEvento);
-
-  // Navegar al mes del evento recién cargado
-  const [y, m] = fecha.split('-').map(Number);
-  state.calendarioMes = new Date(y, m - 1, 1);
-
-  cerrarModalCalendario(modal);
-  renderCalendar(calBody);
-}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Modal: Crear Evento Institucional (perfil delegado / admin)
----------------------------------------------------------------- */
-
-function abrirModalEvento(calBody) {
-  const modal = crearModalCalendario({
-    titulo: 'Crear Evento Institucional',
-    html: `
-      <form id="formEvento" class="cal-modal-form">
-        <label class="cal-modal-label">
-          Título del evento
-          <input type="text" name="titulo" required placeholder="Ej: Festival del Estudiante">
-        </label>
-        <div class="cal-modal-row">
-          <label class="cal-modal-label">
-            Fecha inicio
-            <input type="date" name="fecha_inicio" required>
-          </label>
-          <label class="cal-modal-label">
-            Fecha fin <span style="font-weight:400;text-transform:none;">(opcional)</span>
-            <input type="date" name="fecha_fin">
-          </label>
-        </div>
-        <label class="cal-modal-label">
-          Descripción
-          <textarea name="descripcion" rows="3" placeholder="Detalle, programa, requisitos…"></textarea>
-        </label>
-        <label class="cal-modal-label">
-          Ubicación
-          <input type="text" name="ubicacion" placeholder="Ej: SUM, Aula Magna, Campus…">
-        </label>
-        <div class="cal-modal-actions">
-          <button type="button" class="btn-secondary" id="cancelarModalEvento">Cancelar</button>
-          <button type="submit" class="btn-primary cal-btn--delegado">Crear evento</button>
-        </div>
-      </form>
-    `,
-  });
-
-  modal.querySelector('#cancelarModalEvento').addEventListener('click', () => cerrarModalCalendario(modal));
-  modal.querySelector('#formEvento').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = new FormData(e.target);
-    guardarEvento({
-      titulo:       data.get('titulo'),
-      fecha_inicio: data.get('fecha_inicio'),
-      fecha_fin:    data.get('fecha_fin') || null,
-      descripcion:  data.get('descripcion'),
-      ubicacion:    data.get('ubicacion'),
-    }, calBody, modal);
-  });
-}
-
-/**
- * Agrega el evento al estado con tipo 'evento_centro' y re-renderiza.
- * Si el tipo no existe aún en la paleta, lo registra para que el filtro funcione.
- * En Fase 2, reemplazar por POST a /api/eventos.
- */
-function guardarEvento({ titulo, fecha_inicio, fecha_fin, descripcion, ubicacion }, calBody, modal) {
-  const TIPO_ID = 'evento_centro';
-
-  // Registrar el tipo en la paleta si es la primera vez
-  if (!state.calendario.tipos.find(t => t.id === TIPO_ID)) {
-    state.calendario.tipos.push({ id: TIPO_ID, nombre: 'Evento CE', color: '#8B5CF6' });
-  }
-
-  const nuevoEvento = {
-    fecha:       fecha_inicio,
-    titulo,
-    tipo:        TIPO_ID,   // tipo requerido por la consigna
-    color:       '#8B5CF6',
-    descripcion,
-    ubicacion,
-    fecha_fin,
-  };
-
-  state.calendario.eventos_calendario.push(nuevoEvento);
-
-  const [y, m] = fecha_inicio.split('-').map(Number);
-  state.calendarioMes = new Date(y, m - 1, 1);
-
-  cerrarModalCalendario(modal);
-  renderCalendar(calBody);
-}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Eliminar evento (solo perfil administrador)
----------------------------------------------------------------- */
-
-/**
- * Filtra el evento del estado usando la clave compuesta "fecha__titulo"
- * y re-renderiza el calendario.
- * En Fase 2, reemplazar por DELETE /api/calendario/:id.
- */
-function eliminarEvento(eventoKey, calBody) {
-  const separador = eventoKey.indexOf('__');
-  const fecha   = eventoKey.slice(0, separador);
-  const titulo  = eventoKey.slice(separador + 2);
-
-  state.calendario.eventos_calendario = state.calendario.eventos_calendario.filter(
-    e => !(e.fecha === fecha && e.titulo === titulo)
-  );
-
-  renderCalendar(calBody);
-}
-
-/* ----------------------------------------------------------------
-   CALENDARIO — Helpers para modales
----------------------------------------------------------------- */
-
-/**
- * Crea un modal flotante sobre el drawer con el contenido dado.
- * Retorna el elemento montado en document.body para que el caller
- * pueda bindear eventos de formulario sobre él.
- */
-function crearModalCalendario({ titulo, html }) {
-  document.getElementById('calendarModal')?.remove();
-
-  // Los estilos .cal-modal-* están en styles.css (disponible en todos los portales)
-  const el = document.createElement('div');
-  el.id = 'calendarModal';
-  el.setAttribute('role', 'dialog');
-  el.setAttribute('aria-modal', 'true');
-  el.setAttribute('aria-label', titulo);
-  el.innerHTML = `
-    <div class="cal-modal-overlay">
-      <div class="cal-modal-card">
-        <div class="cal-modal-header">
-          <h3 class="cal-modal-title">${titulo}</h3>
-          <button class="cal-modal-close" aria-label="Cerrar modal">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
-        ${html}
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(el);
-
-  el.querySelector('.cal-modal-close').addEventListener('click', () => cerrarModalCalendario(el));
-  el.querySelector('.cal-modal-overlay').addEventListener('click', (e) => {
-    if (e.target === el.querySelector('.cal-modal-overlay')) cerrarModalCalendario(el);
-  });
-
-  // Cerrar con Escape
-  function onEsc(e) {
-    if (e.key === 'Escape') { cerrarModalCalendario(el); document.removeEventListener('keydown', onEsc); }
-  }
-  document.addEventListener('keydown', onEsc);
-
-  return el;
-}
-
-function cerrarModalCalendario(modal) {
-  modal?.parentNode?.removeChild(modal);
-}
+function renderEventsList() { }
+function renderFullNews() { }
+function renderRegulations() { }
+function renderSession() { }
 
 /* ----------------------------------------------------------------
    NOTIFICACIONES - Panel desplegable de la campana
 ---------------------------------------------------------------- */
 function bindNotifications() {
   const bellBtn = $('#bellBtn');
-  const panel   = $('#notifPanel');
+  const panel = $('#notifPanel');
 
   if (!bellBtn || !panel) return;
 
@@ -1504,7 +1414,7 @@ function bindNotifications() {
     const willOpen = !panel.classList.contains('is-open');
     if (willOpen) {
       const rect = bellBtn.getBoundingClientRect();
-      panel.style.top  = (rect.bottom + 10) + 'px';
+      panel.style.top = (rect.bottom + 10) + 'px';
       panel.style.right = (window.innerWidth - rect.right) + 'px';
     }
     panel.classList.toggle('is-open');
@@ -1536,12 +1446,14 @@ function closeNotifPanel() {
 }
 
 function renderNotifPanel() {
-  const list  = $('#notifList');
+  const list = $('#notifList');
   if (!list) return;
 
-  const notifs = state.notificaciones?.notificaciones || [];
+  // Obtenemos todas y ordenamos por fecha (más reciente primero)
+  const allNotifs = [...(state.notificaciones?.notificaciones || [])]
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-  if (!notifs.length) {
+  if (!allNotifs.length) {
     list.innerHTML = `
       <div class="notif-empty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1554,12 +1466,14 @@ function renderNotifPanel() {
     return;
   }
 
-  list.innerHTML = notifs.map(n => {
+  list.innerHTML = allNotifs.map(n => {
     const unreadCls = !n.leida ? ' notif-item--unread' : '';
     const unreadDot = !n.leida ? '<span class="notif-item__unread-dot"></span>' : '';
+    const ariaLabel = `${n.titulo}${!n.leida ? ' (sin leer)' : ''}`;
+
     return `
       <div class="notif-item${unreadCls}" data-notif-id="${n.id}" role="button" tabindex="0"
-           aria-label="${n.titulo}${n.leida ? '' : ' (sin leer)'}">
+           aria-label="${ariaLabel}">
         <span class="notif-item__dot notif-item__dot--${n.tipo}"></span>
         <div class="notif-item__body">
           <p class="notif-item__title">${n.titulo}</p>
@@ -1599,12 +1513,18 @@ function markAllNotifRead() {
 }
 
 function updateBellBadge() {
-  const badge  = $('#bellBadge');
+  const badge = $('#bellBadge');
   if (!badge) return;
-  const notifs  = state.notificaciones?.notificaciones || [];
-  const unread  = notifs.filter(n => !n.leida).length;
+  const notifs = state.notificaciones?.notificaciones || [];
+  const unread = notifs.filter(n => !n.leida).length;
   badge.textContent = unread;
-  badge.style.display = unread > 0 ? '' : 'none';
+  badge.style.display = unread > 0 ? 'flex' : 'none'; // Usar 'flex' para que el badge se muestre correctamente
+
+  // Actualizar el estado del usuario para que el resumen también refleje el conteo actual
+  if (state.usuario) {
+    state.usuario.notificaciones_sin_leer = unread;
+  }
+  renderUserHeader(); // Re-renderizar el encabezado para actualizar el resumen
 }
 
 /* ----------------------------------------------------------------
@@ -1653,9 +1573,14 @@ window.__FALLBACK_DATA__ = {
   },
   notificaciones: {
     notificaciones: [
-      { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.", tipo: "success", fecha: "2026-04-27T09:00:00", leida: false },
-      { id: 2, titulo: "Cierre de inscripciones", descripcion: "Las inscripciones a mesas de Julio cierran el 10/07.", tipo: "warning", fecha: "2026-04-26T14:30:00", leida: false },
-      { id: 3, titulo: "Workshop de Python", descripcion: "El CE abrió cupos para el taller de Pandas, NumPy y Scikit-learn.", tipo: "info", fecha: "2026-04-25T11:00:00", leida: false }
+      { id: 1, titulo: "Inscripción confirmada", descripcion: "Tu inscripción a Lógica Computacional (20/07) ha sido exitosa.", fecha: "2026-05-15T09:00:00", tipo: "success", leida: false }
+    ]
+  },
+  materias: {
+    materias: [
+      { id: 1, codigo: "TP1", nombre: "Técnicas de Programación", carrera_id: 1, docente: "García, María", asistencia: 85, nota_parcial: 8, dias: ["Lun", "Mié"], hora: "18:30 - 21:30", color: "#4A67C9" },
+      { id: 2, codigo: "BD1", nombre: "Bases de Datos I", carrera_id: 1, docente: "López, Carlos", asistencia: 72, nota_parcial: 3, dias: ["Mar", "Jue"], hora: "19:00 - 22:00", color: "#F5A623" },
+      { id: 3, codigo: "LC", nombre: "Lógica Computacional", carrera_id: 1, docente: "Ríos, Valentina", asistencia: 98, nota_parcial: 10, dias: ["Vie"], hora: "18:00 - 21:00", color: "#8B5CF6" }
     ]
   }
 };

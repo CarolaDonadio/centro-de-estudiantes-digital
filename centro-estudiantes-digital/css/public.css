@@ -437,8 +437,9 @@ img { max-width: 100%; height: auto; }
 /* Ilustración decorativa del hero — composición geométrica */
 .hero__art {
   position: relative;
+  top: 75px;
   aspect-ratio: 1;
-  max-width: 380px;
+  max-width: 456px;
   margin-left: auto;
 }
 

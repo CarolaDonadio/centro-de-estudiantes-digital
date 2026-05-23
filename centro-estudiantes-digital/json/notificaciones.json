@@ -1,1 +1,36 @@
-[]
+{
+    "notificaciones": [
+        {
+            "id": 1,
+            "titulo": "Inscripción confirmada",
+            "descripcion": "Tu inscripción a Lógica Computacional (20/07) fue confirmada exitosamente.",
+            "tipo": "success",
+            "fecha": "2026-04-27T09:00:00",
+            "leida": false
+        },
+        {
+            "id": 2,
+            "titulo": "Cierre de inscripciones",
+            "descripcion": "Las inscripciones a mesas de Julio cierran el 10/07. No te olvides de revisar tus correlatividades.",
+            "tipo": "warning",
+            "fecha": "2026-04-26T14:30:00",
+            "leida": false
+        },
+        {
+            "id": 3,
+            "titulo": "Workshop de Python",
+            "descripcion": "El Centro de Estudiantes abrió cupos para el taller intensivo de Pandas y NumPy. ¡Inscribite!",
+            "tipo": "info",
+            "fecha": "2026-04-25T11:00:00",
+            "leida": false
+        },
+        {
+            "id": 4,
+            "titulo": "Novedad en Campus",
+            "descripcion": "Se ha publicado el material de estudio para la Unidad 3 de Programación I.",
+            "tipo": "info",
+            "fecha": "2026-04-28T10:15:00",
+            "leida": true
+        }
+    ]
+}
