@@ -161,11 +161,11 @@
 
       <div class="header__greeting">
         <!-- Avatar con iniciales generado dinámicamente -->
-        <div class="avatar" id="userAvatar" aria-hidden="true">SC</div>
+        <div class="avatar" id="userAvatar" aria-hidden="true">..</div>
 
         <div class="header__text">
           <h1 class="header__title">
-            Hola, <strong id="userName">Santiago Chiale</strong>
+            Hola, <strong id="userName">Cargando...</strong>
           </h1>
           <p class="header__subtitle" id="userSummary">
             Tenés 3 clases hoy, 3 notificaciones sin leer y 2 eventos del CE esta semana.
@@ -203,7 +203,7 @@
       <article class="card card--career" data-animate="fade-up" style="--delay: 0.1s">
         <header class="card__header">
           <span class="eyebrow">Tu Carrera</span>
-          <h2 class="card__title" id="userCareer">Ciencias de Datos e IA</h2>
+          <h2 class="card__title" id="userCareer">Buscando información...</h2>
         </header>
 
         <div class="card__body career-body">
@@ -324,6 +324,7 @@
         <div class="news-list" id="newsList">
           <!-- JS inyecta las novedades aquí -->
         </div>
+        <div id="carrerasWidget" style="margin-top:1rem"></div>
       </article>
 
     </section>
@@ -451,6 +452,12 @@
   </div>
 
   <!-- === SCRIPT PRINCIPAL DE LA APLICACIÓN === -->
+  <!-- API CLIENT - Comunicación con servidor remoto -->
+  <script src="js/api-client.js"></script>
+  <script src="js/alumno-data.js"></script>
+  <script src="js/data-sync.js"></script>
+  <script src="js/api-utils.js"></script>
+  <script src="js/test-api.js"></script>
   <script src="js/logout.js"></script>
   <script src="js/app.js" defer></script>
 </body>
