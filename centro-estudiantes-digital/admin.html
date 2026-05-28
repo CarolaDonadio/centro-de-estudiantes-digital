@@ -1066,6 +1066,28 @@
           </button>
         </li>
 
+        <!-- Módulo 1: Carreras (Solo Admin y Docente) -->
+        <li id="nav-carreras" style="display:none">
+          <button class="nav-btn" data-drawer="mod-carreras" aria-label="Carreras">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+            <span class="nav-btn__tooltip">Carreras</span>
+          </button>
+        </li>
+
+        <!-- Módulo 1.1: Materias (Solo Admin y Docente) -->
+        <li id="nav-materias" style="display:none">
+          <button class="nav-btn" data-drawer="mod-materias" aria-label="Materias">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              <path d="M9 7h7M9 11h5" stroke-linecap="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Materias</span>
+          </button>
+        </li>
         <!-- === MÓDULOS DEL PROYECTO === -->
         <li class="nav-separator" aria-hidden="true"><hr></li>
 
@@ -1093,7 +1115,7 @@
         </li>
 
         <!-- Módulo 4: Reglamentación -->
-        <li data-admin-only>
+        <li>
           <button class="nav-btn" data-drawer="mod-reglamentacion" aria-label="Reglamentación">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round"/>
@@ -1211,6 +1233,15 @@
   <!-- Datos de los módulos del proyecto -->
   <script src="js/admin/modulos.js"></script>
 
+  <!-- ================================================================
+       API CLIENT - Comunicación con servidor remoto
+       ================================================================ -->
+  <script src="js/api-client.js"></script>
+  <script src="js/admin/admin-data.js"></script>
+  <script src="js/data-sync.js"></script>
+  <script src="js/api-utils.js"></script>
+  <script src="js/test-api.js"></script>
+
   <!--
     ================================================================
     SCRIPT INLINE: lógica del admin con datos demo.
@@ -1239,36 +1270,48 @@
       loggedAt: session.loggedAt || ''
     };
 
-    // Cargar usuarios desde usuarios.json
+    const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
+
+    // Cargar usuarios desde API
     let usuariosJSON = [];
     try {
-      const res = await fetch('json/usuarios.json');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      usuariosJSON = await res.json();
+      console.log('📥 Cargando usuarios desde API...');
+      usuariosJSON = await Usuarios.listar();
+      console.log('✅ Usuarios cargados:', usuariosJSON.length);
     } catch (err) {
-      console.warn('[Admin] No se pudo cargar usuarios.json:', err);
+      console.warn('[Admin] No se pudo cargar usuarios de la API:', err);
     }
 
-    // Cargar carreras desde carreras.json
+    // Cargar carreras desde API
     let carreras = [];
     try {
-      const res = await fetch('json/carreras.json');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      carreras = await res.json();
+      carreras = await Carreras.listar();
+      console.log('✅ Carreras cargadas desde API:', carreras.length);
     } catch (err) {
-      console.warn('[Admin] No se pudo cargar carreras.json:', err);
+      console.error('[Admin] Error al cargar carreras desde API:', err);
     }
 
-    // Mapeo de perfil_id a rol
+    // Cargar materias desde JSON para los selectores de novedades
+    let materias = [];
+    try {
+      const respMat = await fetch('json/materias.json');
+      const dataMat = await respMat.json();
+      materias = dataMat.materias || [];
+      console.log('✅ Materias cargadas:', materias.length);
+    } catch (err) {
+      console.warn('[Admin] No se pudo cargar materias del JSON:', err);
+    }
+
+    // Visibilidad de módulos según rol (Acomodando Carreras para Docente/Delegado)
+    const navCarreras = document.getElementById('nav-carreras');
+    const rolLower = admin.rol.toLowerCase();
+    if (navCarreras && (isAdminUser || rolLower === 'docente' || rolLower === 'delegado')) {
+      navCarreras.style.display = 'block';
+    }
+
     const PERFIL_MAP = { 1: 'alumno', 2: 'docente', 3: 'delegado', 4: 'admin' };
+    const PERFIL_MAP_INVERSE = { 'alumno': 1, 'docente': 2, 'delegado': 3, 'admin': 4 };
 
-    // Helper: genera <option> de carreras
-    function carreraOptions(selectedId) {
-      return `<option value="">— Sin asignar —</option>` +
-        carreras.map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${c.codigo} – ${c.nombre}</option>`).join('');
-    }
-
-    // Mapear datos del JSON al formato interno
     const usuarios = usuariosJSON.map(u => ({
       id: u.id,
       nombre: u.nombre,
@@ -1282,7 +1325,7 @@
       created_at: u.created_at
     }));
 
-    // Enriquecer admin con datos completos del JSON
+    // Enriquecer admin con datos de la sesión
     const adminFullData = usuarios.find(u => u.usuario === admin.usuario);
     if (adminFullData) {
       admin.email = adminFullData.email || '';
@@ -1292,20 +1335,41 @@
 
     // Helper: nombre de carrera por id
     function getCarreraNombre(id) {
-      const c = carreras.find(x => x.id === id);
-      return c ? `${c.codigo} – ${c.nombre}` : '—';
+      if (!id) return 'Todas';
+      const c = carreras.find(x => x.id == id);
+      return c ? (c.codigo ? `${c.codigo} – ${c.nombre}` : c.nombre) : '—';
     }
 
-    // Cargar novedades y categorías
+    // Cargar novedades desde API y categorías desde JSON
     let novedades = [];
     let categorias = [];
     try {
-      const resp = await fetch('json/novedades.json');
-      const data = await resp.json();
-      novedades = data.novedades || [];
-      categorias = data.categorias || [];
+      // Cargamos categorías del JSON para mantener los colores y estilos
+      const respCat = await fetch('json/novedades.json');
+      const dataCat = await respCat.json();
+      categorias = dataCat.categorias || [];
+
+      // Cargamos novedades reales de la API
+        console.log('📥 Cargando novedades desde API...');
+        novedades = await Novedades.listar();
+
+        // Si el rol es docente, nos aseguramos de que exista una categoría "Carreras"
+        if (rolLower === 'docente') {
+          const hasCarrerasCat = categorias.some(c => String(c.nombre).toLowerCase() === 'carreras');
+          if (!hasCarrerasCat) {
+            const nextId = categorias.length ? Math.max(...categorias.map(x => x.id)) + 1 : 1;
+            categorias.push({ id: nextId, nombre: 'Carreras', color: '#4A67C9' });
+          }
+        }
+
+        // Enriquecemos con nombres de categoría mapeados
+        novedades.forEach(n => {
+          const cat = categorias.find(c => c.id == n.categoria_id);
+          if (cat) n.categoria = cat.nombre;
+        });
+        console.log('✅ Novedades cargadas:', novedades.length);
     } catch (e) {
-      console.error('Error loading novedades data', e);
+      console.error('Error al cargar datos de novedades:', e);
     }
 
     // Actualizar header con datos del usuario logueado
@@ -1330,68 +1394,102 @@
     /* ============================================================
        MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js)
        ============================================================ */
+    // Agregamos el módulo de Materias al objeto global modulosData
+    window.MODULOS_DATA['mod-materias'] = {
+      titulo: 'Materias',
+      icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h5" stroke-linecap="round"/></svg>',
+      descripcion: 'Gestión de la oferta académica por materia, vinculada a las carreras existentes.',
+      items: [] // Se poblará con datos de la API
+    };
+    window.MODULOS_DATA['mod-carreras'] = {
+      titulo: 'Carreras',
+      icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>',
+      descripcion: 'Gestión de las carreras del instituto, códigos y perfiles académicos.',
+      items: [] // Se poblará con datos de la API
+    };
     const modulosData = window.MODULOS_DATA || {};
-    const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
+    // `isAdminUser` ya está declarado más arriba y refleja si el usuario es administrador
     let eventosAdmin = [];
 
-    async function loadReglamentacionFromJSON() {
+    async function loadReglamentacionFromAPI() {
       if (!modulosData['mod-reglamentacion']) return;
       try {
-        const res = await fetch('json/reglamentacion.json');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!Array.isArray(data.documentos)) return;
+        console.log('📥 Cargando reglamentación desde API...');
+        const data = await Reglamentacion.listar();
+        if (!Array.isArray(data)) return;
 
-        modulosData['mod-reglamentacion'].items = data.documentos.map(doc => ({
+        modulosData['mod-reglamentacion'].items = data.map(doc => ({
+          id: doc.id,
           titulo: doc.titulo,
+          categoria: doc.categoria,
+          version: doc.version,
           detalle: `${doc.categoria ? doc.categoria.charAt(0).toUpperCase() + doc.categoria.slice(1) : 'Normativa'} · ${doc.version || 'v1.0'} · Publicado ${doc.fecha_publicacion || '---'}`,
           estado: 'Vigente',
           estadoClase: 'activo',
           link: doc.link || (doc.archivo ? `json/${doc.archivo}` : undefined)
         }));
 
-        modulosData['mod-reglamentacion'].descripcion = 'Repositorio centralizado de documentos oficiales con versionado y búsqueda por palabras clave. Los documentos se cargan desde el JSON oficial de reglamentaciones.';
+        modulosData['mod-reglamentacion'].descripcion = 'Repositorio centralizado de documentos oficiales con versionado y búsqueda por palabras clave. Los documentos se cargan desde la API de reglamentaciones.';
+        console.log('✅ Reglamentación cargada:', modulosData['mod-reglamentacion'].items.length);
       } catch (err) {
-        console.warn('No se pudo cargar reglamentación desde JSON:', err);
+        console.warn('No se pudo cargar reglamentación desde API:', err);
       }
     }
 
-    async function loadEventosFromJSON() {
+    async function loadEventosFromAPI() {
       if (!modulosData['mod-eventos']) return;
       try {
-        const res = await fetch('json/eventos.json');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!Array.isArray(data.eventos)) throw new Error('Formato inesperado');
-        eventosAdmin = data.eventos.map(ev => ({
-          ...ev,
-          detalle: `${ev.categoria} · ${ev.lugar} · Cupo ${ev.inscriptos}/${ev.cupo}`
-        }));
+        console.log('📥 Cargando eventos desde API...');
+        const data = await Eventos.listar();
+        eventosAdmin = data.map(ev => {
+          const inscriptos = ev.inscriptos || 0;
+          const cupo = ev.cupo || 0;
+          return {
+            ...ev,
+            detalle: `${ev.categoria || 'General'} · ${ev.lugar || 'S/D'} · Cupo ${inscriptos}/${cupo}`
+          };
+        });
+        console.log('✅ Eventos cargados:', eventosAdmin.length);
       } catch (err) {
-        console.warn('No se pudo cargar eventos desde JSON:', err);
-        eventosAdmin = modulosData['mod-eventos'].items.map((item, index) => ({
-          id: Date.now() + index,
-          titulo: item.titulo,
-          descripcion: item.detalle,
-          fecha_inicio: new Date().toISOString(),
-          fecha_fin: new Date().toISOString(),
-          cupo: 0,
-          inscriptos: 0,
-          autor: 'Sistema',
-          estado: 'activo',
-          categoria: 'General',
-          lugar: 'Sin definir',
-          color: '#8B5CF6',
-          detalle: item.detalle
-        }));
+        console.warn('No se pudo cargar eventos desde API:', err);
+        eventosAdmin = [];
       }
     }
 
+    let inscripcionesAdmin = [];
+    async function loadInscripcionesFromAPI() {
+      try {
+        inscripcionesAdmin = await Inscripciones.listar();
+      } catch (err) {
+        console.warn('Inscripciones no disponibles en API');
+      }
+    }
+
+    // --- CALENDARIO ACADÉMICO ---
+    let calendarioAdmin = [];
+    let calendarioMes = new Date();
+    const CAL_TYPES = {
+      'examen': { label: 'Examen', color: '#C0392B' },
+      'inscripcion': { label: 'Inscripción', color: '#F5A623' },
+      'feriado': { label: 'Feriado/Receso', color: '#8a8d9c' },
+      'evento': { label: 'Evento', color: '#4A67C9' }
+    };
+
+    async function loadCalendarioFromAPI() {
+      try {
+        calendarioAdmin = await Calendario.listar();
+      } catch (err) {
+        console.warn('Calendario no disponible en API');
+      }
+    }
+
+    // Utils
     function formatDateTime(isoDate) {
+      if (!isoDate) return '---';
       const date = new Date(isoDate);
       return date.toLocaleString('es-AR', {
         day: '2-digit',
-        month: 'short',
+        month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
@@ -1399,57 +1497,69 @@
     }
 
     function roleEventCategories() {
+      if (isAdminUser) return ['Académico', 'Social', 'Cultural', 'Centro de Estudiantes', 'Deportivo'];
       const role = admin.rol.toLowerCase();
-      if (role === 'admin') return ['Académico', 'Social', 'Cultural', 'Centro de Estudiantes', 'Deportivo'];
       if (role === 'docente') return ['Académico', 'Social', 'Cultural'];
       if (role === 'delegado') return ['Centro de Estudiantes', 'Social', 'Cultural'];
       return ['Social', 'Cultural'];
     }
 
+    function carreraOptions(selectedId) {
+      return `<option value="">— Todas las carreras —</option>` +
+        carreras.map(c => `<option value="${c.id}" ${c.id == selectedId ? 'selected' : ''}>${c.nombre}</option>`).join('');
+    }
+
     function canManageEvent(ev) {
-      const role = admin.rol.toLowerCase();
-      return role === 'admin' || ev.autor === admin.nombre || ev.autor === 'Centro de Estudiantes';
+      return isAdminUser || ev.autor === admin.nombre || ev.autor === 'Centro de Estudiantes';
     }
 
     function renderEventosAdmin() {
       const categorias = roleEventCategories();
-      const canPublish = ['admin', 'docente', 'delegado'].includes(admin.rol.toLowerCase());
-      const headerLabel = admin.rol.toLowerCase() === 'admin'
+      const canPublish = isAdminUser || ['docente', 'delegado'].includes(admin.rol.toLowerCase());
+      const headerLabel = isAdminUser
         ? 'Control total de la sección Eventos'
         : admin.rol.toLowerCase() === 'docente'
           ? 'Publicá eventos académicos relacionados a tu materia'
           : 'Publicá eventos del Centro de Estudiantes y actividades sociales';
 
       const eventCards = eventosAdmin.length ? eventosAdmin.map(ev => `
-          <div class="modulo-item" style="padding:1rem;display:flex;flex-direction:column;gap:.7rem;">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;">
-              <div>
-                <p class="modulo-item__titulo">${ev.titulo}</p>
-                <p class="modulo-item__detalle">${ev.detalle}</p>
-                <p style="margin:.4rem 0 0;font:500 .82rem 'Manrope',sans-serif;color:#5a5d6e">${ev.descripcion || ''}</p>
-              </div>
-              <span class="modulo-item__estado modulo-item__estado--${ev.estado === 'activo' ? 'activo' : ev.estado === 'finalizado' ? 'cerrado' : 'cerrado'}" style="white-space:nowrap;">${ev.estado}</span>
+        <div class="modulo-item" style="padding:1rem;display:flex;flex-direction:column;gap:.7rem;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;">
+            <div>
+              <p class="modulo-item__titulo">${ev.titulo}</p>
+              <p class="modulo-item__detalle">${ev.detalle}</p>
+              <p style="margin:.4rem 0 0;font:500 .82rem 'Manrope',sans-serif;color:#5a5d6e">${ev.descripcion || ''}</p>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
-              <div style="font:500 .82rem 'Manrope',sans-serif;color:#6c6f80;">${formatDateTime(ev.fecha_inicio)} · ${formatDateTime(ev.fecha_fin)}</div>
-              <div style="display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;">
-                <span style="font:600 .78rem 'Manrope',sans-serif;color:#1A1D4A;">${ev.categoria}</span>
-                <span style="font:500 .78rem 'Manrope',sans-serif;color:#4A47A7;">${ev.autor}</span>
-                ${canManageEvent(ev) ? `<button class="btn btn-secondary btn-sm" data-event-action="edit" data-event-id="${ev.id}">Editar</button>
-                <button class="btn btn-secondary btn-sm" data-event-action="delete" data-event-id="${ev.id}" style="background:#E67E5B;border-color:#E67E5B;color:#fff;">Eliminar</button>` : ''}
-              </div>
+            <span class="modulo-item__estado modulo-item__estado--${ev.estado === 'activo' ? 'activo' : ev.estado === 'finalizado' ? 'cerrado' : 'cerrado'}" style="white-space:nowrap;">${ev.estado}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
+            <div style="font:500 .82rem 'Manrope',sans-serif;color:#6c6f80;">${formatDateTime(ev.fecha_inicio)} · ${formatDateTime(ev.fecha_fin)}</div>
+            <div style="display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;">
+              <span style="font:600 .78rem 'Manrope',sans-serif;color:#1A1D4A;">${ev.categoria}</span>
+              <span style="font:500 .78rem 'Manrope',sans-serif;color:#4A47A7;">${ev.autor}</span>
+              ${canManageEvent(ev) ? `
+                <button class="btn btn-secondary btn-sm" data-event-action="edit" data-event-id="${ev.id}">Editar</button>
+                <button class="btn btn-secondary btn-sm" data-event-action="delete" data-event-id="${ev.id}" style="background:#E67E5B;border-color:#E67E5B;color:#fff;">Eliminar</button>
+              ` : ''}
             </div>
           </div>
+        </div>
         `).join('') : '<p style="padding:1.2rem;color:#8a8d9c;font-family:Manrope,sans-serif">No hay eventos registrados todavía.</p>';
 
       return `
+        <div class="drawer__tabs">
+          <button class="drawer__tab is-active" data-tab="lista">Lista</button>
+          <button class="drawer__tab" data-tab="inscriptos">Alumnos Inscriptos</button>
+        </div>
+
+        <div id="eventListPane">
         <p class="modulo-descripcion">${modulosData['mod-eventos'].descripcion}</p>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
           <div style="flex:1;min-width:220px;">
             <strong style="display:block;margin-bottom:.35rem;color:#1A1D4A;">${headerLabel}</strong>
             <span style="color:#5a5d6e;font:500 .9rem 'Manrope',sans-serif">Podés publicar, editar y administrar eventos según tu rol.</span>
           </div>
-          ${canPublish ? `<button class="btn btn-primary" id="toggleEventForm">${admin.rol.toLowerCase() === 'admin' ? 'Nuevo evento' : 'Publicar evento'}</button>` : ''}
+          ${canPublish ? `<button class="btn btn-primary" id="toggleEventForm">${isAdminUser ? 'Nuevo evento' : 'Publicar evento'}</button>` : ''}
         </div>
 
         <div id="eventAdminFormWrapper" style="display:none;margin-bottom:1.5rem;border:1px solid rgba(143,163,227,.25);border-radius:16px;padding:1rem;background:#fff;">
@@ -1496,7 +1606,146 @@
         </div>
 
         <div class="modulo-list">${eventCards}</div>
+        </div>
+
+        <div id="eventInscriptosPane" hidden>
+          <div class="drawer__search">
+            <select id="selectEventInscriptos" style="width:100%; padding:.65rem; border:1px solid rgba(143,163,227,.4); border-radius:10px; font:500 .85rem 'Manrope',sans-serif;">
+              <option value="">Seleccionar un evento para ver la lista...</option>
+              ${eventosAdmin.map(ev => `<option value="${ev.id}">${ev.titulo}</option>`).join('')}
+            </select>
+          </div>
+          <div id="inscriptosList" style="margin-top:1.2rem;"></div>
+        </div>
       `;
+    }
+
+    function renderCalendarioAdmin() {
+      const currentDate = calendarioMes || new Date();
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      let startingDay = firstDay.getDay();
+
+      const eventosFiltrados = calendarioAdmin; // No hay filtro por tipo en admin por ahora
+
+      const eventosDelMes = {};
+      eventosFiltrados.forEach(e => {
+        const [evYear, evMonth, evDay] = e.fecha.split('-');
+        if (parseInt(evYear) === year && parseInt(evMonth) - 1 === month) {
+          const d = parseInt(evDay);
+          if (!eventosDelMes[d]) eventosDelMes[d] = [];
+          eventosDelMes[d].push(e);
+        }
+      });
+
+      let calHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem">
+          <p class="modulo-descripcion" style="margin:0">Gestión de fechas de exámenes, feriados y periodos de inscripción.</p>
+          ${admin.rol !== 'delegado' ? `<button class="btn btn-primary" id="btnNewCalEvent">+ Cargar fecha</button>` : ''}
+        </div>
+        <div class="calendar-header">
+          <button class="cal-nav-btn" id="prevMonthAdmin" aria-label="Mes anterior">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <h3 class="calendar-title">${meses[month]} ${year}</h3>
+          <button class="cal-nav-btn" id="nextMonthAdmin" aria-label="Mes siguiente">
+          </button>
+        </div>
+      `;
+
+      calHTML += `<div class="calendar-grid"><div class="calendar-weekdays">`;
+      diasSemana.forEach(d => {
+        calHTML += `<div class="calendar-weekday">${d}</div>`;
+      });
+      calHTML += `</div><div class="calendar-days">`;
+
+      for (let i = 0; i < startingDay; i++) {
+        calHTML += `<div class="calendar-day calendar-day--empty"></div>`;
+      }
+
+      const hoy = new Date();
+      const esMesActual = hoy.getFullYear() === year && hoy.getMonth() === month;
+
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const isToday = esMesActual && hoy.getDate() === d;
+        const dayEvents = eventosDelMes[d] || [];
+
+        let dotsHTML = '<div class="calendar-day-events">';
+        dayEvents.slice(0, 3).forEach(e => {
+          dotsHTML += `<span class="calendar-dot" style="background-color: ${CAL_TYPES[e.tipo]?.color || '#ccc'}" title="${e.titulo}"></span>`;
+        });
+        if (dayEvents.length > 3) {
+          dotsHTML += `<span class="calendar-dot calendar-dot--more" title="Más eventos"></span>`;
+        }
+        dotsHTML += '</div>';
+
+        const dayClass = isToday ? 'calendar-day calendar-day--today' : 'calendar-day';
+        const hasEventsClass = dayEvents.length > 0 ? 'calendar-day--has-events' : '';
+        calHTML += `
+          <div class="${dayClass} ${hasEventsClass}">
+            <span class="calendar-day-num">${d}</span>
+            ${dotsHTML}
+          </div>
+        `;
+      }
+      calHTML += `</div></div>`;
+
+      let eventosDelMesFlat = [];
+      Object.keys(eventosDelMes).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dia => {
+        eventosDelMes[dia].forEach(e => eventosDelMesFlat.push(e));
+      });
+
+      calHTML += `<div class="calendar-event-list">`;
+      calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
+
+      if (eventosDelMesFlat.length === 0) {
+        calHTML += `<div class="notif-empty" style="margin-top:16px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
+            </svg>
+            <p>No hay eventos registrados.</p>
+          </div>`;
+      } else {
+        eventosDelMesFlat.forEach(e => {
+          const [y, m, d] = e.fecha.split('-');
+          const canEdit = isAdminUser || (admin.rol === 'docente' && e.tipo === 'examen');
+          calHTML += `
+            <div class="cal-list-item" style="--ev-color: ${CAL_TYPES[e.tipo]?.color || '#ccc'}">
+              <div class="cal-list-date">
+                <span class="cal-list-day">${d}</span>
+                <span class="cal-list-month">${meses[parseInt(m) - 1]?.substring(0, 3).toUpperCase()}</span>
+              </div>
+              <div class="cal-list-body">
+                <h4 class="cal-list-title">${e.titulo}</h4>
+                <div style="display:flex; justify-content:space-between; align-items:center">
+                  <span class="cal-list-type" style="color: ${CAL_TYPES[e.tipo]?.color || '#ccc'}; background-color: ${CAL_TYPES[e.tipo]?.color ? CAL_TYPES[e.tipo].color + '20' : '#ccc20'}">
+                    ${CAL_TYPES[e.tipo]?.label || e.tipo}
+                  </span>
+                  ${canEdit ? `
+                    <div style="display:flex; gap:.4rem">
+                      <button class="btn-icon" data-cal-action="edit" data-cal-id="${e.id}" title="Editar">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button class="btn-icon" style="color:#E67E5B" data-cal-action="delete" data-cal-id="${e.id}" title="Eliminar">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+      calHTML += `</div>`;
+      return calHTML;
     }
 
     function renderModuloListado(key) {
@@ -1506,22 +1755,33 @@
 
       const mod = modulosData[key];
       if (!mod) return '<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Sin datos disponibles.</p>';
+      
+      const canAdd = key === 'mod-reglamentacion' && isAdminUser;
+
       return `
-        <p class="modulo-descripcion">${mod.descripcion}</p>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem">
+          <p class="modulo-descripcion" style="margin:0">${mod.descripcion}</p>
+          ${canAdd ? `<button class="btn btn-primary">+ Nuevo documento</button>` : ''}
+        </div>
         <div class="modulo-list">
-          ${mod.items.map(item => `
+          ${mod.items.map((item, idx) => `
             <div class="modulo-item">
               <div class="modulo-item__info">
                 <p class="modulo-item__titulo">${item.titulo}</p>
                 <p class="modulo-item__detalle">${item.detalle}</p>
               </div>
-              <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
-                ${item.link ? `<a class="btn btn-secondary btn-sm" href="${item.link}" target="_blank" rel="noopener noreferrer">Ver documento</a>` : ''}
+              <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap; justify-content:flex-end">
+                ${isAdminUser ? `
+                  <button class="btn btn-secondary btn-sm" style="background:#fff">Editar</button>
+                  <button class="btn btn-secondary btn-sm" style="background:rgba(230,126,91,.1); color:#E67E5B; border-color:transparent">Eliminar</button>
+                ` : ''}
+                ${item.link ? `<a class="btn btn-primary btn-sm" href="${item.link}" target="_blank">Abrir</a>` : ''}
                 <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
               </div>
             </div>
           `).join('')}
         </div>
+        ${mod.items.length === 0 ? '<p style="text-align:center; padding:3rem; color:#8a8d9c">No hay registros cargados en este módulo.</p>' : ''}
       `;
     }
 
@@ -1545,46 +1805,280 @@
        3) SISTEMA DE NAVEGACIÓN — renderiza en #mainContent
        ============================================================ */
     const mainContent = document.getElementById('mainContent');
+    let currentDrawer = 'perfil';
 
     function navigateTo(key, opts = {}) {
-      if (key === 'mod-reglamentacion' && !isAdminUser) {
-        return;
-      }
-
+      currentDrawer = key;
       const builder = sectionContent[key];
       if (!builder) return;
-      const { title, html } = builder();
-      mainContent.innerHTML = `
-        <h2 style="margin:0 0 1.2rem;font:700 1.4rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${title}</h2>
-        <div>${html}</div>
-      `;
+
+      const data = builder();
+      mainContent.innerHTML = `<h2 style="margin:0 0 1.2rem;font:700 1.4rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${data.title}</h2><div>${data.html}</div>`;
+      
       // Hooks por sección
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
+      if (key === 'mod-carreras') bindCarrerasDrawer();
+      if (key === 'mod-materias') bindMateriasDrawer(); // Nuevo binding para Materias
       if (key === 'mod-novedades') bindNovedadesDrawer();
       if (key === 'mod-eventos') bindEventosDrawer();
+      if (key === 'mod-calendario') bindCalendarioDrawer();
+      if (key === 'mod-reglamentacion') bindReglamentacionDrawer();
       if (key === 'perfil') bindPerfilSection();
+
       // Active state en el menú
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-btn--active'));
       const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
-      if (active) active.classList.add('is-active');
+      if (active) active.classList.add('nav-btn--active');
     }
 
-    // Event listeners del menú lateral
-    document.querySelectorAll('[data-drawer]').forEach(btn => {
+    /* ============================================================
+       REGLAMENTACIÓN: Panel CRUD (Admin) + Listado (Docente/Delegado)
+    ============================================================ */
+    function renderReglamentacionAdmin() {
+      const mod = modulosData['mod-reglamentacion'];
+      if (!mod) return '<p>Error cargando módulo</p>';
+
+      // Vista de solo lectura para Docente/Delegado
+      if (!isAdminUser) {
+        return `
+          <p class="modulo-descripcion">${mod.descripcion}</p>
+          <div class="modulo-list">
+            ${mod.items.map(item => `
+              <div class="modulo-item">
+                <div class="modulo-item__info">
+                  <p class="modulo-item__titulo">${item.titulo}</p>
+                  <p class="modulo-item__detalle">${item.detalle}</p>
+                </div>
+                <div style="display:flex;gap:.5rem;align-items:center; justify-content:flex-end">
+                  ${item.link ? `<a class="btn btn-primary btn-sm" href="${item.link}" target="_blank">Abrir</a>` : ''}
+                  <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      // Vista Admin con Dashboard para nuevo documento
+      return `
+        <div class="drawer__tabs">
+          <button class="drawer__tab is-active" data-tab="lista">Lista (${mod.items.length})</button>
+          <button class="drawer__tab" data-tab="nuevo">+ Nuevo documento</button>
+        </div>
+
+        <div id="reglListPane">
+          <p class="modulo-descripcion">${mod.descripcion}</p>
+          <div class="modulo-list">
+            ${mod.items.map(item => `
+              <div class="modulo-item">
+                <div class="modulo-item__info">
+                  <p class="modulo-item__titulo">${item.titulo}</p>
+                  <p class="modulo-item__detalle">${item.detalle}</p>
+                </div>
+                <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap; justify-content:flex-end">
+                  <button class="btn btn-secondary btn-sm" style="background:rgba(230,126,91,.1); color:#E67E5B; border-color:transparent" data-regl-action="delete" data-regl-id="${item.id}">Eliminar</button>
+                  ${item.link ? `<a class="btn btn-primary btn-sm" href="${item.link}" target="_blank">Abrir</a>` : ''}
+                  <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div id="reglNewPane" hidden>
+          <form class="admin-form" id="newReglForm">
+            <div class="admin-form__row">
+              <label>Título del documento
+                <input type="text" name="titulo" required placeholder="Ej: Reglamento Académico Marco">
+              </label>
+              <label>Categoría
+                <select name="categoria" required>
+                  <option value="institucional">Institucional</option>
+                  <option value="profesorado">Profesorado</option>
+                  <option value="tecnicatura">Tecnicatura</option>
+                  <option value="centro de estudiantes">Centro de Estudiantes</option>
+                </select>
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Versión
+                <input type="text" name="version" required placeholder="Ej: v1.0" value="1.0">
+              </label>
+              <label>Link / URL del documento
+                <input type="text" name="link" required placeholder="Ej: https://abc.gob.ar/...">
+              </label>
+            </div>
+            <label>Descripción breve
+              <textarea name="descripcion" rows="3" required placeholder="Describe de qué trata esta normativa..."></textarea>
+            </label>
+            <button type="submit" class="admin-form__submit">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+              Publicar documento
+            </button>
+          </form>
+        </div>
+      `;
+    }
+
+    function bindReglamentacionDrawer() {
+      if (!isAdminUser) return;
+      
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const panes = {
+        lista: document.getElementById('reglListPane'),
+        nuevo: document.getElementById('reglNewPane')
+      };
+
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.toggle('is-active', x === t));
+        Object.entries(panes).forEach(([k, p]) => { if (p) p.hidden = k !== t.dataset.tab; });
+      }));
+
+      document.getElementById('newReglForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const data = {
+          titulo: fd.get('titulo'),
+          categoria: fd.get('categoria'),
+          descripcion: fd.get('descripcion'),
+          link: fd.get('link'),
+          version: fd.get('version'),
+          fecha_publicacion: new Date().toISOString().split('T')[0]
+        };
+
+        try {
+          await Reglamentacion.crear(data);
+          showToast('Documento publicado', 'Se agregó el nuevo documento a reglamentación.');
+          await loadReglamentacionFromAPI();
+          navigateTo('mod-reglamentacion');
+        } catch (err) { alert('Error al crear documento: ' + err.message); }
+      });
+
+      document.querySelectorAll('[data-regl-action="delete"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.reglId;
+          if (confirm('¿Eliminar este documento definitivamente?')) {
+            try {
+              await Reglamentacion.eliminar(id);
+              showToast('Documento eliminado', 'Se quitó el documento del repositorio.');
+              await loadReglamentacionFromAPI();
+              navigateTo('mod-reglamentacion');
+            } catch (err) { alert('Error al eliminar: ' + err.message); }
+          }
+        });
+      });
+    }
+
+    function bindCalendarioDrawer() {
+      document.getElementById('prevMonthAdmin')?.addEventListener('click', () => {
+        calendarioMes.setMonth(calendarioMes.getMonth() - 1);
+        navigateTo('mod-calendario');
+      });
+      document.getElementById('nextMonthAdmin')?.addEventListener('click', () => {
+        calendarioMes.setMonth(calendarioMes.getMonth() + 1);
+        navigateTo('mod-calendario');
+      });
+      
+      document.getElementById('btnNewCalEvent')?.addEventListener('click', () => showCalModal());
+
+      document.querySelectorAll('[data-cal-action]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = btn.dataset.calId;
+          const action = btn.dataset.calAction;
+          const ev = calendarioAdmin.find(x => x.id == id);
+          if (!ev) return;
+
+          if (action === 'delete') {
+            if (confirm(`¿Eliminar "${ev.titulo}" del calendario?`)) {
+              try {
+                await Calendario.eliminar(id);
+                showToast('Evento eliminado', 'Se quitó la fecha del calendario.');
+                await loadCalendarioFromAPI();
+                navigateTo('mod-calendario');
+              } catch (err) { showToast('Error', 'No se pudo eliminar', '#E67E5B'); }
+            }
+          } else if (action === 'edit') {
+            showCalModal(ev);
+          }
+        });
+      });
+    }
+
+    function showCalModal(existing = null) {
+      const isEdit = !!existing;
+      const modalHtml = `
+        <div class="cal-modal-overlay" id="calModal">
+          <div class="cal-modal-card">
+            <h3 class="cal-modal-title">${isEdit ? 'Editar fecha' : 'Nueva fecha académica'}</h3>
+            <form id="calForm" class="cal-modal-form">
+              <label class="cal-modal-label">Título <input type="text" name="titulo" required value="${existing?.titulo || ''}"></label>
+              <div class="cal-modal-row">
+                <label class="cal-modal-label">Fecha <input type="date" name="fecha" required value="${existing?.fecha || ''}"></label>
+                <label class="cal-modal-label">Tipo 
+                  <select name="tipo">
+                    <option value="examen" ${existing?.tipo === 'examen' ? 'selected' : ''}>Examen</option>
+                    <option value="inscripcion" ${existing?.tipo === 'inscripcion' ? 'selected' : ''}>Inscripción</option>
+                    <option value="feriado" ${existing?.tipo === 'feriado' ? 'selected' : ''}>Feriado/Receso</option>
+                    <option value="evento" ${existing?.tipo === 'evento' ? 'selected' : ''}>Evento</option>
+                  </select>
+                </label>
+              </div>
+              <label class="cal-modal-label">Descripción <textarea name="descripcion" rows="2">${existing?.descripcion || ''}</textarea></label>
+              <div class="cal-modal-actions">
+                <button type="button" class="btn btn-secondary" id="closeCalModal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">${isEdit ? 'Actualizar' : 'Guardar'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const modal = document.getElementById('calModal');
+      
+      document.getElementById('closeCalModal').onclick = () => modal.remove();
+      document.getElementById('calForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const data = {
+          titulo: fd.get('titulo'),
+          fecha: fd.get('fecha'),
+          tipo: fd.get('tipo'),
+          descripcion: fd.get('descripcion'),
+          color: CAL_TYPES[fd.get('tipo')].color
+        };
+        try {
+          if (isEdit) await Calendario.actualizar(existing.id, data);
+          else await Calendario.crear(data);
+          showToast('Calendario actualizado', 'Los cambios se guardaron correctamente.');
+          modal.remove();
+          await loadCalendarioFromAPI();
+          navigateTo('mod-calendario');
+        } catch (err) { alert('Error al guardar: ' + err.message); }
+      };
+    }
+
+    // Menú Sidebar
+    document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (btn.id === 'logoutBtn') return;
         navigateTo(btn.dataset.drawer);
       });
+    });
+
+    // Dropdowns de usuario
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-menu-btn]')) {
+        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
+      }
     });
 
     /* ============================================================
        4) BUILDERS DEL CONTENIDO DE CADA SECCIÓN
        ============================================================ */
     const sectionContent = {
-
-      // --- Mi Perfil ---
       perfil: () => ({
         title: 'Mi Perfil',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-linecap="round"/></svg>',
+        icon: '',
         html: `
           <div style="display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-bottom:1.5rem">
             <div class="avatar avatar--admin avatar--xl" style="width:88px;height:88px;font-size:1.7rem">${admin.iniciales}</div>
@@ -1631,10 +2125,9 @@
         `
       }),
 
-      // --- Usuarios y Roles ---
       usuarios: () => ({
         title: 'Usuarios y Roles',
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round"/></svg>',
+        icon: '',
         html: `
           <div class="drawer__tabs">
             <button class="drawer__tab is-active" data-tab="lista">Lista (${usuarios.length})</button>
@@ -1710,19 +2203,19 @@
       }),
     };
 
-    if (isAdminUser) {
-      await Promise.all([loadReglamentacionFromJSON(), loadEventosFromJSON()]);
-    } else {
-      await loadEventosFromJSON();
-    }
+    await Promise.all([loadReglamentacionFromAPI(), loadEventosFromAPI(), loadInscripcionesFromAPI(), loadCalendarioFromAPI()]);
 
     // Registrar secciones de los módulos del proyecto
     Object.keys(modulosData).forEach(key => {
-      if (key === 'mod-reglamentacion' && !isAdminUser) return;
       sectionContent[key] = () => ({
         title: modulosData[key].titulo,
         icon: modulosData[key].icono,
-        html: key === 'mod-eventos' ? renderEventosAdmin() : renderModuloListado(key)
+        html: key === 'mod-eventos' ? renderEventosAdmin() :
+              key === 'mod-calendario' ? renderCalendarioAdmin() :
+              key === 'mod-reglamentacion' ? renderReglamentacionAdmin() :
+              key === 'mod-carreras' ? renderCarrerasAdmin() :
+              key === 'mod-materias' ? renderMateriasAdmin() : // Nuevo módulo de Materias
+              renderModuloListado(key)
       });
     });
 
@@ -1865,27 +2358,186 @@
       renderUsers();
 
       // Form de alta
-      document.getElementById('newUserForm').addEventListener('submit', e => {
+      document.getElementById('newUserForm').addEventListener('submit', async e => {
         e.preventDefault();
         const data = new FormData(e.target);
         const nuevo = {
-          id: Date.now(),
           nombre: data.get('nombre'),
           dni: data.get('dni'),
           usuario: data.get('usuario'),
           email: data.get('email'),
-          rol: data.get('rol'),
+          password: data.get('password'),
+          perfil_id: parseInt(PERFIL_MAP_INVERSE[data.get('rol')] || '1'),
           carrera_id: data.get('carrera_id') ? +data.get('carrera_id') : null,
-          activo: true,
-          created_at: new Date().toISOString()
+          activo: true
         };
-        usuarios.push(nuevo);
-        auditar('crear', 'usuario', `Alta de cuenta: ${nuevo.nombre} (${nuevo.rol})`);
-        showToast('Usuario creado', `${nuevo.nombre} fue agregado al sistema.`);
-        e.target.reset();
-        showTab('lista');
-        renderUsers();
+
+        try {
+          console.log('📤 POST /usuarios:', nuevo);
+          const usuarioCreado = await Usuarios.crear(nuevo);
+          console.log('✅ Usuario creado:', usuarioCreado);
+
+          // Mapear al formato interno
+          const usuarioMapeado = {
+            id: usuarioCreado.id,
+            nombre: usuarioCreado.nombre,
+            usuario: usuarioCreado.usuario,
+            email: usuarioCreado.email,
+            dni: usuarioCreado.dni,
+            rol: PERFIL_MAP[usuarioCreado.perfil_id] || 'alumno',
+            perfil_id: usuarioCreado.perfil_id,
+            carrera_id: usuarioCreado.carrera_id,
+            activo: usuarioCreado.activo,
+            created_at: usuarioCreado.created_at
+          };
+
+          usuarios.push(usuarioMapeado);
+          auditar('crear', 'usuario', `Alta de cuenta: ${nuevo.nombre} (${data.get('rol')})`);
+          showToast('Usuario creado', `${nuevo.nombre} fue agregado al sistema.`);
+          e.target.reset();
+          showTab('lista');
+          renderUsers();
+        } catch (err) {
+          console.error('❌ Error al crear usuario:', err);
+          showToast('Error', 'No se pudo crear el usuario: ' + err.message, 'error');
+        }
       });
+    }
+
+    function renderCarrerasAdmin() {
+      const mod = modulosData['mod-carreras'];
+      if (!mod) return '<p>Error cargando módulo</p>';
+
+      // Vista de solo lectura para Docente/Delegado
+      if (!isAdminUser) {
+        return `
+          <p class="modulo-descripcion">${mod.descripcion}</p>
+          <div style="margin-bottom:.8rem">
+            <input id="carrerasSearch" type="text" placeholder="Buscar carrera…" style="width:100%;padding:.65rem;border:1px solid rgba(143,163,227,.45);border-radius:10px">
+          </div>
+          <div id="carrerasTableContainer"></div>
+        `;
+      }
+
+      // Vista Admin con Dashboard para nueva carrera
+      return `
+        <div class="drawer__tabs">
+          <button class="drawer__tab is-active" data-tab="lista">Lista</button>
+          <button class="drawer__tab" data-tab="nuevo">+ Nueva carrera</button>
+        </div>
+        <div id="carrerasListPane">
+          <p class="modulo-descripcion">${mod.descripcion}</p>
+          <div style="margin-bottom:.8rem">
+            <div style="display:flex;gap:.5rem;align-items:center">
+              <input id="carrerasSearch" type="text" placeholder="Buscar carrera por nombre o código…" style="flex:1;padding:.65rem;border:1px solid rgba(143,163,227,.45);border-radius:9px">
+            </div>
+          </div>
+          <div id="carrerasTableContainer"></div>
+        </div>
+        <div id="carrerasNewPane" hidden>
+          <form id="newCarreraForm" class="admin-form">
+            <div class="admin-form__row">
+              <label>Nombre de la carrera
+                <input type="text" name="nombre" required placeholder="Ej: Tecnicatura en Ciencia de Datos e IA">
+              </label>
+              <label>Código
+                <input type="text" name="codigo" required placeholder="Ej: CDIA">
+              </label>
+            </div>
+            <label>Descripción (opcional)
+              <textarea name="descripcion" rows="3" placeholder="Describe brevemente el perfil de la carrera..."></textarea>
+            </label>
+            <button type="submit" class="admin-form__submit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+              Crear carrera
+            </button>
+          </form>
+        </div>
+      `;
+    }
+
+    function bindCarrerasDrawer() {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const panes = {
+        lista: document.getElementById('carrerasListPane'),
+        nuevo: document.getElementById('carrerasNewPane')
+      };
+
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.toggle('is-active', x === t));
+        Object.entries(panes).forEach(([k, p]) => { if (p) p.hidden = k !== t.dataset.tab; });
+      }));
+
+      const searchInput = document.getElementById('carrerasSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const q = e.target.value.trim().toLowerCase();
+          document.querySelectorAll('#carrerasTableContainer tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : (row.closest('thead') ? '' : 'none');
+          });
+        });
+      }
+
+      refreshCarrerasTable();
+
+      document.getElementById('newCarreraForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const data = { nombre: fd.get('nombre'), codigo: fd.get('codigo'), descripcion: fd.get('descripcion') };
+        try {
+          await adminData.crearCarrera(data);
+          showToast('Carrera creada', `${data.nombre} fue agregada.`);
+          e.target.reset();
+          refreshCarrerasTable();
+          if (panes.lista) tabs[0].click();
+        } catch (err) {
+          showToast('Error', 'No se pudo crear la carrera', '#E67E5B');
+        }
+      });
+    }
+
+    async function refreshCarrerasTable() {
+      const containerId = 'carrerasTableContainer';
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      try {
+        await renderCarrerasTable(containerId);
+        if (isAdminUser) {
+          container.querySelectorAll('[data-carrera-edit]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              const id = btn.dataset.carreraId;
+              const list = await adminData.obtenerCarreras();
+              const c = list.find(x => x.id == id);
+              if (!c) return;
+              const n = prompt('Nuevo nombre:', c.nombre);
+              if (n === null) return;
+              const cod = prompt('Nuevo código:', c.codigo);
+              if (cod === null) return;
+              try {
+                await adminData.actualizarCarrera(id, { ...c, nombre: n, codigo: cod });
+                showToast('Actualizado', 'Carrera actualizada correctamente.');
+                refreshCarrerasTable();
+              } catch (e) { showToast('Error', 'No se pudo actualizar.', '#E67E5B'); }
+            });
+          });
+          container.querySelectorAll('[data-carrera-delete]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              requestDangerConfirm({
+                title: '¿Eliminar carrera?',
+                msg: 'Se eliminará la carrera y esto puede afectar a los usuarios asociados.',
+                onConfirm: async () => {
+                  try {
+                    await adminData.eliminarCarrera(btn.dataset.carreraId);
+                    showToast('Eliminada', 'La carrera fue eliminada.', '#E67E5B');
+                    refreshCarrerasTable();
+                  } catch (e) { showToast('Error', 'No se pudo eliminar.', '#E67E5B'); }
+                }
+              });
+            });
+          });
+        }
+      } catch (err) { container.innerHTML = '<p>Error cargando datos de carreras.</p>'; }
     }
 
     function buildUserRow(u) {
@@ -1914,10 +2566,54 @@
     }
 
     function bindEventosDrawer() {
+      const tabs = document.querySelectorAll('.drawer__tab');
+      const panes = {
+        lista: document.getElementById('eventListPane'),
+        inscriptos: document.getElementById('eventInscriptosPane')
+      };
+
+      function showTab(t) {
+        tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
+        Object.entries(panes).forEach(([k, p]) => { if(p) p.hidden = k !== t; });
+        if (t === 'inscriptos') renderInscriptosPorEvento();
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+
       const toggleBtn = document.getElementById('toggleEventForm');
       const formWrapper = document.getElementById('eventAdminFormWrapper');
       const form = document.getElementById('newEventForm');
       const eventList = document.querySelector('.modulo-list');
+      const selectEv = document.getElementById('selectEventInscriptos');
+
+      if (selectEv) selectEv.addEventListener('change', renderInscriptosPorEvento);
+
+      async function renderInscriptosPorEvento() {
+        const list = document.getElementById('inscriptosList');
+        if (!selectEv || !list) return;
+        const eventId = selectEv.value;
+        if (!eventId) {
+          list.innerHTML = '<p style="color:#8a8d9c; padding:1.5rem; text-align:center;">Elegí un evento para ver quiénes participan.</p>';
+          return;
+        }
+        list.innerHTML = '<p style="padding:1.5rem; text-align:center;">Buscando inscriptos...</p>';
+        try {
+          await loadInscripcionesFromAPI();
+          const eventInsc = inscripcionesAdmin.filter(i => i.evento_id == eventId);
+          if (!eventInsc.length) {
+            list.innerHTML = '<p style="color:#8a8d9c; padding:1.5rem; text-align:center;">Todavía no hay alumnos anotados en este evento.</p>';
+            return;
+          }
+          list.innerHTML = eventInsc.map(i => {
+            const u = usuarios.find(usr => usr.id == i.usuario_id);
+            return `
+              <div class="user-row" style="margin-bottom:.6rem; grid-template-columns: 36px 1fr;">
+                <div class="user-row__avatar">${u ? u.nombre.split(' ').map(n=>n[0]).slice(0,2).join('') : '??'}</div>
+                <div><p class="user-row__name">${u ? u.nombre : 'Usuario #' + i.usuario_id}</p><p class="user-row__meta">${u ? u.email : ''}</p></div>
+              </div>`;
+          }).join('');
+        } catch (e) { list.innerHTML = '<p style="color:#E67E5B; padding:1.5rem; text-align:center;">Error al conectar con la API.</p>'; }
+      }
 
       if (toggleBtn && formWrapper) {
         toggleBtn.addEventListener('click', () => {
@@ -1928,45 +2624,53 @@
       }
 
       if (form) {
-        form.addEventListener('submit', e => {
+        form.addEventListener('submit', async e => {
           e.preventDefault();
           const data = new FormData(form);
           const editingId = form.dataset.editing ? Number(form.dataset.editing) : null;
 
+          const eventoData = {
+            titulo: data.get('titulo').trim(),
+            descripcion: data.get('descripcion').trim(),
+            fecha_inicio: data.get('fecha_inicio'),
+            fecha_fin: data.get('fecha_fin'),
+            cupo: Number(data.get('cupo')),
+            lugar: data.get('lugar').trim(),
+            categoria: data.get('categoria'),
+            estado: data.get('estado'),
+            autor: admin.nombre
+          };
+
           if (editingId) {
-            const evento = eventosAdmin.find(ev => ev.id === editingId);
-            if (!evento) return;
-            evento.titulo = data.get('titulo').trim();
-            evento.descripcion = data.get('descripcion').trim();
-            evento.fecha_inicio = data.get('fecha_inicio');
-            evento.fecha_fin = data.get('fecha_fin');
-            evento.cupo = Number(data.get('cupo'));
-            evento.lugar = data.get('lugar').trim();
-            evento.categoria = data.get('categoria');
-            evento.estado = data.get('estado');
-            evento.detalle = `${evento.categoria} · ${evento.lugar} · Cupo ${evento.inscriptos}/${evento.cupo}`;
-            auditar('editar', 'evento', `Evento editado: ${evento.titulo}`);
-            showToast('Evento actualizado', `El evento "${evento.titulo}" fue guardado.`);
-            delete form.dataset.editing;
+            try {
+              const actualizado = await Eventos.actualizar(editingId, eventoData);
+              const idx = eventosAdmin.findIndex(ev => ev.id === editingId);
+              eventosAdmin[idx] = {
+                ...actualizado,
+                detalle: `${actualizado.categoria} · ${actualizado.lugar} · Cupo ${actualizado.inscriptos || 0}/${actualizado.cupo}`
+              };
+              auditar('editar', 'evento', `Evento editado: ${actualizado.titulo}`);
+              showToast('Evento actualizado', `El evento "${actualizado.titulo}" fue guardado.`);
+              delete form.dataset.editing;
+            } catch (err) {
+              console.error('Error al actualizar evento:', err);
+              showToast('Error', 'No se pudo actualizar el evento', 'error');
+              return;
+            }
           } else {
-            const nuevoEvento = {
-              id: Date.now(),
-              titulo: data.get('titulo').trim(),
-              descripcion: data.get('descripcion').trim(),
-              fecha_inicio: data.get('fecha_inicio'),
-              fecha_fin: data.get('fecha_fin'),
-              cupo: Number(data.get('cupo')),
-              inscriptos: 0,
-              autor: admin.nombre,
-              estado: data.get('estado'),
-              categoria: data.get('categoria'),
-              lugar: data.get('lugar').trim(),
-              color: '#4A67C9',
-              detalle: `${data.get('categoria')} · ${data.get('lugar')} · Cupo 0/${data.get('cupo')}`
-            };
-            eventosAdmin.unshift(nuevoEvento);
-            auditar('crear', 'evento', `Evento creado: ${nuevoEvento.titulo}`);
-            showToast('Evento creado', `El evento "${nuevoEvento.titulo}" fue publicado.`);
+            try {
+              const creado = await Eventos.crear({ ...eventoData, inscriptos: 0, color: '#4A67C9' });
+              eventosAdmin.unshift({
+                ...creado,
+                detalle: `${creado.categoria} · ${creado.lugar} · Cupo 0/${creado.cupo}`
+              });
+              auditar('crear', 'evento', `Evento creado: ${creado.titulo}`);
+              showToast('Evento creado', `El evento "${creado.titulo}" fue publicado.`);
+            } catch (err) {
+              console.error('Error al crear evento:', err);
+              showToast('Error', 'No se pudo crear el evento', 'error');
+              return;
+            }
           }
 
           form.reset();
@@ -1977,7 +2681,7 @@
       }
 
       if (eventList) {
-        eventList.addEventListener('click', e => {
+        eventList.addEventListener('click', async e => {
           const action = e.target.closest('[data-event-action]');
           if (!action) return;
           const eventId = Number(action.dataset.eventId);
@@ -1987,10 +2691,16 @@
 
           if (type === 'delete') {
             if (!confirm(`¿Eliminar el evento "${evento.titulo}"?`)) return;
-            eventosAdmin = eventosAdmin.filter(ev => ev.id !== eventId);
-            auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
-            showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
-            navigateTo('mod-eventos');
+            try {
+              await Eventos.eliminar(eventId);
+              eventosAdmin = eventosAdmin.filter(ev => ev.id !== eventId);
+              auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
+              showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
+              navigateTo('mod-eventos');
+            } catch (err) {
+              console.error('Error al eliminar evento:', err);
+              showToast('Error', 'No se pudo eliminar el evento', 'error');
+            }
           }
 
           if (type === 'edit') {
@@ -2025,7 +2735,7 @@
 
       // Acciones
       document.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', e => {
+        btn.addEventListener('click', async e => {
           e.stopPropagation();
           const id = +btn.dataset.id;
           const action = btn.dataset.action;
@@ -2038,30 +2748,49 @@
             showEditForm(u);
           }
           if (action === 'reset') {
-            showToast('Password reseteado', `${u.nombre} recibirá instrucciones para crear una nueva contraseña.`);
-            auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
+            try {
+              const tempPassword = 'Reset' + Date.now().toString().slice(-6);
+              console.log('📤 PUT /usuarios/' + id + ' (reset password)');
+              await Usuarios.actualizar(id, {
+                nombre: u.nombre,
+                usuario: u.usuario,
+                email: u.email,
+                dni: u.dni,
+                password: tempPassword,
+                perfil_id: u.perfil_id,
+                carrera_id: u.carrera_id,
+                activo: u.activo
+              });
+              showToast('Password reseteado', `${u.nombre} recibirá instrucciones para crear una nueva contraseña.`);
+              auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
+            } catch (err) {
+              console.error('❌ Error al resetear password:', err);
+              showToast('Error', 'No se pudo resetear la contraseña: ' + err.message, 'error');
+            }
           }
           if (action === 'delete') {
             requestDangerConfirm({
               title: '¿Eliminar este usuario?',
               msg: `Vas a eliminar a <strong>${u.nombre}</strong>. Esta acción no se puede deshacer.`,
               btnLabel: 'Eliminar usuario',
-              onConfirm: () => {
-                const idx = usuarios.findIndex(x => x.id === u.id);
-                usuarios.splice(idx, 1);
-                auditar('eliminar', 'usuario', `Eliminado: ${u.nombre}`);
-                showToast('Usuario eliminado', `${u.nombre} fue removido del sistema.`, '#E67E5B');
-                document.getElementById('userSearch').dispatchEvent(new Event('input'));
+              onConfirm: async () => {
+                try {
+                  console.log('📤 DELETE /usuarios/' + id);
+                  await Usuarios.eliminar(id);
+                  const idx = usuarios.findIndex(x => x.id === u.id);
+                  usuarios.splice(idx, 1);
+                  auditar('eliminar', 'usuario', `Eliminado: ${u.nombre}`);
+                  showToast('Usuario eliminado', `${u.nombre} fue removido del sistema.`, '#E67E5B');
+                  document.getElementById('userSearch').dispatchEvent(new Event('input'));
+                } catch (err) {
+                  console.error('❌ Error al eliminar usuario:', err);
+                  showToast('Error', 'No se pudo eliminar el usuario: ' + err.message, 'error');
+                }
               }
             });
           }
         });
       });
-
-      // Cerrar dropdown al hacer click fuera
-      document.addEventListener('click', () => {
-        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
-      }, { once: true });
     }
 
     function showEditForm(u) {
@@ -2117,18 +2846,51 @@
       document.getElementById('editBackBtn').addEventListener('click', () => {
         document.getElementById('userSearch').dispatchEvent(new Event('input'));
       });
-      document.getElementById('editUserForm').addEventListener('submit', e => {
+      document.getElementById('editUserForm').addEventListener('submit', async e => {
         e.preventDefault();
         const data = new FormData(e.target);
-        u.nombre = data.get('nombre');
-        u.dni = data.get('dni');
-        u.usuario = data.get('usuario');
-        u.email = data.get('email');
-        u.rol = data.get('rol');
-        u.carrera_id = data.get('carrera_id') ? +data.get('carrera_id') : null;
-        auditar('editar', 'usuario', `Editado: ${u.nombre} (${u.rol})`);
-        showToast('Usuario actualizado', `Los datos de ${u.nombre} fueron guardados.`);
-        document.getElementById('userSearch').dispatchEvent(new Event('input'));
+        const nuevoRol = data.get('rol');
+        const nuevoPassword = data.get('password');
+
+        try {
+          const datosActualizados = {
+            nombre: data.get('nombre'),
+            dni: data.get('dni'),
+            usuario: data.get('usuario'),
+            email: data.get('email'),
+            perfil_id: PERFIL_MAP_INVERSE[nuevoRol],
+            carrera_id: data.get('carrera_id') ? +data.get('carrera_id') : null,
+            activo: u.activo
+          };
+
+          // Solo incluir password si se escribió
+          if (nuevoPassword) {
+            datosActualizados.password = nuevoPassword;
+          } else {
+            datosActualizados.password = u.password || 'temporal123';
+          }
+
+          console.log('📤 PUT /usuarios/' + u.id, datosActualizados);
+          const usuarioActualizado = await Usuarios.actualizar(u.id, datosActualizados);
+          console.log('✅ Usuario actualizado:', usuarioActualizado);
+
+          // Actualizar el array
+          u.nombre = usuarioActualizado.nombre;
+          u.dni = usuarioActualizado.dni;
+          u.usuario = usuarioActualizado.usuario;
+          u.email = usuarioActualizado.email;
+          u.rol = nuevoRol;
+          u.perfil_id = usuarioActualizado.perfil_id;
+          u.carrera_id = usuarioActualizado.carrera_id;
+          u.password = usuarioActualizado.password;
+
+          auditar('editar', 'usuario', `Editado: ${u.nombre} (${u.rol})`);
+          showToast('Usuario actualizado', `Los datos de ${u.nombre} fueron guardados.`);
+          document.getElementById('userSearch').dispatchEvent(new Event('input'));
+        } catch (err) {
+          console.error('❌ Error al actualizar usuario:', err);
+          showToast('Error', 'No se pudo actualizar el usuario: ' + err.message, 'error');
+        }
       });
     }
 
@@ -2137,17 +2899,15 @@
        ============================================================ */
 
     function renderNovedadesAdmin() {
-      const materiaField = admin.rol !== 'delegado' ? `
+      const materiaOptions = materias.length > 0
+        ? materias.map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join('')
+        : ['Lógica Computacional', 'Estadística Aplicada', 'Química Inorgánica'].map(m => `<option value="${m}">${m}</option>`).join('');
+
+      const materiaField = admin.rol.toLowerCase() !== 'delegado' ? `
             <label>Materia
               <select name="materia">
                 <option value="">Seleccionar materia</option>
-                ${[
-                  'Lógica Computacional',
-                  'Estadística Aplicada',
-                  'Química Inorgánica',
-                  'Programación Avanzada',
-                  'Gestión Educativa'
-                ].map(m => `<option value="${m}">${m}</option>`).join('')}
+                ${materiaOptions}
               </select>
             </label>
           ` : '';
@@ -2189,6 +2949,12 @@
               <label>Categoría
                 <select name="categoria_id" required>
                   ${categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+                </select>
+              </label>
+              <label>Carrera Destinataria
+                <select name="carrera_id">
+                  <option value="">— Todas las carreras —</option>
+                  ${carreras.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
                 </select>
               </label>
             </div>
@@ -2234,15 +3000,22 @@
       const query = searchInput?.value.trim().toLowerCase() || '';
       const selectedCategoria = filterCategoria?.value || 'todos';
 
-      const filtered = novedades.filter(n => {
+      let filtered = novedades.filter(n => {
         const matchesCategoria = selectedCategoria === 'todos' || n.categoria_id === +selectedCategoria;
         const matchesSearch = !query || [
           n.titulo,
           n.contenido,
           n.categoria,
+          getCarreraNombre(n.carrera_id),
           n.materia
         ].some(value => String(value || '').toLowerCase().includes(query));
         return matchesCategoria && matchesSearch;
+      });
+
+      // Ordenar: destacadas primero, luego por fecha más reciente
+      filtered.sort((a, b) => {
+        if (a.destacada !== b.destacada) return b.destacada ? -1 : 1;
+        return new Date(b.fecha || b.created_at) - new Date(a.fecha || a.created_at);
       });
 
       listContainer.innerHTML = filtered.length > 0 ? filtered.map(n => {
@@ -2259,6 +3032,7 @@
                 <span>${n.categoria || 'Sin categoría'}</span>
                 <span>${fecha}</span>
                 ${n.materia ? `<span>${n.materia}</span>` : ''}
+                ${n.carrera_id ? `<span>Carrera: ${getCarreraNombre(n.carrera_id)}</span>` : ''}
                 ${n.adjunto ? `<span>Archivo: ${n.adjunto}</span>` : `<span style="color:#6c6f80">Sin adjunto</span>`}
                 ${n.destacada ? `<span class="badge" style="background:#F8E71C;color:#1A1D4A;padding:.2rem .45rem;border-radius:999px;font-size:.75rem;font-weight:700">Destacada</span>` : ''}
               </div>
@@ -2299,31 +3073,41 @@
       if (search) search.addEventListener('input', renderNovedades);
       renderNovedades();
 
-      // Form nueva novedad (Submit corregido)
-      document.getElementById('newNovedadForm').addEventListener('submit', e => {
+      // Form nueva novedad (Submit con persistencia en API)
+      document.getElementById('newNovedadForm').addEventListener('submit', async e => {
         e.preventDefault();
         const data = new FormData(e.target);
         const adjuntoFile = document.getElementById('adjunto-file').files[0];
+        
         const nueva = {
-          id: Date.now(),
           titulo: data.get('titulo'),
           contenido: data.get('contenido'),
           categoria_id: +data.get('categoria_id'),
-          categoria: categorias.find(c => c.id == data.get('categoria_id')).nombre,
+          carrera_id: data.get('carrera_id') ? +data.get('carrera_id') : null,
           autor_id: admin.id,
           autor: admin.nombre,
-          destacada: data.has('destacada'),
-          fecha: new Date().toISOString(),
+          destacada: data.has('destacada') ? 1 : 0,
+          fecha: new Date().toISOString().slice(0, 19).replace('T', ' '),
           materia: data.get('materia')?.trim() || null,
           adjunto: adjuntoFile ? adjuntoFile.name : null
         };
-        novedades.unshift(nueva);
-        auditar('crear', 'novedad', `Nueva: ${nueva.titulo}` + (adjuntoFile ? ` (archivo: ${adjuntoFile.name})` : ''));
-        showToast('Novedad publicada', `${nueva.titulo} fue agregada al sistema.`);
-        e.target.reset();
-        document.querySelector('.file-input-text').textContent = 'Seleccionar archivo';
-        showTab('lista');
-        renderNovedades();
+
+        try {
+          const resultado = await Novedades.crear(nueva);
+          const cat = categorias.find(c => c.id == resultado.categoria_id);
+          resultado.categoria = cat ? cat.nombre : 'Sin categoría';
+          
+          novedades.unshift(resultado);
+          auditar('crear', 'novedad', `Nueva: ${resultado.titulo}`);
+          showToast('Novedad publicada', `${resultado.titulo} fue agregada al sistema.`);
+          e.target.reset();
+          document.querySelector('.file-input-text').textContent = 'Seleccionar archivo';
+          showTab('lista');
+          renderNovedades();
+        } catch (err) {
+          console.error('Error al crear novedad:', err);
+          showToast('Error', 'No se pudo crear la novedad', 'error');
+        }
       });
 
       // Handle file input change
@@ -2394,22 +3178,23 @@
               title: '¿Eliminar esta novedad?',
               msg: `Vas a eliminar "<strong>${n.titulo}</strong>". Esta acción no se puede deshacer.`,
               btnLabel: 'Eliminar novedad',
-              onConfirm: () => {
-                const idx = novedades.findIndex(x => x.id === n.id);
-                novedades.splice(idx, 1);
-                auditar('eliminar', 'novedad', `Eliminada: ${n.titulo}`);
-                showToast('Novedad eliminada', `${n.titulo} fue removida del sistema.`, '#E67E5B');
-                document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+              onConfirm: async () => {
+                try {
+                  await Novedades.eliminar(n.id);
+                  const idx = novedades.findIndex(x => x.id === n.id);
+                  novedades.splice(idx, 1);
+                  auditar('eliminar', 'novedad', `Eliminada: ${n.titulo}`);
+                  showToast('Novedad eliminada', `${n.titulo} fue removida del sistema.`, '#E67E5B');
+                  document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+                } catch (err) {
+                  console.error('Error al eliminar novedad:', err);
+                  showToast('Error', 'No se pudo eliminar la novedad', 'error');
+                }
               }
             });
           }
         });
       });
-
-      // Cerrar dropdown al hacer click fuera
-      document.addEventListener('click', () => {
-        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
-      }, { once: true });
     }
 
     function bindCategoriaActions() {
@@ -2451,10 +3236,6 @@
           }
         });
       });
-
-      document.addEventListener('click', () => {
-        document.querySelectorAll('[data-menu].is-open').forEach(m => m.classList.remove('is-open'));
-      }, { once: true });
     }
 
     function showNewCategoriaForm(cont) {
@@ -2517,7 +3298,7 @@
           }
           const filterCat = document.getElementById('filterCategoria');
           if (filterCat) {
-            filterCat.innerHTML = `<option value="todos">Todas las categorías</option>` + 
+            filterCat.innerHTML = `<option value="todos">Todas las categorías</option>` +
               categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
           }
         }
@@ -2604,6 +3385,12 @@
                 ${categorias.map(c => `<option value="${c.id}" ${c.id == n.categoria_id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
               </select>
             </label>
+            <label>Carrera Destinataria
+              <select name="carrera_id">
+                <option value="">— Todas las carreras —</option>
+                ${carreras.map(c => `<option value="${c.id}" ${c.id == n.carrera_id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+              </select>
+            </label>
           </div>
           <label>Contenido
             <textarea name="contenido" required rows="4">${n.contenido}</textarea>
@@ -2617,8 +3404,7 @@
             <label>Materia
               <select name="materia">
                 <option value="">Seleccionar materia</option>
-                ${['Lógica Computacional','Estadística Aplicada','Química Inorgánica','Programación Avanzada','Gestión Educativa']
-                  .map(m => `<option value="${m}" ${n.materia === m ? 'selected' : ''}>${m}</option>`).join('')}
+                ${materias.map(m => `<option value="${m.nombre}" ${n.materia === m.nombre ? 'selected' : ''}>${m.nombre}</option>`).join('')}
               </select>
             </label>
           </div>
@@ -2672,20 +3458,34 @@
         });
       }
 
-      document.getElementById('editNovedadForm').addEventListener('submit', e => {
+      document.getElementById('editNovedadForm').addEventListener('submit', async e => {
         e.preventDefault();
         const data = new FormData(e.target);
         const editAdjuntoFile = document.getElementById('edit-adjunto-file').files[0];
-        n.titulo = data.get('titulo');
-        n.contenido = data.get('contenido');
-        n.categoria_id = +data.get('categoria_id');
-        n.categoria = categorias.find(c => c.id == n.categoria_id).nombre;
-        n.destacada = data.has('destacada');
-        n.materia = data.get('materia')?.trim() || null;
-        n.adjunto = editAdjuntoFile ? editAdjuntoFile.name : removeEditAdjunto ? null : n.adjunto;
-        auditar('editar', 'novedad', `Editada: ${n.titulo}`);
-        showToast('Novedad actualizada', `Los datos de ${n.titulo} fueron guardados.`);
-        document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+        
+        const datosActualizados = {
+          titulo: data.get('titulo'),
+          contenido: data.get('contenido'),
+          categoria_id: +data.get('categoria_id'),
+          carrera_id: data.get('carrera_id') ? +data.get('carrera_id') : null,
+          destacada: data.has('destacada') ? 1 : 0,
+          materia: data.get('materia')?.trim() || null,
+          adjunto: editAdjuntoFile ? editAdjuntoFile.name : removeEditAdjunto ? null : n.adjunto
+        };
+
+        try {
+          const resultado = await Novedades.actualizar(n.id, datosActualizados);
+          Object.assign(n, resultado);
+          const cat = categorias.find(c => c.id == n.categoria_id);
+          n.categoria = cat ? cat.nombre : 'Sin categoría';
+
+          auditar('editar', 'novedad', `Editada: ${n.titulo}`);
+          showToast('Novedad actualizada', `Los datos de ${n.titulo} fueron guardados.`);
+          document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
+        } catch (err) {
+          console.error('Error al actualizar novedad:', err);
+          showToast('Error', 'No se pudo actualizar la novedad', 'error');
+        }
       });
     }
     const dangerMsg = document.getElementById('dangerMsg');
@@ -2764,6 +3564,5 @@
   <!-- Autenticación, logout centralizado y validación de rol -->
   <script src="js/logout.js"></script>
   <script src="js/admin-auth.js"></script>
-
 </body>
 </html>

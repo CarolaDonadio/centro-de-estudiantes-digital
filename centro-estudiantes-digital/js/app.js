@@ -149,41 +149,59 @@ const state = {
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
-  // Cargamos todo en paralelo desde la "API Mock"
-  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias] = await Promise.all([
-    fetchJSON(API.usuario),
-    fetchJSON(API.novedades),
-    fetchJSON(API.eventos),
-    fetchJSON(API.calendario),
-    fetchJSON(API.reglamentacion),
-    fetchJSON(API.notificaciones),
-    fetchJSON(API.carreras),
-    fetchJSON(API.materias),
-  ]);
+  try {
+    const [usuario, novedadesAPI, dataNovedadesJSON, eventos, calendario, reglamentacion, notificaciones, carrerasAPI, materias, inscripciones] = await Promise.all([
+      fetchJSON(API.usuario),
+      Novedades.listar(),
+      fetchJSON(API.novedades),
+      fetchJSON(API.eventos),
+      fetchJSON(API.calendario),
+      Reglamentacion.listar().catch(() => ({})),
+      fetchJSON(API.notificaciones),
+      Carreras.listar(),
+      fetchJSON(API.materias),
+      Inscripciones.listar().catch(() => [])
+    ]);
 
-  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias });
+    const categorias = dataNovedadesJSON?.categorias || [];
+    const novedades = {
+      novedades: (novedadesAPI || []).map(n => ({
+        ...n,
+        categoria: categorias.find(c => c.id == n.categoria_id)?.nombre || 'General',
+        // Normalizar fecha para el Alumno
+        fecha: n.fecha || n.created_at
+      })),
+      categorias
+    };
 
-  // Aseguramos que el contador de notificaciones sin leer en el usuario sea coherente con el JSON de notificaciones
-  if (state.notificaciones && state.notificaciones.notificaciones) {
-    const initialUnreadCount = state.notificaciones.notificaciones.filter(n => !n.leida).length;
-    if (state.usuario) {
-      state.usuario.notificaciones_sin_leer = initialUnreadCount;
+    Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras: carrerasAPI, materias });
+
+    // Cargar inscripciones previas del usuario
+    if (usuario && inscripciones && Array.isArray(inscripciones)) {
+      inscripciones
+        .filter(i => i.usuario_id === usuario.id)
+        .forEach(i => state.inscripciones.add(i.evento_id));
     }
+
+    if (state.notificaciones?.notificaciones) {
+      const initialUnreadCount = state.notificaciones.notificaciones.filter(n => !n.leida).length;
+      if (state.usuario) state.usuario.notificaciones_sin_leer = initialUnreadCount;
+    }
+
+    renderUserHeader();
+    renderCareerCard();
+    renderEvents();
+    renderNewsFilters();
+    renderNewsList();
+    renderReglamentacion();
+
+    bindNavigation();
+    bindDrawerControls();
+    bindNotifications();
+    bindReglamentacionSearch();
+  } catch (err) {
+    console.error('Error en init():', err);
   }
-
-  // Renderizamos las secciones del dashboard
-  renderUserHeader();
-  renderCareerCard();
-  renderEvents();
-  renderNewsFilters();
-  renderNewsList();
-  renderReglamentacion();
-
-  // Bindeamos los eventos de UI
-  bindNavigation();
-  bindDrawerControls();
-  bindNotifications();
-  bindReglamentacionSearch();
 }
 
 /* ----------------------------------------------------------------
@@ -239,9 +257,12 @@ function renderUserHeader() {
 ---------------------------------------------------------------- */
 function renderCareerCard() {
   const u = state.usuario;
-  if (!u) return;
+  if (!u || !state.carreras) return;
 
-  $('#userCareer').textContent = u.carrera;
+  // Buscar el nombre de la carrera en los datos de la API
+  const carreraObj = state.carreras.find(c => c.id == u.carrera_id);
+  $('#userCareer').textContent = carreraObj ? carreraObj.nombre : u.carrera;
+
   $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2, '0');
   $('#materiasTotales').textContent = u.materias_totales;
 
@@ -381,18 +402,27 @@ function buildEventCardHTML(ev) {
  * Lógica central de inscripción a un evento.
  * Actualiza el estado y refresca todas las vistas que muestren eventos.
  */
-function inscribirseEvento(id) {
+async function inscribirseEvento(id) {
   const ev = state.eventos.eventos.find(x => x.id === id);
   if (!ev || state.inscripciones.has(id) || ev.inscriptos >= ev.cupo) return;
 
-  // Actualizamos el modelo
-  ev.inscriptos++;
-  state.inscripciones.add(id);
+  try {
+    // Persistencia real en la API: incrementamos el contador en el servidor
+    const inscriptosActualizados = (ev.inscriptos || 0) + 1;
+    await Eventos.actualizar(id, { ...ev, inscriptos: inscriptosActualizados });
+    await Inscripciones.crear({ evento_id: id, usuario_id: state.usuario.id });
+    
+    ev.inscriptos = inscriptosActualizados;
+    state.inscripciones.add(id);
 
-  // Refrescamos la home y, si está abierto el drawer del centro, también lo actualizamos
-  renderEvents();
-  if (state.drawerActivo === 'centro') {
-    renderCentro($('#drawerBody'));
+    // Refrescamos la home y, si está abierto el drawer del centro, también lo actualizamos
+    renderEvents();
+    if (state.drawerActivo === 'centro') {
+      renderCentro($('#drawerBody'));
+    }
+  } catch (err) {
+    console.error('Error al inscribirse al evento:', err);
+    alert('No se pudo completar la inscripción en este momento. Intente más tarde.');
   }
 }
 
@@ -417,14 +447,14 @@ function renderNewsFilters() {
         <label for="newsCareerFilter">Filtrar por Carrera</label>
         <select id="newsCareerFilter" class="filter-select">
           <option value="todas">Todas las carreras</option>
-          ${careers.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('')}
+          ${careers.map(c => `<option value="${c.id}">${c.codigo || c.nombre}</option>`).join('')}
         </select>
       </div>
       <div class="filter-group">
         <label for="newsSubjectFilter">Filtrar por Materia</label>
         <select id="newsSubjectFilter" class="filter-select">
           <option value="todas">Todas las materias</option>
-          ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
+          ${subjects.map(s => `<option value="${s.nombre}">${s.nombre}</option>`).join('')}
         </select>
       </div>
       <div class="news-filters__dates">
@@ -494,10 +524,12 @@ function renderNewsList() {
     lista = lista.filter(n => String(n.categoria_id) === state.filtroNovedad);
   }
   if (state.filtroCarrera !== 'todas') {
-    lista = lista.filter(n => String(n.carrera_id) === state.filtroCarrera);
+    // Si carrera_id es null, es para todas
+    lista = lista.filter(n => n.carrera_id === null || String(n.carrera_id) === state.filtroCarrera);
   }
   if (state.filtroMateria !== 'todas') {
-    lista = lista.filter(n => String(n.materia_id) === state.filtroMateria);
+    // Filtrar por el nombre de la materia (string) que viene de la API o del form de admin
+    lista = lista.filter(n => n.materia === state.filtroMateria);
   }
   if (state.filtroFechaDesde) {
     lista = lista.filter(n => new Date(n.fecha) >= new Date(state.filtroFechaDesde));
