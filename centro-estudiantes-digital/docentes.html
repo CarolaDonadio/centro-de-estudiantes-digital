@@ -2165,6 +2165,8 @@
           const res = await fetch('json/reglamentacion.json');
           if (!res.ok) throw new Error('HTTP ' + res.status);
           reglamentacionState.reglamentacion = await res.json();
+          const docs = await Reglamentacion.listar();
+          reglamentacionState.reglamentacion = { documentos: docs };
           renderReglamentacion();
         } catch (err) {
           console.warn('[Reglamentación] No se pudo cargar:', err);

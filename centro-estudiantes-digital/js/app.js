@@ -150,14 +150,15 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   try {
-    const [usuario, novedadesAPI, dataNovedadesJSON, eventos, calendario, reglamentacion, notificaciones, carrerasAPI, materias, inscripciones] = await Promise.all([
+    const [usuario, novedadesAPI, dataNovedadesJSON, eventosAPI, calendarioAPI, dataCalendarioJSON, reglamentacionAPI, notificacionesAPI, carrerasAPI, materias, inscripciones] = await Promise.all([
       fetchJSON(API.usuario),
       Novedades.listar(),
       fetchJSON(API.novedades),
-      fetchJSON(API.eventos),
-      fetchJSON(API.calendario),
-      Reglamentacion.listar().catch(() => ({})),
-      fetchJSON(API.notificaciones),
+      Eventos.listar(), // Carga eventos desde la API
+      Calendario.listar(), // Carga calendario desde la API
+      fetchJSON(API.calendario), // Mantenemos el JSON para obtener los 'tipos' (categorías con colores)
+      Reglamentacion.listar().catch(() => []), // Carga reglamentación desde la API (asumiendo que devuelve un array)
+      Notificaciones.listar(), // Carga notificaciones desde la API
       Carreras.listar(),
       fetchJSON(API.materias),
       Inscripciones.listar().catch(() => [])
@@ -173,6 +174,22 @@ async function init() {
       })),
       categorias
     };
+
+    // Preparamos el objeto de eventos con el formato que espera el resto de app.js
+    const eventos = {
+      eventos: eventosAPI || []
+    };
+
+    // Preparamos el objeto de calendario mezclando los eventos de la API con los tipos del JSON
+    const calendario = {
+      eventos_calendario: calendarioAPI || [],
+      tipos: dataCalendarioJSON?.tipos || []
+    };
+
+    // Preparamos el objeto de reglamentacion con el formato que espera el resto de app.js
+    const reglamentacion = { documentos: reglamentacionAPI || [] };
+    // Preparamos el objeto de notificaciones con el formato que espera el resto de app.js
+    const notificaciones = { notificaciones: notificacionesAPI || [] };
 
     Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras: carrerasAPI, materias });
 

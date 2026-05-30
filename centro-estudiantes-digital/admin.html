@@ -1115,7 +1115,7 @@
         </li>
 
         <!-- Módulo 4: Reglamentación -->
-        <li>
+        <li data-admin-only>
           <button class="nav-btn" data-drawer="mod-reglamentacion" aria-label="Reglamentación">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round"/>
@@ -1423,7 +1423,7 @@
           titulo: doc.titulo,
           categoria: doc.categoria,
           version: doc.version,
-          detalle: `${doc.categoria ? doc.categoria.charAt(0).toUpperCase() + doc.categoria.slice(1) : 'Normativa'} · ${doc.version || 'v1.0'} · Publicado ${doc.fecha_publicacion || '---'}`,
+          detalle: `${doc.tipo ? doc.tipo.charAt(0).toUpperCase() + doc.tipo.slice(1) : 'Doc'} · ${doc.categoria ? doc.categoria.charAt(0).toUpperCase() + doc.categoria.slice(1) : 'Normativa'} · ${doc.version || 'v1.0'} · Publicado ${doc.fecha_publicacion || '---'}`,
           estado: 'Vigente',
           estadoClase: 'activo',
           link: doc.link || (doc.archivo ? `json/${doc.archivo}` : undefined)
@@ -1887,29 +1887,40 @@
 
         <div id="reglNewPane" hidden>
           <form class="admin-form" id="newReglForm">
+            <label>Título del documento
+              <input type="text" name="titulo" required placeholder="Ej: Reglamento Académico Marco">
+            </label>
             <div class="admin-form__row">
-              <label>Título del documento
-                <input type="text" name="titulo" required placeholder="Ej: Reglamento Académico Marco">
+              <label>Tipo de Norma
+                <select name="tipo" required>
+                  <option value="resoluciones">Resoluciones</option>
+                  <option value="disposicion">Disposiciones</option>
+                  <option value="circular">Circulares</option>
+                  <option value="comunicacion">Comunicaciones</option>
+                </select>
               </label>
               <label>Categoría
                 <select name="categoria" required>
                   <option value="institucional">Institucional</option>
-                  <option value="profesorado">Profesorado</option>
-                  <option value="tecnicatura">Tecnicatura</option>
                   <option value="centro de estudiantes">Centro de Estudiantes</option>
+                  <option value="tecnicatura">Tecnicatura</option>
+                  <option value="profesorado">Profesorado</option>
                 </select>
               </label>
             </div>
             <div class="admin-form__row">
               <label>Versión
-                <input type="text" name="version" required placeholder="Ej: v1.0" value="1.0">
+                <input type="text" name="version" required placeholder="Ej: 1.0" value="1.0">
               </label>
               <label>Link / URL del documento
-                <input type="text" name="link" required placeholder="Ej: https://abc.gob.ar/...">
+                <input type="url" name="link" required placeholder="Ej: https://abc.gob.ar/...">
               </label>
             </div>
             <label>Descripción breve
               <textarea name="descripcion" rows="3" required placeholder="Describe de qué trata esta normativa..."></textarea>
+            </label>
+            <label>Palabras clave (separadas por coma)
+              <input type="text" name="keywords" placeholder="becas, pasantías, inscripciones">
             </label>
             <button type="submit" class="admin-form__submit">
               <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
@@ -1939,10 +1950,12 @@
         const fd = new FormData(e.target);
         const data = {
           titulo: fd.get('titulo'),
+          tipo: fd.get('tipo'),
           categoria: fd.get('categoria'),
           descripcion: fd.get('descripcion'),
           link: fd.get('link'),
           version: fd.get('version'),
+          palabras_clave: fd.get('keywords').split(',').map(s => s.trim()).filter(Boolean),
           fecha_publicacion: new Date().toISOString().split('T')[0]
         };
 
