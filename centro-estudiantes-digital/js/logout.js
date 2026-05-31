@@ -12,7 +12,7 @@ function performLogout() {
     window.__FALLBACK_DATA__ = null;
   }
 
-  window.location.href = 'index.html';
+  window.location.href = '../index.html';
 }
 
 // Exportar para uso en otros scripts

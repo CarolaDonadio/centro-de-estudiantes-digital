@@ -13,14 +13,14 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario: 'json/usuario.json',
-  novedades: 'json/novedades.json',
-  eventos: 'json/eventos.json',
-  calendario: 'json/calendario.json',
-  reglamentacion: 'json/reglamentacion.json',
-  notificaciones: 'json/notificaciones.json',
-  carreras: 'json/carreras.json',
-  materias: 'json/materias.json',
+  usuario: '../json/usuario.json',
+  novedades: '../json/novedades.json',
+  eventos: '../json/eventos.json',
+  calendario: '../json/calendario.json',
+  reglamentacion: '../json/reglamentacion.json',
+  notificaciones: '../json/notificaciones.json',
+  carreras: '../json/carreras.json',
+  materias: '../json/materias.json',
 };
 
 /* ----------------------------------------------------------------
@@ -41,7 +41,7 @@ async function fetchJSON(url) {
   } catch (err) {
     console.warn(`[API Mock] No se pudo cargar ${url}. Verificá que estés corriendo un servidor local.`, err);
     // Devolvemos el fallback desde window si existe (por si no hay servidor)
-    const key = url.replace('json/', '').replace('.json', '');
+    const key = url.replace('../json/', '').replace('.json', '');
     return window.__FALLBACK_DATA__?.[key] || null;
   }
 }

@@ -20,15 +20,15 @@ class DataSync {
     this.resultados = { exitosos: 0, errores: 0, detalles: [] };
 
     const tareas = [
-      { nombre: 'Perfiles', archivo: 'json/perfiles.json', modulo: Perfiles },
-      { nombre: 'Carreras', archivo: 'json/carreras.json', modulo: Carreras },
-      { nombre: 'Usuarios', archivo: 'json/usuarios.json', modulo: Usuarios },
-      { nombre: 'Materias', archivo: 'json/materias.json', modulo: Materias },
-      { nombre: 'Calendario', archivo: 'json/calendario.json', modulo: Calendario },
-      { nombre: 'Eventos', archivo: 'json/eventos.json', modulo: Eventos },
-      { nombre: 'Notificaciones', archivo: 'json/notificaciones.json', modulo: Notificaciones },
-      { nombre: 'Novedades', archivo: 'json/novedades.json', modulo: Novedades },
-      { nombre: 'Reglamentación', archivo: 'json/reglamentacion.json', modulo: Reglamentacion }
+      { nombre: 'Perfiles', archivo: '../json/perfiles.json', modulo: Perfiles },
+      { nombre: 'Carreras', archivo: '../json/carreras.json', modulo: Carreras },
+      { nombre: 'Usuarios', archivo: '../json/usuarios.json', modulo: Usuarios },
+      { nombre: 'Materias', archivo: '../json/materias.json', modulo: Materias },
+      { nombre: 'Calendario', archivo: '../json/calendario.json', modulo: Calendario },
+      { nombre: 'Eventos', archivo: '../json/eventos.json', modulo: Eventos },
+      { nombre: 'Notificaciones', archivo: '../json/notificaciones.json', modulo: Notificaciones },
+      { nombre: 'Novedades', archivo: '../json/novedades.json', modulo: Novedades },
+      { nombre: 'Reglamentación', archivo: '../json/reglamentacion.json', modulo: Reglamentacion }
     ];
 
     for (const tarea of tareas) {

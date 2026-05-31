@@ -29,7 +29,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Panel de Administración - ISFDyT 57 Juana Paula Manso" />
   <title>ISFDyT 57 · Panel Administrador</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="../img/favicon.svg" />
 
   <!-- === MISMA TIPOGRAFÍA QUE EL RESTO DE LA PLATAFORMA === -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -40,8 +40,8 @@
   />
 
   <!-- === ESTILOS HEREDADOS DEL PROYECTO === -->
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/admin/modulos.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/admin/modulos.css" />
 
   <!--
     Extensiones específicas del panel admin.
@@ -1231,16 +1231,16 @@
   </div>
 
   <!-- Datos de los módulos del proyecto -->
-  <script src="js/admin/modulos.js"></script>
+  <script src="../js/admin/modulos.js"></script>
 
   <!-- ================================================================
        API CLIENT - Comunicación con servidor remoto
        ================================================================ -->
-  <script src="js/api-client.js"></script>
-  <script src="js/admin/admin-data.js"></script>
-  <script src="js/data-sync.js"></script>
-  <script src="js/api-utils.js"></script>
-  <script src="js/test-api.js"></script>
+  <script src="../js/api-client.js"></script>
+  <script src="../js/admin/admin-data.js"></script>
+  <script src="../js/data-sync.js"></script>
+  <script src="../js/api-utils.js"></script>
+  <script src="../js/test-api.js"></script>
 
   <!--
     ================================================================
@@ -1294,7 +1294,7 @@
     // Cargar materias desde JSON para los selectores de novedades
     let materias = [];
     try {
-      const respMat = await fetch('json/materias.json');
+      const respMat = await fetch('../json/materias.json');
       const dataMat = await respMat.json();
       materias = dataMat.materias || [];
       console.log('✅ Materias cargadas:', materias.length);
@@ -1345,7 +1345,7 @@
     let categorias = [];
     try {
       // Cargamos categorías del JSON para mantener los colores y estilos
-      const respCat = await fetch('json/novedades.json');
+      const respCat = await fetch('../json/novedades.json');
       const dataCat = await respCat.json();
       categorias = dataCat.categorias || [];
 
@@ -3568,7 +3568,7 @@
   </script>
 
   <!-- Autenticación, logout centralizado y validación de rol -->
-  <script src="js/logout.js"></script>
-  <script src="js/admin-auth.js"></script>
+  <script src="../js/logout.js"></script>
+  <script src="../js/admin-auth.js"></script>
 </body>
 </html>
