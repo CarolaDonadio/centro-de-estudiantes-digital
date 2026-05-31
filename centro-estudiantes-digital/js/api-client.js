@@ -264,15 +264,15 @@ const Inscripciones = {
 
 async function cargarDatosEnAPI() {
   const recursos = [
-    { nombre: 'Usuarios', archivo: 'json/usuarios.json', apiModulo: Usuarios, campo: 'usuarios' },
-    { nombre: 'Perfiles', archivo: 'json/perfiles.json', apiModulo: Perfiles, campo: 'perfiles' },
-    { nombre: 'Carreras', archivo: 'json/carreras.json', apiModulo: Carreras, campo: null },
-    { nombre: 'Materias', archivo: 'json/materias.json', apiModulo: Materias, campo: 'materias' },
-    { nombre: 'Calendario', archivo: 'json/calendario.json', apiModulo: Calendario, campo: 'eventos_calendario' },
-    { nombre: 'Eventos', archivo: 'json/eventos.json', apiModulo: Eventos, campo: null },
-    { nombre: 'Notificaciones', archivo: 'json/notificaciones.json', apiModulo: Notificaciones, campo: 'notificaciones' },
-    { nombre: 'Novedades', archivo: 'json/novedades.json', apiModulo: Novedades, campo: 'novedades' },
-    { nombre: 'Reglamentación', archivo: 'json/reglamentacion.json', apiModulo: Reglamentacion, campo: 'reglamentos' }
+    { nombre: 'Usuarios', archivo: '../json/usuarios.json', apiModulo: Usuarios, campo: 'usuarios' },
+    { nombre: 'Perfiles', archivo: '../json/perfiles.json', apiModulo: Perfiles, campo: 'perfiles' },
+    { nombre: 'Carreras', archivo: '../json/carreras.json', apiModulo: Carreras, campo: null },
+    { nombre: 'Materias', archivo: '../json/materias.json', apiModulo: Materias, campo: 'materias' },
+    { nombre: 'Calendario', archivo: '../json/calendario.json', apiModulo: Calendario, campo: 'eventos_calendario' },
+    { nombre: 'Eventos', archivo: '../json/eventos.json', apiModulo: Eventos, campo: null },
+    { nombre: 'Notificaciones', archivo: '../json/notificaciones.json', apiModulo: Notificaciones, campo: 'notificaciones' },
+    { nombre: 'Novedades', archivo: '../json/novedades.json', apiModulo: Novedades, campo: 'novedades' },
+    { nombre: 'Reglamentación', archivo: '../json/reglamentacion.json', apiModulo: Reglamentacion, campo: 'reglamentos' }
   ];
 
   const resultados = {

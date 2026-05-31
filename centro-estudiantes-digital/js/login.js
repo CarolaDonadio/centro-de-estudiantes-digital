@@ -1,5 +1,8 @@
 const SESSION_STORAGE_KEY = 'cedSession';
-const API_USERS = 'json/usuarios.json';
+
+// Detectamos si el HTML actual está en la carpeta /pages/
+const isInPagesFolder = window.location.pathname.includes('/pages/');
+const API_USERS = isInPagesFolder ? '../json/usuarios.json' : 'json/usuarios.json';
 
 const PERFIL_MAP = {
   1: 'estudiante',
@@ -41,15 +44,16 @@ function isAuthenticated() {
 }
 
 function getRoleDashboard(rol) {
+  const prefix = isInPagesFolder ? '' : 'pages/';
   const roleMap = {
-    estudiante: 'alumnos.html',
-    alumno: 'alumnos.html',
-    docente: 'admin.html',
-    delegado: 'admin.html',
-    admin: 'admin.html',
-    administrador: 'admin.html',
+    estudiante: prefix + 'alumnos.html',
+    alumno: prefix + 'alumnos.html',
+    docente: prefix + 'admin.html',
+    delegado: prefix + 'admin.html',
+    admin: prefix + 'admin.html',
+    administrador: prefix + 'admin.html',
   };
-  return roleMap[rol?.toLowerCase()] || 'alumnos.html';
+  return roleMap[rol?.toLowerCase()] || prefix + 'alumnos.html';
 }
 
 function showError(message, errorElement) {
