@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   try {
-    const [usuario, novedadesAPI, dataNovedadesJSON, eventosAPI, calendarioAPI, dataCalendarioJSON, reglamentacionAPI, notificacionesAPI, carrerasAPI, materias, inscripciones] = await Promise.all([
+    const [usuario, novedadesAPI, dataNovedadesJSON, eventosAPI, calendarioAPI, dataCalendarioJSON, reglamentacionAPI, notificacionesAPI, carrerasAPI, materias] = await Promise.all([
       fetchJSON(API.usuario),
       Novedades.listar(),
       fetchJSON(API.novedades),
@@ -160,8 +160,7 @@ async function init() {
       Reglamentacion.listar().catch(() => []), // Carga reglamentación desde la API (asumiendo que devuelve un array)
       Notificaciones.listar(), // Carga notificaciones desde la API
       Carreras.listar(),
-      fetchJSON(API.materias),
-      Inscripciones.listar().catch(() => [])
+      fetchJSON(API.materias)
     ]);
 
     const categorias = dataNovedadesJSON?.categorias || [];
@@ -194,10 +193,14 @@ async function init() {
     Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras: carrerasAPI, materias });
 
     // Cargar inscripciones previas del usuario
-    if (usuario && inscripciones && Array.isArray(inscripciones)) {
-      inscripciones
-        .filter(i => i.usuario_id === usuario.id)
-        .forEach(i => state.inscripciones.add(i.evento_id));
+    if (usuario && eventosAPI && Array.isArray(eventosAPI)) {
+      eventosAPI.forEach(ev => {
+        if (ev.usuarios_inscriptos && Array.isArray(ev.usuarios_inscriptos)) {
+          if (ev.usuarios_inscriptos.includes(usuario.id)) {
+            state.inscripciones.add(ev.id);
+          }
+        }
+      });
     }
 
     if (state.notificaciones?.notificaciones) {
@@ -424,12 +427,22 @@ async function inscribirseEvento(id) {
   if (!ev || state.inscripciones.has(id) || ev.inscriptos >= ev.cupo) return;
 
   try {
-    // Persistencia real en la API: incrementamos el contador en el servidor
+    // Agregamos el ID del usuario a la lista dentro del evento
+    const usuariosActualizados = ev.usuarios_inscriptos || [];
+    if (!usuariosActualizados.includes(state.usuario.id)) {
+      usuariosActualizados.push(state.usuario.id);
+    }
+
     const inscriptosActualizados = (ev.inscriptos || 0) + 1;
-    await Eventos.actualizar(id, { ...ev, inscriptos: inscriptosActualizados });
-    await Inscripciones.crear({ evento_id: id, usuario_id: state.usuario.id });
+    
+    await Eventos.actualizar(id, { 
+      ...ev, 
+      inscriptos: inscriptosActualizados,
+      usuarios_inscriptos: usuariosActualizados 
+    });
     
     ev.inscriptos = inscriptosActualizados;
+    ev.usuarios_inscriptos = usuariosActualizados;
     state.inscripciones.add(id);
 
     // Refrescamos la home y, si está abierto el drawer del centro, también lo actualizamos

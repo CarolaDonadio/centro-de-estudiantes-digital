@@ -1305,8 +1305,8 @@
     // Visibilidad de módulos según rol (Acomodando Carreras para Docente/Delegado)
     const navCarreras = document.getElementById('nav-carreras');
     const rolLower = admin.rol.toLowerCase();
-    if (navCarreras && (isAdminUser || rolLower === 'docente' || rolLower === 'delegado')) {
-      navCarreras.style.display = 'block';
+    if (isAdminUser || rolLower === 'docente' || rolLower === 'delegado') {
+      if (navCarreras) navCarreras.style.display = 'block';
     }
 
     const PERFIL_MAP = { 1: 'alumno', 2: 'docente', 3: 'delegado', 4: 'admin' };
@@ -1453,15 +1453,6 @@
       } catch (err) {
         console.warn('No se pudo cargar eventos desde API:', err);
         eventosAdmin = [];
-      }
-    }
-
-    let inscripcionesAdmin = [];
-    async function loadInscripcionesFromAPI() {
-      try {
-        inscripcionesAdmin = await Inscripciones.listar();
-      } catch (err) {
-        console.warn('Inscripciones no disponibles en API');
       }
     }
 
@@ -1818,7 +1809,6 @@
       // Hooks por sección
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
       if (key === 'mod-carreras') bindCarrerasDrawer();
-      if (key === 'mod-materias') bindMateriasDrawer(); // Nuevo binding para Materias
       if (key === 'mod-novedades') bindNovedadesDrawer();
       if (key === 'mod-eventos') bindEventosDrawer();
       if (key === 'mod-calendario') bindCalendarioDrawer();
@@ -2216,7 +2206,7 @@
       }),
     };
 
-    await Promise.all([loadReglamentacionFromAPI(), loadEventosFromAPI(), loadInscripcionesFromAPI(), loadCalendarioFromAPI()]);
+    await Promise.all([loadReglamentacionFromAPI(), loadEventosFromAPI(), loadCalendarioFromAPI()]);
 
     // Registrar secciones de los módulos del proyecto
     Object.keys(modulosData).forEach(key => {
@@ -2227,7 +2217,6 @@
               key === 'mod-calendario' ? renderCalendarioAdmin() :
               key === 'mod-reglamentacion' ? renderReglamentacionAdmin() :
               key === 'mod-carreras' ? renderCarrerasAdmin() :
-              key === 'mod-materias' ? renderMateriasAdmin() : // Nuevo módulo de Materias
               renderModuloListado(key)
       });
     });
@@ -2553,6 +2542,7 @@
       } catch (err) { container.innerHTML = '<p>Error cargando datos de carreras.</p>'; }
     }
 
+
     function buildUserRow(u) {
       const ini = u.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
       return `
@@ -2604,28 +2594,30 @@
       async function renderInscriptosPorEvento() {
         const list = document.getElementById('inscriptosList');
         if (!selectEv || !list) return;
-        const eventId = selectEv.value;
+        const eventId = Number(selectEv.value);
         if (!eventId) {
           list.innerHTML = '<p style="color:#8a8d9c; padding:1.5rem; text-align:center;">Elegí un evento para ver quiénes participan.</p>';
           return;
         }
-        list.innerHTML = '<p style="padding:1.5rem; text-align:center;">Buscando inscriptos...</p>';
-        try {
-          await loadInscripcionesFromAPI();
-          const eventInsc = inscripcionesAdmin.filter(i => i.evento_id == eventId);
-          if (!eventInsc.length) {
-            list.innerHTML = '<p style="color:#8a8d9c; padding:1.5rem; text-align:center;">Todavía no hay alumnos anotados en este evento.</p>';
-            return;
-          }
-          list.innerHTML = eventInsc.map(i => {
-            const u = usuarios.find(usr => usr.id == i.usuario_id);
-            return `
-              <div class="user-row" style="margin-bottom:.6rem; grid-template-columns: 36px 1fr;">
-                <div class="user-row__avatar">${u ? u.nombre.split(' ').map(n=>n[0]).slice(0,2).join('') : '??'}</div>
-                <div><p class="user-row__name">${u ? u.nombre : 'Usuario #' + i.usuario_id}</p><p class="user-row__meta">${u ? u.email : ''}</p></div>
-              </div>`;
-          }).join('');
-        } catch (e) { list.innerHTML = '<p style="color:#E67E5B; padding:1.5rem; text-align:center;">Error al conectar con la API.</p>'; }
+
+        const ev = eventosAdmin.find(e => e.id === eventId);
+        if (!ev) return;
+
+        const inscriptosIds = ev.usuarios_inscriptos || [];
+        
+        if (!inscriptosIds.length) {
+          list.innerHTML = '<p style="color:#8a8d9c; padding:1.5rem; text-align:center;">Todavía no hay alumnos anotados en este evento.</p>';
+          return;
+        }
+
+        list.innerHTML = inscriptosIds.map(uId => {
+          const u = usuarios.find(usr => usr.id == uId);
+          return `
+            <div class="user-row" style="margin-bottom:.6rem; grid-template-columns: 36px 1fr;">
+              <div class="user-row__avatar">${u ? u.nombre.split(' ').map(n=>n[0]).slice(0,2).join('') : '??'}</div>
+              <div><p class="user-row__name">${u ? u.nombre : 'Usuario #' + uId}</p><p class="user-row__meta">${u ? u.email : ''}</p></div>
+            </div>`;
+        }).join('');
       }
 
       if (toggleBtn && formWrapper) {
@@ -2660,7 +2652,8 @@
               const idx = eventosAdmin.findIndex(ev => ev.id === editingId);
               eventosAdmin[idx] = {
                 ...actualizado,
-                detalle: `${actualizado.categoria} · ${actualizado.lugar} · Cupo ${actualizado.inscriptos || 0}/${actualizado.cupo}`
+                detalle: `${actualizado.categoria} · ${actualizado.lugar} · Cupo ${actualizado.inscriptos || 0}/${actualizado.cupo}`,
+                usuarios_inscriptos: actualizado.usuarios_inscriptos || []
               };
               auditar('editar', 'evento', `Evento editado: ${actualizado.titulo}`);
               showToast('Evento actualizado', `El evento "${actualizado.titulo}" fue guardado.`);
