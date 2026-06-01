@@ -220,7 +220,6 @@ async function init() {
     bindNotifications();
     bindReglamentacionSearch();
     bindSidebarToggle();
-    bindHeaderNavToggle();
   } catch (err) {
     console.error('Error en init():', err);
   }
@@ -738,32 +737,6 @@ function bindSidebarToggle() {
   });
 
   overlay.addEventListener('click', closeSidebar);
-}
-
-/**
- * Lógica del menú hamburguesa del header (notificaciones, trámites, etc.)
- */
-function bindHeaderNavToggle() {
-  const toggle = $('#headerNavToggle');
-  const nav = $('.header__nav');
-  
-  if (!toggle || !nav) return;
-
-  toggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = nav.classList.toggle('header__nav--open');
-    toggle.setAttribute('aria-expanded', String(isOpen));
-  });
-
-  // Cerrar al hacer click fuera si está abierto
-  document.addEventListener('click', (e) => {
-    if (nav.classList.contains('header__nav--open')) {
-      if (!nav.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
-        nav.classList.remove('header__nav--open');
-        toggle.setAttribute('aria-expanded', 'false');
-      }
-    }
-  });
 }
 
 /* ----------------------------------------------------------------
