@@ -55,7 +55,13 @@
    2. RESET Y BASE
 ---------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
 
 body {
   font-family: var(--font-body);
@@ -798,8 +804,20 @@ img { max-width: 100%; height: auto; }
    9. RESPONSIVE
 ---------------------------------------------------------------- */
 @media (max-width: 1024px) {
-  .hero__inner { gap: 32px; }
-  .hero__title { font-size: 46px; }
+  .public-nav__actions-group { gap: 12px; }
+  .public-nav__links { gap: 4px; }
+  .public-nav__link { padding: 8px 10px; font-size: 12px; }
+
+  .hero__inner { 
+    grid-template-columns: 1fr; 
+    text-align: center;
+    gap: 40px; 
+  }
+  .hero__title { font-size: 42px; }
+  .hero__subtitle { margin: 0 auto 28px; }
+  .hero__actions { justify-content: center; }
+  .hero__art { margin: 0 auto; max-width: 380px; top: 20px; }
+
   .access-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
