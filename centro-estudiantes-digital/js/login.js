@@ -1,5 +1,8 @@
 const SESSION_STORAGE_KEY = 'cedSession';
-const API_USERS = 'json/usuarios.json';
+
+// Detectamos si el HTML actual está en la carpeta /pages/
+const isInPagesFolder = window.location.pathname.includes('/pages/');
+const API_USERS = isInPagesFolder ? '../json/usuarios.json' : 'json/usuarios.json';
 
 const PERFIL_MAP = {
   1: 'estudiante',
@@ -41,15 +44,16 @@ function isAuthenticated() {
 }
 
 function getRoleDashboard(rol) {
+  const prefix = isInPagesFolder ? '' : 'pages/';
   const roleMap = {
-    estudiante: 'alumnos.html',
-    alumno: 'alumnos.html',
-    docente: 'admin.html',
-    delegado: 'admin.html',
-    admin: 'admin.html',
-    administrador: 'admin.html',
+    estudiante: prefix + 'alumnos.html',
+    alumno: prefix + 'alumnos.html',
+    docente: prefix + 'admin.html',
+    delegado: prefix + 'admin.html',
+    admin: prefix + 'admin.html',
+    administrador: prefix + 'admin.html',
   };
-  return roleMap[rol?.toLowerCase()] || 'alumnos.html';
+  return roleMap[rol?.toLowerCase()] || prefix + 'alumnos.html';
 }
 
 function showError(message, errorElement) {
@@ -75,6 +79,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   const session = getSession();
   const users = await loadMockUsers();
 
+  // Lógica de Menú Hamburguesa
+  const navToggle = document.getElementById('navToggle');
+  const publicNav = document.querySelector('.public-nav');
+
+  if (navToggle && publicNav) {
+    navToggle.addEventListener('click', () => {
+      const isOpened = navToggle.getAttribute('aria-expanded') === 'true';
+      navToggle.setAttribute('aria-expanded', !isOpened);
+      publicNav.classList.toggle('public-nav--open');
+      // Evitar scroll del body con el menú abierto
+      document.body.style.overflow = !isOpened ? 'hidden' : '';
+    });
+
+    // Lógica de Acordeón para submenús en móvil
+    const subMenuTriggers = publicNav.querySelectorAll('.public-nav__link, .submenu-title');
+    subMenuTriggers.forEach(trigger => {
+      trigger.addEventListener('click', (e) => {
+        // Solo aplicar si el menú hamburguesa es visible (estamos en móvil)
+        if (window.getComputedStyle(navToggle).display !== 'none') {
+          const parent = trigger.parentElement;
+          const hasSubmenu = parent.querySelector('.dropdown-content, .submenu-content');
+          
+          if (hasSubmenu) {
+            e.preventDefault(); // Evita que el '#' recargue la página
+            parent.classList.toggle('is-active');
+          }
+        }
+      });
+    });
+  }
+
   if (session) {
     if (window.location.pathname.endsWith('log.html')) {
       const dashboard = getRoleDashboard(session.rol);
@@ -92,6 +127,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       if (!loginOverlay) return;
+      
+      // Cerramos el menú móvil si está abierto antes de mostrar el login
+      if (publicNav && publicNav.classList.contains('public-nav--open')) {
+        publicNav.classList.remove('public-nav--open');
+        if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+      }
+
       loginOverlay.classList.add('is-open');
       document.body.style.overflow = 'hidden'; // Evita el scroll del fondo
     });

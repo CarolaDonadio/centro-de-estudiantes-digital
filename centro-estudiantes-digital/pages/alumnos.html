@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Portal del Centro de Estudiantes Digital - ISFDyT 57 Juana Paula Manso" />
   <title>ISFDyT 57 · Portal del Estudiante</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="../img/favicon.svg" />
 
   <!-- === TIPOGRAFÍA: Display + Body pairing === -->
   <!-- Bricolage Grotesque para títulos, Manrope para texto corrido -->
@@ -27,7 +27,7 @@
     rel="stylesheet" />
 
   <!-- === ESTILOS DEL PROYECTO === -->
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
 </head>
 
 <body>
@@ -119,17 +119,6 @@
           </button>
         </li>
 
-        <!-- BOTÓN 6: Eventos -->
-        <li>
-          <button class="nav-btn" data-drawer="eventos" aria-label="Eventos">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M9 18V5l12-2v13"/>
-              <circle cx="6" cy="18" r="3"/>
-              <circle cx="18" cy="16" r="3"/>
-            </svg>
-            <span class="nav-btn__tooltip">Eventos</span>
-          </button>
-        </li>
 
         <!-- BOTÓN 7: Cerrar Sesión + Cambiar Contraseña -->
         <li class="nav-btn--bottom">
@@ -159,13 +148,21 @@
     -->
     <header class="header" data-animate="fade-down">
 
+      <!-- Botón Hamburguesa para Sidebar (solo móvil) -->
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12h18M3 6h18M3 18h18" class="icon-menu" stroke-linecap="round"/>
+          <path d="M18 6L6 18M6 6l12 12" class="icon-close" stroke-linecap="round"/>
+        </svg>
+      </button>
+
       <div class="header__greeting">
         <!-- Avatar con iniciales generado dinámicamente -->
-        <div class="avatar" id="userAvatar" aria-hidden="true">SC</div>
+        <div class="avatar" id="userAvatar" aria-hidden="true">..</div>
 
         <div class="header__text">
           <h1 class="header__title">
-            Hola, <strong id="userName">Santiago Chiale</strong>
+            Hola, <strong id="userName">Cargando...</strong>
           </h1>
           <p class="header__subtitle" id="userSummary">
             Tenés 3 clases hoy, 3 notificaciones sin leer y 2 eventos del CE esta semana.
@@ -203,7 +200,7 @@
       <article class="card card--career" data-animate="fade-up" style="--delay: 0.1s">
         <header class="card__header">
           <span class="eyebrow">Tu Carrera</span>
-          <h2 class="card__title" id="userCareer">Ciencias de Datos e IA</h2>
+          <h2 class="card__title" id="userCareer">Buscando información...</h2>
         </header>
 
         <div class="card__body career-body">
@@ -324,6 +321,7 @@
         <div class="news-list" id="newsList">
           <!-- JS inyecta las novedades aquí -->
         </div>
+        <div id="carrerasWidget" style="margin-top:1rem"></div>
       </article>
 
     </section>
@@ -451,8 +449,14 @@
   </div>
 
   <!-- === SCRIPT PRINCIPAL DE LA APLICACIÓN === -->
-  <script src="js/logout.js"></script>
-  <script src="js/app.js" defer></script>
+  <!-- API CLIENT - Comunicación con servidor remoto -->
+  <script src="../js/api-client.js"></script>
+  <script src="../js/alumno-data.js"></script>
+  <script src="../js/data-sync.js"></script>
+  <script src="../js/api-utils.js"></script>
+  <script src="../js/test-api.js"></script>
+  <script src="../js/logout.js"></script>
+  <script src="../js/app.js" defer></script>
 </body>
 
 </html>
