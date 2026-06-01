@@ -147,6 +147,29 @@ ul {
   z-index: 70;
 }
 
+/* --- Botón Hamburguesa Side (móvil) --- */
+.sidebar-toggle .icon-close { display: none; }
+.sidebar--open .sidebar-toggle .icon-menu { display: none; }
+.sidebar--open .sidebar-toggle .icon-close { display: block; }
+
+/* --- Overlay de Sidebar --- */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 25, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 65;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-med);
+}
+
+.sidebar--open .sidebar-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Logo del instituto */
 .sidebar__logo {
   width: 58px;
@@ -202,6 +225,14 @@ ul {
 .sidebar__nav {
   flex: 1;
   width: 100%;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+}
+
+.sidebar__nav::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .sidebar__nav ul {
@@ -209,7 +240,8 @@ ul {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  height: 100%;
+  min-height: 100%;
+  padding-bottom: 20px;
 }
 
 .nav-btn--bottom {
@@ -296,38 +328,16 @@ ul {
 
 /* Tooltip al hacer hover sobre el botón */
 .nav-btn__tooltip {
-  position: absolute;
-  left: calc(100% + 14px);
-  top: 50%;
-  transform: translateY(-50%) translateX(-8px);
-  background: var(--brand-900);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 7px 12px;
-  border-radius: 10px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--t-fast), transform var(--t-fast);
-  box-shadow: var(--sh-md);
-  letter-spacing: 0.2px;
+  display: none;
 }
 
 .nav-btn__tooltip::before {
-  content: "";
-  position: absolute;
-  left: -4px;
-  top: 50%;
-  transform: translateY(-50%) rotate(45deg);
-  width: 8px;
-  height: 8px;
-  background: var(--brand-900);
+  display: none;
 }
 
 .nav-btn:hover .nav-btn__tooltip {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
+  opacity: 0;
+  transform: none;
 }
 
 /* ----------------------------------------------------------------
@@ -348,6 +358,7 @@ ul {
   padding: 14px 26px;
   background: var(--surface-tint);
   backdrop-filter: blur(10px);
+  position: relative;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   margin-bottom: 24px;
@@ -457,6 +468,29 @@ ul {
   transition: transform var(--t-fast), box-shadow var(--t-fast);
   margin-left: 6px;
 }
+
+.sidebar-toggle:hover {
+  background: var(--brand-100);
+  transform: translateY(-1px);
+}
+
+/* Botón Hamburguesa Sidebar (móvil) */
+.sidebar-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  color: var(--brand-700);
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sh-sm);
+  transition: all var(--t-fast);
+  margin-right: 12px;
+}
+
+.sidebar-toggle svg { width: 22px; height: 22px; }
+.sidebar-toggle .icon-close { display: none; }
 
 .bell-btn svg {
   width: 20px;
@@ -2025,22 +2059,84 @@ ul {
 
 @media (max-width: 720px) {
   :root {
-    --sidebar-w: 72px;
+    --sidebar-w: 0px; /* Liberamos el espacio lateral en móviles */
+  }
+
+  body {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    transform: translateX(-110%);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.3, 1);
+    z-index: 100;
+    width: 86px;
+    border-radius: 0 var(--r-xl) var(--r-xl) 0;
+  }
+
+  .sidebar--open .sidebar {
+    transform: translateX(0);
   }
 
   .main {
-    padding: 16px;
+    grid-column: 1;
+    padding: 20px 16px;
   }
 
   .header {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: 16px;
+    justify-content: flex-start;
+    padding: 16px 16px 12px;
+    gap: 14px;
+  }
+
+  .sidebar-toggle {
+    display: flex !important;
+    align-self: flex-start;
+  }
+
+  .header__greeting {
+    flex: none;
+    min-width: 0;
+  }
+
+  .header__subtitle {
+    display: none;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+
+  .header__title {
+    font-size: 17px;
   }
 
   .header__nav {
-    justify-content: flex-start;
+    display: flex;
     flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    position: static;
+    width: 100%;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    z-index: 10;
+  }
+
+  .header__link {
+    display: inline-flex;
+  }
+
+  .bell-btn {
+    margin-left: 0;
   }
 
   .events-grid {
@@ -2065,6 +2161,17 @@ ul {
     left: 0;
     width: 100%;
     border-radius: 0;
+  }
+
+  .drawer-overlay {
+    left: 0;
+  }
+
+  .section--reglamentacion .doc-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    text-align: left;
   }
 }
 

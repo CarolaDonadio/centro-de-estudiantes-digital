@@ -788,12 +788,45 @@
       color: #5a5d6e;
     }
 
-    .header__nav { gap: .9rem; }
+    .header__nav { display: flex; align-items: center; gap: .9rem; }
 
+    /* ============================================================
+       9. RESPONSIVE ESPECÍFICO DEL ADMIN
+       ============================================================ */
     @media (max-width: 720px) {
       .admin-form__row { grid-template-columns: 1fr; }
-      .audit-item { grid-template-columns: auto 1fr; }
-      .audit-item__user { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
+      
+      .user-row {
+        grid-template-columns: 36px 1fr auto;
+        gap: 0.5rem;
+        padding: 0.75rem;
+      }
+      .user-row__rol { display: none; } /* Ocultamos pill de rol para ganar espacio */
+
+      .audit-item { 
+        grid-template-columns: 34px 1fr; 
+        gap: 0.75rem; 
+      }
+      .audit-item__user { 
+        grid-column: 1 / -1; 
+        flex-direction: row; 
+        justify-content: space-between; 
+        padding-top: 0.6rem;
+        border-top: 1px dashed rgba(143, 163, 227, 0.2);
+        width: 100%;
+      }
+
+      .novedad-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .novedad-row__menu { align-self: flex-end; }
+
+      .drawer__tabs { flex-direction: column; padding: 0.5rem; }
+      .drawer__tab { width: 100%; text-align: left; }
+
+      .admin-form__submit { width: 100%; justify-content: center; }
+      .header__action { width: 100%; justify-content: center; }
     }
 
     /* ============================================================
@@ -1159,6 +1192,14 @@
   <main class="main">
 
     <header class="header" data-animate="fade-down">
+
+      <!-- Botón Hamburguesa para Sidebar (solo móvil) -->
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12h18M3 6h18M3 18h18" class="icon-menu" stroke-linecap="round"/>
+          <path d="M18 6L6 18M6 6l12 12" class="icon-close" stroke-linecap="round"/>
+        </svg>
+      </button>
 
       <div class="header__greeting">
         <div class="avatar avatar--admin" id="userAvatar" aria-hidden="true">RA</div>
@@ -3563,6 +3604,34 @@
 
     // Vista inicial al cargar la página
     navigateTo('perfil');
+
+      // Lógica de Menús Hamburguesa para Admin
+      bindResponsiveToggles();
+
+      function bindResponsiveToggles() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const body = document.body;
+
+        // Overlay para la sidebar si no existe
+        let overlay = document.querySelector('.sidebar-overlay');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = 'sidebar-overlay';
+          body.appendChild(overlay);
+        }
+
+        sidebarToggle?.addEventListener('click', () => {
+          const isOpen = body.classList.toggle('sidebar--open');
+          sidebarToggle.setAttribute('aria-expanded', String(isOpen));
+          body.style.overflow = isOpen ? 'hidden' : '';
+        });
+
+        overlay.addEventListener('click', () => {
+          body.classList.remove('sidebar--open');
+          sidebarToggle?.setAttribute('aria-expanded', 'false');
+          body.style.overflow = '';
+        });
+      }
 
   })();
   </script>

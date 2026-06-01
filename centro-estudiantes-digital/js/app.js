@@ -219,6 +219,7 @@ async function init() {
     bindDrawerControls();
     bindNotifications();
     bindReglamentacionSearch();
+    bindSidebarToggle();
   } catch (err) {
     console.error('Error en init():', err);
   }
@@ -705,6 +706,37 @@ function bindDrawerControls() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeDrawer();
   });
+}
+
+/**
+ * Lógica del menú hamburguesa para móviles
+ */
+function bindSidebarToggle() {
+  const toggle = $('#sidebarToggle');
+  const body = document.body;
+  
+  // Crear overlay si no existe
+  let overlay = $('.sidebar-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    body.appendChild(overlay);
+  }
+
+  const closeSidebar = () => {
+    body.classList.remove('sidebar--open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    body.style.overflow = '';
+  };
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = body.classList.toggle('sidebar--open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    // Bloquear scroll del body si está abierto ("sin scrolling interno")
+    body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  overlay.addEventListener('click', closeSidebar);
 }
 
 /* ----------------------------------------------------------------
@@ -1599,6 +1631,14 @@ function bindNavigation() {
         $('#logoutModal').classList.add('is-open');
         return;
       }
+
+      // Cerrar sidebar en móvil al seleccionar una opción
+      if (window.innerWidth <= 720 && document.body.classList.contains('sidebar--open')) {
+        document.body.classList.remove('sidebar--open');
+        $('#sidebarToggle')?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
       const target = btn.dataset.drawer;
       if (!target) return;
       if (state.drawerActivo === target) {
