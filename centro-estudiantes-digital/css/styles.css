@@ -1892,6 +1892,26 @@ ul {
   width: fit-content;
 }
 
+.cal-list-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cal-list-hora {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.cal-list-author {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* -------- Contenido: LISTA DE EVENTOS / DOCUMENTOS -------- */
 .drawer-list {
   display: flex;

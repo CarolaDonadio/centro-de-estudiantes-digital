@@ -1253,8 +1253,13 @@ function renderCalendar(body) {
   // Calcular celdas vacías al principio
   let startingDay = firstDay.getDay();
 
-  // Obtener todos los eventos y tipos
-  const eventos = state.calendario?.eventos_calendario || [];
+  // Obtener todos los eventos y tipos.
+  // Combinamos los eventos base del JSON con los creados por docentes,
+  // delegados y administradores a través del store compartido.
+  const eventosBase = state.calendario?.eventos_calendario || [];
+  const eventos = window.CalendarioStore
+    ? window.CalendarioStore.mergeWithBase(eventosBase)
+    : eventosBase;
   const tipos = state.calendario?.tipos || [];
 
   // Filtrar eventos si hay un filtro activo
@@ -1356,6 +1361,11 @@ function renderCalendar(body) {
   } else {
     eventosDelMesFlat.forEach(e => {
       const [y, m, d] = e.fecha.split('-');
+      const rolMap = { docente: 'Docente', delegado: 'Delegado', admin: 'Admin', administrador: 'Admin' };
+      const autorHTML = e.creado_por_nombre
+        ? `<span class="cal-list-author">Publicado por ${e.creado_por_nombre}${rolMap[e.creado_por_rol] ? ` · ${rolMap[e.creado_por_rol]}` : ''}</span>`
+        : '';
+      const horaHTML = e.hora ? `<span class="cal-list-hora">${e.hora} hs</span>` : '';
       calHTML += `
         <div class="cal-list-item" style="--ev-color: ${e.color}">
           <div class="cal-list-date">
@@ -1364,7 +1374,11 @@ function renderCalendar(body) {
           </div>
           <div class="cal-list-body">
             <h4 class="cal-list-title">${e.titulo}</h4>
-            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t => t.id === e.tipo)?.nombre || 'Evento'}</span>
+            <div class="cal-list-meta-row">
+              <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t => t.id === e.tipo)?.nombre || 'Evento'}</span>
+              ${horaHTML}
+            </div>
+            ${autorHTML}
           </div>
         </div>
       `;

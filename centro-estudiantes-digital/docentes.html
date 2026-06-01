@@ -1267,6 +1267,9 @@
     </div>
   </div>
 
+  <!-- Store compartido del calendario (debe cargar antes del IIFE inline) -->
+  <script src="js/calendario-store.js"></script>
+
   <!--
     ================================================================
     SCRIPT INLINE: lógica del docente con datos demo.
@@ -1294,9 +1297,38 @@
       const state = {
         calendarioMes: null,
         calendario: {
-          eventos: []
-        }
+          // Eventos base del calendario académico institucional (calendario.json).
+          // Se rellena dinámicamente al abrir el drawer del calendario.
+          eventosBase: []
+        },
+        sesion: (() => {
+          try { return JSON.parse(localStorage.getItem('cedSession')) || {}; }
+          catch { return {}; }
+        })()
       };
+
+      /** Devuelve la lista combinada: eventos base + creados por usuarios. */
+      function getEventosCalendario() {
+        if (window.CalendarioStore) {
+          return window.CalendarioStore.mergeWithBase(state.calendario.eventosBase);
+        }
+        return state.calendario.eventosBase;
+      }
+
+      /** Carga los eventos académicos institucionales desde el JSON una sola vez. */
+      async function ensureEventosBase() {
+        if (state.calendario.eventosBase.length) return;
+        try {
+          const res = await fetch('json/calendario.json');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          state.calendario.eventosBase = Array.isArray(data.eventos_calendario)
+            ? data.eventos_calendario
+            : [];
+        } catch (err) {
+          console.warn('[Docente] No se pudo cargar calendario.json:', err);
+        }
+      }
 
       const cursos = [
         { id: 1, nombre: 'Lógica Computacional', anio: '1°', alumnos: 28, asistencia: 86, color: '#4A67C9', proxima: 'Mañana 18:00' },
@@ -1332,13 +1364,11 @@
         { dia: 'LUN', num: '04', titulo: 'Algoritmos I', sub: 'Repaso pre-parcial', tipo: 'Clase', from: '#8B5CF6', to: '#A78BF7' }
       ];
 
-      // Map existing 'clases' data to calendar events format
-      state.calendario.eventos = clases.map(c => {
-        const today = new Date();
-        const day = c.dia === 'MAÑ' ? today.getDate() + 1 : (c.dia === 'MIÉ' ? today.getDate() + 2 : (c.dia === 'VIE' ? today.getDate() + 4 : today.getDate())); // Simplified date logic for demo
-        const date = new Date(today.getFullYear(), today.getMonth(), day);
-        return { fecha: date.toISOString().slice(0, 10), titulo: `${c.titulo} - ${c.sub}`, tipo: c.tipo.toLowerCase(), color: c.from };
-      });
+      // Los eventos del calendario académico se cargan desde calendario.json
+      // (ver ensureEventosBase) y se combinan con los que crean los docentes
+      // a través del store compartido. Las "clases" siguen apareciendo en
+      // la tarjeta lateral "Próximas Clases" pero no son eventos persistentes
+      // del calendario académico.
 
       // Publicaciones que ya hizo el docente (estas vendrían de la BD).
       // Cualquier publicación nueva se prepende a este array y aparecerá
@@ -1700,8 +1730,13 @@
          ============================================================ */
 
       // --- Calendario Docente ---
-      function bindCalendarDrawer() {
+      async function bindCalendarDrawer() {
         if (!state.calendarioMes) state.calendarioMes = new Date();
+        await ensureEventosBase();
+        renderCalendarioDocente();
+      }
+
+      function renderCalendarioDocente() {
         const body = document.getElementById('drawerBody');
         const year = state.calendarioMes.getFullYear();
         const month = state.calendarioMes.getMonth();
@@ -1710,7 +1745,7 @@
 
         const firstDay = new Date(year, month, 1).getDay();
         const lastDay = new Date(year, month + 1, 0).getDate();
-        const eventos = state.calendario.eventos || [];
+        const eventos = getEventosCalendario();
 
         // Agrupar por día en el mes actual
         const porDia = {};
@@ -1753,16 +1788,17 @@
         for (let d = 1; d <= lastDay; d++) {
           const dayEvs = porDia[d] || [];
           const isHoy = esMesActual && hoy.getDate() === d;
-          const isHoliday = dayEvs.some(ev => ev.tipo === 'feriado'); // Check for holiday type
+          const isHoliday = dayEvs.some(ev => ev.tipo === 'feriado');
           const cls = ['calendar-day', isHoy && 'calendar-day--today', dayEvs.length && 'calendar-day--has-events', isHoliday && 'cal-cell--holiday'].filter(Boolean).join(' ');
           const dots = dayEvs.slice(0, 3).map(e => `<span class="calendar-dot" style="background:${e.color}" title="${e.titulo}"></span>`).join('')
             + (dayEvs.length > 3 ? '<span class="calendar-dot calendar-dot--more"></span>' : '');
           html += `<div class="${cls}"><span class="calendar-day-num">${d}</span><div class="calendar-day-events">${dots}</div></div>`;
         }
-        html += `</div></div></div>`; // Close calendar-days, calendar-grid, calendar-layout__grid
+        html += `</div></div></div>`;
 
-        // ── Listado de eventos del mes
+        // ── Listado de eventos del mes (con acciones para los míos)
         const flat = Object.keys(porDia).sort((a, b) => +a - +b).flatMap(d => porDia[d]);
+        const rolMap = { docente: 'Docente', delegado: 'Delegado', admin: 'Admin', administrador: 'Admin' };
         html += `<div class="calendar-event-list"><p class="drawer-section-label" style="margin-top:24px;">Eventos de ${meses[month]}</p>`;
 
         if (!flat.length) {
@@ -1775,6 +1811,17 @@
         } else {
           flat.forEach(e => {
             const [, eM, eD] = e.fecha.split('-');
+            const sesion = state.sesion;
+            const puedeEditar = window.CalendarioStore?.puedeEditar(e, sesion) || false;
+            const autorHTML = e.creado_por_nombre
+              ? `<small style="display:block;margin-top:4px;font-size:11px;color:#8a8d9c;font-style:italic;">Publicado por ${e.creado_por_nombre}${rolMap[e.creado_por_rol] ? ` · ${rolMap[e.creado_por_rol]}` : ''}</small>`
+              : '';
+            const horaHTML = e.hora ? ` · ${e.hora} hs` : '';
+            const acciones = puedeEditar ? `
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <button class="btn-secondary btn-sm" data-edit-evento="${e.id}" style="padding:4px 10px;font-size:11px;">Editar</button>
+                <button class="btn-secondary btn-sm" data-del-evento="${e.id}" style="padding:4px 10px;font-size:11px;background:#fdecec;color:#C0392B;border-color:#fdecec;">Eliminar</button>
+              </div>` : '';
             html += `
             <div class="cal-list-item" style="--ev-color:${e.color}">
               <div class="cal-list-date">
@@ -1782,91 +1829,129 @@
                 <span class="cal-list-month">${meses[+eM - 1].substring(0, 3).toUpperCase()}</span>
               </div>
               <div class="cal-list-body">
-                <h4 class="cal-list-title">${e.titulo}</h4>
+                <h4 class="cal-list-title">${e.titulo}${horaHTML}</h4>
                 <span class="cal-list-type" style="color:${e.color};background:${e.color}20">${e.tipo.charAt(0).toUpperCase() + e.tipo.slice(1)}</span>
+                ${autorHTML}
+                ${acciones}
               </div>
             </div>`;
           });
         }
-        html += `</div></div>`; // Close calendar-layout__list and calendar-layout
+        html += `</div></div>`;
 
-        // ── Panel de acción: Cargar Fecha de Examen (perfil docente)
+        // ── Panel de acción: Cargar evento (perfil docente)
         html += `
         <div class="cal-acciones" style="margin-top:28px;">
           <p class="drawer-section-label" style="margin-top:0;margin-bottom:10px;">Acciones disponibles</p>
           <div class="cal-acciones__btns">
-            <button class="btn-primary cal-accion-btn" id="btnCargarExamenDoc">
+            <button class="btn-primary cal-accion-btn" id="btnCargarEventoDoc">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
                 <rect x="3" y="4" width="18" height="16" rx="2"/>
                 <path d="M3 9h18M8 3v4M16 3v4M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              Cargar Fecha de Examen
+              Cargar Evento Académico
             </button>
           </div>
+          <p style="margin-top:10px;font-size:11px;color:#8a8d9c;font-family:'Manrope',sans-serif;">
+            Como docente podés agendar exámenes, parciales, fechas de entrega y clases que se mostrarán en el calendario de tus alumnos.
+          </p>
         </div>`;
 
         body.innerHTML = html;
 
-        // ── Bindings de navegación
         body.querySelector('#calPrevDoc').addEventListener('click', () => {
           state.calendarioMes = new Date(year, month - 1, 1);
-          bindCalendarDrawer();
+          renderCalendarioDocente();
         });
         body.querySelector('#calNextDoc').addEventListener('click', () => {
           state.calendarioMes = new Date(year, month + 1, 1);
-          bindCalendarDrawer();
+          renderCalendarioDocente();
         });
 
-        // ── Binding del botón de acción
-        body.querySelector('#btnCargarExamenDoc').addEventListener('click', () => abrirModalExamenDocente());
+        body.querySelector('#btnCargarEventoDoc').addEventListener('click', () => abrirModalEventoDocente());
+
+        body.querySelectorAll('[data-edit-evento]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = Number(btn.dataset.editEvento);
+            const ev = window.CalendarioStore.getCreados().find(x => x.id === id);
+            if (ev) abrirModalEventoDocente(ev);
+          });
+        });
+        body.querySelectorAll('[data-del-evento]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = Number(btn.dataset.delEvento);
+            const ev = window.CalendarioStore.getCreados().find(x => x.id === id);
+            if (!ev) return;
+            if (!window.confirm(`¿Eliminar el evento "${ev.titulo}"? Tampoco aparecerá en el calendario de los alumnos.`)) return;
+            window.CalendarioStore.eliminar(id);
+            showToast('Evento eliminado', 'Ya no aparece en el calendario de tus alumnos.');
+            renderCalendarioDocente();
+          });
+        });
       }
 
-      function abrirModalExamenDocente() {
+      function abrirModalEventoDocente(eventoEdit = null) {
         document.getElementById('docCalModal')?.remove();
         const modal = document.createElement('div');
         modal.id = 'docCalModal';
         modal.setAttribute('role', 'dialog');
         modal.setAttribute('aria-modal', 'true');
+
+        const editando = !!eventoEdit;
+        // Subtipos amigables — el "tipo" interno del store es 'examen' o 'clase'.
+        const subtipos = [
+          { value: 'examen|Parcial',         label: 'Examen Parcial' },
+          { value: 'examen|Final',           label: 'Examen Final' },
+          { value: 'examen|Recuperatorio',   label: 'Recuperatorio' },
+          { value: 'clase|Clase especial',   label: 'Clase especial' },
+          { value: 'clase|Fecha de entrega', label: 'Fecha de entrega TP' }
+        ];
+        const subtipoActual = eventoEdit
+          ? `${eventoEdit.tipo}|${eventoEdit.subtitulo || (eventoEdit.tipo === 'examen' ? 'Parcial' : 'Clase especial')}`
+          : 'examen|Parcial';
+
         modal.innerHTML = `
         <div class="cal-modal-overlay">
           <div class="cal-modal-card">
             <div class="cal-modal-header">
-              <h3 class="cal-modal-title">Cargar Fecha de Examen</h3>
+              <h3 class="cal-modal-title">${editando ? 'Editar evento' : 'Cargar Evento Académico'}</h3>
               <button class="cal-modal-close" aria-label="Cerrar">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round"/>
                 </svg>
               </button>
             </div>
-            <form id="formExamenDoc" class="cal-modal-form">
+            <form id="formEventoDoc" class="cal-modal-form">
               <label class="cal-modal-label">
                 Materia
                 <select name="materia" required>
                   <option value="">Seleccioná una materia…</option>
-                  ${cursos.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('')}
+                  ${cursos.map(c => `<option value="${c.nombre}" ${eventoEdit?.materia === c.nombre ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+                </select>
+              </label>
+              <label class="cal-modal-label">
+                Tipo de evento
+                <select name="subtipo" required>
+                  ${subtipos.map(s => `<option value="${s.value}" ${s.value === subtipoActual ? 'selected' : ''}>${s.label}</option>`).join('')}
                 </select>
               </label>
               <div class="cal-modal-row">
                 <label class="cal-modal-label">
                   Fecha
-                  <input type="date" name="fecha" required>
+                  <input type="date" name="fecha" required value="${eventoEdit?.fecha || ''}">
                 </label>
                 <label class="cal-modal-label">
                   Horario
-                  <input type="time" name="horario" required>
+                  <input type="time" name="horario" required value="${eventoEdit?.hora || ''}">
                 </label>
               </div>
               <label class="cal-modal-label">
-                Tipo
-                <select name="tipo_examen" required>
-                  <option value="Parcial">Parcial</option>
-                  <option value="Final">Final</option>
-                  <option value="Recuperatorio">Recuperatorio</option>
-                </select>
+                Descripción (opcional)
+                <input type="text" name="descripcion" placeholder="Ej: Unidades 1 a 3" value="${eventoEdit?.descripcion || ''}">
               </label>
               <div class="cal-modal-actions">
-                <button type="button" class="btn-secondary" id="cancelarExamenDoc">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar examen</button>
+                <button type="button" class="btn-secondary" id="cancelarEventoDoc">Cancelar</button>
+                <button type="submit" class="btn-primary">${editando ? 'Guardar cambios' : 'Publicar evento'}</button>
               </div>
             </form>
           </div>
@@ -1875,26 +1960,69 @@
         document.body.appendChild(modal);
         const cerrar = () => modal.remove();
         modal.querySelector('.cal-modal-close').addEventListener('click', cerrar);
-        modal.querySelector('#cancelarExamenDoc').addEventListener('click', cerrar);
+        modal.querySelector('#cancelarEventoDoc').addEventListener('click', cerrar);
         modal.querySelector('.cal-modal-overlay').addEventListener('click', e => {
           if (e.target === modal.querySelector('.cal-modal-overlay')) cerrar();
         });
         document.addEventListener('keydown', function onEsc(e) {
           if (e.key === 'Escape') { cerrar(); document.removeEventListener('keydown', onEsc); }
         });
-        modal.querySelector('#formExamenDoc').addEventListener('submit', e => {
+        modal.querySelector('#formEventoDoc').addEventListener('submit', e => {
           e.preventDefault();
           const data = new FormData(e.target);
-          guardarExamenDocente({ materia: data.get('materia'), fecha: data.get('fecha'), horario: data.get('horario'), tipo: data.get('tipo_examen') });
+          const [tipo, subtitulo] = data.get('subtipo').split('|');
+          const payload = {
+            materia: data.get('materia'),
+            fecha: data.get('fecha'),
+            horario: data.get('horario'),
+            tipo, subtitulo,
+            descripcion: data.get('descripcion') || ''
+          };
+          if (editando) {
+            actualizarEventoDocente(eventoEdit.id, payload);
+          } else {
+            guardarEventoDocente(payload);
+          }
           cerrar();
         });
       }
 
-      function guardarExamenDocente({ materia, fecha, horario, tipo }) {
-        state.calendario.eventos.push({ fecha, titulo: `${tipo}: ${materia} — ${horario}hs`, tipo: 'examen', color: '#3A5BA9' });
+      function _buildTitulo({ subtitulo, materia, descripcion }) {
+        const base = `${subtitulo}: ${materia}`;
+        return descripcion ? `${base} — ${descripcion}` : base;
+      }
+
+      function guardarEventoDocente({ materia, fecha, horario, tipo, subtitulo, descripcion }) {
+        if (!window.CalendarioStore) {
+          console.warn('[Docente] CalendarioStore no disponible — no se puede guardar.');
+          return;
+        }
+        const autor = {
+          id: state.sesion.id,
+          nombre: state.sesion.nombre || docente.nombre,
+          rol: 'docente'
+        };
+        window.CalendarioStore.crear({
+          fecha, hora: horario,
+          titulo: _buildTitulo({ subtitulo, materia, descripcion }),
+          descripcion, tipo, materia
+        }, autor);
         const [y, m] = fecha.split('-').map(Number);
         state.calendarioMes = new Date(y, m - 1, 1);
-        bindCalendarDrawer();
+        renderCalendarioDocente();
+        showToast('Evento publicado', `Los alumnos de ${materia} ya pueden verlo en su calendario.`);
+      }
+
+      function actualizarEventoDocente(id, { materia, fecha, horario, tipo, subtitulo, descripcion }) {
+        if (!window.CalendarioStore) return;
+        window.CalendarioStore.actualizar(id, {
+          fecha, hora: horario, tipo, materia, descripcion,
+          titulo: _buildTitulo({ subtitulo, materia, descripcion })
+        });
+        const [y, m] = fecha.split('-').map(Number);
+        state.calendarioMes = new Date(y, m - 1, 1);
+        renderCalendarioDocente();
+        showToast('Evento actualizado', 'Los alumnos verán los cambios en su calendario.');
       }
 
       // --- Material: drag & drop, browse, listado ---

@@ -1106,6 +1106,8 @@
 
   <!-- Datos de los módulos del proyecto -->
   <script src="js/admin/modulos.js"></script>
+  <!-- Store compartido del calendario académico (alumno, docente, delegado, admin) -->
+  <script src="js/calendario-store.js"></script>
 
   <!--
     ================================================================
@@ -1283,6 +1285,240 @@
       }
     }
 
+    /* ------------------------------------------------------------
+       CALENDARIO ACADÉMICO — CRUD compartido con docente / delegado
+    ------------------------------------------------------------ */
+    let calendarioBase = [];     // del JSON (calendario.json)
+    let calendarioTipos = [];    // tipos definidos en el JSON
+
+    async function loadCalendarioFromJSON() {
+      try {
+        const res = await fetch('json/calendario.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        calendarioBase = Array.isArray(data.eventos_calendario) ? data.eventos_calendario : [];
+        calendarioTipos = Array.isArray(data.tipos) ? data.tipos : [];
+      } catch (err) {
+        console.warn('No se pudo cargar calendario.json:', err);
+        calendarioBase = [];
+        calendarioTipos = [];
+      }
+    }
+
+    function calendarioMerged() {
+      if (!window.CalendarioStore) return calendarioBase.map(ev => ({ ...ev, origen: 'base' }));
+      return window.CalendarioStore.mergeWithBase(calendarioBase);
+    }
+
+    function calendarioRolUser() {
+      return (admin.rol || '').toLowerCase();
+    }
+
+    function tipoNombre(id) {
+      return window.CalendarioStore?.tipoInfo(id)?.nombre || (id ? id.charAt(0).toUpperCase() + id.slice(1) : 'Evento');
+    }
+
+    function rolEtiqueta(rol) {
+      const map = { docente: 'Docente', delegado: 'Delegado', admin: 'Admin', administrador: 'Admin' };
+      return map[(rol || '').toLowerCase()] || '';
+    }
+
+    function renderCalendarioAdmin() {
+      const rol = calendarioRolUser();
+      const puedeCrear = window.CalendarioStore?.puedeCrear(rol) || false;
+      const tiposPermitidos = window.CalendarioStore?.tiposPermitidos(rol) || [];
+      const eventos = calendarioMerged()
+        .slice()
+        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+      const headerLabel = rol === 'admin' || rol === 'administrador'
+        ? 'Control total del calendario académico (todos los eventos)'
+        : rol === 'docente'
+          ? 'Agendá exámenes, parciales y fechas de TPs para tus materias'
+          : 'Agendá actividades del Centro de Estudiantes';
+
+      const formHTML = puedeCrear ? `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+          <div style="flex:1;min-width:220px;">
+            <strong style="display:block;margin-bottom:.35rem;color:#1A1D4A;">${headerLabel}</strong>
+            <span style="color:#5a5d6e;font:500 .9rem 'Manrope',sans-serif">Lo que cargues acá se verá automáticamente en el calendario de los alumnos.</span>
+          </div>
+          <button class="btn btn-primary" id="toggleCalForm">+ Nuevo evento</button>
+        </div>
+
+        <div id="calFormWrapper" style="display:none;margin-bottom:1.5rem;border:1px solid rgba(143,163,227,.25);border-radius:16px;padding:1rem;background:#fff;">
+          <form id="calEventForm" class="admin-form">
+            <div class="admin-form__row">
+              <label>Título
+                <input type="text" name="titulo" required placeholder="Ej: Parcial Programación I — Comisión A">
+              </label>
+              <label>Tipo
+                <select name="tipo" required>
+                  ${tiposPermitidos.map(t => `<option value="${t.id}">${t.nombre}</option>`).join('')}
+                </select>
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Fecha
+                <input type="date" name="fecha" required>
+              </label>
+              <label>Horario (opcional)
+                <input type="time" name="hora">
+              </label>
+            </div>
+            <div class="admin-form__row">
+              <label>Materia / Carrera (opcional)
+                <input type="text" name="materia" placeholder="Ej: Programación I">
+              </label>
+              <label>Descripción (opcional)
+                <input type="text" name="descripcion" placeholder="Ej: Unidades 1 a 3">
+              </label>
+            </div>
+            <div class="admin-form__row" style="align-items:center;">
+              <div style="flex:1"></div>
+              <button type="submit" class="admin-form__submit">Guardar evento</button>
+            </div>
+          </form>
+        </div>
+      ` : `
+        <div style="background:#fff;border:1px dashed rgba(143,163,227,.45);border-radius:10px;padding:1rem;margin-bottom:1.2rem;color:#5a5d6e;font:500 .88rem 'Manrope',sans-serif;">
+          Tu rol no tiene permitido crear eventos en el calendario.
+        </div>
+      `;
+
+      const eventosHTML = eventos.length ? eventos.map(ev => {
+        const sesion = { id: admin.id, rol: admin.rol };
+        const puedeEditar = window.CalendarioStore?.puedeEditar(ev, sesion) || false;
+        const fechaFmt = new Date(ev.fecha + 'T00:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+        const horaTxt = ev.hora ? ` · ${ev.hora} hs` : '';
+        const origenTxt = ev.origen === 'base'
+          ? `<span style="background:rgba(143,163,227,.18);color:#2C3E87;padding:2px 8px;border-radius:6px;font:600 .68rem Manrope,sans-serif;letter-spacing:.06em;text-transform:uppercase;">Base institucional</span>`
+          : `<span style="background:${ev.color}20;color:${ev.color};padding:2px 8px;border-radius:6px;font:600 .68rem Manrope,sans-serif;letter-spacing:.06em;text-transform:uppercase;">Publicado</span>`;
+        const autorTxt = ev.creado_por_nombre
+          ? `<span style="color:#6c6f80;font:500 .78rem Manrope,sans-serif;">por ${ev.creado_por_nombre}${rolEtiqueta(ev.creado_por_rol) ? ` · ${rolEtiqueta(ev.creado_por_rol)}` : ''}</span>`
+          : `<span style="color:#6c6f80;font:500 .78rem Manrope,sans-serif;">Calendario institucional</span>`;
+
+        const acciones = [];
+        if (puedeEditar && ev.origen !== 'base') {
+          acciones.push(`<button class="btn btn-secondary btn-sm" data-cal-action="edit" data-cal-id="${ev.id}">Editar</button>`);
+        }
+        if (puedeEditar) {
+          acciones.push(`<button class="btn btn-secondary btn-sm" data-cal-action="delete" data-cal-id="${ev.id || ''}" data-cal-base="${ev.origen === 'base' ? '1' : '0'}" data-cal-key="${ev.fecha}|${ev.titulo}" style="background:#E67E5B;border-color:#E67E5B;color:#fff;">Eliminar</button>`);
+        }
+
+        return `
+          <div class="modulo-item" style="padding:1rem;display:flex;flex-direction:column;gap:.7rem;border-left:4px solid ${ev.color};">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;">
+              <div>
+                <p class="modulo-item__titulo">${ev.titulo}</p>
+                <p class="modulo-item__detalle">${fechaFmt}${horaTxt} · ${tipoNombre(ev.tipo)}</p>
+                ${ev.descripcion ? `<p style="margin:.3rem 0 0;font:400 .82rem 'Manrope',sans-serif;color:#5a5d6e;">${ev.descripcion}</p>` : ''}
+              </div>
+              ${origenTxt}
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
+              ${autorTxt}
+              <div style="display:flex;gap:.45rem;flex-wrap:wrap;">${acciones.join('')}</div>
+            </div>
+          </div>
+        `;
+      }).join('') : '<p style="padding:1.2rem;color:#8a8d9c;font-family:Manrope,sans-serif">No hay eventos en el calendario todavía.</p>';
+
+      return `
+        <p class="modulo-descripcion">Eventos académicos visibles en el calendario de todos los perfiles. Combina los del calendario institucional (base) con los cargados por docentes, delegados y administradores.</p>
+        ${formHTML}
+        <div class="modulo-list">${eventosHTML}</div>
+      `;
+    }
+
+    function bindCalendarioAdmin() {
+      const toggleBtn = document.getElementById('toggleCalForm');
+      const formWrapper = document.getElementById('calFormWrapper');
+      const form = document.getElementById('calEventForm');
+
+      if (toggleBtn && formWrapper) {
+        toggleBtn.addEventListener('click', () => {
+          const visible = formWrapper.style.display === 'block';
+          formWrapper.style.display = visible ? 'none' : 'block';
+          toggleBtn.textContent = visible ? '+ Nuevo evento' : 'Ocultar formulario';
+        });
+      }
+
+      if (form) {
+        form.addEventListener('submit', e => {
+          e.preventDefault();
+          const data = new FormData(form);
+          const editingId = form.dataset.editing ? Number(form.dataset.editing) : null;
+          const payload = {
+            titulo: data.get('titulo').trim(),
+            fecha: data.get('fecha'),
+            hora: data.get('hora') || '',
+            tipo: data.get('tipo'),
+            materia: data.get('materia')?.trim() || '',
+            descripcion: data.get('descripcion')?.trim() || ''
+          };
+          if (editingId) {
+            window.CalendarioStore.actualizar(editingId, payload);
+            auditar('editar', 'calendario', `Evento editado: ${payload.titulo}`);
+            showToast('Evento actualizado', 'Los alumnos verán los cambios en su calendario.');
+            delete form.dataset.editing;
+          } else {
+            const autor = { id: admin.id, nombre: admin.nombre, rol: admin.rol };
+            window.CalendarioStore.crear(payload, autor);
+            auditar('crear', 'calendario', `Evento agregado: ${payload.titulo}`);
+            showToast('Evento publicado', 'Aparece en el calendario de todos los alumnos.');
+          }
+          form.reset();
+          if (formWrapper) formWrapper.style.display = 'none';
+          if (toggleBtn) toggleBtn.textContent = '+ Nuevo evento';
+          navigateTo('mod-calendario');
+        });
+      }
+
+      document.querySelectorAll('[data-cal-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.calAction;
+          const id = btn.dataset.calId ? Number(btn.dataset.calId) : null;
+          const esBase = btn.dataset.calBase === '1';
+
+          if (action === 'edit' && id) {
+            const ev = window.CalendarioStore.getCreados().find(x => x.id === id);
+            if (!ev || !form) return;
+            formWrapper.style.display = 'block';
+            if (toggleBtn) toggleBtn.textContent = 'Ocultar formulario';
+            form.querySelector('[name="titulo"]').value = ev.titulo;
+            form.querySelector('[name="tipo"]').value = ev.tipo;
+            form.querySelector('[name="fecha"]').value = ev.fecha;
+            form.querySelector('[name="hora"]').value = ev.hora || '';
+            form.querySelector('[name="materia"]').value = ev.materia || '';
+            form.querySelector('[name="descripcion"]').value = ev.descripcion || '';
+            form.dataset.editing = String(ev.id);
+            formWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+
+          if (action === 'delete') {
+            if (esBase) {
+              const key = btn.dataset.calKey;
+              const [fecha, ...tituloParts] = key.split('|');
+              const titulo = tituloParts.join('|');
+              if (!window.confirm(`¿Ocultar el evento institucional "${titulo}" (${fecha}) del calendario de los alumnos?`)) return;
+              window.CalendarioStore.eliminarBase({ fecha, titulo });
+              auditar('eliminar', 'calendario', `Evento base oculto: ${titulo}`);
+              showToast('Evento ocultado', 'Ya no aparece en el calendario de los alumnos.', '#E67E5B');
+            } else if (id) {
+              const ev = window.CalendarioStore.getCreados().find(x => x.id === id);
+              if (!ev) return;
+              if (!window.confirm(`¿Eliminar el evento "${ev.titulo}"?`)) return;
+              window.CalendarioStore.eliminar(id);
+              auditar('eliminar', 'calendario', `Evento eliminado: ${ev.titulo}`);
+              showToast('Evento eliminado', 'Ya no aparece en el calendario de los alumnos.', '#E67E5B');
+            }
+            navigateTo('mod-calendario');
+          }
+        });
+      });
+    }
+
     function formatDateTime(isoDate) {
       const date = new Date(isoDate);
       return date.toLocaleString('es-AR', {
@@ -1458,6 +1694,7 @@
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
       if (key === 'mod-novedades') bindNovedadesDrawer();
       if (key === 'mod-eventos') bindEventosDrawer();
+      if (key === 'mod-calendario') bindCalendarioAdmin();
       if (key === 'perfil') bindPerfilSection();
       // Active state en el menú
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('is-active'));
@@ -1607,19 +1844,25 @@
     };
 
     if (isAdminUser) {
-      await Promise.all([loadReglamentacionFromJSON(), loadEventosFromJSON()]);
+      await Promise.all([loadReglamentacionFromJSON(), loadEventosFromJSON(), loadCalendarioFromJSON()]);
     } else {
-      await loadEventosFromJSON();
+      await Promise.all([loadEventosFromJSON(), loadCalendarioFromJSON()]);
     }
 
     // Registrar secciones de los módulos del proyecto
     Object.keys(modulosData).forEach(key => {
       if (key === 'mod-reglamentacion' && !isAdminUser) return;
-      sectionContent[key] = () => ({
-        title: modulosData[key].titulo,
-        icon: modulosData[key].icono,
-        html: key === 'mod-eventos' ? renderEventosAdmin() : renderModuloListado(key)
-      });
+      sectionContent[key] = () => {
+        let html;
+        if (key === 'mod-eventos') html = renderEventosAdmin();
+        else if (key === 'mod-calendario') html = renderCalendarioAdmin();
+        else html = renderModuloListado(key);
+        return {
+          title: modulosData[key].titulo,
+          icon: modulosData[key].icono,
+          html
+        };
+      };
     });
 
     sectionContent['mod-novedades'] = () => ({
