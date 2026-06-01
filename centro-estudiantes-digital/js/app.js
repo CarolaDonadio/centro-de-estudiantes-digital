@@ -219,6 +219,8 @@ async function init() {
     bindDrawerControls();
     bindNotifications();
     bindReglamentacionSearch();
+    bindSidebarToggle();
+    bindHeaderNavToggle();
   } catch (err) {
     console.error('Error en init():', err);
   }
@@ -704,6 +706,63 @@ function bindDrawerControls() {
   $('#drawerOverlay').addEventListener('click', closeDrawer);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeDrawer();
+  });
+}
+
+/**
+ * Lógica del menú hamburguesa para móviles
+ */
+function bindSidebarToggle() {
+  const toggle = $('#sidebarToggle');
+  const body = document.body;
+  
+  // Crear overlay si no existe
+  let overlay = $('.sidebar-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    body.appendChild(overlay);
+  }
+
+  const closeSidebar = () => {
+    body.classList.remove('sidebar--open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    body.style.overflow = '';
+  };
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = body.classList.toggle('sidebar--open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    // Bloquear scroll del body si está abierto ("sin scrolling interno")
+    body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+}
+
+/**
+ * Lógica del menú hamburguesa del header (notificaciones, trámites, etc.)
+ */
+function bindHeaderNavToggle() {
+  const toggle = $('#headerNavToggle');
+  const nav = $('.header__nav');
+  
+  if (!toggle || !nav) return;
+
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = nav.classList.toggle('header__nav--open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  // Cerrar al hacer click fuera si está abierto
+  document.addEventListener('click', (e) => {
+    if (nav.classList.contains('header__nav--open')) {
+      if (!nav.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+        nav.classList.remove('header__nav--open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    }
   });
 }
 
@@ -1599,6 +1658,14 @@ function bindNavigation() {
         $('#logoutModal').classList.add('is-open');
         return;
       }
+
+      // Cerrar sidebar en móvil al seleccionar una opción
+      if (window.innerWidth <= 720 && document.body.classList.contains('sidebar--open')) {
+        document.body.classList.remove('sidebar--open');
+        $('#sidebarToggle')?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
       const target = btn.dataset.drawer;
       if (!target) return;
       if (state.drawerActivo === target) {

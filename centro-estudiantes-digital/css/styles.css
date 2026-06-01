@@ -147,6 +147,34 @@ ul {
   z-index: 70;
 }
 
+/* --- Botón Hamburguesa Side (móvil) --- */
+.sidebar-toggle .icon-close { display: none; }
+.sidebar--open .sidebar-toggle .icon-menu { display: none; }
+.sidebar--open .sidebar-toggle .icon-close { display: block; }
+
+/* --- Botón Hamburguesa Header (móvil) --- */
+.header-nav-toggle .icon-close { display: none; }
+.header-nav-toggle[aria-expanded="true"] .icon-menu { display: none; }
+.header-nav-toggle[aria-expanded="true"] .icon-close { display: block; }
+
+/* --- Overlay de Sidebar --- */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 25, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 65;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-med);
+}
+
+.sidebar--open .sidebar-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Logo del instituto */
 .sidebar__logo {
   width: 58px;
@@ -348,6 +376,7 @@ ul {
   padding: 14px 26px;
   background: var(--surface-tint);
   backdrop-filter: blur(10px);
+  position: relative;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   margin-bottom: 24px;
@@ -457,6 +486,29 @@ ul {
   transition: transform var(--t-fast), box-shadow var(--t-fast);
   margin-left: 6px;
 }
+
+.sidebar-toggle:hover {
+  background: var(--brand-100);
+  transform: translateY(-1px);
+}
+
+/* Botón Hamburguesa Sidebar (móvil) */
+.sidebar-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  color: var(--brand-700);
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sh-sm);
+  transition: all var(--t-fast);
+  margin-right: 12px;
+}
+
+.sidebar-toggle svg { width: 22px; height: 22px; }
+.sidebar-toggle .icon-close { display: none; }
 
 .bell-btn svg {
   width: 20px;
@@ -2025,22 +2077,99 @@ ul {
 
 @media (max-width: 720px) {
   :root {
-    --sidebar-w: 72px;
+    --sidebar-w: 0px; /* Liberamos el espacio lateral en móviles */
+  }
+
+  body {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    transform: translateX(-110%);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.3, 1);
+    z-index: 100;
+    width: 86px;
+    border-radius: 0 var(--r-xl) var(--r-xl) 0;
+  }
+
+  .sidebar--open .sidebar {
+    transform: translateX(0);
   }
 
   .main {
-    padding: 16px;
+    grid-column: 1;
+    padding: 16px 14px;
   }
 
   .header {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 16px;
+    padding: 12px 18px;
+    gap: 12px;
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .sidebar-toggle {
+    display: flex !important;
+    grid-column: 1;
+    grid-row: 1;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header__greeting {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
   .header__nav {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .header__link {
+    padding: 8px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+    border-radius: 8px;
+    background: var(--brand-100);
+    color: var(--brand-700);
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+
+  .header__title {
+    font-size: 16px;
+  }
+
+  .header__subtitle {
+    display: none; /* Ocultamos la línea de contexto en móvil */
+  }
+
+  .header-nav-toggle {
+    display: none;
+  }
+
+  .bell-btn {
+    margin-left: auto;
   }
 
   .events-grid {
@@ -2065,6 +2194,17 @@ ul {
     left: 0;
     width: 100%;
     border-radius: 0;
+  }
+
+  .drawer-overlay {
+    left: 0;
+  }
+
+  .section--reglamentacion .doc-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    text-align: left;
   }
 }
 

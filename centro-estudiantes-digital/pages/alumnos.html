@@ -148,6 +148,14 @@
     -->
     <header class="header" data-animate="fade-down">
 
+      <!-- Botón Hamburguesa para Sidebar (solo móvil) -->
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12h18M3 6h18M3 18h18" class="icon-menu" stroke-linecap="round"/>
+          <path d="M18 6L6 18M6 6l12 12" class="icon-close" stroke-linecap="round"/>
+        </svg>
+      </button>
+
       <div class="header__greeting">
         <!-- Avatar con iniciales generado dinámicamente -->
         <div class="avatar" id="userAvatar" aria-hidden="true">..</div>
@@ -161,6 +169,14 @@
           </p>
         </div>
       </div>
+
+      <!-- Botón Hamburguesa para Acciones del Header (solo móvil) -->
+      <button class="header-nav-toggle" id="headerNavToggle" aria-label="Abrir acciones" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12h18M3 6h18M3 18h18" class="icon-menu" stroke-linecap="round"/>
+          <path d="M18 6L6 18M6 6l12 12" class="icon-close" stroke-linecap="round"/>
+        </svg>
+      </button>
 
       <!-- Nav principal del header (secciones institucionales) -->
       <nav class="header__nav" aria-label="Secciones institucionales">
