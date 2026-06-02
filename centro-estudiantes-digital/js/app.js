@@ -347,16 +347,13 @@ function renderEvents() {
   $$('.event-card__cta', cont).forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();              // que no abra el drawer
-      const id = Number(btn.dataset.eventId);
+      const id = btn.dataset.eventId;
+      console.log('Intentando inscribirse al evento ID:', id);
       inscribirseEvento(id);
     });
   });
-
-  // Click en el cuerpo de la tarjeta abre el drawer del Centro Estudiantil (gestiona eventos)
-  $$('.event-card', cont).forEach(el => {
-    el.addEventListener('click', () => openDrawer('centro'));
-  });
 }
+
 
 /**
  * Genera el HTML de una tarjeta individual de evento.
@@ -425,7 +422,20 @@ function buildEventCardHTML(ev) {
  */
 async function inscribirseEvento(id) {
   const ev = state.eventos.eventos.find(x => x.id === id);
-  if (!ev || state.inscripciones.has(id) || ev.inscriptos >= ev.cupo) return;
+  console.log('Evento encontrado para inscripción:', ev);
+  console.log('Estado de inscripciones antes de intentar inscribir:', Array.from(state.inscripciones));
+  if (!ev) {
+    alert('No se encontró el evento.');
+    return;
+  }
+  if (state.inscripciones.has(id)) {
+    alert('Ya estás inscripto a este evento.');
+    return;
+  }
+  if (ev.inscriptos >= ev.cupo) {
+    alert('No hay cupo disponible para este evento.');
+    return;
+  }
 
   try {
     // Agregamos el ID del usuario a la lista dentro del evento
@@ -451,6 +461,8 @@ async function inscribirseEvento(id) {
     if (state.drawerActivo === 'centro') {
       renderCentro($('#drawerBody'));
     }
+
+    alert('te inscribiste exitosamente');
   } catch (err) {
     console.error('Error al inscribirse al evento:', err);
     alert('No se pudo completar la inscripción en este momento. Intente más tarde.');
