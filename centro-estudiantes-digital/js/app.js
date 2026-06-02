@@ -420,20 +420,35 @@ function buildEventCardHTML(ev) {
  * Lógica central de inscripción a un evento.
  * Actualiza el estado y refresca todas las vistas que muestren eventos.
  */
+function showToast(message, type = 'success') {
+  const toast = $('#toastMessage');
+  const text = $('#toastMessageText');
+  if (!toast || !text) {
+    window.alert(message);
+    return;
+  }
+
+  toast.classList.remove('toast-message--success', 'toast-message--error', 'toast-message--warn');
+  toast.classList.add(`toast-message--${type}`);
+  text.textContent = message;
+  toast.classList.add('is-visible');
+
+  clearTimeout(toast._toastTimer);
+  toast._toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3600);
+}
+
 async function inscribirseEvento(id) {
   const ev = state.eventos.eventos.find(x => x.id === id);
-  console.log('Evento encontrado para inscripción:', ev);
-  console.log('Estado de inscripciones antes de intentar inscribir:', Array.from(state.inscripciones));
   if (!ev) {
-    alert('No se encontró el evento.');
+    showToast('No se encontró el evento.', 'error');
     return;
   }
   if (state.inscripciones.has(id)) {
-    alert('Ya estás inscripto a este evento.');
+    showToast('Ya estás inscripto a este evento.', 'warn');
     return;
   }
   if (ev.inscriptos >= ev.cupo) {
-    alert('No hay cupo disponible para este evento.');
+    showToast('No hay cupo disponible para este evento.', 'error');
     return;
   }
 
@@ -445,13 +460,13 @@ async function inscribirseEvento(id) {
     }
 
     const inscriptosActualizados = (ev.inscriptos || 0) + 1;
-    
-    await Eventos.actualizar(id, { 
-      ...ev, 
+
+    await Eventos.actualizar(id, {
+      ...ev,
       inscriptos: inscriptosActualizados,
-      usuarios_inscriptos: usuariosActualizados 
+      usuarios_inscriptos: usuariosActualizados
     });
-    
+
     ev.inscriptos = inscriptosActualizados;
     ev.usuarios_inscriptos = usuariosActualizados;
     state.inscripciones.add(id);
@@ -462,10 +477,10 @@ async function inscribirseEvento(id) {
       renderCentro($('#drawerBody'));
     }
 
-    alert('te inscribiste exitosamente');
+    showToast('Te inscribiste exitosamente', 'success');
   } catch (err) {
     console.error('Error al inscribirse al evento:', err);
-    alert('No se pudo completar la inscripción en este momento. Intente más tarde.');
+    showToast('No se pudo completar la inscripción en este momento. Intente más tarde.', 'error');
   }
 }
 
