@@ -13,14 +13,14 @@
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
 const API = {
-  usuario: 'json/usuario.json',
-  novedades: 'json/novedades.json',
-  eventos: 'json/eventos.json',
-  calendario: 'json/calendario.json',
-  reglamentacion: 'json/reglamentacion.json',
-  notificaciones: 'json/notificaciones.json',
-  carreras: 'json/carreras.json',
-  materias: 'json/materias.json',
+  usuario: '../json/usuario.json',
+  novedades: '../json/novedades.json',
+  eventos: '../json/eventos.json',
+  calendario: '../json/calendario.json',
+  reglamentacion: '../json/reglamentacion.json',
+  notificaciones: '../json/notificaciones.json',
+  carreras: '../json/carreras.json',
+  materias: '../json/materias.json',
 };
 
 /* ----------------------------------------------------------------
@@ -41,7 +41,7 @@ async function fetchJSON(url) {
   } catch (err) {
     console.warn(`[API Mock] No se pudo cargar ${url}. Verificá que estés corriendo un servidor local.`, err);
     // Devolvemos el fallback desde window si existe (por si no hay servidor)
-    const key = url.replace('json/', '').replace('.json', '');
+    const key = url.replace('../json/', '').replace('.json', '');
     return window.__FALLBACK_DATA__?.[key] || null;
   }
 }
@@ -149,41 +149,80 @@ const state = {
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
-  // Cargamos todo en paralelo desde la "API Mock"
-  const [usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias] = await Promise.all([
-    fetchJSON(API.usuario),
-    fetchJSON(API.novedades),
-    fetchJSON(API.eventos),
-    fetchJSON(API.calendario),
-    fetchJSON(API.reglamentacion),
-    fetchJSON(API.notificaciones),
-    fetchJSON(API.carreras),
-    fetchJSON(API.materias),
-  ]);
+  try {
+    const [usuario, novedadesAPI, dataNovedadesJSON, eventosAPI, calendarioAPI, dataCalendarioJSON, reglamentacionAPI, notificacionesAPI, carrerasAPI, materias] = await Promise.all([
+      fetchJSON(API.usuario),
+      Novedades.listar(),
+      fetchJSON(API.novedades),
+      Eventos.listar(), // Carga eventos desde la API
+      Calendario.listar(), // Carga calendario desde la API
+      fetchJSON(API.calendario), // Mantenemos el JSON para obtener los 'tipos' (categorías con colores)
+      Reglamentacion.listar().catch(() => []), // Carga reglamentación desde la API (asumiendo que devuelve un array)
+      Notificaciones.listar(), // Carga notificaciones desde la API
+      Carreras.listar(),
+      fetchJSON(API.materias)
+    ]);
 
-  Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras, materias });
+    const categorias = dataNovedadesJSON?.categorias || [];
+    const novedades = {
+      novedades: (novedadesAPI || []).map(n => ({
+        ...n,
+        categoria: categorias.find(c => c.id == n.categoria_id)?.nombre || 'General',
+        // Normalizar fecha para el Alumno
+        fecha: n.fecha || n.created_at
+      })),
+      categorias
+    };
 
-  // Aseguramos que el contador de notificaciones sin leer en el usuario sea coherente con el JSON de notificaciones
-  if (state.notificaciones && state.notificaciones.notificaciones) {
-    const initialUnreadCount = state.notificaciones.notificaciones.filter(n => !n.leida).length;
-    if (state.usuario) {
-      state.usuario.notificaciones_sin_leer = initialUnreadCount;
+    // Preparamos el objeto de eventos con el formato que espera el resto de app.js
+    const eventos = {
+      eventos: eventosAPI || []
+    };
+
+    // Preparamos el objeto de calendario mezclando los eventos de la API con los tipos del JSON
+    const calendario = {
+      eventos_calendario: calendarioAPI || [],
+      tipos: dataCalendarioJSON?.tipos || []
+    };
+
+    // Preparamos el objeto de reglamentacion con el formato que espera el resto de app.js
+    const reglamentacion = { documentos: reglamentacionAPI || [] };
+    // Preparamos el objeto de notificaciones con el formato que espera el resto de app.js
+    const notificaciones = { notificaciones: notificacionesAPI || [] };
+
+    Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras: carrerasAPI, materias });
+
+    // Cargar inscripciones previas del usuario
+    if (usuario && eventosAPI && Array.isArray(eventosAPI)) {
+      eventosAPI.forEach(ev => {
+        if (ev.usuarios_inscriptos && Array.isArray(ev.usuarios_inscriptos)) {
+          if (ev.usuarios_inscriptos.includes(usuario.id)) {
+            state.inscripciones.add(ev.id);
+          }
+        }
+      });
     }
+
+    if (state.notificaciones?.notificaciones) {
+      const initialUnreadCount = state.notificaciones.notificaciones.filter(n => !n.leida).length;
+      if (state.usuario) state.usuario.notificaciones_sin_leer = initialUnreadCount;
+    }
+
+    renderUserHeader();
+    renderCareerCard();
+    renderEvents();
+    renderNewsFilters();
+    renderNewsList();
+    renderReglamentacion();
+
+    bindNavigation();
+    bindDrawerControls();
+    bindNotifications();
+    bindReglamentacionSearch();
+    bindSidebarToggle();
+  } catch (err) {
+    console.error('Error en init():', err);
   }
-
-  // Renderizamos las secciones del dashboard
-  renderUserHeader();
-  renderCareerCard();
-  renderEvents();
-  renderNewsFilters();
-  renderNewsList();
-  renderReglamentacion();
-
-  // Bindeamos los eventos de UI
-  bindNavigation();
-  bindDrawerControls();
-  bindNotifications();
-  bindReglamentacionSearch();
 }
 
 /* ----------------------------------------------------------------
@@ -239,9 +278,12 @@ function renderUserHeader() {
 ---------------------------------------------------------------- */
 function renderCareerCard() {
   const u = state.usuario;
-  if (!u) return;
+  if (!u || !state.carreras) return;
 
-  $('#userCareer').textContent = u.carrera;
+  // Buscar el nombre de la carrera en los datos de la API
+  const carreraObj = state.carreras.find(c => c.id == u.carrera_id);
+  $('#userCareer').textContent = carreraObj ? carreraObj.nombre : u.carrera;
+
   $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2, '0');
   $('#materiasTotales').textContent = u.materias_totales;
 
@@ -381,18 +423,37 @@ function buildEventCardHTML(ev) {
  * Lógica central de inscripción a un evento.
  * Actualiza el estado y refresca todas las vistas que muestren eventos.
  */
-function inscribirseEvento(id) {
+async function inscribirseEvento(id) {
   const ev = state.eventos.eventos.find(x => x.id === id);
   if (!ev || state.inscripciones.has(id) || ev.inscriptos >= ev.cupo) return;
 
-  // Actualizamos el modelo
-  ev.inscriptos++;
-  state.inscripciones.add(id);
+  try {
+    // Agregamos el ID del usuario a la lista dentro del evento
+    const usuariosActualizados = ev.usuarios_inscriptos || [];
+    if (!usuariosActualizados.includes(state.usuario.id)) {
+      usuariosActualizados.push(state.usuario.id);
+    }
 
-  // Refrescamos la home y, si está abierto el drawer del centro, también lo actualizamos
-  renderEvents();
-  if (state.drawerActivo === 'centro') {
-    renderCentro($('#drawerBody'));
+    const inscriptosActualizados = (ev.inscriptos || 0) + 1;
+    
+    await Eventos.actualizar(id, { 
+      ...ev, 
+      inscriptos: inscriptosActualizados,
+      usuarios_inscriptos: usuariosActualizados 
+    });
+    
+    ev.inscriptos = inscriptosActualizados;
+    ev.usuarios_inscriptos = usuariosActualizados;
+    state.inscripciones.add(id);
+
+    // Refrescamos la home y, si está abierto el drawer del centro, también lo actualizamos
+    renderEvents();
+    if (state.drawerActivo === 'centro') {
+      renderCentro($('#drawerBody'));
+    }
+  } catch (err) {
+    console.error('Error al inscribirse al evento:', err);
+    alert('No se pudo completar la inscripción en este momento. Intente más tarde.');
   }
 }
 
@@ -417,14 +478,14 @@ function renderNewsFilters() {
         <label for="newsCareerFilter">Filtrar por Carrera</label>
         <select id="newsCareerFilter" class="filter-select">
           <option value="todas">Todas las carreras</option>
-          ${careers.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('')}
+          ${careers.map(c => `<option value="${c.id}">${c.codigo || c.nombre}</option>`).join('')}
         </select>
       </div>
       <div class="filter-group">
         <label for="newsSubjectFilter">Filtrar por Materia</label>
         <select id="newsSubjectFilter" class="filter-select">
           <option value="todas">Todas las materias</option>
-          ${subjects.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')}
+          ${subjects.map(s => `<option value="${s.nombre}">${s.nombre}</option>`).join('')}
         </select>
       </div>
       <div class="news-filters__dates">
@@ -494,10 +555,12 @@ function renderNewsList() {
     lista = lista.filter(n => String(n.categoria_id) === state.filtroNovedad);
   }
   if (state.filtroCarrera !== 'todas') {
-    lista = lista.filter(n => String(n.carrera_id) === state.filtroCarrera);
+    // Si carrera_id es null, es para todas
+    lista = lista.filter(n => n.carrera_id === null || String(n.carrera_id) === state.filtroCarrera);
   }
   if (state.filtroMateria !== 'todas') {
-    lista = lista.filter(n => String(n.materia_id) === state.filtroMateria);
+    // Filtrar por el nombre de la materia (string) que viene de la API o del form de admin
+    lista = lista.filter(n => n.materia === state.filtroMateria);
   }
   if (state.filtroFechaDesde) {
     lista = lista.filter(n => new Date(n.fecha) >= new Date(state.filtroFechaDesde));
@@ -643,6 +706,37 @@ function bindDrawerControls() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeDrawer();
   });
+}
+
+/**
+ * Lógica del menú hamburguesa para móviles
+ */
+function bindSidebarToggle() {
+  const toggle = $('#sidebarToggle');
+  const body = document.body;
+  
+  // Crear overlay si no existe
+  let overlay = $('.sidebar-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    body.appendChild(overlay);
+  }
+
+  const closeSidebar = () => {
+    body.classList.remove('sidebar--open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    body.style.overflow = '';
+  };
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = body.classList.toggle('sidebar--open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    // Bloquear scroll del body si está abierto ("sin scrolling interno")
+    body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  overlay.addEventListener('click', closeSidebar);
 }
 
 /* ----------------------------------------------------------------
@@ -1537,6 +1631,14 @@ function bindNavigation() {
         $('#logoutModal').classList.add('is-open');
         return;
       }
+
+      // Cerrar sidebar en móvil al seleccionar una opción
+      if (window.innerWidth <= 720 && document.body.classList.contains('sidebar--open')) {
+        document.body.classList.remove('sidebar--open');
+        $('#sidebarToggle')?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
       const target = btn.dataset.drawer;
       if (!target) return;
       if (state.drawerActivo === target) {

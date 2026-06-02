@@ -358,3 +358,18 @@
   transform: translateX(-2px);
   color: var(--brand-700);
 }
+
+/* ----------------------------------------------------------------
+   5. RESPONSIVE
+---------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 32px 24px 28px;
+  }
+  .login-card__title {
+    font-size: 24px;
+  }
+  .login-card__logo {
+    width: 48px; height: 48px;
+  }
+}
