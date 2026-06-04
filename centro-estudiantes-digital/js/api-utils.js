@@ -68,35 +68,56 @@ async function renderCarrerasTable(contenedorId) {
   try {
     const carreras = await Carreras.listar();
     const contenedor = document.getElementById(contenedorId);
-    
+    if (!contenedor) return;
+
+    if (!carreras || carreras.length === 0) {
+      contenedor.innerHTML = `
+        <div class="notif-empty" style="margin-top:0; padding: 1.8rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
+          </svg>
+          <p>No hay carreras registradas.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const isAdmin = typeof window !== 'undefined' && window.isAdminUser;
     let html = `
-      <table class="tabla-carreras">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div class="table-wrapper">
+        <table class="tabla-carreras">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              ${isAdmin ? '<th>Acciones</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>
     `;
 
     carreras.forEach(carrera => {
       html += `
         <tr>
-          <td>${carrera.codigo}</td>
+          <td>${carrera.codigo || '—'}</td>
           <td>${carrera.nombre}</td>
-          <td>
-            <button onclick="editarCarrera(${carrera.id})" class="btn-editar">Editar</button>
-            <button onclick="eliminarCarrera(${carrera.id})" class="btn-eliminar">Eliminar</button>
-          </td>
+          <td>${carrera.descripcion ? carrera.descripcion : '—'}</td>
+          ${isAdmin ? `
+            <td class="table-actions">
+              <button type="button" class="btn-small" data-carrera-edit data-carrera-id="${carrera.id}" aria-label="Editar ${carrera.nombre}">Editar</button>
+              <button type="button" class="btn-small btn-small--danger" data-carrera-delete data-carrera-id="${carrera.id}" aria-label="Eliminar ${carrera.nombre}">Eliminar</button>
+            </td>
+          ` : ''}
         </tr>
       `;
     });
 
     html += `
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     `;
 
     contenedor.innerHTML = html;
