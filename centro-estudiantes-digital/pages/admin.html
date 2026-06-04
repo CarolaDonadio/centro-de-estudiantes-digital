@@ -1086,6 +1086,43 @@
           </button>
         </li>
 
+        <!-- Módulo 2: Novedades -->
+        <li>
+          <button class="nav-btn" data-drawer="mod-novedades" aria-label="Novedades">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/>
+              <path d="M14 2v6h6" stroke-linejoin="round"/>
+              <path d="M16 13H8M16 17H8M10 9H8" stroke-linecap="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Novedades</span>
+          </button>
+        </li>
+
+        <!-- Módulo 3: Calendario Académico -->
+        <li>
+          <button class="nav-btn" data-drawer="mod-calendario" aria-label="Calendario Académico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Calendario</span>
+          </button>
+        </li>
+
+        <!-- Módulo 5: Eventos -->
+        <li>
+          <button class="nav-btn" data-drawer="mod-eventos" aria-label="Eventos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke-linejoin="round"/>
+              <path d="M4 22v-7" stroke-linecap="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Eventos</span>
+          </button>
+        </li>
+
+        <!-- === SEPARADOR === -->
+        <li class="nav-separator" aria-hidden="true"><hr></li>
+
         <!-- 2) Usuarios y Roles -->
         <li data-admin-only>
           <button class="nav-btn" data-drawer="usuarios" aria-label="Usuarios y Roles">
@@ -1121,31 +1158,6 @@
             <span class="nav-btn__tooltip">Materias</span>
           </button>
         </li>
-        <!-- === MÓDULOS DEL PROYECTO === -->
-        <li class="nav-separator" aria-hidden="true"><hr></li>
-
-        <!-- Módulo 2: Novedades -->
-        <li>
-          <button class="nav-btn" data-drawer="mod-novedades" aria-label="Novedades">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/>
-              <path d="M14 2v6h6" stroke-linejoin="round"/>
-              <path d="M16 13H8M16 17H8M10 9H8" stroke-linecap="round"/>
-            </svg>
-            <span class="nav-btn__tooltip">Novedades</span>
-          </button>
-        </li>
-
-        <!-- Módulo 3: Calendario Académico -->
-        <li>
-          <button class="nav-btn" data-drawer="mod-calendario" aria-label="Calendario Académico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="3" y="4" width="18" height="18" rx="2"/>
-              <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
-            </svg>
-            <span class="nav-btn__tooltip">Calendario</span>
-          </button>
-        </li>
 
         <!-- Módulo 4: Reglamentación -->
         <li data-admin-only>
@@ -1155,17 +1167,6 @@
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke-linejoin="round"/>
             </svg>
             <span class="nav-btn__tooltip">Reglamentación</span>
-          </button>
-        </li>
-
-        <!-- Módulo 5: Eventos -->
-        <li>
-          <button class="nav-btn" data-drawer="mod-eventos" aria-label="Eventos">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke-linejoin="round"/>
-              <path d="M4 22v-7" stroke-linecap="round"/>
-            </svg>
-            <span class="nav-btn__tooltip">Eventos</span>
           </button>
         </li>
 
@@ -1677,16 +1678,13 @@
       });
 
       let calHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem">
-          <p class="modulo-descripcion" style="margin:0">Gestión de fechas de exámenes, feriados y periodos de inscripción.</p>
-          ${admin.rol !== 'delegado' ? `<button class="btn btn-primary" id="btnNewCalEvent">+ Cargar fecha</button>` : ''}
-        </div>
-        <div class="calendar-header">
+        <div class="calendar-layout"><div class="calendar-layout__grid"><div class="calendar-header">
           <button class="cal-nav-btn" id="prevMonthAdmin" aria-label="Mes anterior">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <h3 class="calendar-title">${meses[month]} ${year}</h3>
           <button class="cal-nav-btn" id="nextMonthAdmin" aria-label="Mes siguiente">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
       `;
@@ -1726,18 +1724,18 @@
           </div>
         `;
       }
-      calHTML += `</div></div>`;
+      calHTML += `</div></div></div>`;
 
       let eventosDelMesFlat = [];
       Object.keys(eventosDelMes).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dia => {
         eventosDelMes[dia].forEach(e => eventosDelMesFlat.push(e));
       });
 
-      calHTML += `<div class="calendar-event-list">`;
-      calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
+      calHTML += `<div class="calendar-layout__list"><div class="calendar-event-list">`;
+      calHTML += `<p class="drawer-section-label" style="margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: var(--brand-900, #1A1D4A);">Eventos de ${meses[month]}</p>`;
 
       if (eventosDelMesFlat.length === 0) {
-        calHTML += `<div class="notif-empty" style="margin-top:16px;">
+        calHTML += `<div class="notif-empty" style="margin-top:0;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="3" y="4" width="18" height="16" rx="2" />
               <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
@@ -1776,8 +1774,8 @@
           `;
         });
       }
-      calHTML += `</div>`;
-      return calHTML;
+      calHTML += `</div></div></div>`;
+      return `<div class="calendar-wrapper">${calHTML}</div>`;
     }
 
     function renderModuloListado(key) {
@@ -1845,7 +1843,10 @@
       if (!builder) return;
 
       const data = builder();
-      mainContent.innerHTML = `<h2 style="margin:0 0 1.2rem;font:700 1.4rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${data.title}</h2><div>${data.html}</div>`;
+      const tituloMb = data.subtitle ? '0' : '1.2rem';
+      const headerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin:0 0 ${tituloMb}"><h2 style="margin:0;font:700 1.4rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${data.title}</h2>${data.titleAction || ''}</div>`;
+      const subtituloHTML = data.subtitle ? `<p class="modulo-descripcion" style="margin:.25rem 0 1rem">${data.subtitle}</p>` : '';
+      mainContent.innerHTML = `${headerHTML}${subtituloHTML}<div>${data.html}</div>`;
       
       // Hooks por sección
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
@@ -2266,6 +2267,15 @@
       title: 'Novedades',
       icon: modulosData['mod-novedades'].icono,
       html: renderNovedadesAdmin()
+    });
+
+    // El calendario muestra el botón "Cargar fecha" alineado al título y la
+    // descripción como subtítulo, justo debajo del encabezado del módulo.
+    const buildCalendarioSection = sectionContent['mod-calendario'];
+    sectionContent['mod-calendario'] = () => ({
+      ...buildCalendarioSection(),
+      subtitle: 'Gestión de fechas de exámenes, feriados y periodos de inscripción.',
+      titleAction: admin.rol !== 'delegado' ? `<button class="btn btn-primary" id="btnNewCalEvent">+ Cargar fecha</button>` : ''
     });
 
     function profileItem(label, value, highlight = false) {

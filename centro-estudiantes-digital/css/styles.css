@@ -248,6 +248,22 @@ ul {
   margin-top: auto !important;
 }
 
+/* Separador entre grupos de botones: espacio simétrico arriba y abajo,
+   acorde al ritmo de gap entre los botones. */
+.nav-separator {
+  width: 32px;
+  margin: 4px 0;
+  list-style: none;
+}
+
+.nav-separator hr {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: none;
+  background: var(--border);
+}
+
 /* Botón individual minimalista */
 .nav-btn {
   position: relative;
@@ -1665,6 +1681,13 @@ ul {
 
 /* -------- Contenido: CALENDARIO en el drawer -------- */
 
+/* Wrapper para centrar el calendario y limitar su ancho en pantallas anchas */
+.calendar-wrapper {
+  max-width: 100%;
+  margin: 0 auto;
+  width: 100%;
+}
+
 /* Header: navegación de mes */
 .calendar-header {
   display: flex;
@@ -1706,8 +1729,8 @@ ul {
 /* New: Calendar Layout for side-by-side display */
 .calendar-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  /* Calendar grid on left, event list on right */
+  grid-template-columns: minmax(320px, 400px) 1fr;
+  /* Calendar grid on left (max 400px), event list on right (rest of space) */
   gap: 1.5rem;
   align-items: start;
   /* Align items to the top */

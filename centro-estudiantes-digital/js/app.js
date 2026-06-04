@@ -1480,7 +1480,7 @@ function renderCalendar(body) {
   }
   calHTML += `</div>`;
 
-  body.innerHTML = calHTML;
+  body.innerHTML = `<div class="calendar-wrapper">${calHTML}</div>`;
 
   // Bindings para navegar mes
   body.querySelector('#prevMonth').addEventListener('click', () => {
