@@ -1313,6 +1313,7 @@
     };
 
     const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
+    window.isAdminUser = isAdminUser;
 
     // Cargar usuarios desde API
     let usuariosJSON = [];
@@ -2461,43 +2462,41 @@
       const mod = modulosData['mod-carreras'];
       if (!mod) return '<p>Error cargando módulo</p>';
 
-      // Vista de solo lectura para Docente/Delegado
+      const filtroHtml = `
+        <div class="drawer__filters">
+          <input id="carrerasSearch" class="filter-input" type="text" placeholder="Buscar carrera por nombre o código…">
+        </div>
+      `;
+
       if (!isAdminUser) {
         return `
           <p class="modulo-descripcion">${mod.descripcion}</p>
-          <div style="margin-bottom:.8rem">
-            <input id="carrerasSearch" type="text" placeholder="Buscar carrera…" style="width:100%;padding:.65rem;border:1px solid rgba(143,163,227,.45);border-radius:10px">
-          </div>
-          <div id="carrerasTableContainer"></div>
+          ${filtroHtml}
+          <div id="carrerasTableContainer" class="table-wrapper"></div>
         `;
       }
 
-      // Vista Admin con Dashboard para nueva carrera
       return `
         <div class="drawer__tabs">
-          <button class="drawer__tab is-active" data-tab="lista">Lista</button>
-          <button class="drawer__tab" data-tab="nuevo">+ Nueva carrera</button>
+          <button class="drawer__tab is-active" data-tab="lista" type="button">Lista</button>
+          <button class="drawer__tab" data-tab="nuevo" type="button">+ Nueva carrera</button>
         </div>
         <div id="carrerasListPane">
           <p class="modulo-descripcion">${mod.descripcion}</p>
-          <div style="margin-bottom:.8rem">
-            <div style="display:flex;gap:.5rem;align-items:center">
-              <input id="carrerasSearch" type="text" placeholder="Buscar carrera por nombre o código…" style="flex:1;padding:.65rem;border:1px solid rgba(143,163,227,.45);border-radius:9px">
-            </div>
-          </div>
-          <div id="carrerasTableContainer"></div>
+          ${filtroHtml}
+          <div id="carrerasTableContainer" class="table-wrapper"></div>
         </div>
         <div id="carrerasNewPane" hidden>
           <form id="newCarreraForm" class="admin-form">
             <div class="admin-form__row">
-              <label>Nombre de la carrera
+              <label class="admin-form__field">Nombre de la carrera
                 <input type="text" name="nombre" required placeholder="Ej: Tecnicatura en Ciencia de Datos e IA">
               </label>
-              <label>Código
+              <label class="admin-form__field">Código
                 <input type="text" name="codigo" required placeholder="Ej: CDIA">
               </label>
             </div>
-            <label>Descripción (opcional)
+            <label class="admin-form__field">Descripción (opcional)
               <textarea name="descripcion" rows="3" placeholder="Describe brevemente el perfil de la carrera..."></textarea>
             </label>
             <button type="submit" class="admin-form__submit">
