@@ -1200,7 +1200,7 @@ function renderCentro(body) {
   const delegados = [
     { nombre: 'Valentina Ríos', cargo: 'Presidenta', carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
     { nombre: 'Mateo Fernández', cargo: 'Secretario', carrera: 'Tecnicatura en Redes', avatar: 'MF', color: '#2563eb' },
-    { nombre: 'Lucía Aramburu', cargo: 'Tesorera', carrera: 'Prog. Universitaria', avatar: 'LA', color: '#3DAA6A' },
+    { nombre: 'Lucía Aramburu', cargo: 'Tesorera', carrera:"", avatar: 'LA', color: '#3DAA6A' },
   ];
 
   const proxEventos = (state.eventos?.eventos || [])
