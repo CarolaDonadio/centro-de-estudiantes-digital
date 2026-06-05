@@ -883,6 +883,9 @@
       display: block;
       width: 100%;
       padding: .75rem 1rem;
+      display: flex;
+      gap: .55rem;
+      align-items: center;
       background: none;
       border: none;
       text-align: left;
@@ -892,6 +895,14 @@
       border-radius: 0;
     }
     .novedad-row__menu-dropdown button:hover { background: rgba(143,163,227,.1); }
+    .user-row__menu-dropdown button.is-danger,
+    .novedad-row__menu-dropdown button.is-danger { 
+      color: var(--accent-coral, #E67E5B) !important; 
+    }
+    .user-row__menu-dropdown button.is-danger:hover,
+    .novedad-row__menu-dropdown button.is-danger:hover { 
+      background: rgba(230, 126, 91, .1) !important; 
+    }
 
     .categoria-row {
       display: flex;
@@ -1124,7 +1135,7 @@
         <li class="nav-separator" aria-hidden="true"><hr></li>
 
         <!-- 2) Usuarios y Roles -->
-        <li data-admin-only>
+        <li id="nav-usuarios" style="display:none">
           <button class="nav-btn" data-drawer="usuarios" aria-label="Usuarios y Roles">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <circle cx="9" cy="8" r="3.5" />
@@ -1147,20 +1158,8 @@
           </button>
         </li>
 
-        <!-- Módulo 1.1: Materias (Solo Admin y Docente) -->
-        <li id="nav-materias" style="display:none">
-          <button class="nav-btn" data-drawer="mod-materias" aria-label="Materias">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              <path d="M9 7h7M9 11h5" stroke-linecap="round"/>
-            </svg>
-            <span class="nav-btn__tooltip">Materias</span>
-          </button>
-        </li>
-
         <!-- Módulo 4: Reglamentación -->
-        <li data-admin-only>
+        <li id="nav-reglamentacion" style="display:none">
           <button class="nav-btn" data-drawer="mod-reglamentacion" aria-label="Reglamentación">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round"/>
@@ -1347,9 +1346,18 @@
 
     // Visibilidad de módulos según rol (Acomodando Carreras para Docente/Delegado)
     const navCarreras = document.getElementById('nav-carreras');
+    const navUsuarios = document.getElementById('nav-usuarios');
+    const navReglamentacion = document.getElementById('nav-reglamentacion');
     const rolLower = admin.rol.toLowerCase();
+
     if (isAdminUser || rolLower === 'docente' || rolLower === 'delegado') {
       if (navCarreras) navCarreras.style.display = 'block';
+      if (navReglamentacion) navReglamentacion.style.display = 'block';
+    }
+
+    // Usuarios y Roles: Acceso exclusivo para Administradores
+    if (isAdminUser) {
+      if (navUsuarios) navUsuarios.style.display = 'block';
     }
 
     const PERFIL_MAP = { 1: 'alumno', 2: 'docente', 3: 'delegado', 4: 'admin' };
@@ -1437,13 +1445,6 @@
     /* ============================================================
        MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js)
        ============================================================ */
-    // Agregamos el módulo de Materias al objeto global modulosData
-    window.MODULOS_DATA['mod-materias'] = {
-      titulo: 'Materias',
-      icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h5" stroke-linecap="round"/></svg>',
-      descripcion: 'Gestión de la oferta académica por materia, vinculada a las carreras existentes.',
-      items: [] // Se poblará con datos de la API
-    };
     window.MODULOS_DATA['mod-carreras'] = {
       titulo: 'Carreras',
       icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>',
@@ -1574,8 +1575,12 @@
               <span style="font:600 .78rem 'Manrope',sans-serif;color:#1A1D4A;">${ev.categoria}</span>
               <span style="font:500 .78rem 'Manrope',sans-serif;color:#4A47A7;">${ev.autor}</span>
               ${canManageEvent(ev) ? `
-                <button class="btn btn-secondary btn-sm" data-event-action="edit" data-event-id="${ev.id}">Editar</button>
-                <button class="btn btn-secondary btn-sm" data-event-action="delete" data-event-id="${ev.id}" style="background:#E67E5B;border-color:#E67E5B;color:#fff;">Eliminar</button>
+                <button class="btn-small" data-event-action="edit" data-event-id="${ev.id}" style="display:inline-flex;align-items:center;gap:6px">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                </button>
+                <button class="btn-small btn-small--danger" data-event-action="delete" data-event-id="${ev.id}" style="display:inline-flex;align-items:center;gap:6px">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                </button>
               ` : ''}
             </div>
           </div>
@@ -1762,12 +1767,12 @@
                     ${CAL_TYPES[e.tipo]?.label || e.tipo}
                   </span>
                   ${canEdit ? `
-                    <div style="display:flex; gap:.4rem">
-                      <button class="btn-icon" data-cal-action="edit" data-cal-id="${e.id}" title="Editar">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <div style="display:flex; gap:.4rem; align-items:center">
+                      <button class="btn-small" data-cal-action="edit" data-cal-id="${e.id}" style="display:inline-flex;align-items:center;gap:6px">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
                       </button>
-                      <button class="btn-icon" style="color:#E67E5B" data-cal-action="delete" data-cal-id="${e.id}" title="Eliminar">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      <button class="btn-small btn-small--danger" data-cal-action="delete" data-cal-id="${e.id}" style="display:inline-flex;align-items:center;gap:6px">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
                       </button>
                     </div>
                   ` : ''}
@@ -1805,8 +1810,12 @@
               </div>
               <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap; justify-content:flex-end">
                 ${isAdminUser ? `
-                  <button class="btn btn-secondary btn-sm" style="background:#fff">Editar</button>
-                  <button class="btn btn-secondary btn-sm" style="background:rgba(230,126,91,.1); color:#E67E5B; border-color:transparent">Eliminar</button>
+                  <button class="btn-small" style="display:inline-flex;align-items:center;gap:6px">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                  </button>
+                  <button class="btn-small btn-small--danger" style="display:inline-flex;align-items:center;gap:6px">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                  </button>
                 ` : ''}
                 ${item.link ? `<a class="btn btn-primary btn-sm" href="${item.link}" target="_blank">Abrir</a>` : ''}
                 <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
@@ -1911,8 +1920,12 @@
                   <p class="modulo-item__detalle">${item.detalle}</p>
                 </div>
                 <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap; justify-content:flex-end">
-                  <button class="btn btn-secondary btn-sm" data-regl-action="edit" data-regl-id="${item.id}">Editar</button>
-                <button class="btn btn-secondary btn-sm" style="background:rgba(230,126,91,.1); color:#E67E5B; border-color:transparent" data-regl-action="delete" data-regl-id="${item.id}">Eliminar</button>
+                  <button class="btn-small" data-regl-action="edit" data-regl-id="${item.id}" style="display:inline-flex;align-items:center;gap:6px">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                  </button>
+                  <button class="btn-small btn-small--danger" data-regl-action="delete" data-regl-id="${item.id}" style="display:inline-flex;align-items:center;gap:6px">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                  </button>
                   ${item.link ? `<a class="btn btn-primary btn-sm" href="${item.link}" target="_blank">Abrir</a>` : ''}
                   <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
                 </div>
@@ -1922,6 +1935,7 @@
         </div>
 
         <div id="reglNewPane" hidden>
+          <h3 style="margin:0 0 1rem;font:700 1.1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Nuevo documento</h3>
           <form class="admin-form" id="newReglForm">
             <label>Título del documento
               <input type="text" name="titulo" required placeholder="Ej: Reglamento Académico Marco">
@@ -1984,7 +1998,6 @@
       document.getElementById('newReglForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
-        const submitBtn = e.target.querySelector('.admin-form__submit');
         const data = {
           titulo: fd.get('titulo'),
           tipo: fd.get('tipo'),
@@ -1995,20 +2008,10 @@
           palabras_clave: fd.get('keywords').split(',').map(s => s.trim()).filter(Boolean),
           fecha_publicacion: new Date().toISOString().split('T')[0]
         };
-        const editingId = e.target.dataset.editing || null;
 
         try {
-          if (editingId) {
-            await adminData.actualizarReglamento(editingId, data);
-            showToast('Documento actualizado', 'Se guardaron los cambios en reglamentación.');
-          } else {
-            await adminData.crearReglamento(data);
-            showToast('Documento publicado', 'Se agregó el nuevo documento a reglamentación.');
-          }
-          e.target.removeAttribute('data-editing');
-          if (submitBtn) {
-            submitBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg> Publicar documento`;
-          }
+          await adminData.crearReglamento(data);
+          showToast('Documento publicado', 'Se agregó el nuevo documento a reglamentación.');
           await loadReglamentacionFromAPI();
           navigateTo('mod-reglamentacion');
         } catch (err) { alert('Error al guardar documento: ' + err.message); }
@@ -2017,14 +2020,22 @@
       document.querySelectorAll('[data-regl-action="delete"]').forEach(btn => {
         btn.addEventListener('click', async () => {
           const id = btn.dataset.reglId;
-          if (confirm('¿Eliminar este documento definitivamente?')) {
-            try {
-              await adminData.eliminarReglamento(id);
-              showToast('Documento eliminado', 'Se quitó el documento del repositorio.');
-              await loadReglamentacionFromAPI();
-              navigateTo('mod-reglamentacion');
-            } catch (err) { alert('Error al eliminar: ' + err.message); }
-          }
+          const items = modulosData['mod-reglamentacion'].items;
+          const doc = items.find(x => String(x.id) === String(id));
+
+          requestDangerConfirm({
+            title: '¿Eliminar documento?',
+            msg: `Estás por eliminar definitivamente el documento "<strong>${doc ? doc.titulo : 'seleccionado'}</strong>". Esta acción no se puede deshacer.`,
+            btnLabel: 'Eliminar documento',
+            onConfirm: async () => {
+              try {
+                await adminData.eliminarReglamento(id);
+                showToast('Documento eliminado', 'Se quitó el documento del repositorio.', '#E67E5B');
+                await loadReglamentacionFromAPI();
+                navigateTo('mod-reglamentacion');
+              } catch (err) { showToast('Error', 'No se pudo eliminar: ' + err.message, '#E67E5B'); }
+            }
+          });
         });
       });
 
@@ -2032,24 +2043,99 @@
         btn.addEventListener('click', async () => {
           const id = btn.dataset.reglId;
           try {
-            const documento = await adminData.obtenerReglamentacion(id);
-            const form = document.getElementById('newReglForm');
-            if (!form) return;
-            form.dataset.editing = id;
-            form.querySelector('[name="titulo"]').value = documento.titulo || '';
-            form.querySelector('[name="tipo"]').value = documento.tipo || 'resoluciones';
-            form.querySelector('[name="categoria"]').value = documento.categoria || 'institucional';
-            form.querySelector('[name="version"]').value = documento.version || '1.0';
-            form.querySelector('[name="link"]').value = documento.link || '';
-            form.querySelector('[name="descripcion"]').value = documento.descripcion || '';
-            form.querySelector('[name="keywords"]').value = (documento.palabras_clave || []).join(', ');
-            form.querySelector('.admin-form__submit').textContent = 'Guardar cambios';
-            tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === 'nuevo'));
-            Object.entries(panes).forEach(([k, p]) => { if (p) p.hidden = k !== 'nuevo'; });
+            // Usamos la API directamente para obtener el documento completo y asegurar todos los campos
+            const res = await Reglamentacion.obtener(id);
+            // Validamos que el documento exista (algunas APIs devuelven un array, tomamos el primer elemento)
+            const documento = Array.isArray(res) ? res[0] : res;
+            
+            if (documento) {
+              showEditReglForm(documento);
+            } else {
+              throw new Error("No se pudo encontrar el documento");
+            }
           } catch (err) {
-            alert('Error al cargar documento para edición: ' + err.message);
+            showToast('Error', 'No se pudo cargar el documento para editar', '#E67E5B');
           }
         });
+      });
+    }
+
+    function showEditReglForm(doc) {
+      const cont = document.getElementById('reglListPane');
+      if (!cont) return;
+
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="reglEditBackBtn" class="btn-small">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar documento: ${doc.titulo || 'Sin título'}</h3>
+        <form id="editReglForm" class="admin-form">
+          <label>Título del documento
+            <input type="text" name="titulo" required value="${doc.titulo || ''}">
+          </label>
+          <div class="admin-form__row">
+            <label>Tipo de Norma
+              <select name="tipo" required>
+                <option value="resoluciones" ${doc.tipo === 'resoluciones' ? 'selected' : ''}>Resoluciones</option>
+                <option value="disposicion" ${doc.tipo === 'disposicion' ? 'selected' : ''}>Disposiciones</option>
+                <option value="circular" ${doc.tipo === 'circular' ? 'selected' : ''}>Circulares</option>
+                <option value="comunicacion" ${doc.tipo === 'comunicacion' ? 'selected' : ''}>Comunicaciones</option>
+              </select>
+            </label>
+            <label>Categoría
+              <select name="categoria" required>
+                <option value="institucional" ${doc.categoria === 'institucional' ? 'selected' : ''}>Institucional</option>
+                <option value="centro de estudiantes" ${doc.categoria === 'centro de estudiantes' ? 'selected' : ''}>Centro de Estudiantes</option>
+                <option value="tecnicatura" ${doc.categoria === 'tecnicatura' ? 'selected' : ''}>Tecnicatura</option>
+                <option value="profesorado" ${doc.categoria === 'profesorado' ? 'selected' : ''}>Profesorado</option>
+              </select>
+            </label>
+          </div>
+          <div class="admin-form__row">
+            <label>Versión
+              <input type="text" name="version" required value="${doc.version || '1.0'}">
+            </label>
+            <label>Link / URL del documento
+              <input type="url" name="link" required value="${doc.link || ''}">
+            </label>
+          </div>
+          <label>Descripción breve
+            <textarea name="descripcion" rows="3" required>${doc.descripcion || ''}</textarea>
+          </label>
+          <label>Palabras clave (separadas por coma)
+            <input type="text" name="keywords" value="${(doc.palabras_clave || []).join(', ')}">
+          </label>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+
+      document.getElementById('reglEditBackBtn').addEventListener('click', () => navigateTo('mod-reglamentacion'));
+
+      document.getElementById('editReglForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const data = {
+          titulo: fd.get('titulo'),
+          tipo: fd.get('tipo'),
+          categoria: fd.get('categoria'),
+          descripcion: fd.get('descripcion'),
+          link: fd.get('link'),
+          version: fd.get('version'),
+          palabras_clave: fd.get('keywords').split(',').map(s => s.trim()).filter(Boolean),
+          fecha_publicacion: doc.fecha_publicacion || new Date().toISOString().split('T')[0]
+        };
+
+        try {
+          await adminData.actualizarReglamento(doc.id, data);
+          showToast('Documento actualizado', 'Se guardaron los cambios correctamente.');
+          await loadReglamentacionFromAPI();
+          navigateTo('mod-reglamentacion');
+        } catch (err) {
+          showToast('Error', 'No se pudo actualizar el documento: ' + err.message, '#E67E5B');
+        }
       });
     }
 
@@ -2073,14 +2159,19 @@
           if (!ev) return;
 
           if (action === 'delete') {
-            if (confirm(`¿Eliminar "${ev.titulo}" del calendario?`)) {
-              try {
-                await Calendario.eliminar(id);
-                showToast('Evento eliminado', 'Se quitó la fecha del calendario.');
-                await loadCalendarioFromAPI();
-                navigateTo('mod-calendario');
-              } catch (err) { showToast('Error', 'No se pudo eliminar', '#E67E5B'); }
-            }
+            requestDangerConfirm({
+              title: '¿Eliminar fecha?',
+              msg: `Vas a eliminar "<strong>${ev.titulo}</strong>" del calendario académico.`,
+              btnLabel: 'Eliminar del calendario',
+              onConfirm: async () => {
+                try {
+                  await Calendario.eliminar(id);
+                  showToast('Evento eliminado', 'Se quitó la fecha del calendario.', '#E67E5B');
+                  await loadCalendarioFromAPI();
+                  navigateTo('mod-calendario');
+                } catch (err) { showToast('Error', 'No se pudo eliminar', '#E67E5B'); }
+              }
+            });
           } else if (action === 'edit') {
             showCalModal(ev);
           }
@@ -2395,6 +2486,13 @@
         lista:    document.getElementById('userListPane'),
         nuevo:    document.getElementById('userNewPane')
       };
+
+      // Ocultar pestaña de creación para no-admins
+      if (!isAdminUser) {
+        const nuevoTab = Array.from(tabs).find(t => t.dataset.tab === 'nuevo');
+        if (nuevoTab) nuevoTab.style.display = 'none';
+      }
+
       function showTab(t) {
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         Object.entries(panes).forEach(([k, p]) => p.hidden = k !== t);
@@ -2408,11 +2506,19 @@
 
       function renderUsers() {
         const rol = filterRol.value;
+        const rolFilter = filterRol.value;
         const q = search.value.trim().toLowerCase();
-        const list = usuarios.filter(u =>
-          (rol === 'todos' || u.rol === rol) &&
+        let list = usuarios;
+
+        if (!isAdminUser) {
+          list = usuarios.filter(u => u.rol === 'alumno');
+        }
+
+        list = list.filter(u =>
+          (rolFilter === 'todos' || u.rol === rolFilter) &&
           (!q || u.nombre.toLowerCase().includes(q) || u.usuario.toLowerCase().includes(q))
         );
+
         const cont = document.getElementById('userList');
         if (list.length === 0) {
           cont.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
@@ -2433,10 +2539,16 @@
                   <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
                 </button>
                 <div class="user-row__menu-dropdown">
-                  <button data-action="edit"        data-id="${u.id}">✏️  Editar datos</button>
-                  <button data-action="reset"       data-id="${u.id}">🔑  Resetear password</button>
+                  <button data-action="edit" data-id="${u.id}">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar datos
+                  </button>
+                  <button data-action="reset" data-id="${u.id}">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3L15.5 7.5z"/></svg> Resetear password
+                  </button>
                   <hr>
-                  <button class="is-danger" data-action="delete" data-id="${u.id}">🚫  Eliminar</button>
+                  <button class="is-danger" data-action="delete" data-id="${u.id}">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                  </button>
                 </div>
               </div>
             </div>
@@ -2491,7 +2603,7 @@
           renderUsers();
         } catch (err) {
           console.error('❌ Error al crear usuario:', err);
-          showToast('Error', 'No se pudo crear el usuario: ' + err.message, 'error');
+          showToast('Error', 'No se pudo crear el usuario: ' + err.message, '#E67E5B');
         }
       });
     }
@@ -2593,6 +2705,24 @@
 
       try {
         await renderCarrerasTable(containerId);
+        
+        // Coherencia de diseño: aplicamos estilos refinados con iconos a los botones de la tabla
+        container.querySelectorAll('button').forEach(btn => {
+          btn.className = 'btn-small';
+          btn.style.display = 'inline-flex';
+          btn.style.alignItems = 'center';
+          btn.style.gap = '6px';
+          btn.style.marginRight = '8px';
+          
+          if (btn.hasAttribute('data-carrera-edit')) {
+            btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar`;
+          }
+          if (btn.hasAttribute('data-carrera-delete')) {
+            btn.classList.add('btn-small--danger');
+            btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar`;
+          }
+        });
+
         if (isAdminUser) {
           carreras = await adminData.obtenerCarreras();
 
@@ -2601,16 +2731,7 @@
               const id = btn.dataset.carreraId;
               const c = carreras.find(x => String(x.id) === String(id));
               if (!c) return;
-              const n = prompt('Nuevo nombre:', c.nombre);
-              if (n === null) return;
-              const cod = prompt('Nuevo código:', c.codigo);
-              if (cod === null) return;
-              try {
-                await adminData.actualizarCarrera(id, { ...c, nombre: n, codigo: cod });
-                carreras = await adminData.obtenerCarreras();
-                showToast('Actualizado', 'Carrera actualizada correctamente.');
-                refreshCarrerasTable();
-              } catch (e) { showToast('Error', 'No se pudo actualizar.', '#E67E5B'); }
+              showEditCarreraForm(c);
             });
           });
           container.querySelectorAll('[data-carrera-delete]').forEach(btn => {
@@ -2631,6 +2752,44 @@
           });
         }
       } catch (err) { container.innerHTML = '<p>Error cargando datos de carreras.</p>'; }
+    }
+
+    function showEditCarreraForm(c) {
+      const cont = document.getElementById('carrerasTableContainer');
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="carreraEditBackBtn" class="btn-small">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar carrera: ${c.nombre}</h3>
+        <form id="editCarreraForm" class="admin-form">
+          <div class="admin-form__row">
+            <label>Nombre de la carrera
+              <input type="text" name="nombre" required value="${c.nombre}">
+            </label>
+            <label>Código
+              <input type="text" name="codigo" required value="${c.codigo}">
+            </label>
+          </div>
+          <label>Descripción (opcional)
+            <textarea name="descripcion" rows="3">${c.descripcion || ''}</textarea>
+          </label>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+      document.getElementById('carreraEditBackBtn').addEventListener('click', () => refreshCarrerasTable());
+      document.getElementById('editCarreraForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const data = { nombre: fd.get('nombre'), codigo: fd.get('codigo'), descripcion: fd.get('descripcion') };
+        try {
+          await adminData.actualizarCarrera(c.id, data);
+          showToast('Carrera actualizada', 'Los cambios se guardaron correctamente en la base de datos.');
+          refreshCarrerasTable();
+        } catch (err) { showToast('Error', 'No se pudo actualizar la carrera: ' + err.message, '#E67E5B'); }
+      });
     }
 
 
@@ -2787,17 +2946,23 @@
           const type = action.dataset.eventAction;
 
           if (type === 'delete') {
-            if (!confirm(`¿Eliminar el evento "${evento.titulo}"?`)) return;
-            try {
-              await Eventos.eliminar(eventId);
-              eventosAdmin = eventosAdmin.filter(ev => String(ev.id) !== String(eventId));
-              auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
-              showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
-              navigateTo('mod-eventos');
-            } catch (err) {
-              console.error('Error al eliminar evento:', err);
-              showToast('Error', 'No se pudo eliminar el evento', 'error');
-            }
+            requestDangerConfirm({
+              title: '¿Eliminar evento?',
+              msg: `Estás por eliminar el evento "<strong>${evento.titulo}</strong>". Se perderá permanentemente la lista de alumnos inscriptos.`,
+              btnLabel: 'Eliminar evento',
+              onConfirm: async () => {
+                try {
+                  await Eventos.eliminar(eventId);
+                  eventosAdmin = eventosAdmin.filter(ev => String(ev.id) !== String(eventId));
+                  auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
+                  showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
+                  navigateTo('mod-eventos');
+                } catch (err) {
+                  console.error('Error al eliminar evento:', err);
+                  showToast('Error', 'No se pudo eliminar el evento', '#E67E5B');
+                }
+              }
+            });
           }
 
           if (type === 'edit') {
@@ -2837,9 +3002,9 @@
       container.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', async e => {
           e.stopPropagation();
-          const id = +btn.dataset.id;
+          const id = btn.dataset.id;
           const action = btn.dataset.action;
-          const u = usuarios.find(x => x.id === id);
+          const u = usuarios.find(x => String(x.id) === String(id));
           if (!u) return;
           // Cerrar dropdown
           btn.closest('[data-menu]').classList.remove('is-open');
@@ -2865,7 +3030,7 @@
               auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
             } catch (err) {
               console.error('❌ Error al resetear password:', err);
-              showToast('Error', 'No se pudo resetear la contraseña: ' + err.message, 'error');
+              showToast('Error', 'No se pudo resetear la contraseña: ' + err.message, '#E67E5B');
             }
           }
           if (action === 'delete') {
@@ -2895,6 +3060,16 @@
 
     function showEditForm(u) {
       const cont = document.getElementById('userList');
+      const roleField = isAdminUser ? `
+            <label>Rol asignado
+              <select name="rol" required>
+                <option value="alumno" ${u.rol === 'alumno' ? 'selected' : ''}>Alumno</option>
+                <option value="docente" ${u.rol === 'docente' ? 'selected' : ''}>Docente</option>
+                <option value="delegado" ${u.rol === 'delegado' ? 'selected' : ''}>Delegado</option>
+                <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option>
+              </select>
+            </label>` : `<input type="hidden" name="rol" value="${u.rol}">`;
+
       cont.innerHTML = `
         <div style="margin-bottom:.8rem">
           <button id="editBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
@@ -2929,6 +3104,7 @@
                 <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option>
               </select>
             </label>
+            ${roleField}
           </div>
           <div class="admin-form__row">
             <label>Carrera
@@ -2989,7 +3165,7 @@
           document.getElementById('userSearch').dispatchEvent(new Event('input'));
         } catch (err) {
           console.error('❌ Error al actualizar usuario:', err);
-          showToast('Error', 'No se pudo actualizar el usuario: ' + err.message, 'error');
+          showToast('Error', 'No se pudo actualizar el usuario: ' + err.message, '#E67E5B');
         }
       });
     }
@@ -3124,6 +3300,22 @@
           month: 'short',
           year: 'numeric'
         }) : '';
+
+        // Lógica de permisos: Admin puede todo, otros solo lo propio
+        const canManage = isAdminUser || (n.autor_id && String(n.autor_id) === String(admin.id));
+        const actionMenu = canManage ? `
+            <div class="novedad-row__menu" data-menu>
+              <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de novedad">⋯</button>
+              <div class="novedad-row__menu-dropdown">
+                <button type="button" data-action="edit" data-id="${n.id}">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                </button>
+                <button type="button" class="is-danger" data-action="delete" data-id="${n.id}">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                </button>
+              </div>
+            </div>` : '';
+
         return `
           <div class="novedad-row" data-novedad-id="${n.id}">
             <div class="novedad-row__info">
@@ -3138,13 +3330,7 @@
               </div>
               <p style="margin:.55rem 0 0;color:rgba(33,37,41,.8)">${n.contenido}</p>
             </div>
-            <div class="novedad-row__menu" data-menu>
-              <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de novedad">⋯</button>
-              <div class="novedad-row__menu-dropdown">
-                <button type="button" data-action="edit" data-id="${n.id}">Editar</button>
-                <button type="button" data-action="delete" data-id="${n.id}">Eliminar</button>
-              </div>
-            </div>
+            ${actionMenu}
           </div>
         `;
       }).join('') : `<p class="drawer__empty" style="margin:1rem 0;color:rgba(33,37,41,.75)">No se encontraron novedades.</p>`;
@@ -3206,7 +3392,7 @@
           renderNovedades();
         } catch (err) {
           console.error('Error al crear novedad:', err);
-          showToast('Error', 'No se pudo crear la novedad', 'error');
+          showToast('Error', 'No se pudo crear la novedad', '#E67E5B');
         }
       });
 
@@ -3266,9 +3452,9 @@
       container.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
-          const id = +btn.dataset.id;
+          const id = btn.dataset.id;
           const action = btn.dataset.action;
-          const n = novedades.find(x => x.id === id);
+          const n = novedades.find(x => String(x.id) === String(id));
           if (!n) return;
           // Cerrar dropdown
           btn.closest('[data-menu]').classList.remove('is-open');
@@ -3429,8 +3615,12 @@
           <div class="novedad-row__menu" data-menu>
             <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de categoría">⋯</button>
             <div class="novedad-row__menu-dropdown">
-              <button type="button" data-action="edit-cat" data-id="${c.id}">Editar</button>
-              <button type="button" data-action="delete-cat" data-id="${c.id}">Eliminar</button>
+              <button type="button" data-action="edit-cat" data-id="${c.id}">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+              </button>
+              <button type="button" class="is-danger" data-action="delete-cat" data-id="${c.id}">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+              </button>
             </div>
           </div>
         </div>
@@ -3475,6 +3665,16 @@
 
     function showEditNovedadForm(n) {
       const cont = document.getElementById('novedadesList');
+      const isDelegado = admin.rol.toLowerCase() === 'delegado';
+      const materiaField = !isDelegado ? `
+            <label>Materia
+              <select name="materia">
+                <option value="">Seleccionar materia</option>
+                ${materias.map(m => `<option value="${m.nombre}" ${n.materia === m.nombre ? 'selected' : ''}>${m.nombre}</option>`).join('')}
+              </select>
+            </label>
+          ` : '';
+
       cont.innerHTML = `
         <div style="margin-bottom:.8rem">
           <button id="novedadBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
@@ -3506,12 +3706,7 @@
               <span class="checkbox-toggle__control"></span>
               <span class="checkbox-toggle__text">Destacar esta novedad</span>
             </label>
-            <label>Materia
-              <select name="materia">
-                <option value="">Seleccionar materia</option>
-                ${materias.map(m => `<option value="${m.nombre}" ${n.materia === m.nombre ? 'selected' : ''}>${m.nombre}</option>`).join('')}
-              </select>
-            </label>
+            ${materiaField}
           </div>
           <div class="admin-form__row">
             <div class="file-input-wrapper">
@@ -3589,13 +3784,15 @@
           document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
         } catch (err) {
           console.error('Error al actualizar novedad:', err);
-          showToast('Error', 'No se pudo actualizar la novedad', 'error');
+          showToast('Error', 'No se pudo actualizar la novedad', '#E67E5B');
         }
       });
     }
     const dangerMsg = document.getElementById('dangerMsg');
     const dangerInput = document.getElementById('dangerInput');
     const dangerConfirm = document.getElementById('dangerConfirm');
+    const dangerTitle = document.getElementById('dangerTitle');
+    const dangerModal = document.getElementById('dangerModal');
     const dangerCancel = document.getElementById('dangerCancel');
     let dangerHandler = null;
     let dangerExpectedWord = 'CONFIRMAR';
