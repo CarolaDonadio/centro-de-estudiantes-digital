@@ -1487,8 +1487,10 @@
         eventosAdmin = data.map(ev => {
           const inscriptos = ev.inscriptos || 0;
           const cupo = ev.cupo || 0;
+          const id = isNaN(Number(ev.id)) ? ev.id : Number(ev.id);
           return {
             ...ev,
+            id,
             detalle: `${ev.categoria || 'General'} · ${ev.lugar || 'S/D'} · Cupo ${inscriptos}/${cupo}`
           };
         });
@@ -1909,7 +1911,8 @@
                   <p class="modulo-item__detalle">${item.detalle}</p>
                 </div>
                 <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap; justify-content:flex-end">
-                  <button class="btn btn-secondary btn-sm" style="background:rgba(230,126,91,.1); color:#E67E5B; border-color:transparent" data-regl-action="delete" data-regl-id="${item.id}">Eliminar</button>
+                  <button class="btn btn-secondary btn-sm" data-regl-action="edit" data-regl-id="${item.id}">Editar</button>
+                <button class="btn btn-secondary btn-sm" style="background:rgba(230,126,91,.1); color:#E67E5B; border-color:transparent" data-regl-action="delete" data-regl-id="${item.id}">Eliminar</button>
                   ${item.link ? `<a class="btn btn-primary btn-sm" href="${item.link}" target="_blank">Abrir</a>` : ''}
                   <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
                 </div>
@@ -1981,6 +1984,7 @@
       document.getElementById('newReglForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
+        const submitBtn = e.target.querySelector('.admin-form__submit');
         const data = {
           titulo: fd.get('titulo'),
           tipo: fd.get('tipo'),
@@ -1991,13 +1995,23 @@
           palabras_clave: fd.get('keywords').split(',').map(s => s.trim()).filter(Boolean),
           fecha_publicacion: new Date().toISOString().split('T')[0]
         };
+        const editingId = e.target.dataset.editing || null;
 
         try {
-          await Reglamentacion.crear(data);
-          showToast('Documento publicado', 'Se agregó el nuevo documento a reglamentación.');
+          if (editingId) {
+            await adminData.actualizarReglamento(editingId, data);
+            showToast('Documento actualizado', 'Se guardaron los cambios en reglamentación.');
+          } else {
+            await adminData.crearReglamento(data);
+            showToast('Documento publicado', 'Se agregó el nuevo documento a reglamentación.');
+          }
+          e.target.removeAttribute('data-editing');
+          if (submitBtn) {
+            submitBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg> Publicar documento`;
+          }
           await loadReglamentacionFromAPI();
           navigateTo('mod-reglamentacion');
-        } catch (err) { alert('Error al crear documento: ' + err.message); }
+        } catch (err) { alert('Error al guardar documento: ' + err.message); }
       });
 
       document.querySelectorAll('[data-regl-action="delete"]').forEach(btn => {
@@ -2005,11 +2019,35 @@
           const id = btn.dataset.reglId;
           if (confirm('¿Eliminar este documento definitivamente?')) {
             try {
-              await Reglamentacion.eliminar(id);
+              await adminData.eliminarReglamento(id);
               showToast('Documento eliminado', 'Se quitó el documento del repositorio.');
               await loadReglamentacionFromAPI();
               navigateTo('mod-reglamentacion');
             } catch (err) { alert('Error al eliminar: ' + err.message); }
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-regl-action="edit"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.reglId;
+          try {
+            const documento = await adminData.obtenerReglamentacion(id);
+            const form = document.getElementById('newReglForm');
+            if (!form) return;
+            form.dataset.editing = id;
+            form.querySelector('[name="titulo"]').value = documento.titulo || '';
+            form.querySelector('[name="tipo"]').value = documento.tipo || 'resoluciones';
+            form.querySelector('[name="categoria"]').value = documento.categoria || 'institucional';
+            form.querySelector('[name="version"]').value = documento.version || '1.0';
+            form.querySelector('[name="link"]').value = documento.link || '';
+            form.querySelector('[name="descripcion"]').value = documento.descripcion || '';
+            form.querySelector('[name="keywords"]').value = (documento.palabras_clave || []).join(', ');
+            form.querySelector('.admin-form__submit').textContent = 'Guardar cambios';
+            tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === 'nuevo'));
+            Object.entries(panes).forEach(([k, p]) => { if (p) p.hidden = k !== 'nuevo'; });
+          } catch (err) {
+            alert('Error al cargar documento para edición: ' + err.message);
           }
         });
       });
@@ -2556,11 +2594,12 @@
       try {
         await renderCarrerasTable(containerId);
         if (isAdminUser) {
+          carreras = await adminData.obtenerCarreras();
+
           container.querySelectorAll('[data-carrera-edit]').forEach(btn => {
             btn.addEventListener('click', async () => {
               const id = btn.dataset.carreraId;
-              const list = await adminData.obtenerCarreras();
-              const c = list.find(x => x.id == id);
+              const c = carreras.find(x => String(x.id) === String(id));
               if (!c) return;
               const n = prompt('Nuevo nombre:', c.nombre);
               if (n === null) return;
@@ -2568,6 +2607,7 @@
               if (cod === null) return;
               try {
                 await adminData.actualizarCarrera(id, { ...c, nombre: n, codigo: cod });
+                carreras = await adminData.obtenerCarreras();
                 showToast('Actualizado', 'Carrera actualizada correctamente.');
                 refreshCarrerasTable();
               } catch (e) { showToast('Error', 'No se pudo actualizar.', '#E67E5B'); }
@@ -2581,6 +2621,7 @@
                 onConfirm: async () => {
                   try {
                     await adminData.eliminarCarrera(btn.dataset.carreraId);
+                    carreras = await adminData.obtenerCarreras();
                     showToast('Eliminada', 'La carrera fue eliminada.', '#E67E5B');
                     refreshCarrerasTable();
                   } catch (e) { showToast('Error', 'No se pudo eliminar.', '#E67E5B'); }
@@ -2644,13 +2685,13 @@
       async function renderInscriptosPorEvento() {
         const list = document.getElementById('inscriptosList');
         if (!selectEv || !list) return;
-        const eventId = Number(selectEv.value);
+        const eventId = selectEv.value;
         if (!eventId) {
           list.innerHTML = '<p style="color:#8a8d9c; padding:1.5rem; text-align:center;">Elegí un evento para ver quiénes participan.</p>';
           return;
         }
 
-        const ev = eventosAdmin.find(e => e.id === eventId);
+        const ev = eventosAdmin.find(e => String(e.id) === String(eventId));
         if (!ev) return;
 
         const inscriptosIds = ev.usuarios_inscriptos || [];
@@ -2682,7 +2723,7 @@
         form.addEventListener('submit', async e => {
           e.preventDefault();
           const data = new FormData(form);
-          const editingId = form.dataset.editing ? Number(form.dataset.editing) : null;
+          const editingId = form.dataset.editing || null;
 
           const eventoData = {
             titulo: data.get('titulo').trim(),
@@ -2699,7 +2740,7 @@
           if (editingId) {
             try {
               const actualizado = await Eventos.actualizar(editingId, eventoData);
-              const idx = eventosAdmin.findIndex(ev => ev.id === editingId);
+              const idx = eventosAdmin.findIndex(ev => String(ev.id) === String(editingId));
               eventosAdmin[idx] = {
                 ...actualizado,
                 detalle: `${actualizado.categoria} · ${actualizado.lugar} · Cupo ${actualizado.inscriptos || 0}/${actualizado.cupo}`,
@@ -2740,8 +2781,8 @@
         eventList.addEventListener('click', async e => {
           const action = e.target.closest('[data-event-action]');
           if (!action) return;
-          const eventId = Number(action.dataset.eventId);
-          const evento = eventosAdmin.find(ev => ev.id === eventId);
+          const eventId = action.dataset.eventId;
+          const evento = eventosAdmin.find(ev => String(ev.id) === String(eventId));
           if (!evento) return;
           const type = action.dataset.eventAction;
 
@@ -2749,7 +2790,7 @@
             if (!confirm(`¿Eliminar el evento "${evento.titulo}"?`)) return;
             try {
               await Eventos.eliminar(eventId);
-              eventosAdmin = eventosAdmin.filter(ev => ev.id !== eventId);
+              eventosAdmin = eventosAdmin.filter(ev => String(ev.id) !== String(eventId));
               auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
               showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
               navigateTo('mod-eventos');
@@ -2779,8 +2820,11 @@
     }
 
     function bindUserActions() {
+      const container = document.getElementById('userList');
+      if (!container) return;
+
       // Toggle dropdown
-      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+      container.querySelectorAll('[data-menu-btn]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const menu = btn.closest('[data-menu]');
@@ -2790,7 +2834,7 @@
       });
 
       // Acciones
-      document.querySelectorAll('[data-action]').forEach(btn => {
+      container.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', async e => {
           e.stopPropagation();
           const id = +btn.dataset.id;
@@ -3205,8 +3249,11 @@
     }
 
     function bindNovedadActions() {
+      const container = document.getElementById('novedadesList');
+      if (!container) return;
+
       // Toggle dropdown
-      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+      container.querySelectorAll('[data-menu-btn]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const menu = btn.closest('[data-menu]');
@@ -3216,7 +3263,7 @@
       });
 
       // Acciones
-      document.querySelectorAll('[data-action]').forEach(btn => {
+      container.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const id = +btn.dataset.id;
@@ -3254,8 +3301,10 @@
     }
 
     function bindCategoriaActions() {
-      // Similar a bindNovedadActions, pero para categorías
-      document.querySelectorAll('.categoria-row [data-menu-btn]').forEach(btn => {
+      const container = document.getElementById('categoriasList');
+      if (!container) return;
+
+      container.querySelectorAll('[data-menu-btn]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const menu = btn.closest('[data-menu]');
@@ -3264,7 +3313,7 @@
         });
       });
 
-      document.querySelectorAll('.categoria-row [data-action]').forEach(btn => {
+      container.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const id = +btn.dataset.id;
