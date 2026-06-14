@@ -6,22 +6,6 @@
   FASE 1 - Sprint 5: Mesa de control con poder absoluto
   Hereda el sistema de diseño de la Fase 1 (css/styles.css)
 =================================================================
-  Cumplimiento de la consigna del proyecto integrador (4.4):
-  · Gestión de usuarios (CRUD + activar/desactivar)
-  · Asignación de roles (cambia el perfil de cualquier usuario)
-  · Gestión de categorías de novedades
-  · Gestión y versionado de reglamentos
-  · Configuración general
-  · Consulta de auditoría (logs de acciones)
-
-  Comportamientos clave implementados:
-  · Auditoría automática: toda acción del admin queda registrada
-  · Confirmación destructiva: requiere tipear "CONFIRMAR"
-  · Soft delete con papelera y restauración
-  · Modo "Ver como…" con banner permanente
-  · Reglamentos versionados (no se sobrescriben)
-  · Diferenciación visual coral (vs ámbar del docente)
-=================================================================
 -->
 <html lang="es">
 <head>
@@ -1273,6 +1257,7 @@
 
   <!-- Datos de los módulos del proyecto -->
   <script src="../js/admin/modulos.js"></script>
+  <!-- <script src="../js/admin/modulos.js"></script> --> <!-- This file is now mostly integrated into admin-main.js data loading -->
 
   <!-- ================================================================
        API CLIENT - Comunicación con servidor remoto
@@ -1282,6 +1267,13 @@
   <script src="../js/data-sync.js"></script>
   <script src="../js/api-utils.js"></script>
   <script src="../js/test-api.js"></script>
+  <script src="../js/admin/admin-utils.js"></script>
+  <script src="../js/admin/admin-usuarios.js"></script>
+  <script src="../js/admin/admin-eventos.js"></script>
+  <script src="../js/admin/admin-novedades.js"></script>
+  <script src="../js/admin/admin-calendario.js"></script>
+  <script src="../js/admin/admin-reglamentacion.js"></script>
+  <script src="../js/admin/admin-carreras.js"></script>
 
   <!--
     ================================================================
