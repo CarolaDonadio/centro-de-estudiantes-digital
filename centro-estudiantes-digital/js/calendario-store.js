@@ -13,10 +13,12 @@
 (function () {
   'use strict';
 
+  // Nombre de la clave para guardar los datos en el localStorage del navegador
   const STORAGE_KEY = 'cedCalendarioEventos';
 
   /* ---------------- TIPOS PERMITIDOS POR ROL ---------------- */
-  const TIPOS_CATALOGO = {
+  // Definición de las categorías de eventos: nombre mostrado y color asignado
+  const TIPOS_CATALOGO = { 
     examen:      { id: 'examen',      nombre: 'Examen',         color: '#3A5BA9' },
     clase:       { id: 'clase',       nombre: 'Clases y TPs',   color: '#0ea5e9' },
     evento:      { id: 'evento',      nombre: 'Eventos CE',     color: '#8B5CF6' },
@@ -25,6 +27,7 @@
     feriado:     { id: 'feriado',     nombre: 'Feriado',        color: '#E67E5B' }
   };
 
+  // Restricciones de seguridad: qué puede crear cada perfil de usuario
   const TIPOS_POR_ROL = {
     docente:       ['examen', 'clase'],
     delegado:      ['evento'],
@@ -33,6 +36,7 @@
   };
 
   /* ---------------- ACCESO A LOCALSTORAGE ---------------- */
+  // Lee los datos guardados. Si no hay nada, devuelve una estructura vacía.
   function readStore() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -48,6 +52,7 @@
     }
   }
 
+  // Guarda el objeto de datos en el localStorage convirtiéndolo a texto JSON.
   function writeStore(data) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -58,6 +63,8 @@
     }
   }
 
+  // Genera un identificador único para los eventos que vienen del JSON base, 
+  // ya que estos no suelen traer un ID numérico propio.
   /** Clave compuesta para identificar eventos base (que no tienen id) */
   function baseKey(ev) {
     return `${ev.fecha}|${ev.titulo}`;
@@ -101,6 +108,7 @@
       const tipo = TIPOS_CATALOGO[data.tipo];
       if (!tipo) throw new Error(`Tipo de evento inválido: ${data.tipo}`);
 
+      // Objeto con la estructura final del evento
       const nuevo = {
         id: Date.now() + Math.floor(Math.random() * 1000),
         fecha: data.fecha,
@@ -166,6 +174,7 @@
       return true;
     },
 
+    // Borra la marca de "eliminado" de un evento del JSON base para que vuelva a aparecer.
     /** Reactiva un evento base previamente eliminado. */
     restaurarBase(eventoBase) {
       const store = readStore();
@@ -177,12 +186,14 @@
 
     /* ---------------- HELPERS DE PERMISOS ---------------- */
 
+    // Devuelve la lista de objetos de tipo (nombre, color) que el rol tiene permitido usar.
     /** Tipos de evento habilitados para un rol dado. */
     tiposPermitidos(rol) {
       const r = (rol || '').toLowerCase();
       return (TIPOS_POR_ROL[r] || []).map(id => TIPOS_CATALOGO[id]);
     },
 
+    // Comprobación rápida para saber si el usuario puede ver botones de "Crear".
     /** ¿Puede este rol crear eventos en el calendario? */
     puedeCrear(rol) {
       return this.tiposPermitidos(rol).length > 0;

@@ -6,9 +6,11 @@
 
 class AdminData {
   constructor() {
+    // Recupera la sesión del administrador al crear la instancia
     this.session = this.getSession();
   }
 
+  // Lee los datos de sesión guardados en el navegador por el login
   getSession() {
     try {
       return JSON.parse(localStorage.getItem('cedSession'));
@@ -18,6 +20,7 @@ class AdminData {
   }
 
   // ==================== USUARIOS ====================
+  // Pide a la API la lista completa de usuarios (alumnos, docentes, etc.)
   async obtenerUsuarios() {
     try {
       return await Usuarios.listar();
@@ -27,6 +30,7 @@ class AdminData {
     }
   }
 
+  // Busca un usuario específico por su ID único
   async obtenerUsuario(id) {
     try {
       return await Usuarios.obtener(id);
@@ -36,6 +40,7 @@ class AdminData {
     }
   }
 
+  // Envía los datos a la API para crear un nuevo usuario con validación previa
   async crearUsuario(data) {
     try {
       // Validación mínima
@@ -49,6 +54,7 @@ class AdminData {
     }
   }
 
+  // Modifica los datos de un usuario existente
   async actualizarUsuario(id, data) {
     try {
       return await Usuarios.actualizar(id, data);
@@ -58,6 +64,7 @@ class AdminData {
     }
   }
 
+  // Borra permanentemente un usuario del sistema
   async eliminarUsuario(id) {
     try {
       return await Usuarios.eliminar(id);
@@ -68,6 +75,7 @@ class AdminData {
   }
 
   // ==================== PERFILES ====================
+  // Obtiene los roles del sistema (Admin, Docente, Alumno, Delegado)
   async obtenerPerfiles() {
     try {
       return await Perfiles.listar();
@@ -77,6 +85,7 @@ class AdminData {
     }
   }
 
+  // Crea un nuevo tipo de perfil o rol
   async crearPerfil(data) {
     try {
       if (!data.nombre) throw new Error('El nombre del perfil es requerido');
@@ -87,6 +96,7 @@ class AdminData {
     }
   }
 
+  // Actualiza el nombre o descripción de un rol
   async actualizarPerfil(id, data) {
     try {
       return await Perfiles.actualizar(id, data);
@@ -96,6 +106,7 @@ class AdminData {
     }
   }
 
+  // Elimina un rol del sistema
   async eliminarPerfil(id) {
     try {
       return await Perfiles.eliminar(id);
@@ -106,6 +117,7 @@ class AdminData {
   }
 
   // ==================== CARRERAS ====================
+  // Trae todas las carreras que dicta el instituto
   async obtenerCarreras() {
     try {
       return await Carreras.listar();
@@ -115,6 +127,7 @@ class AdminData {
     }
   }
 
+  // Registra una nueva carrera en la oferta académica
   async crearCarrera(data) {
     try {
       if (!data.nombre || !data.codigo) throw new Error('Nombre y código son requeridos');
@@ -125,6 +138,7 @@ class AdminData {
     }
   }
 
+  // Cambia el nombre o código de una carrera existente
   async actualizarCarrera(id, data) {
     try {
       return await Carreras.actualizar(id, data);
@@ -134,6 +148,7 @@ class AdminData {
     }
   }
 
+  // Quita una carrera de la base de datos
   async eliminarCarrera(id) {
     try {
       return await Carreras.eliminar(id);
@@ -144,6 +159,7 @@ class AdminData {
   }
 
   // ==================== MATERIAS ====================
+  // Lista todas las materias de todas las carreras
   async obtenerMaterias() {
     try {
       return await Materias.listar();
@@ -153,6 +169,7 @@ class AdminData {
     }
   }
 
+  // Crea una materia nueva vinculándola a una carrera
   async crearMateria(data) {
     try {
       if (!data.nombre || !data.codigo) throw new Error('Nombre y código son requeridos');
@@ -163,6 +180,7 @@ class AdminData {
     }
   }
 
+  // Edita los datos de una materia (nombre, docente asignado, etc.)
   async actualizarMateria(id, data) {
     try {
       return await Materias.actualizar(id, data);
@@ -172,6 +190,7 @@ class AdminData {
     }
   }
 
+  // Elimina una materia
   async eliminarMateria(id) {
     try {
       return await Materias.eliminar(id);
@@ -182,6 +201,7 @@ class AdminData {
   }
 
   // ==================== CALENDARIO ====================
+  // Obtiene todas las fechas del calendario académico
   async obtenerCalendario() {
     try {
       return await Calendario.listar();
@@ -191,6 +211,7 @@ class AdminData {
     }
   }
 
+  // Crea una nueva fecha (examen, feriado, inscripción)
   async crearEventoCalendario(data) {
     try {
       if (!data.fecha || !data.titulo) throw new Error('Fecha y título son requeridos');
@@ -201,6 +222,7 @@ class AdminData {
     }
   }
 
+  // Modifica una fecha ya existente en el calendario
   async actualizarEventoCalendario(id, data) {
     try {
       return await Calendario.actualizar(id, data);
@@ -210,6 +232,7 @@ class AdminData {
     }
   }
 
+  // Quita una fecha del calendario
   async eliminarEventoCalendario(id) {
     try {
       return await Calendario.eliminar(id);
@@ -220,6 +243,7 @@ class AdminData {
   }
 
   // ==================== EVENTOS ====================
+  // Obtiene los eventos sociales/culturales del Centro de Estudiantes
   async obtenerEventos() {
     try {
       return await Eventos.listar();
@@ -229,6 +253,7 @@ class AdminData {
     }
   }
 
+  // Publica un nuevo evento para que los alumnos se inscriban
   async crearEvento(data) {
     try {
       if (!data.titulo) throw new Error('El título es requerido');
@@ -239,6 +264,7 @@ class AdminData {
     }
   }
 
+  // Actualiza datos de un evento (lugar, fecha, cupo)
   async actualizarEvento(id, data) {
     try {
       return await Eventos.actualizar(id, data);
@@ -248,6 +274,7 @@ class AdminData {
     }
   }
 
+  // Elimina un evento y sus inscripciones
   async eliminarEvento(id) {
     try {
       return await Eventos.eliminar(id);
@@ -258,6 +285,7 @@ class AdminData {
   }
 
   // ==================== NOTIFICACIONES ====================
+  // Trae el historial de notificaciones del sistema
   async obtenerNotificaciones() {
     try {
       return await Notificaciones.listar();
@@ -267,6 +295,7 @@ class AdminData {
     }
   }
 
+  // Envía una nueva notificación a los usuarios
   async crearNotificacion(data) {
     try {
       if (!data.titulo) throw new Error('El título es requerido');
@@ -277,6 +306,7 @@ class AdminData {
     }
   }
 
+  // Edita una notificación enviada
   async actualizarNotificacion(id, data) {
     try {
       return await Notificaciones.actualizar(id, data);
@@ -286,6 +316,7 @@ class AdminData {
     }
   }
 
+  // Borra una notificación
   async eliminarNotificacion(id) {
     try {
       return await Notificaciones.eliminar(id);
@@ -296,6 +327,7 @@ class AdminData {
   }
 
   // ==================== NOVEDADES ====================
+  // Trae todas las noticias publicadas en el feed
   async obtenerNovedades() {
     try {
       return await Novedades.listar();
@@ -305,6 +337,7 @@ class AdminData {
     }
   }
 
+  // Crea y publica una nueva noticia o aviso
   async crearNovedad(data) {
     try {
       if (!data.titulo) throw new Error('El título es requerido');
@@ -315,6 +348,7 @@ class AdminData {
     }
   }
 
+  // Edita el contenido de una novedad
   async actualizarNovedad(id, data) {
     try {
       return await Novedades.actualizar(id, data);
@@ -324,6 +358,7 @@ class AdminData {
     }
   }
 
+  // Elimina una novedad del sistema
   async eliminarNovedad(id) {
     try {
       return await Novedades.eliminar(id);
@@ -334,6 +369,7 @@ class AdminData {
   }
 
   // ==================== REGLAMENTACIÓN ====================
+  // Lista todos los documentos normativos cargados
   async obtenerReglamentacion() {
     try {
       return await Reglamentacion.listar();
@@ -343,6 +379,7 @@ class AdminData {
     }
   }
 
+  // Sube la información de un nuevo reglamento (título, link, etc.)
   async crearReglamento(data) {
     try {
       if (!data.titulo) throw new Error('El título es requerido');
@@ -353,6 +390,7 @@ class AdminData {
     }
   }
 
+  // Actualiza la información de un reglamento existente
   async actualizarReglamento(id, data) {
     try {
       return await Reglamentacion.actualizar(id, data);
@@ -362,6 +400,7 @@ class AdminData {
     }
   }
 
+  // Borra un reglamento del repositorio
   async eliminarReglamento(id) {
     try {
       return await Reglamentacion.eliminar(id);

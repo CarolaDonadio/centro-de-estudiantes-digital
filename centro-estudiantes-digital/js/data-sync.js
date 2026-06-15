@@ -1,10 +1,13 @@
 /**
  * DATA SYNC - Sincronización de datos locales con API remota
  * Permite cargar datos desde JSON locales hacia la API
+ * Este script es principalmente una herramienta de desarrollo para poblar la API
+ * con datos de prueba de forma masiva.
  */
 
 class DataSync {
   constructor() {
+    // Inicializa un objeto para almacenar los resultados de la sincronización (éxitos, errores, detalles).
     this.resultados = {
       exitosos: 0,
       errores: 0,
@@ -13,10 +16,12 @@ class DataSync {
   }
 
   /**
-   * Sincronizar todos los recursos desde archivos locales
+   * Sincroniza todos los recursos definidos desde sus archivos JSON locales hacia la API remota.
+   * Es el método principal para iniciar una carga masiva de datos.
    */
   async sincronizarTodo() {
     console.log('🔄 Iniciando sincronización completa de datos...');
+    // Reinicia los contadores de resultados antes de cada sincronización.
     this.resultados = { exitosos: 0, errores: 0, detalles: [] };
 
     const tareas = [
@@ -31,16 +36,21 @@ class DataSync {
       { nombre: 'Reglamentación', archivo: '../json/reglamentacion.json', modulo: Reglamentacion }
     ];
 
+    // Itera sobre cada tarea (recurso) y llama a sincronizarRecurso para cada uno.
     for (const tarea of tareas) {
       await this.sincronizarRecurso(tarea.nombre, tarea.archivo, tarea.modulo);
     }
 
+    // Muestra un resumen final de la sincronización en la consola.
     console.log('✅ Sincronización completada', this.resultados);
     return this.resultados;
   }
 
   /**
-   * Sincronizar un recurso específico
+   * Sincroniza un recurso específico (ej. "Usuarios") desde un archivo JSON local.
+   * @param {string} nombre - Nombre del recurso (ej. "Usuarios").
+   * @param {string} archivo - Ruta al archivo JSON local (ej. '../json/usuarios.json').
+   * @param {object} modulo - Objeto del cliente API (ej. `Usuarios`) con el método `crear`.
    */
   async sincronizarRecurso(nombre, archivo, modulo) {
     console.log(`📦 Sincronizando ${nombre}...`);
@@ -48,11 +58,13 @@ class DataSync {
     try {
       const datos = await this.cargarJSON(archivo);
       
+      // Si los datos cargados no son un array, se emite una advertencia y se omite el recurso.
       if (!Array.isArray(datos)) {
         console.warn(`⚠️  ${nombre} no es un array, omitiendo`);
         return;
       }
 
+      // Itera sobre cada elemento del array de datos y lo intenta crear en la API.
       for (const item of datos) {
         try {
           await modulo.crear(item);
@@ -76,6 +88,7 @@ class DataSync {
 
       console.log(`✓ ${nombre} sincronizado`);
     } catch (error) {
+      // Captura errores al cargar el archivo JSON o al procesar el recurso.
       console.error(`✗ Error en ${nombre}:`, error.message);
       this.resultados.errores++;
       this.resultados.detalles.push({
@@ -87,17 +100,21 @@ class DataSync {
   }
 
   /**
-   * Cargar archivo JSON
+   * Carga un archivo JSON desde una URL (ruta local).
+   * @param {string} archivo - Ruta al archivo JSON.
+   * @returns {Array} - Un array de objetos JSON.
    */
   async cargarJSON(archivo) {
     const response = await fetch(archivo);
+    // Si la respuesta HTTP no es exitosa (ej. 404), lanza un error.
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     let data = await response.json();
     
-    // Si es un objeto con un campo que contiene array
+    // Maneja casos donde el JSON puede ser un objeto que contiene un array (ej. { "materias": [...] }).
     if (data && typeof data === 'object' && !Array.isArray(data)) {
       const valores = Object.values(data);
+      // Si el objeto tiene una única propiedad que es un array, extrae ese array.
       if (valores.length === 1 && Array.isArray(valores[0])) {
         data = valores[0];
       }
@@ -107,10 +124,12 @@ class DataSync {
   }
 
   /**
-   * Limpiar todos los datos de la API (útil para testing)
+   * Elimina todos los datos de todos los módulos en la API.
+   * Es una función destructiva, útil para reiniciar la base de datos de prueba.
    */
   async limpiarTodo() {
     if (!confirm('⚠️  ¿Deseas eliminar TODOS los datos de la API? Esta acción no se puede deshacer.')) {
+      // Pide confirmación al usuario antes de proceder.
       return;
     }
 
@@ -129,10 +148,13 @@ class DataSync {
       { nombre: 'Reglamentación', modulo: Reglamentacion }
     ];
 
+    // Itera sobre cada módulo, lista sus elementos y los elimina uno por uno.
     for (const { nombre, modulo } of modulos) {
       try {
         const items = await modulo.listar();
+        // Itera sobre los elementos obtenidos y los elimina.
         for (const item of items) {
+          // Intenta eliminar cada item y registra el éxito o el error.
           try {
             await modulo.eliminar(item.id);
             this.resultados.exitosos++;
@@ -141,6 +163,7 @@ class DataSync {
           }
         }
         console.log(`✓ ${nombre} limpiado`);
+      // Captura errores si no se puede listar o eliminar un módulo completo.
       } catch (error) {
         console.error(`✗ Error limpiando ${nombre}:`, error.message);
       }
@@ -151,7 +174,8 @@ class DataSync {
   }
 
   /**
-   * Obtener un resumen de los datos en la API
+   * Obtiene un resumen de la cantidad de elementos en cada módulo de la API.
+   * @returns {object} - Un objeto donde las claves son los nombres de los módulos y los valores son las cantidades.
    */
   async obtenerResumen() {
     const resumen = {};
@@ -168,6 +192,7 @@ class DataSync {
       { nombre: 'reglamentación', modulo: Reglamentacion }
     ];
 
+    // Para cada módulo, intenta listar sus elementos y cuenta cuántos hay.
     for (const { nombre, modulo } of modulos) {
       try {
         const items = await modulo.listar();
@@ -181,7 +206,7 @@ class DataSync {
   }
 
   /**
-   * Mostrar resumen en la consola
+   * Muestra el resumen de datos en la consola del navegador como una tabla.
    */
   async mostrarResumen() {
     const resumen = await this.obtenerResumen();
@@ -190,10 +215,13 @@ class DataSync {
   }
 }
 
-// Crear instancia global
+// Crea una instancia global de DataSync para que sea accesible en toda la aplicación.
 const dataSync = new DataSync();
 
-// Funciones de conveniencia
+// --- Funciones de conveniencia globales ---
+// Estas funciones son atajos para llamar a los métodos de la instancia `dataSync`
+// de forma más sencilla desde la consola del navegador o desde otros scripts.
+
 async function sincronizarDatos() {
   return await dataSync.sincronizarTodo();
 }
@@ -206,7 +234,9 @@ async function verResumenDatos() {
   return await dataSync.mostrarResumen();
 }
 
-// Exponer a nivel global (navegador)
+// --- Exportación global ---
+// Hace que la instancia `dataSync` y las funciones de conveniencia estén disponibles
+// como propiedades del objeto `window` en el navegador.
 if (typeof window !== 'undefined') {
   window.dataSync = dataSync;
   window.sincronizarDatos = sincronizarDatos;

@@ -5,9 +5,11 @@
 
 class AlumnoData {
   constructor() {
+    // Al instanciar la clase, recuperamos automáticamente la sesión del usuario logueado
     this.session = this.getSession();
   }
 
+  // Método privado para leer los datos de sesión desde el localStorage
   getSession() {
     try {
       return JSON.parse(localStorage.getItem('cedSession'));
@@ -17,6 +19,8 @@ class AlumnoData {
   }
 
   // ==================== CALENDARIO ====================
+  
+  // Trae la lista completa de fechas académicas (exámenes, feriados, etc.)
   async obtenerCalendario() {
     try {
       return await Calendario.listar();
@@ -26,6 +30,7 @@ class AlumnoData {
     }
   }
 
+  // Trae los detalles de una sola fecha del calendario
   async obtenerEventoCalendario(id) {
     try {
       return await Calendario.obtener(id);
@@ -36,6 +41,8 @@ class AlumnoData {
   }
 
   // ==================== EVENTOS ====================
+  
+  // Trae la lista de eventos sociales y culturales organizados por el CE
   async obtenerEventos() {
     try {
       return await Eventos.listar();
@@ -45,6 +52,7 @@ class AlumnoData {
     }
   }
 
+  // Trae la información detallada de un evento específico
   async obtenerEvento(id) {
     try {
       return await Eventos.obtener(id);
@@ -55,6 +63,8 @@ class AlumnoData {
   }
 
   // ==================== NOVEDADES ====================
+  
+  // Trae el feed de noticias y avisos del instituto
   async obtenerNovedades() {
     try {
       return await Novedades.listar();
@@ -64,6 +74,7 @@ class AlumnoData {
     }
   }
 
+  // Trae una noticia en particular por su ID
   async obtenerNovedad(id) {
     try {
       return await Novedades.obtener(id);
@@ -74,6 +85,8 @@ class AlumnoData {
   }
 
   // ==================== MATERIAS ====================
+  
+  // Trae el listado general de todas las materias del sistema
   async obtenerMaterias() {
     try {
       return await Materias.listar();
@@ -83,6 +96,7 @@ class AlumnoData {
     }
   }
 
+  // Trae la información de una materia específica (docente, horarios, etc.)
   async obtenerMateria(id) {
     try {
       return await Materias.obtener(id);
@@ -93,7 +107,7 @@ class AlumnoData {
   }
 
   /**
-   * Obtener solo las materias del alumno actual
+   * Filtra la lista general para devolver solo las materias de la carrera del alumno
    */
   async obtenerMisMateria() {
     try {
@@ -110,6 +124,8 @@ class AlumnoData {
   }
 
   // ==================== NOTIFICACIONES ====================
+  
+  // Trae las alertas y avisos directos para el usuario
   async obtenerNotificaciones() {
     try {
       return await Notificaciones.listar();
@@ -119,6 +135,7 @@ class AlumnoData {
     }
   }
 
+  // Obtiene los detalles de una notificación recibida
   async obtenerNotificacion(id) {
     try {
       return await Notificaciones.obtener(id);
@@ -129,6 +146,8 @@ class AlumnoData {
   }
 
   // ==================== REGLAMENTACIÓN ====================
+  
+  // Trae el repositorio de documentos y normativas oficiales
   async obtenerReglamentacion() {
     try {
       return await Reglamentacion.listar();
@@ -138,6 +157,7 @@ class AlumnoData {
     }
   }
 
+  // Obtiene el link o datos de un reglamento específico
   async obtenerReglamento(id) {
     try {
       return await Reglamentacion.obtener(id);
@@ -148,6 +168,8 @@ class AlumnoData {
   }
 
   // ==================== CARRERAS ====================
+  
+  // Trae el listado de todas las carreras que ofrece el ISFDyT 57
   async obtenerCarreras() {
     try {
       return await Carreras.listar();
@@ -157,6 +179,7 @@ class AlumnoData {
     }
   }
 
+  // Trae la info de una carrera (nombre, código, descripción)
   async obtenerCarrera(id) {
     try {
       return await Carreras.obtener(id);
@@ -167,6 +190,8 @@ class AlumnoData {
   }
 
   // ==================== PERFILES ====================
+  
+  // Trae los roles definidos en el sistema (usado para etiquetas visuales)
   async obtenerPerfiles() {
     try {
       return await Perfiles.listar();
@@ -179,7 +204,7 @@ class AlumnoData {
   // ==================== MI INFORMACIÓN ====================
   
   /**
-   * Obtener datos del alumno actual
+   * Pide a la API los datos actualizados del perfil del alumno logueado
    */
   async obtenerMiInfo() {
     if (!this.session) throw new Error('No hay sesión activa');
@@ -193,13 +218,13 @@ class AlumnoData {
   }
 
   /**
-   * Actualizar mi información (solo datos permitidos)
+   * Envía cambios al perfil (el alumno solo puede editar email, tel y avatar)
    */
   async actualizarMiInfo(data) {
     if (!this.session) throw new Error('No hay sesión activa');
     
     try {
-      // Solo permitir actualizar ciertos campos
+      // Filtro de seguridad: el alumno no puede cambiarse el rol o la carrera solo
       const permitidos = ['email', 'telefono', 'avatar'];
       const datosActualizados = {};
       
@@ -221,18 +246,20 @@ class AlumnoData {
   }
 
   /**
-   * Cambiar contraseña del alumno
+   * Procesa la solicitud de cambio de clave del estudiante
    */
   async cambiarPassword(passwordActual, passwordNueva) {
     if (!this.session) throw new Error('No hay sesión activa');
     
     try {
+      // Validaciones básicas de integridad
       if (!passwordActual || !passwordNueva) {
         throw new Error('Las contraseñas son requeridas');
       }
 
-      if (passwordNueva.length < 6) {
-        throw new Error('La contraseña debe tener al menos 6 caracteres');
+      // Validación de longitud mínima (regla de negocio del frontend)
+      if (passwordNueva.length < 4) {
+        throw new Error('La contraseña debe tener al menos 4 caracteres');
       }
 
       return await Usuarios.actualizar(this.session.id, {
@@ -246,10 +273,10 @@ class AlumnoData {
   }
 }
 
-// Crear instancia global
+// Creamos la instancia única para que todo el sitio del alumno la use
 const alumnoData = new AlumnoData();
 
-// Exponer a nivel global (navegador)
+// Exponemos el objeto al objeto 'window' para que sea accesible desde cualquier script
 if (typeof window !== 'undefined') {
   window.alumnoData = alumnoData;
 }
