@@ -99,10 +99,10 @@
       letter-spacing: .12em;
       text-transform: uppercase;
       color: #fff;
-      background: linear-gradient(135deg, #C0392B, #E67E5B);
+      background: linear-gradient(135deg, var(--brand-700, #2C3E87), var(--brand-500, #4A67C9));
       padding: .35rem .65rem .35rem .55rem;
       border-radius: 999px;
-      box-shadow: 0 4px 10px -4px rgba(192, 57, 43, .5);
+      box-shadow: 0 4px 10px -4px rgba(74, 103, 201, .5);
       margin-bottom: .35rem;
     }
     .role-pill svg {
@@ -115,7 +115,7 @@
        ============================================================ */
     .avatar--admin {
       position: relative;
-      background: linear-gradient(135deg, #C0392B, #1A1D4A) !important;
+      background: linear-gradient(135deg, var(--brand-500, #4A67C9), var(--brand-300, #8FA3E3)) !important;
     }
     .avatar--admin::after {
       content: "";
@@ -124,7 +124,7 @@
       width: 18px; height: 18px;
       border-radius: 50%;
       background: #fff;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C0392B' stroke-width='2.4'><path d='M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z'/><path d='M9 12l2 2 4-4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232C3E87' stroke-width='2.4'><path d='M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z'/><path d='M9 12l2 2 4-4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
       background-size: 12px;
       background-repeat: no-repeat;
       background-position: center;
@@ -141,16 +141,16 @@
       padding: .55rem .9rem;
       font: 600 .82rem/1 'Manrope', sans-serif;
       color: #fff;
-      background: linear-gradient(135deg, #C0392B, #E67E5B);
+      background: linear-gradient(135deg, var(--brand-700, #2C3E87), var(--brand-500, #4A67C9));
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      box-shadow: 0 6px 18px -6px rgba(192, 57, 43, .5);
+      box-shadow: 0 6px 18px -6px rgba(74, 103, 201, .5);
       transition: transform .2s ease, box-shadow .2s ease;
     }
     .header__action:hover {
       transform: translateY(-1px);
-      box-shadow: 0 10px 22px -8px rgba(192, 57, 43, .6);
+      box-shadow: 0 10px 22px -8px rgba(74, 103, 201, .6);
     }
     .header__action svg {
       width: 14px; height: 14px;
@@ -431,8 +431,8 @@
     .admin-form input:focus,
     .admin-form select:focus,
     .admin-form textarea:focus {
-      border-color: var(--accent-coral, #E67E5B);
-      box-shadow: 0 0 0 3px rgba(230, 126, 91, .15);
+      border-color: var(--brand-500, #4A67C9);
+      box-shadow: 0 0 0 3px rgba(74, 103, 201, .15);
     }
     .admin-form__submit {
       align-self: flex-start;
@@ -442,11 +442,11 @@
       padding: .75rem 1.3rem;
       font: 700 .85rem/1 'Manrope', sans-serif;
       color: #fff;
-      background: linear-gradient(135deg, #C0392B, #E67E5B);
+      background: linear-gradient(135deg, var(--brand-700, #2C3E87), var(--brand-500, #4A67C9));
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      box-shadow: 0 8px 20px -8px rgba(192, 57, 43, .5);
+      box-shadow: 0 8px 20px -8px rgba(74, 103, 201, .5);
       transition: transform .2s ease;
     }
     .admin-form__submit:hover { transform: translateY(-1px); }
@@ -549,8 +549,8 @@
       padding: .1rem .35rem;
       margin-left: .25rem;
       font-size: .65rem;
-      background: rgba(192, 57, 43, .12);
-      color: #C0392B;
+      background: rgba(74, 103, 201, .12);
+      color: var(--brand-700, #2C3E87);
       border-radius: 999px;
     }
 
@@ -726,7 +726,7 @@
       letter-spacing: .08em;
       text-transform: uppercase;
       padding: .3rem .55rem;
-      background: linear-gradient(135deg, #C0392B, #E67E5B);
+      background: linear-gradient(135deg, var(--brand-700, #2C3E87), var(--brand-500, #4A67C9));
       color: #fff;
       border-radius: 6px;
       flex-shrink: 0;
