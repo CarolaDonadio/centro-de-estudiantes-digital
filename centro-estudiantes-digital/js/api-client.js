@@ -4,6 +4,7 @@
  * Autenticación: Basic Auth
  */
 
+// Configuración central de la API: URL base y credenciales de acceso
 const API_CONFIG = {
   baseURL: 'https://centro-de-estudiantes-api.vercel.app',
   credentials: {
@@ -13,6 +14,7 @@ const API_CONFIG = {
 };
 
 /**
+ * Crea el encabezado (header) necesario para la autenticación Basic Auth.
  * Genera el header de autenticación Basic Auth
  */
 function getAuthHeader() {
@@ -25,6 +27,8 @@ function getAuthHeader() {
 }
 
 /**
+ * Función central que realiza las peticiones HTTP (fetch).
+ * Se encarga de la URL, el método, los headers de seguridad y la conversión a JSON.
  * Función genérica para hacer requests
  */
 async function request(endpoint, method = 'GET', body = null) {
@@ -35,17 +39,20 @@ async function request(endpoint, method = 'GET', body = null) {
       headers: getAuthHeader()
     };
 
+    // Si enviamos datos (POST o PUT), los convertimos a una cadena de texto JSON
     if (body && (method === 'POST' || method === 'PUT')) {
       options.body = JSON.stringify(body);
     }
 
     const response = await fetch(url, options);
     
+    // Si la respuesta no es exitosa (ej. 404 o 500), lanzamos un error con el mensaje del servidor
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
+    // Si todo salió bien, devolvemos los datos convertidos a objeto JS
     return await response.json();
   } catch (error) {
     console.error(`Error en ${endpoint}:`, error.message);
@@ -56,19 +63,25 @@ async function request(endpoint, method = 'GET', body = null) {
 /**
  * ==================== CALENDARIO ====================
  */
+// Métodos para gestionar las fechas académicas
 const Calendario = {
+  // Trae todos los eventos del calendario
   async listar() {
     return await request('/calendario');
   },
+  // Trae un evento específico por su ID
   async obtener(id) {
     return await request(`/calendario/${id}`);
   },
+  // Crea un nuevo evento académico
   async crear(data) {
     return await request('/calendario', 'POST', data);
   },
+  // Actualiza los datos de una fecha existente
   async actualizar(id, data) {
     return await request(`/calendario/${id}`, 'PUT', data);
   },
+  // Borra una fecha del calendario
   async eliminar(id) {
     return await request(`/calendario/${id}`, 'DELETE');
   }
@@ -77,19 +90,25 @@ const Calendario = {
 /**
  * ==================== CARRERAS ====================
  */
+// Métodos para gestionar la oferta académica (ej. Tecnicaturas, Profesorados)
 const Carreras = {
+  // Lista todas las carreras
   async listar() {
     return await request('/carreras');
   },
+  // Trae info de una carrera por ID
   async obtener(id) {
     return await request(`/carreras/${id}`);
   },
+  // Registra una nueva carrera
   async crear(data) {
     return await request('/carreras', 'POST', data);
   },
+  // Edita nombre o código de una carrera
   async actualizar(id, data) {
     return await request(`/carreras/${id}`, 'PUT', data);
   },
+  // Elimina una carrera del sistema
   async eliminar(id) {
     return await request(`/carreras/${id}`, 'DELETE');
   }
@@ -98,19 +117,25 @@ const Carreras = {
 /**
  * ==================== EVENTOS ====================
  */
+// Métodos para gestionar eventos del Centro de Estudiantes
 const Eventos = {
+  // Lista todos los eventos publicados
   async listar() {
     return await request('/eventos');
   },
+  // Detalles de un evento (lugar, cupo, etc.)
   async obtener(id) {
     return await request(`/eventos/${id}`);
   },
+  // Crea y publica un nuevo evento
   async crear(data) {
     return await request('/eventos', 'POST', data);
   },
+  // Modifica los datos de un evento
   async actualizar(id, data) {
     return await request(`/eventos/${id}`, 'PUT', data);
   },
+  // Borra un evento
   async eliminar(id) {
     return await request(`/eventos/${id}`, 'DELETE');
   }
@@ -119,19 +144,25 @@ const Eventos = {
 /**
  * ==================== MATERIAS ====================
  */
+// Métodos para gestionar las materias de las carreras
 const Materias = {
+  // Lista todas las materias cargadas
   async listar() {
     return await request('/materias');
   },
+  // Info de una materia (docente, días, etc.)
   async obtener(id) {
     return await request(`/materias/${id}`);
   },
+  // Registra una nueva materia vinculada a una carrera
   async crear(data) {
     return await request('/materias', 'POST', data);
   },
+  // Actualiza datos de cursada de una materia
   async actualizar(id, data) {
     return await request(`/materias/${id}`, 'PUT', data);
   },
+  // Elimina una materia
   async eliminar(id) {
     return await request(`/materias/${id}`, 'DELETE');
   }
@@ -140,19 +171,25 @@ const Materias = {
 /**
  * ==================== NOTIFICACIONES ====================
  */
+// Métodos para el sistema de alertas del portal
 const Notificaciones = {
+  // Trae el historial de notificaciones
   async listar() {
     return await request('/notificaciones');
   },
+  // Obtiene una notificación específica
   async obtener(id) {
     return await request(`/notificaciones/${id}`);
   },
+  // Crea y envía una notificación a los usuarios
   async crear(data) {
     return await request('/notificaciones', 'POST', data);
   },
+  // Marca como leída o edita una notificación
   async actualizar(id, data) {
     return await request(`/notificaciones/${id}`, 'PUT', data);
   },
+  // Borra una notificación
   async eliminar(id) {
     return await request(`/notificaciones/${id}`, 'DELETE');
   }
@@ -161,19 +198,25 @@ const Notificaciones = {
 /**
  * ==================== NOVEDADES ====================
  */
+// Métodos para el feed de noticias/novedades
 const Novedades = {
+  // Trae todas las noticias publicadas
   async listar() {
     return await request('/novedades');
   },
+  // Obtiene el contenido de una noticia por ID
   async obtener(id) {
     return await request(`/novedades/${id}`);
   },
+  // Publica una nueva noticia
   async crear(data) {
     return await request('/novedades', 'POST', data);
   },
+  // Edita una noticia (ej. cambiar si está destacada)
   async actualizar(id, data) {
     return await request(`/novedades/${id}`, 'PUT', data);
   },
+  // Elimina una noticia del feed
   async eliminar(id) {
     return await request(`/novedades/${id}`, 'DELETE');
   }
@@ -182,19 +225,25 @@ const Novedades = {
 /**
  * ==================== PERFILES ====================
  */
+// Métodos para gestionar los roles (Admin, Docente, Alumno, Delegado)
 const Perfiles = {
+  // Lista los tipos de perfiles disponibles
   async listar() {
     return await request('/perfiles');
   },
+  // Info de un perfil específico
   async obtener(id) {
     return await request(`/perfiles/${id}`);
   },
+  // Crea un nuevo tipo de rol
   async crear(data) {
     return await request('/perfiles', 'POST', data);
   },
+  // Edita permisos o nombre de un rol
   async actualizar(id, data) {
     return await request(`/perfiles/${id}`, 'PUT', data);
   },
+  // Elimina un rol
   async eliminar(id) {
     return await request(`/perfiles/${id}`, 'DELETE');
   }
@@ -203,19 +252,25 @@ const Perfiles = {
 /**
  * ==================== REGLAMENTACIÓN ====================
  */
+// Métodos para el repositorio de documentos oficiales
 const Reglamentacion = {
+  // Lista todos los documentos normativos
   async listar() {
     return await request('/reglamentacion');
   },
+  // Detalles de un documento y su link
   async obtener(id) {
     return await request(`/reglamentacion/${id}`);
   },
+  // Sube información de un nuevo reglamento
   async crear(data) {
     return await request('/reglamentacion', 'POST', data);
   },
+  // Actualiza versión o descripción de un documento
   async actualizar(id, data) {
     return await request(`/reglamentacion/${id}`, 'PUT', data);
   },
+  // Quita un documento del repositorio
   async eliminar(id) {
     return await request(`/reglamentacion/${id}`, 'DELETE');
   }
@@ -224,19 +279,25 @@ const Reglamentacion = {
 /**
  * ==================== USUARIOS ====================
  */
+// Métodos para la gestión de cuentas de usuario
 const Usuarios = {
+  // Lista todas las cuentas del sistema
   async listar() {
     return await request('/usuarios');
   },
+  // Info de perfil de un usuario
   async obtener(id) {
     return await request(`/usuarios/${id}`);
   },
+  // Crea una nueva cuenta (estudiante, docente, etc.)
   async crear(data) {
     return await request('/usuarios', 'POST', data);
   },
+  // Actualiza datos (email, password, estado activo)
   async actualizar(id, data) {
     return await request(`/usuarios/${id}`, 'PUT', data);
   },
+  // Borra un usuario permanentemente
   async eliminar(id) {
     return await request(`/usuarios/${id}`, 'DELETE');
   }
@@ -245,13 +306,17 @@ const Usuarios = {
 /**
  * ==================== INSCRIPCIONES ====================
  */
+// Métodos para manejar el registro de alumnos a eventos
 const Inscripciones = {
+  // Lista todas las inscripciones realizadas
   async listar() {
     return await request('/inscripciones');
   },
+  // Registra a un alumno en un evento
   async crear(data) {
     return await request('/inscripciones', 'POST', data);
   },
+  // Cancela una inscripción
   async eliminar(id) {
     return await request(`/inscripciones/${id}`, 'DELETE');
   }
@@ -262,6 +327,8 @@ const Inscripciones = {
  * Funciones para subir datos desde los archivos JSON locales
  */
 
+// Función de conveniencia que recorre todos los archivos JSON locales 
+// y los sube uno por uno a la API remota.
 async function cargarDatosEnAPI() {
   const recursos = [
     { nombre: 'Usuarios', archivo: '../json/usuarios.json', apiModulo: Usuarios, campo: 'usuarios' },
@@ -322,6 +389,7 @@ async function cargarDatosEnAPI() {
 /**
  * Función para cargar un recurso específico desde archivo local
  */
+// Lee un archivo JSON específico y sube cada uno de sus elementos al módulo de la API indicado.
 async function cargarRecursoLocal(nombreArchivo, apiModulo) {
   try {
     const response = await fetch(nombreArchivo);
@@ -356,6 +424,7 @@ async function cargarRecursoLocal(nombreArchivo, apiModulo) {
   }
 }
 
+// --- EXPORTACIÓN ---
 // Exportar para uso en módulos (Node.js)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {

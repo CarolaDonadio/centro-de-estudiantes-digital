@@ -4,10 +4,12 @@
  */
 
 /**
- * Renderizar tabla de usuarios
+ * Renderizar tabla de usuarios:
+ * Pide la lista a la API y genera el HTML de una tabla completa.
  */
 async function renderUsuariosTable(contenedorId) {
   try {
+    // Pedimos los datos
     const usuarios = await Usuarios.listar();
     const contenedor = document.getElementById(contenedorId);
     
@@ -16,6 +18,7 @@ async function renderUsuariosTable(contenedorId) {
       return;
     }
 
+    // Empezamos a armar el HTML
     let html = `
       <table class="tabla-usuarios">
         <thead>
@@ -56,47 +59,72 @@ async function renderUsuariosTable(contenedorId) {
 
     contenedor.innerHTML = html;
   } catch (error) {
+    // Si algo falla, lo mostramos en el mismo contenedor
     console.error('Error renderizando usuarios:', error);
     document.getElementById(contenedorId).innerHTML = `<p class="error">Error: ${error.message}</p>`;
   }
 }
 
 /**
- * Renderizar tabla de carreras
+ * Renderizar tabla de carreras:
+ * Esta es la que usa admin.html para mostrar la lista de carreras.
  */
 async function renderCarrerasTable(contenedorId) {
   try {
     const carreras = await Carreras.listar();
     const contenedor = document.getElementById(contenedorId);
-    
+    if (!contenedor) return;
+
+    // Si no hay datos, mostramos un estado vacío con un dibujo (SVG)
+    if (!carreras || carreras.length === 0) {
+      contenedor.innerHTML = `
+        <div class="notif-empty" style="margin-top:0; padding: 1.8rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
+          </svg>
+          <p>No hay carreras registradas.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Detectamos si es admin para saber si ponemos los botones de Editar/Eliminar
+    const isAdmin = typeof window !== 'undefined' && window.isAdminUser;
     let html = `
-      <table class="tabla-carreras">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div class="table-wrapper">
+        <table class="tabla-carreras">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              ${isAdmin ? '<th>Acciones</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>
     `;
 
     carreras.forEach(carrera => {
       html += `
         <tr>
-          <td>${carrera.codigo}</td>
+          <td>${carrera.codigo || '—'}</td>
           <td>${carrera.nombre}</td>
-          <td>
-            <button onclick="editarCarrera(${carrera.id})" class="btn-editar">Editar</button>
-            <button onclick="eliminarCarrera(${carrera.id})" class="btn-eliminar">Eliminar</button>
-          </td>
+          <td>${carrera.descripcion ? carrera.descripcion : '—'}</td>
+          ${isAdmin ? `
+            <td class="table-actions">
+              <button type="button" class="btn-small" data-carrera-edit data-carrera-id="${carrera.id}" aria-label="Editar ${carrera.nombre}">Editar</button>
+              <button type="button" class="btn-small btn-small--danger" data-carrera-delete data-carrera-id="${carrera.id}" aria-label="Eliminar ${carrera.nombre}">Eliminar</button>
+            </td>
+          ` : ''}
         </tr>
       `;
     });
 
     html += `
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     `;
 
     contenedor.innerHTML = html;
@@ -107,7 +135,8 @@ async function renderCarrerasTable(contenedorId) {
 }
 
 /**
- * Renderizar tabla de materias
+ * Renderizar tabla de materias:
+ * Crea el HTML para mostrar las materias y a qué carrera pertenecen.
  */
 async function renderMateriasTable(contenedorId) {
   try {
@@ -156,7 +185,8 @@ async function renderMateriasTable(contenedorId) {
 }
 
 /**
- * Renderizar calendario
+ * Renderizar calendario:
+ * Una versión simplificada para listar eventos rápido.
  */
 async function renderCalendario(contenedorId) {
   try {
@@ -189,7 +219,8 @@ async function renderCalendario(contenedorId) {
 }
 
 /**
- * Renderizar novedades
+ * Renderizar novedades:
+ * Crea una lista de artículos (news) con su fecha formateada.
  */
 async function renderNovedades(contenedorId) {
   try {
@@ -217,13 +248,16 @@ async function renderNovedades(contenedorId) {
 }
 
 /**
- * Crear usuario desde formulario
+ * Crear usuario desde formulario:
+ * Lee todos los campos de un form, los convierte a un objeto y los manda a la API.
  */
 async function crearUsuarioDesdeFormulario(formId) {
   try {
     const form = document.getElementById(formId);
     if (!form) throw new Error(`Formulario ${formId} no encontrado`);
 
+    // Truco: FormData + fromEntries convierte un formulario 
+    // automáticamente en un objeto { nombre: "...", email: "..." }
     const formData = new FormData(form);
     const data = Object.fromEntries(formData);
 
@@ -243,7 +277,8 @@ async function crearUsuarioDesdeFormulario(formId) {
 }
 
 /**
- * Actualizar usuario desde formulario
+ * Actualizar usuario desde formulario:
+ * Igual que el anterior, pero usa el método PUT para editar uno existente.
  */
 async function actualizarUsuarioDesdeFormulario(usuarioId, formId) {
   try {
@@ -266,7 +301,8 @@ async function actualizarUsuarioDesdeFormulario(usuarioId, formId) {
 }
 
 /**
- * Cargar selectores con datos
+ * Cargar selectores con datos:
+ * Estas funciones llenan los menús desplegables (<select>) con datos reales de la API.
  */
 async function cargarSelectCarreras(selectId) {
   try {
@@ -277,6 +313,7 @@ async function cargarSelectCarreras(selectId) {
 
     select.innerHTML = '<option value="">-- Selecciona una carrera --</option>';
     
+    // Por cada carrera, creamos una <option>
     carreras.forEach(carrera => {
       const option = document.createElement('option');
       option.value = carrera.id;
@@ -309,13 +346,14 @@ async function cargarSelectPerfiles(selectId) {
 }
 
 /**
- * Manejar errores comunes
+ * Manejar errores comunes:
+ * Muestra un cartelito rojo flotante en la pantalla que desaparece a los 5 segundos.
  */
 function manejarError(error, contexto = 'Operación') {
   const mensaje = error?.message || 'Error desconocido';
   console.error(`${contexto}:`, error);
   
-  // Mostrar en UI
+  // Creamos el div de alerta dinámicamente
   const alerta = document.createElement('div');
   alerta.className = 'alerta alerta-error';
   alerta.textContent = `${contexto}: ${mensaje}`;
@@ -325,7 +363,8 @@ function manejarError(error, contexto = 'Operación') {
 }
 
 /**
- * Mostrar mensaje de éxito
+ * Mostrar mensaje de éxito:
+ * Muestra un cartelito verde con un check (✓).
  */
 function mostrarExito(mensaje) {
   const alerta = document.createElement('div');
@@ -337,7 +376,10 @@ function mostrarExito(mensaje) {
 }
 
 /**
- * Stub functions - reemplazar con lógica real
+ * Stub functions - Funciones de prueba:
+ * Estos son "huecos" (stubs) preparados para que 
+ * le agregues la lógica de abrir modales de edición 
+ * en el futuro.
  */
 async function editarUsuario(id) {
   try {

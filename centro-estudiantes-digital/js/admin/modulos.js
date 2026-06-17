@@ -1,6 +1,9 @@
 'use strict';
 
 /**
+ * Este archivo define un objeto global llamado `window.MODULOS_DATA`.
+ * Contiene datos de prueba (mock data) para los diferentes módulos del panel de administración.
+ *
  * Datos mock para los 5 módulos obligatorios del proyecto.
  * En Fase 2 estos datos vendrán de endpoints CodeIgniter 4.
  */
@@ -8,6 +11,7 @@ window.MODULOS_DATA = {
 
   'mod-novedades': {
     titulo: 'Novedades',
+    // Ícono SVG para mostrar en el sidebar y en el encabezado del módulo
     icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/><path d="M14 2v6h6" stroke-linejoin="round"/><path d="M16 13H8M16 17H8M10 9H8" stroke-linecap="round"/></svg>',
     descripcion: 'Publicación de noticias y avisos con categorización: Académico, Social, Institucional y Urgente.',
     items: [
@@ -21,6 +25,7 @@ window.MODULOS_DATA = {
 
   'mod-calendario': {
     titulo: 'Calendario Académico',
+    // Ícono SVG para el calendario
     icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg>',
     descripcion: 'Fechas importantes del año académico: exámenes, inscripciones, feriados y recesos.',
     items: [
@@ -35,6 +40,7 @@ window.MODULOS_DATA = {
 
   'mod-reglamentacion': {
     titulo: 'Reglamentación',
+    // Ícono SVG para reglamentación
     icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke-linejoin="round"/></svg>',
     descripcion: 'Repositorio centralizado de documentos oficiales con versionado y búsqueda por palabras clave.',
     items: [
@@ -47,6 +53,7 @@ window.MODULOS_DATA = {
 
   'mod-eventos': {
     titulo: 'Eventos',
+    // Ícono SVG para eventos
     icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke-linejoin="round"/><path d="M4 22v-7" stroke-linecap="round"/></svg>',
     descripcion: 'Gestión de eventos del centro de estudiantes con inscripción online y control de cupos.',
     items: [

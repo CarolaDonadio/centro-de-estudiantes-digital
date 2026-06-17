@@ -12,6 +12,8 @@
    0. CONFIGURACIÓN - Rutas a la API Mock
       En producción (Fase 2) se cambiará por el endpoint REST de CI4.
 ---------------------------------------------------------------- */
+// Este objeto define las rutas a los archivos JSON locales que se usaban como "API mock" en la Fase 1.
+// Aunque ahora se usa la API real (api-client.js), algunas referencias a JSON locales persisten para datos estáticos.
 const API = {
   usuario: '../json/usuario.json',
   novedades: '../json/novedades.json',
@@ -26,10 +28,13 @@ const API = {
 /* ----------------------------------------------------------------
    1. HELPERS (utilidades genéricas)
 ---------------------------------------------------------------- */
+// Funciones cortas para seleccionar elementos del DOM, similares a jQuery.
+// $ para un solo elemento, $$ para una lista de elementos.
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
 /**
+ * Función auxiliar para cargar archivos JSON.
  * Wrapper fetch con manejo de errores y fallback a datos inline.
  * Útil para cuando se abre el HTML con protocolo file:// (sin servidor).
  */
@@ -39,6 +44,7 @@ async function fetchJSON(url) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return await res.json();
   } catch (err) {
+    // Si falla la carga (ej. no hay servidor local), intenta usar datos de respaldo (fallback)
     console.warn(`[API Mock] No se pudo cargar ${url}. Verificá que estés corriendo un servidor local.`, err);
     // Devolvemos el fallback desde window si existe (por si no hay servidor)
     const key = url.replace('../json/', '').replace('.json', '');
@@ -46,6 +52,7 @@ async function fetchJSON(url) {
   }
 }
 
+// Formatea una fecha ISO (ej. "2026-06-15T19:52:32Z") a un objeto con día y mes abreviado.
 /** Formatea una fecha ISO a "dd MMM" en español. */
 function formatDay(isoDate) {
   const d = new Date(isoDate);
@@ -53,6 +60,7 @@ function formatDay(isoDate) {
   return { dia: d.getDate(), mes: meses[d.getMonth()] };
 }
 
+// Calcula cuánto tiempo pasó desde una fecha dada y lo devuelve en formato legible (ej. "hace 5min").
 /** Formatea "hace X tiempo" para novedades */
 function timeAgo(isoDate) {
   const d = new Date(isoDate);
@@ -63,11 +71,13 @@ function timeAgo(isoDate) {
   return d.toLocaleDateString('es-AR');
 }
 
+// Obtiene una lista de nombres de materias únicas para usar en filtros.
 function getUniqueNewsSubjects() {
   const allMaterias = state.materias?.materias || [];
   return allMaterias.map(m => ({ id: m.id, nombre: m.nombre }));
 }
 
+// Convierte un color hexadecimal a un formato RGBA con una transparencia (alpha) dada.
 /** Devuelve un color "soft" a partir de un hex (para fondo de chips) */
 function softColor(hex, alpha = 0.14) {
   const h = hex.replace('#', '');
@@ -77,6 +87,7 @@ function softColor(hex, alpha = 0.14) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+// Oscurece un color hexadecimal en un porcentaje dado.
 /** Darkens a hex color by a given percentage. */
 function darkenHex(hex, percent) {
   let r = parseInt(hex.slice(1, 3), 16);
@@ -90,6 +101,7 @@ function darkenHex(hex, percent) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
+// Asigna una imagen de fondo predefinida según el tipo de evento.
 /** Mapea el tipo de evento a una imagen de fondo (Unsplash) */
 function getEventBackgroundImage(imagenTipo) {
   const imagenes = {
@@ -106,7 +118,9 @@ function getEventBackgroundImage(imagenTipo) {
 }
 
 /* ----------------------------------------------------------------
-   2. ESTADO GLOBAL DE LA APP
+   2. ESTADO GLOBAL DE LA APP (state)
+   Este objeto guarda toda la información dinámica de la aplicación.
+   Cuando cambia, se deben re-renderizar las partes de la UI que lo usan.
 ---------------------------------------------------------------- */
 const state = {
   usuario: null,
@@ -144,10 +158,13 @@ const state = {
 };
 
 /* ----------------------------------------------------------------
-   3. INICIALIZACIÓN
+   3. INICIALIZACIÓN (init)
+   Esta función se ejecuta cuando la página termina de cargar.
+   Es el punto de entrada principal de la aplicación.
 ---------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', init);
 
+// Función asíncrona que carga todos los datos iniciales de la API y JSON locales.
 async function init() {
   try {
     const [usuario, novedadesAPI, dataNovedadesJSON, eventosAPI, calendarioAPI, dataCalendarioJSON, reglamentacionAPI, notificacionesAPI, carrerasAPI, materias] = await Promise.all([
@@ -163,6 +180,7 @@ async function init() {
       fetchJSON(API.materias)
     ]);
 
+    // Procesamiento de Novedades: mezcla datos de la API con categorías del JSON local.
     const categorias = dataNovedadesJSON?.categorias || [];
     const novedades = {
       novedades: (novedadesAPI || []).map(n => ({
@@ -174,20 +192,20 @@ async function init() {
       categorias
     };
 
-    // Preparamos el objeto de eventos con el formato que espera el resto de app.js
+    // Preparamos el objeto de eventos con el formato que espera el resto de app.js.
     const eventos = {
       eventos: eventosAPI || []
     };
 
-    // Preparamos el objeto de calendario mezclando los eventos de la API con los tipos del JSON
+    // Preparamos el objeto de calendario mezclando los eventos de la API con los tipos del JSON local.
     const calendario = {
       eventos_calendario: calendarioAPI || [],
       tipos: dataCalendarioJSON?.tipos || []
     };
 
-    // Preparamos el objeto de reglamentacion con el formato que espera el resto de app.js
+    // Preparamos el objeto de reglamentacion con el formato que espera el resto de app.js.
     const reglamentacion = { documentos: reglamentacionAPI || [] };
-    // Preparamos el objeto de notificaciones con el formato que espera el resto de app.js
+    // Preparamos el objeto de notificaciones con el formato que espera el resto de app.js.
     const notificaciones = { notificaciones: notificacionesAPI || [] };
 
     Object.assign(state, { usuario, novedades, eventos, calendario, reglamentacion, notificaciones, carreras: carrerasAPI, materias });
@@ -203,18 +221,21 @@ async function init() {
       });
     }
 
+    // Calcula el número inicial de notificaciones sin leer.
     if (state.notificaciones?.notificaciones) {
       const initialUnreadCount = state.notificaciones.notificaciones.filter(n => !n.leida).length;
       if (state.usuario) state.usuario.notificaciones_sin_leer = initialUnreadCount;
     }
 
+    // Llama a las funciones para renderizar las diferentes secciones de la interfaz.
     renderUserHeader();
     renderCareerCard();
     renderEvents();
     renderNewsFilters();
     renderNewsList();
     renderReglamentacion();
-
+    
+    // Bindea los eventos a los controles de navegación y notificaciones.
     bindNavigation();
     bindDrawerControls();
     bindNotifications();
@@ -226,12 +247,15 @@ async function init() {
 }
 
 /* ----------------------------------------------------------------
-   4. RENDER: Header + Saludo
+   4. RENDER: Header + Saludo (renderUserHeader)
+   Actualiza la información del usuario en el encabezado de la página.
 ---------------------------------------------------------------- */
 function renderUserHeader() {
   const u = state.usuario;
   if (!u) return;
 
+  // Obtiene el nombre del usuario de la sesión (si está disponible) o del objeto de usuario.
+  // Esto es para asegurar que el nombre mostrado sea el más actualizado.
   const session = JSON.parse(localStorage.getItem('cedSession'));
   const name = session?.nombre || u.nombre;
   $('#userName').textContent = name;
@@ -245,6 +269,7 @@ function renderUserHeader() {
     $('#userAvatar').textContent = initials;
   }
 
+  // Lógica para mostrar la "píldora" del rol del usuario (ej. "ADMINISTRADOR").
   // Lógica de Píldora de Rol
   const rawRole = (session?.rol || u.perfil || '').toLowerCase();
   const roleLabels = {
@@ -255,7 +280,7 @@ function renderUserHeader() {
   };
 
   if (roleLabels[rawRole]) {
-    // Limpiamos si ya existe (para evitar duplicados en re-renders)
+    // Limpiamos la píldora si ya existe (para evitar duplicados en re-renders).
     const oldPill = $('.role-pill');
     if (oldPill) oldPill.remove();
 
@@ -268,13 +293,15 @@ function renderUserHeader() {
     $('.header__text').prepend(pill);
   }
 
+  // Actualiza el resumen de actividades del usuario (clases, notificaciones, eventos).
   const resumen =
     `Tenés ${u.clases_hoy} clases hoy, ${u.notificaciones_sin_leer} notificaciones sin leer y ${u.eventos_semana} eventos del CE esta semana.`;
   $('#userSummary').textContent = resumen;
 }
 
 /* ----------------------------------------------------------------
-   5. RENDER: Tarjeta de Carrera
+   5. RENDER: Tarjeta de Carrera (renderCareerCard)
+   Actualiza la información de la carrera del alumno en la tarjeta principal.
 ---------------------------------------------------------------- */
 function renderCareerCard() {
   const u = state.usuario;
@@ -282,10 +309,12 @@ function renderCareerCard() {
 
   // Buscar el nombre de la carrera en los datos de la API
   const carreraObj = state.carreras.find(c => c.id == u.carrera_id);
-  $('#userCareer').textContent = carreraObj ? carreraObj.nombre : u.carrera;
+  $('#userCareer').textContent = carreraObj ? carreraObj.nombre : u.carrera; // Muestra el nombre de la carrera.
 
+  // Actualiza el número de materias aprobadas y totales.
   $('#materiasAprobadas').textContent = String(u.materias_cursadas).padStart(2, '0');
   $('#materiasTotales').textContent = u.materias_totales;
+  
 
   // Próxima fecha académica
   if (u.proximas_fechas?.length) {
@@ -294,7 +323,7 @@ function renderCareerCard() {
     $('#proximaTipo').textContent = prox.tipo;
   }
 
-  // Animación de la barra de progreso
+  // Animación de la barra de progreso de la carrera.
   const pct = (u.materias_cursadas / u.materias_totales) * 100;
   requestAnimationFrame(() => {
     $('#careerProgress').style.width = pct + '%';
@@ -302,10 +331,11 @@ function renderCareerCard() {
 }
 
 /* ----------------------------------------------------------------
-   6. RENDER: Eventos CE
-      - Por defecto muestra los 4 más próximos (2x2).
-      - Botón "Mostrar todo" expande para ver todos.
-      - Cada tarjeta tiene su botón "Inscribirme" funcional, con estado.
+   6. RENDER: Eventos CE (renderEvents)
+   Renderiza la cuadrícula de eventos del Centro de Estudiantes.
+   - Por defecto muestra los 4 más próximos (2x2).
+   - Un botón "Mostrar todo" permite expandir para ver todos los eventos.
+   - Cada tarjeta de evento tiene un botón "Inscribirme" que refleja el estado de inscripción.
 ---------------------------------------------------------------- */
 function renderEvents() {
   const cont = $('#eventsContainer');
@@ -313,16 +343,16 @@ function renderEvents() {
   const lista = state.eventos?.eventos || [];
 
   // Ordenamos por fecha (más próximos primero)
-  const ordenados = [...lista].sort(
+  const ordenados = [...lista].sort( // Crea una copia para no modificar el array original.
     (a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)
   );
 
-  // Cuántos mostrar según el estado de expansión (por defecto mostrar 4 -> 2x2)
+  // Cuántos eventos mostrar según el estado de expansión (por defecto, los primeros 4).
   const visibles = state.eventosExpanded ? ordenados : ordenados.slice(0, 4);
 
   // Render de las tarjetas
   cont.classList.toggle('events-grid--expanded', state.eventosExpanded);
-  cont.innerHTML = visibles.map(ev => buildEventCardHTML(ev)).join('');
+  cont.innerHTML = visibles.map(ev => buildEventCardHTML(ev)).join(''); // Genera el HTML para cada evento visible.
 
   // Footer con el toggle "Mostrar todo / Mostrar menos"
   // Solo aparece si hay más de 4 eventos en total.
@@ -343,25 +373,22 @@ function renderEvents() {
     actions.innerHTML = '';
   }
 
-  // Bindeo: click en el botón "Inscribirme" de cada tarjeta
+  // Bindeo: Asigna el evento 'click' al botón "Inscribirme" de cada tarjeta.
   $$('.event-card__cta', cont).forEach(btn => {
     btn.addEventListener('click', (e) => {
-      e.stopPropagation();              // que no abra el drawer
-      const id = Number(btn.dataset.eventId);
+      e.stopPropagation();              // Evita que el clic en el botón también abra el drawer del evento.
+      const id = btn.dataset.eventId;
+      console.log('Intentando inscribirse al evento ID:', id);
       inscribirseEvento(id);
     });
   });
-
-  // Click en el cuerpo de la tarjeta abre el drawer del Centro Estudiantil (gestiona eventos)
-  $$('.event-card', cont).forEach(el => {
-    el.addEventListener('click', () => openDrawer('centro'));
-  });
 }
 
+
 /**
+ * buildEventCardHTML:
  * Genera el HTML de una tarjeta individual de evento.
- * Reflejá si el usuario ya está inscripto (state.inscripciones)
- * o si el cupo está completo.
+ * Refleja si el usuario ya está inscripto (usando `state.inscripciones`) o si el cupo está completo.
  */
 function buildEventCardHTML(ev) {
   const { dia, mes } = formatDay(ev.fecha_inicio);
@@ -420,45 +447,81 @@ function buildEventCardHTML(ev) {
 }
 
 /**
- * Lógica central de inscripción a un evento.
+ * showToast:
+ * Muestra un mensaje flotante (toast) en la parte inferior de la pantalla.
  * Actualiza el estado y refresca todas las vistas que muestren eventos.
+ */
+function showToast(message, type = 'success') {
+  const toast = $('#toastMessage');
+  const text = $('#toastMessageText');
+  if (!toast || !text) {
+    window.alert(message);
+    return;
+  }
+
+  toast.classList.remove('toast-message--success', 'toast-message--error', 'toast-message--warn');
+  toast.classList.add(`toast-message--${type}`);
+  text.textContent = message;
+  toast.classList.add('is-visible');
+
+  clearTimeout(toast._toastTimer);
+  toast._toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3600);
+}
+
+/**
+ * inscribirseEvento:
+ * Lógica central para que un usuario se inscriba a un evento.
  */
 async function inscribirseEvento(id) {
   const ev = state.eventos.eventos.find(x => x.id === id);
-  if (!ev || state.inscripciones.has(id) || ev.inscriptos >= ev.cupo) return;
+  if (!ev) {
+    showToast('No se encontró el evento.', 'error');
+    return;
+  }
+  if (state.inscripciones.has(id)) {
+    showToast('Ya estás inscripto a este evento.', 'warn');
+    return;
+  }
+  if (ev.inscriptos >= ev.cupo) {
+    showToast('No hay cupo disponible para este evento.', 'error');
+    return;
+  }
 
   try {
-    // Agregamos el ID del usuario a la lista dentro del evento
+    // Agregamos el ID del usuario a la lista de inscriptos dentro del evento.
     const usuariosActualizados = ev.usuarios_inscriptos || [];
     if (!usuariosActualizados.includes(state.usuario.id)) {
-      usuariosActualizados.push(state.usuario.id);
+      usuariosActualizados.push(state.usuario.id); // Añade el ID del usuario actual.
     }
 
     const inscriptosActualizados = (ev.inscriptos || 0) + 1;
-    
-    await Eventos.actualizar(id, { 
-      ...ev, 
-      inscriptos: inscriptosActualizados,
-      usuarios_inscriptos: usuariosActualizados 
-    });
-    
-    ev.inscriptos = inscriptosActualizados;
-    ev.usuarios_inscriptos = usuariosActualizados;
-    state.inscripciones.add(id);
 
+    await Eventos.actualizar(id, {
+      ...ev,
+      inscriptos: inscriptosActualizados,
+      usuarios_inscriptos: usuariosActualizados
+    });
+
+    ev.inscriptos = inscriptosActualizados; // Actualiza el contador de inscriptos en el objeto local.
+    ev.usuarios_inscriptos = usuariosActualizados; // Actualiza la lista de IDs de inscriptos.
+    state.inscripciones.add(id); // Añade el ID del evento al Set de inscripciones del estado global.
+    
     // Refrescamos la home y, si está abierto el drawer del centro, también lo actualizamos
     renderEvents();
     if (state.drawerActivo === 'centro') {
       renderCentro($('#drawerBody'));
     }
+
+    showToast('Te inscribiste exitosamente', 'success');
   } catch (err) {
     console.error('Error al inscribirse al evento:', err);
-    alert('No se pudo completar la inscripción en este momento. Intente más tarde.');
+    showToast('No se pudo completar la inscripción en este momento. Intente más tarde.', 'error');
   }
 }
 
 /* ----------------------------------------------------------------
-   7. RENDER: Novedades (Feed) + Filtros por categoría
+   7. RENDER: Novedades (Feed) + Filtros por categoría (renderNewsFilters y renderNewsList)
+   Gestiona la visualización de las noticias y los filtros asociados.
 ---------------------------------------------------------------- */
 function renderNewsFilters() {
   const cont = $('#newsFilters');
@@ -466,6 +529,7 @@ function renderNewsFilters() {
 
   const cats = state.novedades?.categorias || [];
   const careers = state.carreras || [];
+  // Obtiene las materias únicas para el filtro.
   const subjects = getUniqueNewsSubjects();
 
   cont.innerHTML = `
@@ -511,6 +575,7 @@ function renderNewsFilters() {
     });
   });
 
+  // Bindea los selectores de Carrera y Materia para aplicar filtros.
   // Bind de selectores de Carrera y Materia
   const careerSelect = cont.querySelector('#newsCareerFilter');
   if (careerSelect) {
@@ -530,6 +595,7 @@ function renderNewsFilters() {
     });
   }
 
+  // Bindea los inputs de fechas para filtrar por rango.
   // Bind de inputs de fechas
   const dateFrom = cont.querySelector('#newsDateFrom');
   dateFrom?.addEventListener('change', () => {
@@ -544,6 +610,7 @@ function renderNewsFilters() {
   });
 }
 
+// Renderiza la lista de novedades aplicando los filtros activos.
 function renderNewsList() {
   const cont = $('#newsList');
   const novedades = state.novedades?.novedades || [];
@@ -551,17 +618,21 @@ function renderNewsList() {
 
   // Filtrado
   let lista = [...novedades];
+  // Filtra por categoría seleccionada.
   if (state.filtroNovedad !== 'todas') {
     lista = lista.filter(n => String(n.categoria_id) === state.filtroNovedad);
   }
+  // Filtra por carrera. Las novedades con `carrera_id: null` son para todas las carreras.
   if (state.filtroCarrera !== 'todas') {
     // Si carrera_id es null, es para todas
     lista = lista.filter(n => n.carrera_id === null || String(n.carrera_id) === state.filtroCarrera);
   }
+  // Filtra por materia (nombre de la materia).
   if (state.filtroMateria !== 'todas') {
     // Filtrar por el nombre de la materia (string) que viene de la API o del form de admin
     lista = lista.filter(n => n.materia === state.filtroMateria);
   }
+  // Filtra por rango de fechas.
   if (state.filtroFechaDesde) {
     lista = lista.filter(n => new Date(n.fecha) >= new Date(state.filtroFechaDesde));
   }
@@ -575,6 +646,7 @@ function renderNewsList() {
     return new Date(b.fecha) - new Date(a.fecha);
   });
 
+  // Si no hay novedades después de filtrar, muestra un mensaje.
   if (!lista.length) {
     cont.innerHTML = `
       <div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">
@@ -584,6 +656,7 @@ function renderNewsList() {
     return;
   }
 
+  // Genera el HTML para cada novedad filtrada.
   cont.innerHTML = lista.map(n => {
     const cat = categorias.find(c => c.id === n.categoria_id) || { color: '#2563eb' };
     const destacadaCls = n.destacada ? ' news-item--featured' : '';
@@ -615,6 +688,7 @@ function renderNewsList() {
   }).join('');
 }
 
+// Genera el HTML para un elemento individual de reglamentación.
 function buildNormativaItem(doc) {
   return `
     <article class="doc-item">
@@ -627,6 +701,7 @@ function buildNormativaItem(doc) {
   `;
 }
 
+// Bindea los controles de búsqueda y filtro de la sección de reglamentación.
 function bindReglamentacionSearch() {
   const searchInput = $('#reglamentacionSearch');
   const categoryButtons = $$('.search-categories .chip');
@@ -658,6 +733,7 @@ function bindReglamentacionSearch() {
   });
 }
 
+// Filtra los documentos de reglamentación según la búsqueda y los filtros activos.
 function getReglamentacionFiltered() {
   const query = state.reglamentacionQuery.trim().toLowerCase();
   const category = state.reglamentacionCategory;
@@ -683,6 +759,7 @@ function getReglamentacionFiltered() {
   });
 }
 
+// Renderiza la lista de documentos de reglamentación.
 function renderReglamentacion() {
   const cont = $('#reglamentacionList');
   if (!cont) return;
@@ -700,6 +777,7 @@ function renderReglamentacion() {
   cont.innerHTML = lista.map(buildNormativaItem).join('');
 }
 
+// Bindea los controles para cerrar el drawer lateral (botón "X", clic en overlay, tecla Escape).
 function bindDrawerControls() {
   $('#drawerClose').addEventListener('click', closeDrawer);
   $('#drawerOverlay').addEventListener('click', closeDrawer);
@@ -709,7 +787,8 @@ function bindDrawerControls() {
 }
 
 /**
- * Lógica del menú hamburguesa para móviles
+ * bindSidebarToggle:
+ * Lógica del menú hamburguesa para móviles, que abre y cierra el sidebar.
  */
 function bindSidebarToggle() {
   const toggle = $('#sidebarToggle');
@@ -723,12 +802,14 @@ function bindSidebarToggle() {
     body.appendChild(overlay);
   }
 
+  // Función para cerrar el sidebar.
   const closeSidebar = () => {
     body.classList.remove('sidebar--open');
     toggle?.setAttribute('aria-expanded', 'false');
     body.style.overflow = '';
   };
 
+  // Event listener para el botón de toggle (hamburguesa).
   toggle?.addEventListener('click', () => {
     const isOpen = body.classList.toggle('sidebar--open');
     toggle.setAttribute('aria-expanded', String(isOpen));
@@ -736,11 +817,12 @@ function bindSidebarToggle() {
     body.style.overflow = isOpen ? 'hidden' : '';
   });
 
+  // Event listener para el overlay, para cerrar el sidebar al hacer clic fuera.
   overlay.addEventListener('click', closeSidebar);
 }
 
 /* ----------------------------------------------------------------
-   9. DRAWER LATERAL - abrir/cerrar + contenido dinámico por sección
+   9. DRAWER LATERAL - abrir/cerrar + contenido dinámico por sección (openDrawer y closeDrawer)
 ---------------------------------------------------------------- */
 function openDrawer(type) {
   const drawer = $('#drawer');
@@ -749,6 +831,7 @@ function openDrawer(type) {
   const icon = $('#drawerIcon');
   const body = $('#drawerBody');
 
+  // Objeto de configuración para cada tipo de drawer, con su título, ícono y función de renderizado.
   const config = {
     perfil: { title: 'Mi Perfil', icon: iconUser, render: renderProfile },
     materias: { title: 'Mis Materias', icon: iconBook, render: renderMaterias },
@@ -761,20 +844,22 @@ function openDrawer(type) {
 
   const cfg = config[type];
   if (!cfg) return;
-
-  // Marcamos cuál drawer está activo (para refrescos cruzados como inscripciones)
+  
+  // Marcamos cuál drawer está activo en el estado global (útil para refrescos cruzados, ej. inscripciones).
   state.drawerActivo = type;
 
-  // Feedback visual: marcar como activo el botón del sidebar correspondiente
+  // Feedback visual: marca como activo el botón del sidebar correspondiente.
   $$('.nav-btn').forEach(b => b.classList.remove('nav-btn--active'));
   const btnActivo = $(`.nav-btn[data-drawer="${type}"]`);
   if (btnActivo) btnActivo.classList.add('nav-btn--active');
 
+  // Actualiza el título y el ícono del drawer.
   title.textContent = cfg.title;
   icon.innerHTML = cfg.icon;
-  body.innerHTML = '';    // limpia contenido previo
-  cfg.render(body);
+  body.innerHTML = '';    // Limpia el contenido previo del cuerpo del drawer.
+  cfg.render(body);       // Llama a la función de renderizado específica para el tipo de drawer.
 
+  // Abre el drawer y el overlay.
   drawer.classList.add('is-open');
   drawer.setAttribute('aria-hidden', 'false');
   overlay.classList.add('is-open');
@@ -783,12 +868,14 @@ function openDrawer(type) {
   document.body.style.overflow = 'hidden';
 }
 
+// Cierra el drawer lateral y restaura el scroll del body.
 function closeDrawer() {
   $('#drawer').classList.remove('is-open');
   $('#drawer').setAttribute('aria-hidden', 'true');
   $('#drawerOverlay').classList.remove('is-open');
   document.body.style.overflow = '';
 
+  // Limpia el estado del drawer activo y desactiva el botón del sidebar.
   // Limpiar estado activo
   state.drawerActivo = null;
   $$('.nav-btn').forEach(b => b.classList.remove('nav-btn--active'));
@@ -796,6 +883,7 @@ function closeDrawer() {
 
 /* ----------------------------------------------------------------
    10. ÍCONOS del header del drawer (SVG inline)
+   Definiciones de íconos SVG para usar en los encabezados de los drawers.
 ---------------------------------------------------------------- */
 const iconUser = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -849,7 +937,8 @@ const iconCalendar = `
   </svg>`;
 
 /* ----------------------------------------------------------------
-   11. DRAWER: PERFIL
+   11. DRAWER: PERFIL (renderProfile)
+   Renderiza la información del perfil del usuario en el drawer.
 ---------------------------------------------------------------- */
 function renderProfile(body) {
   const u = state.usuario;
@@ -905,6 +994,7 @@ function renderProfile(body) {
 }
 
 /**
+ * getMateriaStatus:
  * Calcula el estado de regularidad dinámicamente
  * Regular: Asistencia >= 75% y Nota >= 4
  * Riesgo: Asistencia entre 60% y 74% O Nota < 4
@@ -916,11 +1006,13 @@ function getMateriaStatus(asistencia, nota) {
   return { texto: 'Regular', color: 'var(--accent-green)' };
 }
 
+// renderMaterias: Renderiza la lista de materias del alumno en el drawer.
 function renderMaterias(body) {
   let list = state.materias?.materias || [];
 
   // Aplicar cálculo de estado a cada materia para poder filtrar
   list = list.map(m => ({
+    // Añade una propiedad `statusInfo` a cada materia con su estado y color.
     ...m,
     statusInfo: getMateriaStatus(m.asistencia, m.nota_parcial)
   }));
@@ -930,6 +1022,7 @@ function renderMaterias(body) {
     list = list.filter(m => m.statusInfo.texto.toLowerCase() === state.filtroMateriasEstado);
   }
 
+  // Genera el HTML para los filtros de estado y la lista de materias.
   body.innerHTML = `
     <div class="drawer__filters" style="margin-bottom: 20px;">
       <button class="chip ${state.filtroMateriasEstado === 'todas' ? 'chip--active' : ''}" data-status-filter="todas">Todas</button>
@@ -992,7 +1085,8 @@ function renderMaterias(body) {
 }
 
 /* ----------------------------------------------------------------
-   13. DRAWER: MIS INSCRIPCIONES
+   13. DRAWER: MIS INSCRIPCIONES (renderInscripciones)
+   Renderiza las inscripciones del alumno a materias y mesas de examen.
 ---------------------------------------------------------------- */
 function renderInscripciones(body) {
   const materiasInscriptas = [
@@ -1062,7 +1156,8 @@ function renderInscripciones(body) {
 }
 
 /* ----------------------------------------------------------------
-   14. DRAWER: MI CARRERA
+   14. DRAWER: MI CARRERA (renderCarrera)
+   Renderiza el plan de estudios y el progreso del alumno en su carrera.
 ---------------------------------------------------------------- */
 function renderCarrera(body) {
   const u = state.usuario;
@@ -1167,13 +1262,14 @@ function renderCarrera(body) {
 }
 
 /* ----------------------------------------------------------------
-   15. DRAWER: CENTRO ESTUDIANTIL
+   15. DRAWER: CENTRO ESTUDIANTIL (renderCentro)
+   Renderiza la información del Centro de Estudiantes, incluyendo directivos, eventos y contactos.
 ---------------------------------------------------------------- */
 function renderCentro(body) {
   const delegados = [
     { nombre: 'Valentina Ríos', cargo: 'Presidenta', carrera: 'Ciencias de Datos e IA', avatar: 'VR', color: '#3b82f6' },
     { nombre: 'Mateo Fernández', cargo: 'Secretario', carrera: 'Tecnicatura en Redes', avatar: 'MF', color: '#2563eb' },
-    { nombre: 'Lucía Aramburu', cargo: 'Tesorera', carrera: 'Prog. Universitaria', avatar: 'LA', color: '#3DAA6A' },
+    { nombre: 'Lucía Aramburu', cargo: 'Tesorera', carrera:"", avatar: 'LA', color: '#3DAA6A' },
   ];
 
   const proxEventos = (state.eventos?.eventos || [])
@@ -1247,6 +1343,7 @@ function renderCentro(body) {
   `;
 }
 
+// renderNovedades: Renderiza las novedades en el drawer, con filtros por categoría.
 function renderNovedades(body) {
   const novedades = state.novedades?.novedades || [];
   const categorias = state.novedades?.categorias || [];
@@ -1261,6 +1358,7 @@ function renderNovedades(body) {
 
   // Lista de novedades filtrada
   let listaFiltrada = [...novedades];
+  // Aplica el filtro de categoría si no es 'todas'.
   const filtroActual = state.filtroNovedad || 'todas';
   if (filtroActual !== 'todas') {
     listaFiltrada = listaFiltrada.filter(n => String(n.categoria_id) === filtroActual);
@@ -1272,6 +1370,7 @@ function renderNovedades(body) {
     return new Date(b.fecha) - new Date(a.fecha);
   });
 
+  // Genera el HTML para cada novedad.
   const listaHTML = listaFiltrada.length ? listaFiltrada.map(n => {
     const cat = categorias.find(c => c.id === n.categoria_id) || { color: '#2563eb' };
     const destacadaCls = n.destacada ? ' news-drawer-item--featured' : '';
@@ -1313,7 +1412,7 @@ function renderNovedades(body) {
     </div>
   `;
 
-  // Bind de filtros
+  // Bindea los chips de filtro para re-renderizar las novedades al cambiar la categoría.
   body.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
       state.filtroNovedad = chip.dataset.filter;
@@ -1326,7 +1425,8 @@ function renderNovedades(body) {
 
 
 /* ----------------------------------------------------------------
-   16. DRAWER: CALENDARIO ACADÉMICO
+   16. DRAWER: CALENDARIO ACADÉMICO (renderCalendar)
+   Renderiza el calendario académico con navegación por mes y filtros por tipo de evento.
 ---------------------------------------------------------------- */
 function renderCalendar(body) {
   if (!state.calendarioMes) {
@@ -1347,12 +1447,17 @@ function renderCalendar(body) {
   // Calcular celdas vacías al principio
   let startingDay = firstDay.getDay();
 
-  // Obtener todos los eventos y tipos
-  const eventos = state.calendario?.eventos_calendario || [];
+  // Obtener todos los eventos y tipos.
+  // Combina los eventos base del JSON con los creados por usuarios (docentes, delegados, admins)
+  // a través del `CalendarioStore` (si está disponible), para mostrar todos los eventos relevantes.
+  const eventosBase = state.calendario?.eventos_calendario || [];
+  const eventos = window.CalendarioStore
+    ? window.CalendarioStore.mergeWithBase(eventosBase)
+    : eventosBase;
   const tipos = state.calendario?.tipos || [];
 
   // Filtrar eventos si hay un filtro activo
-  let eventosFiltrados = eventos;
+  let eventosFiltrados = eventos; // Inicialmente, todos los eventos.
   if (state.calendarioFiltro !== 'todos') {
     eventosFiltrados = eventos.filter(e => e.tipo === state.calendarioFiltro);
   }
@@ -1360,7 +1465,7 @@ function renderCalendar(body) {
   // Agrupar eventos por día en el mes actual
   const eventosDelMes = {};
   eventosFiltrados.forEach(e => {
-    const [evYear, evMonth, evDay] = e.fecha.split('-');
+    const [evYear, evMonth, evDay] = e.fecha.split('-'); // Divide la fecha ISO en año, mes y día.
     if (parseInt(evYear) === year && parseInt(evMonth) - 1 === month) {
       const d = parseInt(evDay);
       if (!eventosDelMes[d]) eventosDelMes[d] = [];
@@ -1368,7 +1473,7 @@ function renderCalendar(body) {
     }
   });
 
-  // Generar HTML del Header del Calendario
+  // Genera el HTML del encabezado del calendario (botones de navegación y título del mes).
   let calHTML = `
     <div class="calendar-header">
       <button class="cal-nav-btn" id="prevMonth" aria-label="Mes anterior">
@@ -1381,7 +1486,7 @@ function renderCalendar(body) {
     </div>
   `;
 
-  // Filtros de categorías
+  // Genera el HTML para los filtros de categorías de eventos (chips).
   calHTML += `<div class="calendar-filters" style="margin-bottom: 24px;">`;
   calHTML += `<button class="chip ${state.calendarioFiltro === 'todos' ? 'chip--active' : ''}" data-cal-filter="todos">Todos</button>`;
   tipos.forEach(t => {
@@ -1390,7 +1495,7 @@ function renderCalendar(body) {
   });
   calHTML += `</div>`;
 
-  // Días de la semana
+  // Genera el HTML para los nombres de los días de la semana.
   calHTML += `<div class="calendar-grid"><div class="calendar-weekdays">`;
   diasSemana.forEach(d => {
     calHTML += `<div class="calendar-weekday">${d}</div>`;
@@ -1398,11 +1503,13 @@ function renderCalendar(body) {
   calHTML += `</div><div class="calendar-days">`;
 
   // Celdas vacías
+  // Rellena los días iniciales del calendario si el mes no empieza en domingo.
   for (let i = 0; i < startingDay; i++) {
     calHTML += `<div class="calendar-day calendar-day--empty"></div>`;
   }
 
   // Días del mes
+  // Itera sobre cada día del mes para generar su celda en el calendario.
   const hoy = new Date();
   const esMesActual = hoy.getFullYear() === year && hoy.getMonth() === month;
 
@@ -1410,6 +1517,7 @@ function renderCalendar(body) {
     const isToday = esMesActual && hoy.getDate() === d;
     const dayEvents = eventosDelMes[d] || [];
 
+    // Genera los "puntos" de eventos para cada día.
     let dotsHTML = '<div class="calendar-day-events">';
     dayEvents.slice(0, 3).forEach(e => {
       dotsHTML += `<span class="calendar-dot" style="background-color: ${e.color}" title="${e.titulo}"></span>`;
@@ -1430,6 +1538,7 @@ function renderCalendar(body) {
   }
   calHTML += `</div></div>`; // Cerrar days y grid
 
+  // Prepara la lista plana de eventos del mes para la sección inferior.
   // Listado inferior de eventos del mes
   let eventosDelMesFlat = [];
   Object.keys(eventosDelMes).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dia => {
@@ -1437,6 +1546,7 @@ function renderCalendar(body) {
   });
 
   calHTML += `<div class="calendar-event-list">`;
+  // Título de la lista de eventos del mes.
   calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
 
   if (eventosDelMesFlat.length === 0) {
@@ -1448,8 +1558,14 @@ function renderCalendar(body) {
         <p>No hay eventos registrados.</p>
       </div>`;
   } else {
+    // Genera el HTML para cada evento en la lista.
     eventosDelMesFlat.forEach(e => {
       const [y, m, d] = e.fecha.split('-');
+      const rolMap = { docente: 'Docente', delegado: 'Delegado', admin: 'Admin', administrador: 'Admin' };
+      const autorHTML = e.creado_por_nombre
+        ? `<span class="cal-list-author">Publicado por ${e.creado_por_nombre}${rolMap[e.creado_por_rol] ? ` · ${rolMap[e.creado_por_rol]}` : ''}</span>`
+        : '';
+      const horaHTML = e.hora ? `<span class="cal-list-hora">${e.hora} hs</span>` : '';
       calHTML += `
         <div class="cal-list-item" style="--ev-color: ${e.color}">
           <div class="cal-list-date">
@@ -1458,7 +1574,11 @@ function renderCalendar(body) {
           </div>
           <div class="cal-list-body">
             <h4 class="cal-list-title">${e.titulo}</h4>
-            <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t => t.id === e.tipo)?.nombre || 'Evento'}</span>
+            <div class="cal-list-meta-row">
+              <span class="cal-list-type" style="color: ${e.color}; background-color: ${softColor(e.color)}">${tipos.find(t => t.id === e.tipo)?.nombre || 'Evento'}</span>
+              ${horaHTML}
+            </div>
+            ${autorHTML}
           </div>
         </div>
       `;
@@ -1466,7 +1586,8 @@ function renderCalendar(body) {
   }
   calHTML += `</div>`;
 
-  body.innerHTML = calHTML;
+  // Inyecta el HTML generado en el cuerpo del drawer.
+  body.innerHTML = `<div class="calendar-wrapper">${calHTML}</div>`;
 
   // Bindings para navegar mes
   body.querySelector('#prevMonth').addEventListener('click', () => {
@@ -1478,7 +1599,7 @@ function renderCalendar(body) {
     renderCalendar(body);
   });
 
-  // Bindings para filtros
+  // Bindea los chips de filtro para cambiar la vista del calendario.
   body.querySelectorAll('.chip[data-cal-filter]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       state.calendarioFiltro = e.currentTarget.dataset.calFilter;
@@ -1487,7 +1608,8 @@ function renderCalendar(body) {
   });
 }
 function renderEventsList() { }
-function renderFullNews() { }
+function renderFullNews() { } // Función placeholder, no implementada.
+// Las siguientes funciones son placeholders o no se usan directamente en este archivo.
 function renderRegulations() { }
 function renderSession() { }
 
@@ -1495,10 +1617,12 @@ function renderSession() { }
    NOTIFICACIONES - Panel desplegable de la campana
 ---------------------------------------------------------------- */
 function bindNotifications() {
-  const bellBtn = $('#bellBtn');
-  const panel = $('#notifPanel');
+  const bellBtn = $('#bellBtn'); // Botón de la campana de notificaciones.
+  const panel = $('#notifPanel'); // El panel desplegable de notificaciones.
 
   if (!bellBtn || !panel) return;
+  
+  // Actualiza el contador de notificaciones y renderiza el panel.
 
   updateBellBadge();
   renderNotifPanel();
@@ -1506,6 +1630,7 @@ function bindNotifications() {
   bellBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const willOpen = !panel.classList.contains('is-open');
+    // Posiciona el panel de notificaciones cerca del botón de la campana.
     if (willOpen) {
       const rect = bellBtn.getBoundingClientRect();
       panel.style.top = (rect.bottom + 10) + 'px';
@@ -1513,15 +1638,17 @@ function bindNotifications() {
     }
     panel.classList.toggle('is-open');
     panel.setAttribute('aria-hidden', String(!willOpen));
-    bellBtn.setAttribute('aria-expanded', String(willOpen));
+    bellBtn.setAttribute('aria-expanded', String(willOpen)); // Actualiza el atributo ARIA para accesibilidad.
     state.notifPanelOpen = willOpen;
   });
 
+  // Bindea el botón "Marcar todo leído".
   $('#notifMarkAll')?.addEventListener('click', (e) => {
     e.stopPropagation();
     markAllNotifRead();
   });
 
+  // Cierra el panel de notificaciones si se hace clic fuera de él.
   document.addEventListener('click', (e) => {
     if (!state.notifPanelOpen) return;
     if (!panel.contains(e.target) && e.target !== bellBtn && !bellBtn.contains(e.target)) {
@@ -1530,6 +1657,7 @@ function bindNotifications() {
   });
 }
 
+// closeNotifPanel: Cierra el panel de notificaciones.
 function closeNotifPanel() {
   const panel = $('#notifPanel');
   if (!panel) return;
@@ -1539,10 +1667,12 @@ function closeNotifPanel() {
   state.notifPanelOpen = false;
 }
 
+// renderNotifPanel: Renderiza la lista de notificaciones en el panel.
 function renderNotifPanel() {
   const list = $('#notifList');
   if (!list) return;
 
+  // Ordena las notificaciones por fecha, las más recientes primero.
   // Obtenemos todas y ordenamos por fecha (más reciente primero)
   const allNotifs = [...(state.notificaciones?.notificaciones || [])]
     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
@@ -1560,6 +1690,7 @@ function renderNotifPanel() {
     return;
   }
 
+  // Genera el HTML para cada notificación.
   list.innerHTML = allNotifs.map(n => {
     const unreadCls = !n.leida ? ' notif-item--unread' : '';
     const unreadDot = !n.leida ? '<span class="notif-item__unread-dot"></span>' : '';
@@ -1579,6 +1710,7 @@ function renderNotifPanel() {
     `;
   }).join('');
 
+  // Bindea los eventos de clic y teclado para marcar notificaciones como leídas.
   list.querySelectorAll('.notif-item').forEach(el => {
     el.addEventListener('click', () => markNotifRead(Number(el.dataset.notifId)));
     el.addEventListener('keydown', (e) => {
@@ -1587,6 +1719,7 @@ function renderNotifPanel() {
   });
 }
 
+// markNotifRead: Marca una notificación específica como leída.
 function markNotifRead(id) {
   const notifs = state.notificaciones?.notificaciones;
   if (!notifs) return;
@@ -1598,6 +1731,7 @@ function markNotifRead(id) {
   }
 }
 
+// markAllNotifRead: Marca todas las notificaciones como leídas.
 function markAllNotifRead() {
   const notifs = state.notificaciones?.notificaciones;
   if (!notifs) return;
@@ -1606,6 +1740,7 @@ function markAllNotifRead() {
   updateBellBadge();
 }
 
+// updateBellBadge: Actualiza el número en el badge de la campana de notificaciones.
 function updateBellBadge() {
   const badge = $('#bellBadge');
   if (!badge) return;
@@ -1622,11 +1757,13 @@ function updateBellBadge() {
 }
 
 /* ----------------------------------------------------------------
-   16. NAVEGACIÓN - Click en cualquier botón del sidebar abre drawer
+   16. NAVEGACIÓN - Click en cualquier botón del sidebar abre drawer (bindNavigation)
+   Gestiona la navegación principal a través de los botones del sidebar.
 ---------------------------------------------------------------- */
 function bindNavigation() {
   $$('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      // Si es el botón de logout, abre el modal de confirmación.
       if (btn.id === 'logoutBtn') {
         $('#logoutModal').classList.add('is-open');
         return;
@@ -1639,6 +1776,7 @@ function bindNavigation() {
         document.body.style.overflow = '';
       }
 
+      // Abre o cierra el drawer según el botón clickeado.
       const target = btn.dataset.drawer;
       if (!target) return;
       if (state.drawerActivo === target) {

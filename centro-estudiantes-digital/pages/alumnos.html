@@ -2,9 +2,7 @@
 <!--
 =================================================================
   PROYECTO: Centro de Estudiantes Digital - ISFDyT 57
-  ARCHIVO: index.html (Dashboard principal)
-  FASE 1 - Sprint 1: Estructura HTML base
-  FASE 1 - Sprint 3: Integración con API Mock (archivos JSON)
+  ARCHIVO: alumnos.html (Dashboard principal)
   Autor: Equipo de Desarrollo
 =================================================================
 -->
@@ -34,7 +32,7 @@
 
   <!--
     ================================================================
-    SIDEBAR IZQUIERDO: 6 botones minimalistas con tooltips al hover
+    SIDEBAR IZQUIERDO: 6/7 botones minimalistas
     Cada botón abre un drawer lateral con fondo difuminado (blur).
     ================================================================
   -->
@@ -73,7 +71,7 @@
           </button>
         </li>
 
-        <!-- BOTÓN: Calendario -->
+        <!-- BOTÓN 3: Calendario -->
         <li>
           <button class="nav-btn" data-drawer="calendario" aria-label="Calendario Académico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -85,7 +83,7 @@
           </button>
         </li>
 
-        <!-- BOTÓN 3: Mis Inscripciones -->
+        <!-- BOTÓN 4: Mis Inscripciones -->
         <li>
           <button class="nav-btn" data-drawer="inscripciones" aria-label="Mis Inscripciones">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -97,7 +95,7 @@
           </button>
         </li>
 
-        <!-- BOTÓN 4: Mi Carrera -->
+        <!-- BOTÓN 5: Mi Carrera -->
         <li>
           <button class="nav-btn" data-drawer="carrera" aria-label="Mi Carrera">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -108,7 +106,7 @@
           </button>
         </li>
 
-        <!-- BOTÓN 5: Centro de Estudiantes -->
+        <!-- BOTÓN 6: Centro de Estudiantes -->
         <li>
           <button class="nav-btn" data-drawer="centro" aria-label="Centro de Estudiantes">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -277,7 +275,7 @@
           <h2 class="card__title">Próximos Eventos</h2>
         </header>
 
-        <!-- Contenedor que se rellena desde eventos.json -->
+        <!-- Contenedor que se rellena desde eventos.json/API -->
         <div class="events-grid" id="eventsContainer">
           <!-- JS inyecta las tarjetas individuales aquí -->
         </div>
@@ -356,6 +354,7 @@
         </div>
       </div>
 
+      <!-- === Se cargan los documentos de reglamentación donde JS === -->
       <div class="doc-list" id="reglamentacionList"></div>
 
       <section class="faq" aria-labelledby="reglamentacionFaqTitle">
@@ -448,13 +447,23 @@
     </div>
   </div>
 
+  <div class="toast-message" id="toastMessage" aria-live="polite" aria-atomic="true">
+    <div class="toast-message__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <div class="toast-message__body">
+      <p class="toast-message__text" id="toastMessageText"></p>
+    </div>
+  </div>
+
   <!-- === SCRIPT PRINCIPAL DE LA APLICACIÓN === -->
   <!-- API CLIENT - Comunicación con servidor remoto -->
   <script src="../js/api-client.js"></script>
   <script src="../js/alumno-data.js"></script>
   <script src="../js/data-sync.js"></script>
   <script src="../js/api-utils.js"></script>
-  <script src="../js/test-api.js"></script>
   <script src="../js/logout.js"></script>
   <script src="../js/app.js" defer></script>
 </body>

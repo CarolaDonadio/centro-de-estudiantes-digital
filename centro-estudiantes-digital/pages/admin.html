@@ -3,24 +3,6 @@
 =================================================================
   PROYECTO: Centro de Estudiantes Digital - ISFDyT 57
   ARCHIVO: admin.html (Panel del Administrador)
-  FASE 1 - Sprint 5: Mesa de control con poder absoluto
-  Hereda el sistema de diseño de la Fase 1 (css/styles.css)
-=================================================================
-  Cumplimiento de la consigna del proyecto integrador (4.4):
-  · Gestión de usuarios (CRUD + activar/desactivar)
-  · Asignación de roles (cambia el perfil de cualquier usuario)
-  · Gestión de categorías de novedades
-  · Gestión y versionado de reglamentos
-  · Configuración general
-  · Consulta de auditoría (logs de acciones)
-
-  Comportamientos clave implementados:
-  · Auditoría automática: toda acción del admin queda registrada
-  · Confirmación destructiva: requiere tipear "CONFIRMAR"
-  · Soft delete con papelera y restauración
-  · Modo "Ver como…" con banner permanente
-  · Reglamentos versionados (no se sobrescriben)
-  · Diferenciación visual coral (vs ámbar del docente)
 =================================================================
 -->
 <html lang="es">
@@ -43,1021 +25,9 @@
   <link rel="stylesheet" href="../css/styles.css" />
   <link rel="stylesheet" href="../css/admin/modulos.css" />
 
-  <!--
-    Extensiones específicas del panel admin.
-    Reutilizan los design tokens del proyecto.
-  -->
-  <style>
-    /* ============================================================
-       BANNER DE IMPERSONACIÓN (modo "Ver como…")
-       Aparece arriba de todo cuando el admin actúa como otro usuario.
-       ============================================================ */
-    .impersonate-banner {
-      position: sticky;
-      top: 0; left: 0; right: 0;
-      z-index: 200;
-      display: none;
-      align-items: center;
-      gap: 1rem;
-      padding: .8rem 1.2rem;
-      background: linear-gradient(135deg, #F5A623, #E67E5B);
-      color: #fff;
-      font: 600 .85rem/1.3 'Manrope', sans-serif;
-      box-shadow: 0 4px 16px -4px rgba(230, 126, 91, .55);
-    }
-    .impersonate-banner.is-visible { display: flex; }
-    .impersonate-banner svg {
-      width: 18px; height: 18px;
-      stroke: currentColor; fill: none; stroke-width: 2;
-      flex-shrink: 0;
-    }
-    .impersonate-banner__main { flex: 1; }
-    .impersonate-banner__main strong {
-      display: block;
-      font: 700 .92rem 'Bricolage Grotesque', serif;
-    }
-    .impersonate-banner__exit {
-      padding: .5rem 1rem;
-      font: 700 .78rem/1 'Manrope', sans-serif;
-      background: rgba(255, 255, 255, .95);
-      color: var(--brand-900, #1A1D4A);
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform .2s ease;
-    }
-    .impersonate-banner__exit:hover { transform: translateY(-1px); }
-
-    /* ============================================================
-       PILL DE ROL (rojo/coral en lugar del ámbar del docente)
-       ============================================================ */
-    .role-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      font: 600 .68rem/1 'Manrope', sans-serif;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: #fff;
-      background: linear-gradient(135deg, #C0392B, #E67E5B);
-      padding: .35rem .65rem .35rem .55rem;
-      border-radius: 999px;
-      box-shadow: 0 4px 10px -4px rgba(192, 57, 43, .5);
-      margin-bottom: .35rem;
-    }
-    .role-pill svg {
-      width: 12px; height: 12px;
-      stroke: currentColor; fill: none; stroke-width: 2.4;
-    }
-
-    /* ============================================================
-       AVATAR CON ESCUDO (diferenciador visual del admin)
-       ============================================================ */
-    .avatar--admin {
-      position: relative;
-      background: linear-gradient(135deg, #C0392B, #1A1D4A) !important;
-    }
-    .avatar--admin::after {
-      content: "";
-      position: absolute;
-      bottom: -3px; right: -3px;
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      background: #fff;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C0392B' stroke-width='2.4'><path d='M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z'/><path d='M9 12l2 2 4-4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-      background-size: 12px;
-      background-repeat: no-repeat;
-      background-position: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
-    }
-
-    /* ============================================================
-       BOTÓN PRIMARIO DEL ADMIN (acción rápida del header)
-       ============================================================ */
-    .header__action {
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      padding: .55rem .9rem;
-      font: 600 .82rem/1 'Manrope', sans-serif;
-      color: #fff;
-      background: linear-gradient(135deg, #C0392B, #E67E5B);
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 6px 18px -6px rgba(192, 57, 43, .5);
-      transition: transform .2s ease, box-shadow .2s ease;
-    }
-    .header__action:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px -8px rgba(192, 57, 43, .6);
-    }
-    .header__action svg {
-      width: 14px; height: 14px;
-      stroke: currentColor; fill: none; stroke-width: 2.2;
-    }
-
-    /* ============================================================
-       TARJETAS DE "ACCIONES PENDIENTES" (variante admin)
-       Reaprovechan el grid de events pero con look operativo.
-       ============================================================ */
-    .pending-card {
-      position: relative;
-      padding: 1rem 1.1rem;
-      background: #fff;
-      border: 1px solid rgba(143, 163, 227, .25);
-      border-radius: 14px;
-      overflow: hidden;
-    }
-    .pending-card::before {
-      content: "";
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 4px;
-      background: var(--pending-color, #F5A623);
-    }
-    .pending-card__type {
-      display: inline-block;
-      font: 600 .65rem/1 'Manrope', sans-serif;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: var(--pending-color, #F5A623);
-      background: color-mix(in srgb, var(--pending-color, #F5A623) 12%, white);
-      padding: .3rem .55rem;
-      border-radius: 5px;
-      margin-bottom: .6rem;
-    }
-    .pending-card__title {
-      margin: 0 0 .25rem;
-      font: 700 .96rem/1.25 'Bricolage Grotesque', serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .pending-card__sub {
-      margin: 0 0 .9rem;
-      font: 400 .8rem/1.4 'Manrope', sans-serif;
-      color: #5a5d6e;
-    }
-    .pending-card__actions {
-      display: flex;
-      gap: .4rem;
-    }
-    .pending-card__btn {
-      flex: 1;
-      padding: .5rem .7rem;
-      font: 600 .78rem/1 'Manrope', sans-serif;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform .2s ease;
-    }
-    .pending-card__btn:hover { transform: translateY(-1px); }
-    .pending-card__btn--ok {
-      background: var(--accent-green, #3DAA6A);
-      color: #fff;
-    }
-    .pending-card__btn--no {
-      background: #fff;
-      color: var(--accent-coral, #E67E5B);
-      border: 1px solid rgba(230, 126, 91, .35);
-    }
-
-    /* ============================================================
-       FEED DE AUDITORÍA (variante de news-list)
-       ============================================================ */
-    .audit-item {
-      position: relative;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 1rem;
-      padding: .9rem 1rem .9rem 1.3rem;
-      background: #fff;
-      border: 1px solid rgba(143, 163, 227, .22);
-      border-radius: 11px;
-      margin-bottom: .55rem;
-    }
-    .audit-item::before {
-      content: "";
-      position: absolute;
-      left: 0; top: 14%; bottom: 14%;
-      width: 4px;
-      border-radius: 0 4px 4px 0;
-      background: var(--audit-color, var(--brand-500, #4A67C9));
-    }
-    .audit-item__icon {
-      width: 34px; height: 34px;
-      border-radius: 9px;
-      display: grid; place-items: center;
-      background: color-mix(in srgb, var(--audit-color, #4A67C9) 12%, white);
-      color: var(--audit-color, #4A67C9);
-    }
-    .audit-item__icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; }
-    .audit-item__head {
-      display: flex; gap: .5rem; align-items: center; flex-wrap: wrap;
-      margin-bottom: .15rem;
-    }
-    .audit-item__action {
-      font: 600 .65rem/1 'Manrope', sans-serif;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--audit-color, #4A67C9);
-      background: color-mix(in srgb, var(--audit-color, #4A67C9) 10%, white);
-      padding: .25rem .45rem;
-      border-radius: 5px;
-    }
-    .audit-item__time {
-      font: 500 .72rem/1 'Manrope', sans-serif;
-      color: #8a8d9c;
-    }
-    .audit-item__desc {
-      margin: 0;
-      font: 500 .85rem/1.35 'Manrope', sans-serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .audit-item__detail {
-      margin: .15rem 0 0;
-      font: 400 .76rem/1.3 'Manrope', sans-serif;
-      color: #6c6f80;
-    }
-    .audit-item__user {
-      align-self: center;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: .25rem;
-      font: 500 .72rem/1 'Manrope', sans-serif;
-      color: #6c6f80;
-      white-space: nowrap;
-    }
-    .audit-item__user b {
-      color: var(--brand-900, #1A1D4A);
-      font-family: 'Bricolage Grotesque', serif;
-      font-weight: 700;
-    }
-
-    /* ============================================================
-       MESA DE CONTROL: TABLA DE USUARIOS
-       ============================================================ */
-    .user-row {
-      display: grid;
-      grid-template-columns: 36px 1fr auto auto;
-      gap: .8rem;
-      align-items: center;
-      padding: .65rem .8rem;
-      background: #fff;
-      border: 1px solid rgba(143, 163, 227, .22);
-      border-radius: 10px;
-      margin-bottom: .35rem;
-      transition: box-shadow .2s ease;
-    }
-    .user-row:hover { box-shadow: 0 6px 16px -10px rgba(26, 29, 74, .25); }
-    .user-row[data-inactive="true"] { opacity: .6; }
-    .user-row__avatar {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      display: grid; place-items: center;
-      background: linear-gradient(135deg, var(--brand-500, #4A67C9), var(--brand-300, #8FA3E3));
-      color: #fff;
-      font: 700 .76rem/1 'Manrope', sans-serif;
-    }
-    .user-row__avatar[data-rol="admin"]    { background: linear-gradient(135deg, #C0392B, #1A1D4A); }
-    .user-row__avatar[data-rol="docente"]  { background: linear-gradient(135deg, #F5A623, #E67E5B); }
-    .user-row__avatar[data-rol="delegado"] { background: linear-gradient(135deg, #8B5CF6, #4A67C9); }
-    .user-row__name {
-      margin: 0;
-      font: 600 .88rem/1.2 'Manrope', sans-serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .user-row__meta {
-      margin: .15rem 0 0;
-      font: 400 .72rem/1.2 'Manrope', sans-serif;
-      color: #8a8d9c;
-    }
-    .user-row__rol {
-      padding: .25rem .55rem;
-      font: 600 .68rem/1 'Manrope', sans-serif;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      border-radius: 999px;
-    }
-    .user-row__rol[data-rol="alumno"]    { background: rgba(74, 103, 201, .12);  color: #2C3E87; }
-    .user-row__rol[data-rol="docente"]   { background: rgba(245, 166, 35, .15); color: #B5781C; }
-    .user-row__rol[data-rol="delegado"]  { background: rgba(139, 92, 246, .12); color: #6B3CC4; }
-    .user-row__rol[data-rol="admin"]     { background: rgba(192, 57, 43, .12);  color: #C0392B; }
-
-    .user-row__menu {
-      position: relative;
-    }
-    .user-row__menu-btn {
-      width: 32px; height: 32px;
-      display: grid; place-items: center;
-      border: none;
-      background: transparent;
-      color: #8a8d9c;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background .2s ease;
-    }
-    .user-row__menu-btn:hover { background: var(--brand-100, #E3E9FA); color: var(--brand-700, #2C3E87); }
-    .user-row__menu-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .user-row__menu-dropdown {
-      position: absolute;
-      top: calc(100% + 4px); right: 0;
-      min-width: 180px;
-      background: #fff;
-      border: 1px solid rgba(143, 163, 227, .3);
-      border-radius: 10px;
-      box-shadow: 0 14px 28px -10px rgba(26, 29, 74, .25);
-      padding: .35rem;
-      display: none;
-      z-index: 20;
-    }
-    .user-row__menu.is-open .user-row__menu-dropdown { display: block; }
-    .user-row__menu-dropdown button {
-      width: 100%;
-      text-align: left;
-      padding: .55rem .7rem;
-      font: 500 .82rem/1.2 'Manrope', sans-serif;
-      color: var(--brand-900, #1A1D4A);
-      background: transparent;
-      border: none;
-      border-radius: 7px;
-      cursor: pointer;
-      display: flex;
-      gap: .55rem;
-      align-items: center;
-    }
-    .user-row__menu-dropdown button:hover { background: var(--brand-100, #E3E9FA); }
-    .user-row__menu-dropdown button.is-danger { color: var(--accent-coral, #E67E5B); }
-    .user-row__menu-dropdown button.is-danger:hover { background: rgba(230, 126, 91, .1); }
-    .user-row__menu-dropdown button svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.9; }
-    .user-row__menu-dropdown hr {
-      border: none;
-      border-top: 1px solid rgba(143, 163, 227, .25);
-      margin: .25rem 0;
-    }
-
-    /* ============================================================
-       FORMULARIOS (alta de usuario, edición, etc.)
-       ============================================================ */
-    .admin-form {
-      display: flex;
-      flex-direction: column;
-      gap: .9rem;
-    }
-    .admin-form__row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .7rem;
-    }
-    .admin-form label {
-      display: flex; flex-direction: column; gap: .3rem;
-      font: 600 .72rem/1 'Manrope', sans-serif;
-      color: var(--brand-700, #2C3E87);
-      letter-spacing: .04em;
-      text-transform: uppercase;
-    }
-    .admin-form input,
-    .admin-form select,
-    .admin-form textarea {
-      font: 400 .9rem/1.3 'Manrope', sans-serif;
-      color: var(--brand-900, #1A1D4A);
-      padding: .65rem .8rem;
-      border: 1px solid rgba(143, 163, 227, .45);
-      border-radius: 9px;
-      background: #fff;
-      outline: none;
-      transition: border-color .15s ease, box-shadow .15s ease;
-    }
-    .admin-form input:focus,
-    .admin-form select:focus,
-    .admin-form textarea:focus {
-      border-color: var(--accent-coral, #E67E5B);
-      box-shadow: 0 0 0 3px rgba(230, 126, 91, .15);
-    }
-    .admin-form__submit {
-      align-self: flex-start;
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .75rem 1.3rem;
-      font: 700 .85rem/1 'Manrope', sans-serif;
-      color: #fff;
-      background: linear-gradient(135deg, #C0392B, #E67E5B);
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 8px 20px -8px rgba(192, 57, 43, .5);
-      transition: transform .2s ease;
-    }
-    .admin-form__submit:hover { transform: translateY(-1px); }
-    .admin-form__submit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
-
-    .checkbox-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: .75rem;
-      padding: .9rem 1rem;
-      border: 1px solid rgba(143,163,227,.25);
-      border-radius: 12px;
-      background: #f7fbff;
-      cursor: pointer;
-      transition: background .2s ease, border-color .2s ease, transform .2s ease;
-      text-transform: none;
-      color: var(--brand-900, #1A1D4A);
-      font: 600 .9rem/1.2 'Manrope', sans-serif;
-      min-height: 56px;
-    }
-    .checkbox-toggle:hover {
-      background: rgba(61,170,106,.08);
-      border-color: rgba(61,170,106,.35);
-    }
-    .checkbox-toggle input {
-      position: absolute;
-      opacity: 0;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-    }
-    .checkbox-toggle__control {
-      position: relative;
-      width: 2.4rem;
-      height: 1.3rem;
-      flex-shrink: 0;
-      border-radius: 999px;
-      background: rgba(143,163,227,.35);
-      transition: background .2s ease;
-    }
-    .checkbox-toggle__control::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: .15rem;
-      transform: translateY(-50%);
-      width: 1rem;
-      height: 1rem;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 6px 16px -10px rgba(28,31,55,.35);
-      transition: transform .2s ease, background .2s ease;
-    }
-    .checkbox-toggle input:checked + .checkbox-toggle__control {
-      background: linear-gradient(135deg, #3DAA6A, #2B8B59);
-    }
-    .checkbox-toggle input:checked + .checkbox-toggle__control::after {
-      transform: translateY(-50%) translateX(1.1rem);
-    }
-    .checkbox-toggle__text {
-      display: inline-block;
-      color: var(--brand-900, #1A1D4A);
-      font-weight: 700;
-      line-height: 1.2;
-    }
-
-    /* ============================================================
-       TABS COMPARTIDOS (heredados del docente)
-       ============================================================ */
-    .drawer__tabs {
-      display: flex;
-      gap: .35rem;
-      padding: .25rem;
-      background: var(--brand-100, #E3E9FA);
-      border-radius: 10px;
-      margin-bottom: 1.2rem;
-      flex-wrap: wrap;
-    }
-    .drawer__tab {
-      flex: 1;
-      min-width: 80px;
-      padding: .55rem .7rem;
-      font: 600 .8rem/1 'Manrope', sans-serif;
-      color: var(--brand-700, #2C3E87);
-      background: transparent;
-      border: none;
-      border-radius: 7px;
-      cursor: pointer;
-      transition: background .2s ease;
-    }
-    .drawer__tab.is-active {
-      background: #fff;
-      color: var(--brand-900, #1A1D4A);
-      box-shadow: 0 4px 10px -4px rgba(26, 29, 74, .15);
-    }
-    .drawer__tab .badge {
-      display: inline-block;
-      padding: .1rem .35rem;
-      margin-left: .25rem;
-      font-size: .65rem;
-      background: rgba(192, 57, 43, .12);
-      color: #C0392B;
-      border-radius: 999px;
-    }
-
-    .drawer__search {
-      display: flex;
-      align-items: center;
-      gap: .55rem;
-      padding: .65rem .85rem;
-      background: #fff;
-      border: 1px solid rgba(143, 163, 227, .35);
-      border-radius: 10px;
-      margin-bottom: .8rem;
-    }
-    .drawer__search svg { width: 16px; height: 16px; color: #8a8d9c; stroke: currentColor; fill: none; stroke-width: 2; }
-    .drawer__search input {
-      flex: 1;
-      border: none; outline: none;
-      font: 400 .88rem/1 'Manrope', sans-serif;
-      color: var(--brand-900, #1A1D4A);
-      background: transparent;
-    }
-
-    /* ============================================================
-       MODAL DE CONFIRMACIÓN DESTRUCTIVA (con tipeo "CONFIRMAR")
-       ============================================================ */
-    .danger-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(26, 29, 74, .55);
-      backdrop-filter: blur(8px);
-      display: none;
-      place-items: center;
-      z-index: 300;
-    }
-    .danger-modal.is-visible { display: grid; }
-    .danger-modal__card {
-      width: min(440px, calc(100vw - 2rem));
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.6rem;
-      box-shadow: 0 24px 60px -10px rgba(0, 0, 0, .35);
-      border-top: 6px solid #C0392B;
-    }
-    .danger-modal__icon {
-      width: 52px; height: 52px;
-      border-radius: 14px;
-      background: rgba(192, 57, 43, .1);
-      color: #C0392B;
-      display: grid; place-items: center;
-      margin-bottom: 1rem;
-    }
-    .danger-modal__icon svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .danger-modal__title {
-      margin: 0 0 .5rem;
-      font: 700 1.2rem/1.2 'Bricolage Grotesque', serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .danger-modal__msg {
-      margin: 0 0 1.2rem;
-      font: 400 .9rem/1.45 'Manrope', sans-serif;
-      color: #5a5d6e;
-    }
-    .danger-modal__msg strong { color: var(--brand-900, #1A1D4A); }
-    .danger-modal__hint {
-      font: 600 .72rem/1.3 'Manrope', sans-serif;
-      color: #6c6f80;
-      letter-spacing: .04em;
-      margin-bottom: .4rem;
-    }
-    .danger-modal__hint code {
-      font: 700 .82rem 'Bricolage Grotesque', serif;
-      color: #C0392B;
-      letter-spacing: .1em;
-      background: rgba(192, 57, 43, .08);
-      padding: 0 .35rem;
-      border-radius: 4px;
-    }
-    .danger-modal__input {
-      width: 100%;
-      padding: .7rem .9rem;
-      font: 600 .95rem/1 'Bricolage Grotesque', serif;
-      letter-spacing: .15em;
-      color: var(--brand-900, #1A1D4A);
-      border: 2px solid rgba(192, 57, 43, .25);
-      border-radius: 9px;
-      outline: none;
-      box-sizing: border-box;
-      margin-bottom: 1rem;
-    }
-    .danger-modal__input:focus { border-color: #C0392B; }
-    .danger-modal__actions {
-      display: flex; gap: .55rem; justify-content: flex-end;
-    }
-    .danger-modal__cancel {
-      padding: .7rem 1.1rem;
-      font: 600 .82rem 'Manrope', sans-serif;
-      background: transparent;
-      color: var(--brand-700, #2C3E87);
-      border: 1px solid rgba(143, 163, 227, .45);
-      border-radius: 9px;
-      cursor: pointer;
-    }
-    .danger-modal__confirm {
-      padding: .7rem 1.3rem;
-      font: 700 .82rem 'Manrope', sans-serif;
-      background: #C0392B;
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      cursor: pointer;
-      opacity: .35;
-      pointer-events: none;
-      transition: opacity .2s ease;
-    }
-    .danger-modal__confirm.is-armed {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    /* ============================================================
-       Categorías y catálogos en chips editables
-       ============================================================ */
-    .cat-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .45rem .7rem .45rem .65rem;
-      background: #fff;
-      border: 1px solid rgba(143, 163, 227, .3);
-      border-radius: 999px;
-      margin: 0 .35rem .4rem 0;
-      font: 600 .82rem 'Manrope', sans-serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .cat-chip__dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--cat-color, #4A67C9);
-    }
-    .cat-chip__del {
-      background: transparent;
-      border: none;
-      color: #8a8d9c;
-      cursor: pointer;
-      padding: 0 .15rem;
-      font-size: 1.1rem;
-      line-height: 1;
-    }
-    .cat-chip__del:hover { color: var(--accent-coral, #E67E5B); }
-
-    /* ============================================================
-       Reglamentos versionados
-       ============================================================ */
-    .regl-row {
-      padding: .9rem 1rem;
-      background: #fff;
-      border: 1px solid rgba(143, 163, 227, .25);
-      border-radius: 11px;
-      margin-bottom: .55rem;
-    }
-    .regl-row__head {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      gap: .8rem;
-      margin-bottom: .35rem;
-    }
-    .regl-row__title {
-      margin: 0;
-      font: 700 .95rem/1.25 'Bricolage Grotesque', serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .regl-row__ver {
-      font: 700 .68rem/1 'Manrope', sans-serif;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: .3rem .55rem;
-      background: linear-gradient(135deg, #C0392B, #E67E5B);
-      color: #fff;
-      border-radius: 6px;
-      flex-shrink: 0;
-    }
-    .regl-row__meta {
-      font: 400 .76rem/1.3 'Manrope', sans-serif;
-      color: #6c6f80;
-      margin: 0 0 .55rem;
-    }
-    .regl-row__history {
-      display: flex; gap: .35rem; flex-wrap: wrap;
-      padding-top: .55rem;
-      border-top: 1px dashed rgba(143, 163, 227, .35);
-    }
-    .regl-row__history small {
-      font: 500 .7rem 'Manrope', sans-serif;
-      color: #8a8d9c;
-      padding: .25rem .5rem;
-      background: var(--brand-100, #E3E9FA);
-      border-radius: 5px;
-    }
-
-    /* ============================================================
-       Toast (igual que docente)
-       ============================================================ */
-    .toast {
-      position: fixed;
-      bottom: 1.5rem; right: 1.5rem;
-      max-width: 380px;
-      padding: .9rem 1.1rem .9rem 1rem;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 18px 40px -10px rgba(26, 29, 74, .35);
-      border-left: 4px solid var(--toast-color, var(--accent-green, #3DAA6A));
-      transform: translateX(120%);
-      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
-      z-index: 999;
-      display: flex;
-      gap: .7rem;
-      align-items: flex-start;
-    }
-    .toast.is-visible { transform: translateX(0); }
-    .toast__icon {
-      width: 28px; height: 28px; flex-shrink: 0;
-      border-radius: 50%;
-      background: color-mix(in srgb, var(--toast-color, #3DAA6A) 15%, white);
-      color: var(--toast-color, #3DAA6A);
-      display: grid; place-items: center;
-    }
-    .toast__icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
-    .toast strong {
-      display: block;
-      font: 700 .85rem/1.2 'Bricolage Grotesque', serif;
-      color: var(--brand-900, #1A1D4A);
-      margin-bottom: .15rem;
-    }
-    .toast span {
-      font: 400 .76rem/1.4 'Manrope', sans-serif;
-      color: #5a5d6e;
-    }
-
-    .header__nav { display: flex; align-items: center; gap: .9rem; }
-
-    /* ============================================================
-       9. RESPONSIVE ESPECÍFICO DEL ADMIN
-       ============================================================ */
-    @media (max-width: 720px) {
-      .admin-form__row { grid-template-columns: 1fr; }
-      
-      .user-row {
-        grid-template-columns: 36px 1fr auto;
-        gap: 0.5rem;
-        padding: 0.75rem;
-      }
-      .user-row__rol { display: none; } /* Ocultamos pill de rol para ganar espacio */
-
-      .audit-item { 
-        grid-template-columns: 34px 1fr; 
-        gap: 0.75rem; 
-      }
-      .audit-item__user { 
-        grid-column: 1 / -1; 
-        flex-direction: row; 
-        justify-content: space-between; 
-        padding-top: 0.6rem;
-        border-top: 1px dashed rgba(143, 163, 227, 0.2);
-        width: 100%;
-      }
-
-      .novedad-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .novedad-row__menu { align-self: flex-end; }
-
-      .drawer__tabs { flex-direction: column; padding: 0.5rem; }
-      .drawer__tab { width: 100%; text-align: left; }
-
-      .admin-form__submit { width: 100%; justify-content: center; }
-      .header__action { width: 100%; justify-content: center; }
-    }
-
-    /* ============================================================
-       ESTILOS PARA NOVEDADES
-       ============================================================ */
-    .novedad-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      border: 1px solid rgba(143,163,227,.25);
-      border-radius: 10px;
-      margin-bottom: .5rem;
-      background: #fff;
-    }
-    .novedad-row__info { flex: 1; }
-    .novedad-row__titulo {
-      margin: 0 0 .25rem;
-      font: 600 .9rem/1.2 'Bricolage Grotesque', serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .novedad-row__meta {
-      margin: 0;
-      font: 500 .75rem/1.3 'Manrope', sans-serif;
-      color: #6c6f80;
-    }
-    .novedad-row__menu {
-      position: relative;
-    }
-    .novedad-row__menu-btn {
-      padding: .5rem;
-      background: none;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      color: #6c6f80;
-      transition: background .2s;
-    }
-    .novedad-row__menu-btn:hover { background: rgba(143,163,227,.1); }
-    .novedad-row__menu-dropdown {
-      position: absolute;
-      right: 0;
-      top: 100%;
-      background: #fff;
-      border: 1px solid rgba(143,163,227,.25);
-      border-radius: 8px;
-      box-shadow: 0 4px 16px -4px rgba(0,0,0,.1);
-      z-index: 10;
-      min-width: 120px;
-      display: none;
-    }
-    .novedad-row__menu.is-open .novedad-row__menu-dropdown { display: block; }
-    .novedad-row__menu-dropdown button {
-      display: block;
-      width: 100%;
-      padding: .75rem 1rem;
-      background: none;
-      border: none;
-      text-align: left;
-      font: 500 .85rem 'Manrope', sans-serif;
-      color: var(--brand-900, #1A1D4A);
-      cursor: pointer;
-      border-radius: 0;
-    }
-    .novedad-row__menu-dropdown button:hover { background: rgba(143,163,227,.1); }
-
-    .categoria-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.2rem;
-      border: 1px solid rgba(143,163,227,.25);
-      border-radius: 16px;
-      margin-bottom: .75rem;
-      background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
-      box-shadow: 0 10px 28px -18px rgba(26,29,74,.16);
-    }
-    .categoria-row__color {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      border: 1px solid rgba(143,163,227,.35);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
-    }
-    .categoria-row__info {
-      flex: 1;
-      min-width: 0;
-    }
-    .categoria-row__name {
-      margin: 0 0 .2rem;
-      font: 700 .96rem/1.2 'Bricolage Grotesque', serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .categoria-row__meta {
-      display: flex;
-      align-items: center;
-      gap: .55rem;
-      flex-wrap: wrap;
-      color: #6c6f80;
-      font: 500 .78rem/1.5 'Manrope', sans-serif;
-    }
-    .categoria-row__tag {
-      display: inline-flex;
-      align-items: center;
-      padding: .2rem .55rem;
-      border-radius: 999px;
-      background: rgba(61,170,106,.08);
-      color: #386a4b;
-      font-size: .78rem;
-      white-space: nowrap;
-    }
-
-    /* File input styling */
-    .file-input-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: .4rem;
-    }
-    .file-input-label {
-      font: 600 .85rem 'Manrope', sans-serif;
-      color: var(--brand-900, #1A1D4A);
-    }
-    .file-input-group {
-      position: relative;
-      display: inline-block;
-      cursor: pointer;
-    }
-    .file-input-field {
-      position: absolute;
-      left: -9999px;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-    }
-    .file-input-text {
-      display: inline-block;
-      padding: .65rem 1rem;
-      font: 500 .85rem 'Manrope', sans-serif;
-      color: #1A1D4A;
-      background: #f5f5f5;
-      border: 2px dashed rgba(143,163,227,.45);
-      border-radius: 9px;
-      transition: all .2s ease;
-      cursor: pointer;
-    }
-    .file-input-field:hover + .file-input-text {
-      background: rgba(143,163,227,.08);
-      border-color: rgba(143,163,227,.65);
-    }
-    .file-input-field:focus + .file-input-text {
-      outline: 2px solid rgba(143,163,227,.65);
-      outline-offset: 2px;
-    }
-    .file-input-field:has-file ~ .file-input-text {
-      border-color: #3DAA6A;
-      background: rgba(61,170,106,.05);
-      color: #2a8a52;
-      font-weight: 600;
-    }
-    .file-remove-btn {
-      margin-top: .45rem;
-      padding: .5rem .85rem;
-      font: 600 .82rem 'Manrope', sans-serif;
-      color: #3DAA6A;
-      background: transparent;
-      border: 1px solid rgba(61,170,106,.35);
-      border-radius: 9px;
-      cursor: pointer;
-      transition: background .2s ease, border-color .2s ease;
-    }
-    .file-remove-btn:hover {
-      background: rgba(61,170,106,.08);
-      border-color: #3DAA6A;
-    }
-
-    .admin-form__row {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .admin-form__row label {
-      flex: 1;
-    }
-    .admin-form__row label input,
-    .admin-form__row label select {
-      width: 100%;
-    }
-    .admin-form textarea {
-      width: 100%;
-      padding: .65rem .8rem;
-      font: 500 .85rem 'Manrope', sans-serif;
-      border: 1px solid rgba(143,163,227,.45);
-      border-radius: 9px;
-      background: #fff;
-      resize: vertical;
-    }
-    .admin-form__submit {
-      padding: .75rem 1.5rem;
-      font: 600 .9rem 'Manrope', sans-serif;
-      color: #fff;
-      background: #3DAA6A;
-      border: none;
-      border-radius: 9px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      transition: transform .2s;
-    }
-    .admin-form__submit:hover { transform: translateY(-1px); }
-    .admin-form__submit svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-    }
-  </style>
 </head>
 
 <body>
-
-  <!-- BANNER DE IMPERSONACIÓN (modo "Ver como…") -->
-  <div class="impersonate-banner" id="imperBanner" role="alert">
-    <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><circle cx="12" cy="11" r="2.5"/><path d="M9.5 15c.7-.6 1.6-1 2.5-1s1.8.4 2.5 1" stroke-linecap="round"/></svg>
-    <div class="impersonate-banner__main">
-      <strong id="imperWho">Estás viendo el portal como…</strong>
-      <span>Modo de inspección activo · Las acciones que realices quedan registradas en auditoría.</span>
-    </div>
-    <button class="impersonate-banner__exit" id="imperExit">Volver al panel admin</button>
-  </div>
 
   <!--
     ================================================================
@@ -1086,44 +56,6 @@
           </button>
         </li>
 
-        <!-- 2) Usuarios y Roles -->
-        <li data-admin-only>
-          <button class="nav-btn" data-drawer="usuarios" aria-label="Usuarios y Roles">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <circle cx="9" cy="8" r="3.5" />
-              <path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round" />
-              <circle cx="17" cy="9" r="2.6" />
-              <path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round" />
-            </svg>
-            <span class="nav-btn__tooltip">Usuarios y Roles</span>
-          </button>
-        </li>
-
-        <!-- Módulo 1: Carreras (Solo Admin y Docente) -->
-        <li id="nav-carreras" style="display:none">
-          <button class="nav-btn" data-drawer="mod-carreras" aria-label="Carreras">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-              <path d="M6 12v5c3 3 9 3 12 0v-5" />
-            </svg>
-            <span class="nav-btn__tooltip">Carreras</span>
-          </button>
-        </li>
-
-        <!-- Módulo 1.1: Materias (Solo Admin y Docente) -->
-        <li id="nav-materias" style="display:none">
-          <button class="nav-btn" data-drawer="mod-materias" aria-label="Materias">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              <path d="M9 7h7M9 11h5" stroke-linecap="round"/>
-            </svg>
-            <span class="nav-btn__tooltip">Materias</span>
-          </button>
-        </li>
-        <!-- === MÓDULOS DEL PROYECTO === -->
-        <li class="nav-separator" aria-hidden="true"><hr></li>
-
         <!-- Módulo 2: Novedades -->
         <li>
           <button class="nav-btn" data-drawer="mod-novedades" aria-label="Novedades">
@@ -1147,17 +79,6 @@
           </button>
         </li>
 
-        <!-- Módulo 4: Reglamentación -->
-        <li data-admin-only>
-          <button class="nav-btn" data-drawer="mod-reglamentacion" aria-label="Reglamentación">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round"/>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke-linejoin="round"/>
-            </svg>
-            <span class="nav-btn__tooltip">Reglamentación</span>
-          </button>
-        </li>
-
         <!-- Módulo 5: Eventos -->
         <li>
           <button class="nav-btn" data-drawer="mod-eventos" aria-label="Eventos">
@@ -1166,6 +87,41 @@
               <path d="M4 22v-7" stroke-linecap="round"/>
             </svg>
             <span class="nav-btn__tooltip">Eventos</span>
+          </button>
+        </li>
+
+        <!-- 2) Usuarios y Roles -->
+        <li id="nav-usuarios" style="display:none">
+          <button class="nav-btn" data-drawer="usuarios" aria-label="Usuarios y Roles">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="9" cy="8" r="3.5" />
+              <path d="M2 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke-linecap="round" />
+              <circle cx="17" cy="9" r="2.6" />
+              <path d="M16 14c3.3 0 6 2 6 5" stroke-linecap="round" />
+            </svg>
+            <span class="nav-btn__tooltip">Usuarios y Roles</span>
+          </button>
+        </li>
+
+        <!-- Módulo 1: Carreras (Solo Admin y Docente) -->
+        <li id="nav-carreras" style="display:none">
+          <button class="nav-btn" data-drawer="mod-carreras" aria-label="Carreras">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+            <span class="nav-btn__tooltip">Carreras</span>
+          </button>
+        </li>
+
+        <!-- Módulo 4: Reglamentación -->
+        <li id="nav-reglamentacion" style="display:none">
+          <button class="nav-btn" data-drawer="mod-reglamentacion" aria-label="Reglamentación">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke-linejoin="round"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke-linejoin="round"/>
+            </svg>
+            <span class="nav-btn__tooltip">Reglamentación</span>
           </button>
         </li>
 
@@ -1234,7 +190,7 @@
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
           <path d="M10 17l5-5-5-5M15 12H3" />
         </svg>
-        <h3 class="modal-card__title">¿Cerrar sesión de administrador?</h3>
+        <h3 class="modal-card__title">¿Cerrar sesión?</h3>
       </div>
       <div class="modal-card__actions">
         <button class="btn-secondary" id="logoutCancel">Cancelar</button>
@@ -1271,22 +227,19 @@
     </div>
   </div>
 
-  <!-- Datos de los módulos del proyecto -->
-  <script src="../js/admin/modulos.js"></script>
-
-  <!-- ================================================================
-       API CLIENT - Comunicación con servidor remoto
-       ================================================================ -->
+  <!-- API CLIENT - Comunicación con servidor remoto -->
   <script src="../js/api-client.js"></script>
   <script src="../js/admin/admin-data.js"></script>
   <script src="../js/data-sync.js"></script>
   <script src="../js/api-utils.js"></script>
-  <script src="../js/test-api.js"></script>
+  <!-- Datos de los módulos del proyecto -->
+  <script src="../js/admin/modulos.js"></script>
 
   <!--
     ================================================================
     SCRIPT INLINE: lógica del admin con datos demo.
     En Fase 2 → endpoints CodeIgniter 4 + tabla `auditoria` en MySQL.
+    Este script es el "cerebro" del panel de administración, manejando la lógica de la interfaz y la interacción con los datos.
     ================================================================
   -->
   <script>
@@ -1295,13 +248,18 @@
 
     /* ============================================================
        1) DATOS DINÁMICOS (desde sesión y JSON)
+       Esta sección se encarga de cargar la información inicial necesaria para el panel,
+       como los datos del usuario logueado, usuarios, carreras, etc.
        ============================================================ */
 
-    // Perfil del admin desde la sesión activa en localStorage
+    // Recupera la sesión del usuario actual desde el localStorage.
+    // Si no hay sesión, inicializa un objeto vacío para evitar errores.
     const session = JSON.parse(localStorage.getItem('cedSession')) || {};
     const adminNombre = session.nombre || 'Administrador';
+    // Genera las iniciales del usuario para el avatar.
     const adminIniciales = adminNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
 
+    // Crea un objeto 'admin' con los datos relevantes de la sesión.
     const admin = {
       id: 4,
       nombre: adminNombre,
@@ -1311,7 +269,9 @@
       loggedAt: session.loggedAt || ''
     };
 
+    // Determina si el usuario actual tiene rol de administrador (para permisos).
     const isAdminUser = ['admin', 'administrador'].includes(admin.rol?.toLowerCase());
+    window.isAdminUser = isAdminUser;
 
     // Cargar usuarios desde API
     let usuariosJSON = [];
@@ -1323,6 +283,7 @@
       console.warn('[Admin] No se pudo cargar usuarios de la API:', err);
     }
 
+    // Carga la lista de carreras desde la API.
     // Cargar carreras desde API
     let carreras = [];
     try {
@@ -1332,6 +293,7 @@
       console.error('[Admin] Error al cargar carreras desde API:', err);
     }
 
+    // Carga las materias desde un archivo JSON local.
     // Cargar materias desde JSON para los selectores de novedades
     let materias = [];
     try {
@@ -1343,15 +305,28 @@
       console.warn('[Admin] No se pudo cargar materias del JSON:', err);
     }
 
-    // Visibilidad de módulos según rol (Acomodando Carreras para Docente/Delegado)
+    // --- Control de visibilidad de módulos del sidebar según el rol del usuario ---
+    // Obtiene referencias a los elementos de navegación del sidebar.
     const navCarreras = document.getElementById('nav-carreras');
+    const navUsuarios = document.getElementById('nav-usuarios');
+    const navReglamentacion = document.getElementById('nav-reglamentacion');
     const rolLower = admin.rol.toLowerCase();
+
+    // Si el usuario es Admin, Docente o Delegado, muestra los módulos de Carreras y Reglamentación.
     if (isAdminUser || rolLower === 'docente' || rolLower === 'delegado') {
       if (navCarreras) navCarreras.style.display = 'block';
+      if (navReglamentacion) navReglamentacion.style.display = 'block';
+    }
+
+    // El módulo de Usuarios y Roles es exclusivo para Administradores.
+    // Usuarios y Roles: Acceso exclusivo para Administradores
+    if (isAdminUser) {
+      if (navUsuarios) navUsuarios.style.display = 'block';
     }
 
     const PERFIL_MAP = { 1: 'alumno', 2: 'docente', 3: 'delegado', 4: 'admin' };
     const PERFIL_MAP_INVERSE = { 'alumno': 1, 'docente': 2, 'delegado': 3, 'admin': 4 };
+    // Mapea los usuarios cargados de la API a un formato más usable, incluyendo el rol en texto.
 
     const usuarios = usuariosJSON.map(u => ({
       id: u.id,
@@ -1366,15 +341,19 @@
       created_at: u.created_at
     }));
 
+    // Enriquecer el objeto 'admin' con datos más completos del usuario logueado.
     // Enriquecer admin con datos de la sesión
     const adminFullData = usuarios.find(u => u.usuario === admin.usuario);
     if (adminFullData) {
       admin.email = adminFullData.email || '';
       admin.dni = adminFullData.dni || '';
       admin.carrera_id = adminFullData.carrera_id;
+      // También actualiza el rol si viene de la sesión y es más específico
+      admin.rol = PERFIL_MAP[adminFullData.perfil_id] || admin.rol;
     }
 
     // Helper: nombre de carrera por id
+    // Función auxiliar para obtener el nombre de una carrera a partir de su ID.
     function getCarreraNombre(id) {
       if (!id) return 'Todas';
       const c = carreras.find(x => x.id == id);
@@ -1390,10 +369,12 @@
       const dataCat = await respCat.json();
       categorias = dataCat.categorias || [];
 
+      // Carga las novedades reales desde la API.
       // Cargamos novedades reales de la API
         console.log('📥 Cargando novedades desde API...');
         novedades = await Novedades.listar();
 
+        // Lógica para asegurar que la categoría "Carreras" exista si el usuario es docente.
         // Si el rol es docente, nos aseguramos de que exista una categoría "Carreras"
         if (rolLower === 'docente') {
           const hasCarrerasCat = categorias.some(c => String(c.nombre).toLowerCase() === 'carreras');
@@ -1403,6 +384,7 @@
           }
         }
 
+        // Asigna el nombre de la categoría a cada novedad basándose en el ID.
         // Enriquecemos con nombres de categoría mapeados
         novedades.forEach(n => {
           const cat = categorias.find(c => c.id == n.categoria_id);
@@ -1413,12 +395,14 @@
       console.error('Error al cargar datos de novedades:', e);
     }
 
+    // Actualiza el avatar y el nombre del usuario en el encabezado del panel.
     // Actualizar header con datos del usuario logueado
     const userAvatarEl = document.getElementById('userAvatar');
     const userNameEl = document.getElementById('userName');
     if (userAvatarEl) userAvatarEl.textContent = admin.iniciales;
     if (userNameEl) userNameEl.textContent = admin.nombre;
 
+    // Actualiza el texto del rol en la "píldora" del encabezado.
     // Actualizar el texto del rol en el header
     const rolePillEl = document.querySelector('.role-pill');
     if (rolePillEl) {
@@ -1433,18 +417,13 @@
     }
 
     /* ============================================================
-       MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js)
+       MÓDULOS DEL PROYECTO (datos desde js/admin/modulos.js y API)
+       Esta sección define la estructura de los módulos del panel y cómo se cargan sus datos.
        ============================================================ */
-    // Agregamos el módulo de Materias al objeto global modulosData
-    window.MODULOS_DATA['mod-materias'] = {
-      titulo: 'Materias',
-      icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h5" stroke-linecap="round"/></svg>',
-      descripcion: 'Gestión de la oferta académica por materia, vinculada a las carreras existentes.',
-      items: [] // Se poblará con datos de la API
-    };
+    // Añade el módulo de Carreras a la estructura global de módulos.
     window.MODULOS_DATA['mod-carreras'] = {
       titulo: 'Carreras',
-      icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>',
+      icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>', // SVG del icono
       descripcion: 'Gestión de las carreras del instituto, códigos y perfiles académicos.',
       items: [] // Se poblará con datos de la API
     };
@@ -1452,6 +431,7 @@
     // `isAdminUser` ya está declarado más arriba y refleja si el usuario es administrador
     let eventosAdmin = [];
 
+    // Función para cargar la reglamentación desde la API y formatearla para la UI.
     async function loadReglamentacionFromAPI() {
       if (!modulosData['mod-reglamentacion']) return;
       try {
@@ -1477,6 +457,7 @@
       }
     }
 
+    // Función para cargar los eventos desde la API y formatearlos para la UI.
     async function loadEventosFromAPI() {
       if (!modulosData['mod-eventos']) return;
       try {
@@ -1485,8 +466,10 @@
         eventosAdmin = data.map(ev => {
           const inscriptos = ev.inscriptos || 0;
           const cupo = ev.cupo || 0;
+          const id = isNaN(Number(ev.id)) ? ev.id : Number(ev.id);
           return {
             ...ev,
+            id,
             detalle: `${ev.categoria || 'General'} · ${ev.lugar || 'S/D'} · Cupo ${inscriptos}/${cupo}`
           };
         });
@@ -1497,9 +480,11 @@
       }
     }
 
-    // --- CALENDARIO ACADÉMICO ---
+    // --- CALENDARIO ACADÉMICO (datos y configuración) ---
     let calendarioAdmin = [];
-    let calendarioMes = new Date();
+    let calendarioMes = new Date(); // Guarda el mes actual que se está mostrando en el calendario.
+    
+    // Mapeo de tipos de eventos del calendario a etiquetas y colores para la UI.
     const CAL_TYPES = {
       'examen': { label: 'Examen', color: '#C0392B' },
       'inscripcion': { label: 'Inscripción', color: '#F5A623' },
@@ -1507,6 +492,7 @@
       'evento': { label: 'Evento', color: '#4A67C9' }
     };
 
+    // Función para cargar los eventos del calendario desde la API.
     async function loadCalendarioFromAPI() {
       try {
         calendarioAdmin = await Calendario.listar();
@@ -1515,6 +501,7 @@
       }
     }
 
+    // Función auxiliar para formatear fechas y horas.
     // Utils
     function formatDateTime(isoDate) {
       if (!isoDate) return '---';
@@ -1528,6 +515,7 @@
       });
     }
 
+    // Define las categorías de eventos que cada rol puede gestionar.
     function roleEventCategories() {
       if (isAdminUser) return ['Académico', 'Social', 'Cultural', 'Centro de Estudiantes', 'Deportivo'];
       const role = admin.rol.toLowerCase();
@@ -1536,11 +524,13 @@
       return ['Social', 'Cultural'];
     }
 
+    // Genera las opciones HTML para un selector de carreras.
     function carreraOptions(selectedId) {
       return `<option value="">— Todas las carreras —</option>` +
         carreras.map(c => `<option value="${c.id}" ${c.id == selectedId ? 'selected' : ''}>${c.nombre}</option>`).join('');
     }
 
+    // Determina si el usuario actual tiene permisos para gestionar un evento específico.
     function canManageEvent(ev) {
       return isAdminUser || ev.autor === admin.nombre || ev.autor === 'Centro de Estudiantes';
     }
@@ -1570,8 +560,12 @@
               <span style="font:600 .78rem 'Manrope',sans-serif;color:#1A1D4A;">${ev.categoria}</span>
               <span style="font:500 .78rem 'Manrope',sans-serif;color:#4A47A7;">${ev.autor}</span>
               ${canManageEvent(ev) ? `
-                <button class="btn btn-secondary btn-sm" data-event-action="edit" data-event-id="${ev.id}">Editar</button>
-                <button class="btn btn-secondary btn-sm" data-event-action="delete" data-event-id="${ev.id}" style="background:#E67E5B;border-color:#E67E5B;color:#fff;">Eliminar</button>
+                <button class="btn-small" data-event-action="edit" data-event-id="${ev.id}" style="display:inline-flex;align-items:center;gap:6px">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                </button>
+                <button class="btn-small btn-small--danger" data-event-action="delete" data-event-id="${ev.id}" style="display:inline-flex;align-items:center;gap:6px">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                </button>
               ` : ''}
             </div>
           </div>
@@ -1677,16 +671,13 @@
       });
 
       let calHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem">
-          <p class="modulo-descripcion" style="margin:0">Gestión de fechas de exámenes, feriados y periodos de inscripción.</p>
-          ${admin.rol !== 'delegado' ? `<button class="btn btn-primary" id="btnNewCalEvent">+ Cargar fecha</button>` : ''}
-        </div>
-        <div class="calendar-header">
+        <div class="calendar-layout"><div class="calendar-layout__grid"><div class="calendar-header">
           <button class="cal-nav-btn" id="prevMonthAdmin" aria-label="Mes anterior">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <h3 class="calendar-title">${meses[month]} ${year}</h3>
           <button class="cal-nav-btn" id="nextMonthAdmin" aria-label="Mes siguiente">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
       `;
@@ -1726,18 +717,18 @@
           </div>
         `;
       }
-      calHTML += `</div></div>`;
+      calHTML += `</div></div></div>`;
 
       let eventosDelMesFlat = [];
       Object.keys(eventosDelMes).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dia => {
         eventosDelMes[dia].forEach(e => eventosDelMesFlat.push(e));
       });
 
-      calHTML += `<div class="calendar-event-list">`;
-      calHTML += `<p class="drawer-section-label" style="margin-top: 32px;">Eventos de ${meses[month]}</p>`;
+      calHTML += `<div class="calendar-layout__list"><div class="calendar-event-list">`;
+      calHTML += `<p class="drawer-section-label" style="margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: var(--brand-900, #1A1D4A);">Eventos de ${meses[month]}</p>`;
 
       if (eventosDelMesFlat.length === 0) {
-        calHTML += `<div class="notif-empty" style="margin-top:16px;">
+        calHTML += `<div class="notif-empty" style="margin-top:0;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <rect x="3" y="4" width="18" height="16" rx="2" />
               <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round" />
@@ -1761,12 +752,12 @@
                     ${CAL_TYPES[e.tipo]?.label || e.tipo}
                   </span>
                   ${canEdit ? `
-                    <div style="display:flex; gap:.4rem">
-                      <button class="btn-icon" data-cal-action="edit" data-cal-id="${e.id}" title="Editar">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <div style="display:flex; gap:.4rem; align-items:center">
+                      <button class="btn-small" data-cal-action="edit" data-cal-id="${e.id}" style="display:inline-flex;align-items:center;gap:6px">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
                       </button>
-                      <button class="btn-icon" style="color:#E67E5B" data-cal-action="delete" data-cal-id="${e.id}" title="Eliminar">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      <button class="btn-small btn-small--danger" data-cal-action="delete" data-cal-id="${e.id}" style="display:inline-flex;align-items:center;gap:6px">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
                       </button>
                     </div>
                   ` : ''}
@@ -1776,10 +767,11 @@
           `;
         });
       }
-      calHTML += `</div>`;
-      return calHTML;
+      calHTML += `</div></div></div>`;
+      return `<div class="calendar-wrapper">${calHTML}</div>`;
     }
 
+    // Función para renderizar el contenido de un módulo de lista (ej. Novedades, Reglamentación)
     function renderModuloListado(key) {
       if (key === 'mod-reglamentacion' && !isAdminUser) {
         return `<p style="text-align:center;padding:2rem;color:#8a8d9c;font-family:Manrope,sans-serif">Acceso restringido. Solo el perfil administrador puede ver esta sección.</p>`;
@@ -1804,8 +796,12 @@
               </div>
               <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap; justify-content:flex-end">
                 ${isAdminUser ? `
-                  <button class="btn btn-secondary btn-sm" style="background:#fff">Editar</button>
-                  <button class="btn btn-secondary btn-sm" style="background:rgba(230,126,91,.1); color:#E67E5B; border-color:transparent">Eliminar</button>
+                  <button class="btn-small" style="display:inline-flex;align-items:center;gap:6px">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                  </button>
+                  <button class="btn-small btn-small--danger" style="display:inline-flex;align-items:center;gap:6px">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                  </button>
                 ` : ''}
                 ${item.link ? `<a class="btn btn-primary btn-sm" href="${item.link}" target="_blank">Abrir</a>` : ''}
                 <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
@@ -1819,6 +815,7 @@
 
     /* ============================================================
        2) AUDITORÍA AUTOMÁTICA
+       Registra las acciones importantes realizadas por los administradores.
        ============================================================ */
     const auditoria = [];
     function auditar(accion, entidad, desc) {
@@ -1835,17 +832,24 @@
 
     /* ============================================================
        3) SISTEMA DE NAVEGACIÓN — renderiza en #mainContent
+       Controla qué contenido se muestra en el área principal del panel
+       cuando se hace clic en un botón del sidebar.
        ============================================================ */
     const mainContent = document.getElementById('mainContent');
     let currentDrawer = 'perfil';
 
+    // Función principal para cambiar la vista del panel.
     function navigateTo(key, opts = {}) {
       currentDrawer = key;
       const builder = sectionContent[key];
       if (!builder) return;
 
       const data = builder();
-      mainContent.innerHTML = `<h2 style="margin:0 0 1.2rem;font:700 1.4rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${data.title}</h2><div>${data.html}</div>`;
+      const tituloMb = data.subtitle ? '0' : '1.2rem';
+      const headerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin:0 0 ${tituloMb}"><h2 style="margin:0;font:700 1.4rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">${data.title}</h2>${data.titleAction || ''}</div>`;
+      const subtituloHTML = data.subtitle ? `<p class="modulo-descripcion" style="margin:.25rem 0 1rem">${data.subtitle}</p>` : '';
+      // Inyecta el HTML generado en el contenedor principal.
+      mainContent.innerHTML = `${headerHTML}${subtituloHTML}<div>${data.html}</div>`;
       
       // Hooks por sección
       if (key === 'usuarios') bindUsuariosDrawer(opts.quick);
@@ -1856,6 +860,7 @@
       if (key === 'mod-reglamentacion') bindReglamentacionDrawer();
       if (key === 'perfil') bindPerfilSection();
 
+      // Marca el botón activo en el sidebar.
       // Active state en el menú
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-btn--active'));
       const active = document.querySelector(`.nav-btn[data-drawer="${key}"]`);
@@ -1864,6 +869,7 @@
 
     /* ============================================================
        REGLAMENTACIÓN: Panel CRUD (Admin) + Listado (Docente/Delegado)
+       Funciones para renderizar y gestionar el módulo de Reglamentación.
     ============================================================ */
     function renderReglamentacionAdmin() {
       const mod = modulosData['mod-reglamentacion'];
@@ -1907,7 +913,12 @@
                   <p class="modulo-item__detalle">${item.detalle}</p>
                 </div>
                 <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap; justify-content:flex-end">
-                  <button class="btn btn-secondary btn-sm" style="background:rgba(230,126,91,.1); color:#E67E5B; border-color:transparent" data-regl-action="delete" data-regl-id="${item.id}">Eliminar</button>
+                  <button class="btn-small" data-regl-action="edit" data-regl-id="${item.id}" style="display:inline-flex;align-items:center;gap:6px">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                  </button>
+                  <button class="btn-small btn-small--danger" data-regl-action="delete" data-regl-id="${item.id}" style="display:inline-flex;align-items:center;gap:6px">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                  </button>
                   ${item.link ? `<a class="btn btn-primary btn-sm" href="${item.link}" target="_blank">Abrir</a>` : ''}
                   <span class="modulo-item__estado modulo-item__estado--${item.estadoClase}">${item.estado}</span>
                 </div>
@@ -1917,6 +928,7 @@
         </div>
 
         <div id="reglNewPane" hidden>
+          <h3 style="margin:0 0 1rem;font:700 1.1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Nuevo documento</h3>
           <form class="admin-form" id="newReglForm">
             <label>Título del documento
               <input type="text" name="titulo" required placeholder="Ej: Reglamento Académico Marco">
@@ -1991,28 +1003,137 @@
         };
 
         try {
-          await Reglamentacion.crear(data);
+          await adminData.crearReglamento(data);
           showToast('Documento publicado', 'Se agregó el nuevo documento a reglamentación.');
           await loadReglamentacionFromAPI();
           navigateTo('mod-reglamentacion');
-        } catch (err) { alert('Error al crear documento: ' + err.message); }
+        } catch (err) { alert('Error al guardar documento: ' + err.message); }
       });
 
       document.querySelectorAll('[data-regl-action="delete"]').forEach(btn => {
         btn.addEventListener('click', async () => {
           const id = btn.dataset.reglId;
-          if (confirm('¿Eliminar este documento definitivamente?')) {
-            try {
-              await Reglamentacion.eliminar(id);
-              showToast('Documento eliminado', 'Se quitó el documento del repositorio.');
-              await loadReglamentacionFromAPI();
-              navigateTo('mod-reglamentacion');
-            } catch (err) { alert('Error al eliminar: ' + err.message); }
+          const items = modulosData['mod-reglamentacion'].items;
+          const doc = items.find(x => String(x.id) === String(id));
+
+          requestDangerConfirm({
+            title: '¿Eliminar documento?',
+            msg: `Estás por eliminar definitivamente el documento "<strong>${doc ? doc.titulo : 'seleccionado'}</strong>". Esta acción no se puede deshacer.`,
+            btnLabel: 'Eliminar documento',
+            onConfirm: async () => {
+              try {
+                await adminData.eliminarReglamento(id);
+                showToast('Documento eliminado', 'Se quitó el documento del repositorio.', '#E67E5B');
+                await loadReglamentacionFromAPI();
+                navigateTo('mod-reglamentacion');
+              } catch (err) { showToast('Error', 'No se pudo eliminar: ' + err.message, '#E67E5B'); }
+            }
+          });
+        });
+      });
+
+      document.querySelectorAll('[data-regl-action="edit"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.reglId;
+          try {
+            // Usamos la API directamente para obtener el documento completo y asegurar todos los campos
+            const res = await Reglamentacion.obtener(id);
+            // Validamos que el documento exista (algunas APIs devuelven un array, tomamos el primer elemento)
+            const documento = Array.isArray(res) ? res[0] : res;
+            
+            if (documento) {
+              showEditReglForm(documento);
+            } else {
+              throw new Error("No se pudo encontrar el documento");
+            }
+          } catch (err) {
+            showToast('Error', 'No se pudo cargar el documento para editar', '#E67E5B');
           }
         });
       });
     }
 
+    // Muestra el formulario para editar un documento de reglamentación.
+    function showEditReglForm(doc) {
+      const cont = document.getElementById('reglListPane');
+      if (!cont) return;
+
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="reglEditBackBtn" class="btn-small">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar documento: ${doc.titulo || 'Sin título'}</h3>
+        <form id="editReglForm" class="admin-form">
+          <label>Título del documento
+            <input type="text" name="titulo" required value="${doc.titulo || ''}">
+          </label>
+          <div class="admin-form__row">
+            <label>Tipo de Norma
+              <select name="tipo" required>
+                <option value="resoluciones" ${doc.tipo === 'resoluciones' ? 'selected' : ''}>Resoluciones</option>
+                <option value="disposicion" ${doc.tipo === 'disposicion' ? 'selected' : ''}>Disposiciones</option>
+                <option value="circular" ${doc.tipo === 'circular' ? 'selected' : ''}>Circulares</option>
+                <option value="comunicacion" ${doc.tipo === 'comunicacion' ? 'selected' : ''}>Comunicaciones</option>
+              </select>
+            </label>
+            <label>Categoría
+              <select name="categoria" required>
+                <option value="institucional" ${doc.categoria === 'institucional' ? 'selected' : ''}>Institucional</option>
+                <option value="centro de estudiantes" ${doc.categoria === 'centro de estudiantes' ? 'selected' : ''}>Centro de Estudiantes</option>
+                <option value="tecnicatura" ${doc.categoria === 'tecnicatura' ? 'selected' : ''}>Tecnicatura</option>
+                <option value="profesorado" ${doc.categoria === 'profesorado' ? 'selected' : ''}>Profesorado</option>
+              </select>
+            </label>
+          </div>
+          <div class="admin-form__row">
+            <label>Versión
+              <input type="text" name="version" required value="${doc.version || '1.0'}">
+            </label>
+            <label>Link / URL del documento
+              <input type="url" name="link" required value="${doc.link || ''}">
+            </label>
+          </div>
+          <label>Descripción breve
+            <textarea name="descripcion" rows="3" required>${doc.descripcion || ''}</textarea>
+          </label>
+          <label>Palabras clave (separadas por coma)
+            <input type="text" name="keywords" value="${(doc.palabras_clave || []).join(', ')}">
+          </label>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+
+      document.getElementById('reglEditBackBtn').addEventListener('click', () => navigateTo('mod-reglamentacion'));
+
+      document.getElementById('editReglForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const data = {
+          titulo: fd.get('titulo'),
+          tipo: fd.get('tipo'),
+          categoria: fd.get('categoria'),
+          descripcion: fd.get('descripcion'),
+          link: fd.get('link'),
+          version: fd.get('version'),
+          palabras_clave: fd.get('keywords').split(',').map(s => s.trim()).filter(Boolean),
+          fecha_publicacion: doc.fecha_publicacion || new Date().toISOString().split('T')[0]
+        };
+
+        try {
+          await adminData.actualizarReglamento(doc.id, data);
+          showToast('Documento actualizado', 'Se guardaron los cambios correctamente.');
+          await loadReglamentacionFromAPI();
+          navigateTo('mod-reglamentacion');
+        } catch (err) {
+          showToast('Error', 'No se pudo actualizar el documento: ' + err.message, '#E67E5B');
+        }
+      });
+    }
+
+    // Bindea los eventos de los botones de navegación del calendario y el botón "Nueva fecha".
     function bindCalendarioDrawer() {
       document.getElementById('prevMonthAdmin')?.addEventListener('click', () => {
         calendarioMes.setMonth(calendarioMes.getMonth() - 1);
@@ -2023,6 +1144,7 @@
         navigateTo('mod-calendario');
       });
       
+      // Abre el modal para crear un nuevo evento de calendario.
       document.getElementById('btnNewCalEvent')?.addEventListener('click', () => showCalModal());
 
       document.querySelectorAll('[data-cal-action]').forEach(btn => {
@@ -2032,22 +1154,30 @@
           const ev = calendarioAdmin.find(x => x.id == id);
           if (!ev) return;
 
+          // Lógica para eliminar un evento del calendario.
           if (action === 'delete') {
-            if (confirm(`¿Eliminar "${ev.titulo}" del calendario?`)) {
-              try {
-                await Calendario.eliminar(id);
-                showToast('Evento eliminado', 'Se quitó la fecha del calendario.');
-                await loadCalendarioFromAPI();
-                navigateTo('mod-calendario');
-              } catch (err) { showToast('Error', 'No se pudo eliminar', '#E67E5B'); }
-            }
+            requestDangerConfirm({
+              title: '¿Eliminar fecha?',
+              msg: `Vas a eliminar "<strong>${ev.titulo}</strong>" del calendario académico.`,
+              btnLabel: 'Eliminar del calendario',
+              onConfirm: async () => {
+                try {
+                  await Calendario.eliminar(id);
+                  showToast('Evento eliminado', 'Se quitó la fecha del calendario.', '#E67E5B');
+                  await loadCalendarioFromAPI();
+                  navigateTo('mod-calendario');
+                } catch (err) { showToast('Error', 'No se pudo eliminar', '#E67E5B'); }
+              }
+            });
           } else if (action === 'edit') {
+            // Lógica para editar un evento del calendario.
             showCalModal(ev);
           }
         });
       });
     }
 
+    // Muestra el modal para crear o editar un evento del calendario.
     function showCalModal(existing = null) {
       const isEdit = !!existing;
       const modalHtml = `
@@ -2080,6 +1210,7 @@
       const modal = document.getElementById('calModal');
       
       document.getElementById('closeCalModal').onclick = () => modal.remove();
+      // Maneja el envío del formulario del modal (crear o actualizar).
       document.getElementById('calForm').onsubmit = async (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
@@ -2101,6 +1232,7 @@
       };
     }
 
+    // Bindea los eventos de clic a los botones del sidebar para navegar entre secciones.
     // Menú Sidebar
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2109,6 +1241,7 @@
       });
     });
 
+    // Cierra los menús desplegables de usuario si se hace clic fuera.
     // Dropdowns de usuario
     document.addEventListener('click', (e) => {
       if (!e.target.closest('[data-menu-btn]')) {
@@ -2118,6 +1251,7 @@
 
     /* ============================================================
        4) BUILDERS DEL CONTENIDO DE CADA SECCIÓN
+       Estas funciones construyen el HTML de cada sección del panel.
        ============================================================ */
     const sectionContent = {
       perfil: () => ({
@@ -2169,6 +1303,7 @@
         `
       }),
 
+      // Contenido del módulo de Usuarios y Roles.
       usuarios: () => ({
         title: 'Usuarios y Roles',
         icon: '',
@@ -2262,12 +1397,24 @@
       });
     });
 
+    // Define el contenido del módulo de Novedades.
     sectionContent['mod-novedades'] = () => ({
       title: 'Novedades',
       icon: modulosData['mod-novedades'].icono,
       html: renderNovedadesAdmin()
     });
 
+    // El calendario muestra el botón "Cargar fecha" alineado al título y la
+    // descripción como subtítulo, justo debajo del encabezado del módulo.
+    // descripción como subtítulo, justo debajo del encabezado del módulo.
+    const buildCalendarioSection = sectionContent['mod-calendario'];
+    sectionContent['mod-calendario'] = () => ({
+      ...buildCalendarioSection(),
+      subtitle: 'Gestión de fechas de exámenes, feriados y periodos de inscripción.',
+      titleAction: admin.rol !== 'delegado' ? `<button class="btn btn-primary" id="btnNewCalEvent">+ Cargar fecha</button>` : ''
+    });
+
+    // Función auxiliar para generar un item de perfil con label y valor.
     function profileItem(label, value, highlight = false) {
       const styleVal = highlight
         ? 'color:#C0392B;font-weight:700'
@@ -2282,6 +1429,7 @@
 
     /* ============================================================
        6) HOOKS POR SECCIÓN
+       Estas funciones bindean los eventos y la lógica específica de cada sección.
        ============================================================ */
 
     // --- Perfil ---
@@ -2295,6 +1443,7 @@
         const nuevoEmail = data.get('email').trim();
         if (!nuevoNombre || !nuevoEmail) return;
 
+        // Actualiza los datos del admin en memoria.
         admin.nombre = nuevoNombre;
         admin.email = nuevoEmail;
         admin.iniciales = nuevoNombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
@@ -2305,6 +1454,7 @@
         session.email = admin.email;
         localStorage.setItem('cedSession', JSON.stringify(session));
 
+        // Actualiza la interfaz del header.
         // Actualizar header
         const userAvatarEl = document.getElementById('userAvatar');
         const userNameEl = document.getElementById('userName');
@@ -2315,6 +1465,7 @@
         navigateTo('perfil');
       });
 
+      // Maneja el envío del formulario de cambio de contraseña.
       // Cambio de contraseña
       const passForm = document.getElementById('profilePasswordForm');
       if (!passForm) return;
@@ -2324,13 +1475,14 @@
         const currentPass = data.get('currentPassword');
         const newPass = data.get('newPassword');
 
+        // Verifica la contraseña actual contra los usuarios cargados (mock).
         // Verificar contraseña actual contra usuarios.json cargado
         const userRecord = usuariosJSON.find(u => u.usuario === admin.usuario);
         if (userRecord && userRecord.password !== currentPass) {
           showToast('Error', 'La contraseña actual es incorrecta.', '#E67E5B');
           return;
         }
-
+        // Actualiza la contraseña en memoria (en el mock de usuarios).
         // Actualizar en memoria
         if (userRecord) userRecord.password = newPass;
 
@@ -2340,12 +1492,21 @@
     }
 
     // --- Usuarios ---
+    // Bindea los eventos y la lógica para el módulo de gestión de usuarios.
     function bindUsuariosDrawer(quick) {
       const tabs = document.querySelectorAll('.drawer__tab');
       const panes = {
         lista:    document.getElementById('userListPane'),
         nuevo:    document.getElementById('userNewPane')
       };
+
+      // Oculta la pestaña de creación de usuarios si el usuario no es administrador.
+      // Ocultar pestaña de creación para no-admins
+      if (!isAdminUser) {
+        const nuevoTab = Array.from(tabs).find(t => t.dataset.tab === 'nuevo');
+        if (nuevoTab) nuevoTab.style.display = 'none';
+      }
+
       function showTab(t) {
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         Object.entries(panes).forEach(([k, p]) => p.hidden = k !== t);
@@ -2353,22 +1514,34 @@
       tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
       if (quick === 'newUser') showTab('nuevo');
 
+      // Lógica para filtrar y renderizar la lista de usuarios.
       // Lista
       const filterRol = document.getElementById('filterRol');
       const search = document.getElementById('userSearch');
 
       function renderUsers() {
         const rol = filterRol.value;
+        const rolFilter = filterRol.value;
+        // Obtiene el término de búsqueda y lo convierte a minúsculas.
         const q = search.value.trim().toLowerCase();
-        const list = usuarios.filter(u =>
-          (rol === 'todos' || u.rol === rol) &&
+        let list = usuarios;
+
+        if (!isAdminUser) {
+          list = usuarios.filter(u => u.rol === 'alumno');
+        }
+
+        list = list.filter(u =>
+          (rolFilter === 'todos' || u.rol === rolFilter) &&
+          // Filtra por nombre o usuario.
           (!q || u.nombre.toLowerCase().includes(q) || u.usuario.toLowerCase().includes(q))
         );
+
         const cont = document.getElementById('userList');
         if (list.length === 0) {
           cont.innerHTML = `<p style="text-align:center;padding:1.5rem;color:#8a8d9c;font-family:'Manrope',sans-serif">Sin resultados.</p>`;
           return;
         }
+        // Genera el HTML para cada usuario en la lista.
         cont.innerHTML = list.map(u => {
           const ini = u.nombre.split(' ').map(n => n[0]).slice(0,2).join('');
           return `
@@ -2384,10 +1557,16 @@
                   <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
                 </button>
                 <div class="user-row__menu-dropdown">
-                  <button data-action="edit"        data-id="${u.id}">✏️  Editar datos</button>
-                  <button data-action="reset"       data-id="${u.id}">🔑  Resetear password</button>
+                  <button data-action="edit" data-id="${u.id}">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar datos
+                  </button>
+                  <button data-action="reset" data-id="${u.id}">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3L15.5 7.5z"/></svg> Resetear password
+                  </button>
                   <hr>
-                  <button class="is-danger" data-action="delete" data-id="${u.id}">🚫  Eliminar</button>
+                  <button class="is-danger" data-action="delete" data-id="${u.id}">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                  </button>
                 </div>
               </div>
             </div>
@@ -2400,6 +1579,7 @@
       search.addEventListener('input', renderUsers);
       renderUsers();
 
+      // Maneja el envío del formulario para crear un nuevo usuario.
       // Form de alta
       document.getElementById('newUserForm').addEventListener('submit', async e => {
         e.preventDefault();
@@ -2416,6 +1596,7 @@
         };
 
         try {
+          // Llama a la API para crear el usuario.
           console.log('📤 POST /usuarios:', nuevo);
           const usuarioCreado = await Usuarios.crear(nuevo);
           console.log('✅ Usuario creado:', usuarioCreado);
@@ -2434,6 +1615,7 @@
             created_at: usuarioCreado.created_at
           };
 
+          // Añade el nuevo usuario al array local y registra la acción en auditoría.
           usuarios.push(usuarioMapeado);
           auditar('crear', 'usuario', `Alta de cuenta: ${nuevo.nombre} (${data.get('rol')})`);
           showToast('Usuario creado', `${nuevo.nombre} fue agregado al sistema.`);
@@ -2442,52 +1624,51 @@
           renderUsers();
         } catch (err) {
           console.error('❌ Error al crear usuario:', err);
-          showToast('Error', 'No se pudo crear el usuario: ' + err.message, 'error');
+          showToast('Error', 'No se pudo crear el usuario: ' + err.message, '#E67E5B');
         }
       });
     }
 
+    // Renderiza el contenido del módulo de Carreras.
     function renderCarrerasAdmin() {
       const mod = modulosData['mod-carreras'];
       if (!mod) return '<p>Error cargando módulo</p>';
 
-      // Vista de solo lectura para Docente/Delegado
+      const filtroHtml = `
+        <div class="drawer__filters">
+          <input id="carrerasSearch" class="filter-input" type="text" placeholder="Buscar carrera por nombre o código…">
+        </div>
+      `;
+
       if (!isAdminUser) {
         return `
           <p class="modulo-descripcion">${mod.descripcion}</p>
-          <div style="margin-bottom:.8rem">
-            <input id="carrerasSearch" type="text" placeholder="Buscar carrera…" style="width:100%;padding:.65rem;border:1px solid rgba(143,163,227,.45);border-radius:10px">
-          </div>
-          <div id="carrerasTableContainer"></div>
+          ${filtroHtml}
+          <div id="carrerasTableContainer" class="table-wrapper"></div>
         `;
       }
 
-      // Vista Admin con Dashboard para nueva carrera
       return `
         <div class="drawer__tabs">
-          <button class="drawer__tab is-active" data-tab="lista">Lista</button>
-          <button class="drawer__tab" data-tab="nuevo">+ Nueva carrera</button>
+          <button class="drawer__tab is-active" data-tab="lista" type="button">Lista</button>
+          <button class="drawer__tab" data-tab="nuevo" type="button">+ Nueva carrera</button>
         </div>
         <div id="carrerasListPane">
           <p class="modulo-descripcion">${mod.descripcion}</p>
-          <div style="margin-bottom:.8rem">
-            <div style="display:flex;gap:.5rem;align-items:center">
-              <input id="carrerasSearch" type="text" placeholder="Buscar carrera por nombre o código…" style="flex:1;padding:.65rem;border:1px solid rgba(143,163,227,.45);border-radius:9px">
-            </div>
-          </div>
-          <div id="carrerasTableContainer"></div>
+          ${filtroHtml}
+          <div id="carrerasTableContainer" class="table-wrapper"></div>
         </div>
         <div id="carrerasNewPane" hidden>
           <form id="newCarreraForm" class="admin-form">
             <div class="admin-form__row">
-              <label>Nombre de la carrera
+              <label class="admin-form__field">Nombre de la carrera
                 <input type="text" name="nombre" required placeholder="Ej: Tecnicatura en Ciencia de Datos e IA">
               </label>
-              <label>Código
+              <label class="admin-form__field">Código
                 <input type="text" name="codigo" required placeholder="Ej: CDIA">
               </label>
             </div>
-            <label>Descripción (opcional)
+            <label class="admin-form__field">Descripción (opcional)
               <textarea name="descripcion" rows="3" placeholder="Describe brevemente el perfil de la carrera..."></textarea>
             </label>
             <button type="submit" class="admin-form__submit">
@@ -2499,6 +1680,7 @@
       `;
     }
 
+    // Bindea los eventos y la lógica para el módulo de gestión de carreras.
     function bindCarrerasDrawer() {
       const tabs = document.querySelectorAll('.drawer__tab');
       const panes = {
@@ -2511,6 +1693,7 @@
         Object.entries(panes).forEach(([k, p]) => { if (p) p.hidden = k !== t.dataset.tab; });
       }));
 
+      // Lógica de búsqueda en la tabla de carreras.
       const searchInput = document.getElementById('carrerasSearch');
       if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -2523,6 +1706,7 @@
 
       refreshCarrerasTable();
 
+      // Maneja el envío del formulario para crear una nueva carrera.
       document.getElementById('newCarreraForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
@@ -2539,6 +1723,7 @@
       });
     }
 
+    // Refresca la tabla de carreras, cargando los datos desde la API.
     async function refreshCarrerasTable() {
       const containerId = 'carrerasTableContainer';
       const container = document.getElementById(containerId);
@@ -2546,24 +1731,38 @@
 
       try {
         await renderCarrerasTable(containerId);
+        // Vuelve a cargar las carreras desde la API para tener los datos más recientes.
+        
+        // Coherencia de diseño: aplicamos estilos refinados con iconos a los botones de la tabla
+        container.querySelectorAll('button').forEach(btn => {
+          btn.className = 'btn-small';
+          btn.style.display = 'inline-flex';
+          btn.style.alignItems = 'center';
+          btn.style.gap = '6px';
+          btn.style.marginRight = '8px';
+          
+          if (btn.hasAttribute('data-carrera-edit')) {
+            btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar`;
+          }
+          if (btn.hasAttribute('data-carrera-delete')) {
+            btn.classList.add('btn-small--danger');
+            btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar`;
+          }
+        });
+
         if (isAdminUser) {
+          // Si es admin, vuelve a obtener las carreras para asegurar que el array local esté actualizado.
+          carreras = await adminData.obtenerCarreras();
+
           container.querySelectorAll('[data-carrera-edit]').forEach(btn => {
             btn.addEventListener('click', async () => {
               const id = btn.dataset.carreraId;
-              const list = await adminData.obtenerCarreras();
-              const c = list.find(x => x.id == id);
+              const c = carreras.find(x => String(x.id) === String(id));
               if (!c) return;
-              const n = prompt('Nuevo nombre:', c.nombre);
-              if (n === null) return;
-              const cod = prompt('Nuevo código:', c.codigo);
-              if (cod === null) return;
-              try {
-                await adminData.actualizarCarrera(id, { ...c, nombre: n, codigo: cod });
-                showToast('Actualizado', 'Carrera actualizada correctamente.');
-                refreshCarrerasTable();
-              } catch (e) { showToast('Error', 'No se pudo actualizar.', '#E67E5B'); }
+              showEditCarreraForm(c);
             });
           });
+          // Lógica para eliminar una carrera.
           container.querySelectorAll('[data-carrera-delete]').forEach(btn => {
             btn.addEventListener('click', () => {
               requestDangerConfirm({
@@ -2572,6 +1771,7 @@
                 onConfirm: async () => {
                   try {
                     await adminData.eliminarCarrera(btn.dataset.carreraId);
+                    carreras = await adminData.obtenerCarreras();
                     showToast('Eliminada', 'La carrera fue eliminada.', '#E67E5B');
                     refreshCarrerasTable();
                   } catch (e) { showToast('Error', 'No se pudo eliminar.', '#E67E5B'); }
@@ -2581,6 +1781,45 @@
           });
         }
       } catch (err) { container.innerHTML = '<p>Error cargando datos de carreras.</p>'; }
+    }
+
+    // Muestra el formulario para editar una carrera.
+    function showEditCarreraForm(c) {
+      const cont = document.getElementById('carrerasTableContainer');
+      cont.innerHTML = `
+        <div style="margin-bottom:.8rem">
+          <button id="carreraEditBackBtn" class="btn-small">← Volver a la lista</button>
+        </div>
+        <h3 style="margin:0 0 1rem;font:700 1rem/1.2 'Bricolage Grotesque',serif;color:var(--brand-900,#1A1D4A)">Editar carrera: ${c.nombre}</h3>
+        <form id="editCarreraForm" class="admin-form">
+          <div class="admin-form__row">
+            <label>Nombre de la carrera
+              <input type="text" name="nombre" required value="${c.nombre}">
+            </label>
+            <label>Código
+              <input type="text" name="codigo" required value="${c.codigo}">
+            </label>
+          </div>
+          <label>Descripción (opcional)
+            <textarea name="descripcion" rows="3">${c.descripcion || ''}</textarea>
+          </label>
+          <button type="submit" class="admin-form__submit">
+            <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar cambios
+          </button>
+        </form>
+      `;
+      document.getElementById('carreraEditBackBtn').addEventListener('click', () => refreshCarrerasTable());
+      document.getElementById('editCarreraForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const data = { nombre: fd.get('nombre'), codigo: fd.get('codigo'), descripcion: fd.get('descripcion') };
+        try {
+          await adminData.actualizarCarrera(c.id, data);
+          showToast('Carrera actualizada', 'Los cambios se guardaron correctamente en la base de datos.');
+          refreshCarrerasTable();
+        } catch (err) { showToast('Error', 'No se pudo actualizar la carrera: ' + err.message, '#E67E5B'); }
+      });
     }
 
 
@@ -2609,6 +1848,7 @@
       `;
     }
 
+    // Bindea los eventos y la lógica para el módulo de gestión de eventos.
     function bindEventosDrawer() {
       const tabs = document.querySelectorAll('.drawer__tab');
       const panes = {
@@ -2616,6 +1856,7 @@
         inscriptos: document.getElementById('eventInscriptosPane')
       };
 
+      // Función para mostrar la pestaña correcta (Lista o Alumnos Inscriptos).
       function showTab(t) {
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         Object.entries(panes).forEach(([k, p]) => { if(p) p.hidden = k !== t; });
@@ -2630,20 +1871,22 @@
       const eventList = document.querySelector('.modulo-list');
       const selectEv = document.getElementById('selectEventInscriptos');
 
+      // Bindea el selector de eventos para ver los inscriptos.
       if (selectEv) selectEv.addEventListener('change', renderInscriptosPorEvento);
 
       async function renderInscriptosPorEvento() {
         const list = document.getElementById('inscriptosList');
         if (!selectEv || !list) return;
-        const eventId = Number(selectEv.value);
+        const eventId = selectEv.value;
         if (!eventId) {
           list.innerHTML = '<p style="color:#8a8d9c; padding:1.5rem; text-align:center;">Elegí un evento para ver quiénes participan.</p>';
           return;
         }
 
-        const ev = eventosAdmin.find(e => e.id === eventId);
+        const ev = eventosAdmin.find(e => String(e.id) === String(eventId));
         if (!ev) return;
 
+        // Obtiene los IDs de los usuarios inscriptos.
         const inscriptosIds = ev.usuarios_inscriptos || [];
         
         if (!inscriptosIds.length) {
@@ -2651,6 +1894,7 @@
           return;
         }
 
+        // Genera el HTML para la lista de usuarios inscriptos.
         list.innerHTML = inscriptosIds.map(uId => {
           const u = usuarios.find(usr => usr.id == uId);
           return `
@@ -2661,6 +1905,7 @@
         }).join('');
       }
 
+      // Lógica para mostrar/ocultar el formulario de creación/edición de eventos.
       if (toggleBtn && formWrapper) {
         toggleBtn.addEventListener('click', () => {
           const visible = formWrapper.style.display === 'block';
@@ -2669,11 +1914,12 @@
         });
       }
 
+      // Maneja el envío del formulario de eventos (crear o actualizar).
       if (form) {
         form.addEventListener('submit', async e => {
           e.preventDefault();
           const data = new FormData(form);
-          const editingId = form.dataset.editing ? Number(form.dataset.editing) : null;
+          const editingId = form.dataset.editing || null;
 
           const eventoData = {
             titulo: data.get('titulo').trim(),
@@ -2687,10 +1933,11 @@
             autor: admin.nombre
           };
 
+          // Si se está editando un evento existente.
           if (editingId) {
             try {
               const actualizado = await Eventos.actualizar(editingId, eventoData);
-              const idx = eventosAdmin.findIndex(ev => ev.id === editingId);
+              const idx = eventosAdmin.findIndex(ev => String(ev.id) === String(editingId));
               eventosAdmin[idx] = {
                 ...actualizado,
                 detalle: `${actualizado.categoria} · ${actualizado.lugar} · Cupo ${actualizado.inscriptos || 0}/${actualizado.cupo}`,
@@ -2705,6 +1952,7 @@
               return;
             }
           } else {
+            // Si se está creando un nuevo evento.
             try {
               const creado = await Eventos.crear({ ...eventoData, inscriptos: 0, color: '#4A67C9' });
               eventosAdmin.unshift({
@@ -2720,6 +1968,7 @@
             }
           }
 
+          // Limpia el formulario y vuelve a renderizar la lista de eventos.
           form.reset();
           if (formWrapper) formWrapper.style.display = 'none';
           if (toggleBtn) toggleBtn.textContent = 'Publicar evento';
@@ -2727,29 +1976,38 @@
         });
       }
 
+      // Maneja las acciones de los botones dentro de la lista de eventos (editar, eliminar).
       if (eventList) {
         eventList.addEventListener('click', async e => {
           const action = e.target.closest('[data-event-action]');
           if (!action) return;
-          const eventId = Number(action.dataset.eventId);
-          const evento = eventosAdmin.find(ev => ev.id === eventId);
+          const eventId = action.dataset.eventId;
+          const evento = eventosAdmin.find(ev => String(ev.id) === String(eventId));
           if (!evento) return;
           const type = action.dataset.eventAction;
 
+          // Lógica para eliminar un evento.
           if (type === 'delete') {
-            if (!confirm(`¿Eliminar el evento "${evento.titulo}"?`)) return;
-            try {
-              await Eventos.eliminar(eventId);
-              eventosAdmin = eventosAdmin.filter(ev => ev.id !== eventId);
-              auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
-              showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
-              navigateTo('mod-eventos');
-            } catch (err) {
-              console.error('Error al eliminar evento:', err);
-              showToast('Error', 'No se pudo eliminar el evento', 'error');
-            }
+            requestDangerConfirm({
+              title: '¿Eliminar evento?',
+              msg: `Estás por eliminar el evento "<strong>${evento.titulo}</strong>". Se perderá permanentemente la lista de alumnos inscriptos.`,
+              btnLabel: 'Eliminar evento',
+              onConfirm: async () => {
+                try {
+                  await Eventos.eliminar(eventId);
+                  eventosAdmin = eventosAdmin.filter(ev => String(ev.id) !== String(eventId));
+                  auditar('eliminar', 'evento', `Evento eliminado: ${evento.titulo}`);
+                  showToast('Evento eliminado', `Se quitó el evento ${evento.titulo}.`, '#E67E5B');
+                  navigateTo('mod-eventos');
+                } catch (err) {
+                  console.error('Error al eliminar evento:', err);
+                  showToast('Error', 'No se pudo eliminar el evento', '#E67E5B');
+                }
+              }
+            });
           }
 
+          // Lógica para editar un evento.
           if (type === 'edit') {
             const formWrapperEdit = document.getElementById('eventAdminFormWrapper');
             if (!formWrapperEdit) return;
@@ -2770,8 +2028,12 @@
     }
 
     function bindUserActions() {
+      // Bindea los eventos para las acciones de usuario (editar, resetear password, eliminar).
+      const container = document.getElementById('userList');
+      if (!container) return;
+
       // Toggle dropdown
-      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+      container.querySelectorAll('[data-menu-btn]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const menu = btn.closest('[data-menu]');
@@ -2781,14 +2043,15 @@
       });
 
       // Acciones
-      document.querySelectorAll('[data-action]').forEach(btn => {
+      container.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', async e => {
           e.stopPropagation();
-          const id = +btn.dataset.id;
+          const id = btn.dataset.id;
           const action = btn.dataset.action;
-          const u = usuarios.find(x => x.id === id);
+          const u = usuarios.find(x => String(x.id) === String(id));
           if (!u) return;
           // Cerrar dropdown
+          // Cierra el menú desplegable de acciones después de seleccionar una.
           btn.closest('[data-menu]').classList.remove('is-open');
 
           if (action === 'edit') {
@@ -2796,6 +2059,7 @@
           }
           if (action === 'reset') {
             try {
+              // Genera una contraseña temporal y la actualiza en la API.
               const tempPassword = 'Reset' + Date.now().toString().slice(-6);
               console.log('📤 PUT /usuarios/' + id + ' (reset password)');
               await Usuarios.actualizar(id, {
@@ -2812,10 +2076,11 @@
               auditar('editar', 'usuario', `Reset de contraseña: ${u.nombre}`);
             } catch (err) {
               console.error('❌ Error al resetear password:', err);
-              showToast('Error', 'No se pudo resetear la contraseña: ' + err.message, 'error');
+              showToast('Error', 'No se pudo resetear la contraseña: ' + err.message, '#E67E5B');
             }
           }
           if (action === 'delete') {
+            // Muestra un modal de confirmación antes de eliminar un usuario.
             requestDangerConfirm({
               title: '¿Eliminar este usuario?',
               msg: `Vas a eliminar a <strong>${u.nombre}</strong>. Esta acción no se puede deshacer.`,
@@ -2824,6 +2089,7 @@
                 try {
                   console.log('📤 DELETE /usuarios/' + id);
                   await Usuarios.eliminar(id);
+                  // Elimina el usuario del array local y actualiza la UI.
                   const idx = usuarios.findIndex(x => x.id === u.id);
                   usuarios.splice(idx, 1);
                   auditar('eliminar', 'usuario', `Eliminado: ${u.nombre}`);
@@ -2840,8 +2106,19 @@
       });
     }
 
+    // Muestra el formulario para editar un usuario.
     function showEditForm(u) {
       const cont = document.getElementById('userList');
+      const roleField = isAdminUser ? `
+            <label>Rol asignado
+              <select name="rol" required>
+                <option value="alumno" ${u.rol === 'alumno' ? 'selected' : ''}>Alumno</option>
+                <option value="docente" ${u.rol === 'docente' ? 'selected' : ''}>Docente</option>
+                <option value="delegado" ${u.rol === 'delegado' ? 'selected' : ''}>Delegado</option>
+                <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option>
+              </select>
+            </label>` : `<input type="hidden" name="rol" value="${u.rol}">`;
+
       cont.innerHTML = `
         <div style="margin-bottom:.8rem">
           <button id="editBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
@@ -2876,6 +2153,7 @@
                 <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option>
               </select>
             </label>
+            ${roleField}
           </div>
           <div class="admin-form__row">
             <label>Carrera
@@ -2911,6 +2189,7 @@
           };
 
           // Solo incluir password si se escribió
+          // Si el campo de contraseña está vacío, no se actualiza la contraseña.
           if (nuevoPassword) {
             datosActualizados.password = nuevoPassword;
           } else {
@@ -2920,6 +2199,7 @@
           console.log('📤 PUT /usuarios/' + u.id, datosActualizados);
           const usuarioActualizado = await Usuarios.actualizar(u.id, datosActualizados);
           console.log('✅ Usuario actualizado:', usuarioActualizado);
+          // Actualiza el objeto de usuario local con los nuevos datos.
 
           // Actualizar el array
           u.nombre = usuarioActualizado.nombre;
@@ -2933,16 +2213,18 @@
 
           auditar('editar', 'usuario', `Editado: ${u.nombre} (${u.rol})`);
           showToast('Usuario actualizado', `Los datos de ${u.nombre} fueron guardados.`);
+          // Dispara un evento de 'input' para refrescar la lista de usuarios.
           document.getElementById('userSearch').dispatchEvent(new Event('input'));
         } catch (err) {
           console.error('❌ Error al actualizar usuario:', err);
-          showToast('Error', 'No se pudo actualizar el usuario: ' + err.message, 'error');
+          showToast('Error', 'No se pudo actualizar el usuario: ' + err.message, '#E67E5B');
         }
       });
     }
 
     /* ============================================================
-       FUNCIONES PARA NOVEDADES
+       FUNCIONES PARA NOVEDADES (renderNovedadesAdmin, renderNovedades, bindNovedadesDrawer, etc.)
+       Gestiona la visualización, creación, edición y eliminación de novedades.
        ============================================================ */
 
     function renderNovedadesAdmin() {
@@ -3071,6 +2353,22 @@
           month: 'short',
           year: 'numeric'
         }) : '';
+
+        // Lógica de permisos: Admin puede todo, otros solo lo propio
+        const canManage = isAdminUser || (n.autor_id && String(n.autor_id) === String(admin.id));
+        const actionMenu = canManage ? `
+            <div class="novedad-row__menu" data-menu>
+              <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de novedad">⋯</button>
+              <div class="novedad-row__menu-dropdown">
+                <button type="button" data-action="edit" data-id="${n.id}">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                </button>
+                <button type="button" class="is-danger" data-action="delete" data-id="${n.id}">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+                </button>
+              </div>
+            </div>` : '';
+
         return `
           <div class="novedad-row" data-novedad-id="${n.id}">
             <div class="novedad-row__info">
@@ -3085,13 +2383,7 @@
               </div>
               <p style="margin:.55rem 0 0;color:rgba(33,37,41,.8)">${n.contenido}</p>
             </div>
-            <div class="novedad-row__menu" data-menu>
-              <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de novedad">⋯</button>
-              <div class="novedad-row__menu-dropdown">
-                <button type="button" data-action="edit" data-id="${n.id}">Editar</button>
-                <button type="button" data-action="delete" data-id="${n.id}">Eliminar</button>
-              </div>
-            </div>
+            ${actionMenu}
           </div>
         `;
       }).join('') : `<p class="drawer__empty" style="margin:1rem 0;color:rgba(33,37,41,.75)">No se encontraron novedades.</p>`;
@@ -3099,6 +2391,7 @@
       bindNovedadActions();
     }
 
+    // Bindea los eventos y la lógica para el módulo de gestión de novedades.
     function bindNovedadesDrawer() {
       const tabs = document.querySelectorAll('.drawer__tab');
       const panes = {
@@ -3112,6 +2405,7 @@
       }
       tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
 
+      // Bindea los filtros de categoría y búsqueda.
       // Lista
       const filterCategoria = document.getElementById('filterCategoria');
       const search = document.getElementById('novedadesSearch');
@@ -3121,6 +2415,7 @@
       renderNovedades();
 
       // Form nueva novedad (Submit con persistencia en API)
+      // Maneja el envío del formulario para crear una nueva novedad.
       document.getElementById('newNovedadForm').addEventListener('submit', async e => {
         e.preventDefault();
         const data = new FormData(e.target);
@@ -3140,6 +2435,7 @@
         };
 
         try {
+          // Llama a la API para crear la novedad.
           const resultado = await Novedades.crear(nueva);
           const cat = categorias.find(c => c.id == resultado.categoria_id);
           resultado.categoria = cat ? cat.nombre : 'Sin categoría';
@@ -3153,10 +2449,11 @@
           renderNovedades();
         } catch (err) {
           console.error('Error al crear novedad:', err);
-          showToast('Error', 'No se pudo crear la novedad', 'error');
+          showToast('Error', 'No se pudo crear la novedad', '#E67E5B');
         }
       });
 
+      // Maneja el cambio en el input de archivo adjunto para mostrar el nombre del archivo.
       // Handle file input change
       const fileInput = document.getElementById('adjunto-file');
       if (fileInput) {
@@ -3172,6 +2469,7 @@
         });
       }
 
+      // Listener para el botón "+ Nueva categoría" en el formulario de novedades.
       // Listener para el botón "+ Nueva categoría" en el formulario de novedades
       const newCatBtn = document.getElementById('newCategoriaBtn');
       const newCatCont = document.getElementById('newCategoriaFormContainer');
@@ -3195,9 +2493,13 @@
       renderCategorias();
     }
 
+    // Bindea los eventos para las acciones de novedad (editar, eliminar).
     function bindNovedadActions() {
+      const container = document.getElementById('novedadesList');
+      if (!container) return;
+
       // Toggle dropdown
-      document.querySelectorAll('[data-menu-btn]').forEach(btn => {
+      container.querySelectorAll('[data-menu-btn]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const menu = btn.closest('[data-menu]');
@@ -3207,15 +2509,16 @@
       });
 
       // Acciones
-      document.querySelectorAll('[data-action]').forEach(btn => {
+      container.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
-          const id = +btn.dataset.id;
+          const id = btn.dataset.id;
           const action = btn.dataset.action;
-          const n = novedades.find(x => x.id === id);
+          const n = novedades.find(x => String(x.id) === String(id));
           if (!n) return;
           // Cerrar dropdown
           btn.closest('[data-menu]').classList.remove('is-open');
+          // Cierra el menú desplegable de acciones.
 
           if (action === 'edit') {
             showEditNovedadForm(n);
@@ -3227,6 +2530,7 @@
               btnLabel: 'Eliminar novedad',
               onConfirm: async () => {
                 try {
+                  // Llama a la API para eliminar la novedad.
                   await Novedades.eliminar(n.id);
                   const idx = novedades.findIndex(x => x.id === n.id);
                   novedades.splice(idx, 1);
@@ -3244,9 +2548,12 @@
       });
     }
 
+    // Bindea los eventos para las acciones de categoría (editar, eliminar).
     function bindCategoriaActions() {
-      // Similar a bindNovedadActions, pero para categorías
-      document.querySelectorAll('.categoria-row [data-menu-btn]').forEach(btn => {
+      const container = document.getElementById('categoriasList');
+      if (!container) return;
+
+      container.querySelectorAll('[data-menu-btn]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const menu = btn.closest('[data-menu]');
@@ -3255,7 +2562,7 @@
         });
       });
 
-      document.querySelectorAll('.categoria-row [data-action]').forEach(btn => {
+      container.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const id = +btn.dataset.id;
@@ -3268,6 +2575,7 @@
             showEditCategoriaForm(c);
           }
           if (action === 'delete-cat') {
+            // Muestra un modal de confirmación antes de eliminar una categoría.
             requestDangerConfirm({
               title: '¿Eliminar esta categoría?',
               msg: `Vas a eliminar "<strong>${c.nombre}</strong>". Las novedades de esta categoría no se eliminarán, pero quedarán sin categoría.`,
@@ -3285,6 +2593,7 @@
       });
     }
 
+    // Muestra el formulario para crear una nueva categoría.
     function showNewCategoriaForm(cont) {
       if (!cont) cont = document.getElementById('categoriasList');
       
@@ -3322,6 +2631,7 @@
       document.getElementById('newCategoriaForm').addEventListener('submit', e => {
         e.preventDefault();
         const data = new FormData(e.target);
+        // Genera un nuevo ID para la categoría.
         const nextId = categorias.length ? Math.max(...categorias.map(c => c.id)) + 1 : 1;
         const nueva = {
           id: nextId,
@@ -3331,6 +2641,7 @@
         categorias.push(nueva);
         auditar('crear', 'categoria', `Nueva: ${nueva.nombre}`);
         showToast('Categoría creada', `${nueva.nombre} fue agregada al sistema.`);
+        // Si el formulario está en línea (dentro del formulario de novedades), lo oculta y actualiza los selectores.
 
         if (isInline) {
           const btn = document.getElementById('newCategoriaBtn');
@@ -3354,6 +2665,7 @@
       });
     }
 
+    // Renderiza la lista de categorías.
     function renderCategorias() {
       const cont = document.getElementById('categoriasList');
       if (!cont) return;
@@ -3371,8 +2683,12 @@
           <div class="novedad-row__menu" data-menu>
             <button class="novedad-row__menu-btn" data-menu-btn type="button" aria-label="Acciones de categoría">⋯</button>
             <div class="novedad-row__menu-dropdown">
-              <button type="button" data-action="edit-cat" data-id="${c.id}">Editar</button>
-              <button type="button" data-action="delete-cat" data-id="${c.id}">Eliminar</button>
+              <button type="button" data-action="edit-cat" data-id="${c.id}">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+              </button>
+              <button type="button" class="is-danger" data-action="delete-cat" data-id="${c.id}">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
+              </button>
             </div>
           </div>
         </div>
@@ -3381,6 +2697,7 @@
       bindCategoriaActions();
     }
 
+    // Muestra el formulario para editar una categoría.
     function showEditCategoriaForm(c) {
       const cont = document.getElementById('categoriasList');
       cont.innerHTML = `
@@ -3415,8 +2732,19 @@
       });
     }
 
+    // Muestra el formulario para editar una novedad.
     function showEditNovedadForm(n) {
       const cont = document.getElementById('novedadesList');
+      const isDelegado = admin.rol.toLowerCase() === 'delegado';
+      const materiaField = !isDelegado ? `
+            <label>Materia
+              <select name="materia">
+                <option value="">Seleccionar materia</option>
+                ${materias.map(m => `<option value="${m.nombre}" ${n.materia === m.nombre ? 'selected' : ''}>${m.nombre}</option>`).join('')}
+              </select>
+            </label>
+          ` : '';
+
       cont.innerHTML = `
         <div style="margin-bottom:.8rem">
           <button id="novedadBackBtn" style="padding:.45rem .7rem;font:600 .78rem 'Manrope',sans-serif;color:var(--brand-700,#2C3E87);background:var(--brand-100,#E3E9FA);border:none;border-radius:8px;cursor:pointer">← Volver a la lista</button>
@@ -3448,12 +2776,7 @@
               <span class="checkbox-toggle__control"></span>
               <span class="checkbox-toggle__text">Destacar esta novedad</span>
             </label>
-            <label>Materia
-              <select name="materia">
-                <option value="">Seleccionar materia</option>
-                ${materias.map(m => `<option value="${m.nombre}" ${n.materia === m.nombre ? 'selected' : ''}>${m.nombre}</option>`).join('')}
-              </select>
-            </label>
+            ${materiaField}
           </div>
           <div class="admin-form__row">
             <div class="file-input-wrapper">
@@ -3505,6 +2828,7 @@
         });
       }
 
+      // Maneja el envío del formulario de edición de novedad.
       document.getElementById('editNovedadForm').addEventListener('submit', async e => {
         e.preventDefault();
         const data = new FormData(e.target);
@@ -3521,6 +2845,7 @@
         };
 
         try {
+          // Llama a la API para actualizar la novedad.
           const resultado = await Novedades.actualizar(n.id, datosActualizados);
           Object.assign(n, resultado);
           const cat = categorias.find(c => c.id == n.categoria_id);
@@ -3531,16 +2856,20 @@
           document.getElementById('novedadesSearch').dispatchEvent(new Event('input'));
         } catch (err) {
           console.error('Error al actualizar novedad:', err);
-          showToast('Error', 'No se pudo actualizar la novedad', 'error');
+          showToast('Error', 'No se pudo actualizar la novedad', '#E67E5B');
         }
       });
     }
+    // --- Lógica del modal de confirmación de peligro (Danger Modal) ---
     const dangerMsg = document.getElementById('dangerMsg');
     const dangerInput = document.getElementById('dangerInput');
     const dangerConfirm = document.getElementById('dangerConfirm');
+    const dangerTitle = document.getElementById('dangerTitle');
+    const dangerModal = document.getElementById('dangerModal');
     const dangerCancel = document.getElementById('dangerCancel');
     let dangerHandler = null;
     let dangerExpectedWord = 'CONFIRMAR';
+    // Función para mostrar el modal de confirmación de peligro.
 
     function requestDangerConfirm({ title, msg, btnLabel, onConfirm, confirmWord = 'CONFIRMAR' }) {
       dangerTitle.textContent = title;
@@ -3555,12 +2884,14 @@
       dangerModal.classList.add('is-visible');
       setTimeout(() => dangerInput.focus(), 100);
     }
+    // Función para cerrar el modal de confirmación de peligro.
     function closeDangerModal() {
       dangerModal.classList.remove('is-visible');
       dangerHandler = null;
     }
     dangerInput.addEventListener('input', () => {
       if (dangerInput.value.trim().toUpperCase() === dangerExpectedWord) {
+        // Habilita el botón de confirmar si el texto coincide.
         dangerConfirm.classList.add('is-armed');
       } else {
         dangerConfirm.classList.remove('is-armed');
@@ -3576,10 +2907,12 @@
     });
 
     /* ============================================================
-       9) Logout y notificaciones (mismo patrón que docente)
+       9) Logout (mismo patrón que docente)
+       Gestiona el modal de confirmación de cierre de sesión.
        ============================================================ */
     const logoutModal = document.getElementById('logoutModal');
     document.getElementById('logoutBtn').addEventListener('click', () => logoutModal.classList.add('is-open'));
+    // Bindea los botones de cancelar y confirmar el cierre de sesión.
     document.getElementById('logoutCancel').addEventListener('click', () => logoutModal.classList.remove('is-open'));
     document.getElementById('logoutConfirm').addEventListener('click', () => {
       logoutModal.classList.remove('is-open');
@@ -3589,10 +2922,12 @@
     /* (Notificaciones removidas — se implementarán en Fase 2) */
 
     /* ============================================================
-       10) Toast
+       10) Toast (mensajes flotantes de éxito/error)
+       Muestra mensajes temporales al usuario.
        ============================================================ */
     const toast = document.getElementById('toast');
     let toastTimer;
+    // Función para mostrar un mensaje "toast".
     function showToast(title, msg, color = '#3DAA6A') {
       document.getElementById('toastTitle').textContent = title;
       document.getElementById('toastMsg').textContent = msg;
@@ -3602,10 +2937,12 @@
       toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
     }
 
+    // --- Vista inicial al cargar la página ---
     // Vista inicial al cargar la página
     navigateTo('perfil');
 
-      // Lógica de Menús Hamburguesa para Admin
+    // --- Lógica de Menús Hamburguesa para Admin (responsive) ---
+    // Bindea el botón de toggle del sidebar para pantallas móviles.
       bindResponsiveToggles();
 
       function bindResponsiveToggles() {
@@ -3613,6 +2950,7 @@
         const body = document.body;
 
         // Overlay para la sidebar si no existe
+        // Crea un overlay oscuro que aparece cuando el sidebar está abierto en móvil.
         let overlay = document.querySelector('.sidebar-overlay');
         if (!overlay) {
           overlay = document.createElement('div');
@@ -3620,12 +2958,14 @@
           body.appendChild(overlay);
         }
 
+        // Maneja el clic en el botón de hamburguesa para abrir/cerrar el sidebar.
         sidebarToggle?.addEventListener('click', () => {
           const isOpen = body.classList.toggle('sidebar--open');
           sidebarToggle.setAttribute('aria-expanded', String(isOpen));
           body.style.overflow = isOpen ? 'hidden' : '';
         });
 
+        // Cierra el sidebar si se hace clic en el overlay.
         overlay.addEventListener('click', () => {
           body.classList.remove('sidebar--open');
           sidebarToggle?.setAttribute('aria-expanded', 'false');
