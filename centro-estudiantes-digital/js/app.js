@@ -1763,9 +1763,9 @@ function updateBellBadge() {
 function bindNavigation() {
   $$('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      // Si es el botón de logout, abre el modal de confirmación.
+      // Si es el botón de logout, limpia el localStorage y redirige al inicio.
       if (btn.id === 'logoutBtn') {
-        $('#logoutModal').classList.add('is-open');
+        performLogout();
         return;
       }
 
