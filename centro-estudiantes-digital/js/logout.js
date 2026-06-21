@@ -4,7 +4,7 @@
 ================================================================ */
 
 // El nombre de la "caja" donde guardamos los datos del usuario en el navegador
-const SESSION_STORAGE_KEY = 'cedSession';
+// const SESSION_STORAGE_KEY = 'cedSession';
 
 // Esta es la función que se ejecuta cuando alguien decide irse del sistema
 function performLogout() {
